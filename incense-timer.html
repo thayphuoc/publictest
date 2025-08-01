@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thắp Hương Đếm Ngược</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Smoke Animation */
+        .smoke {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 50px;
+            height: 60px;
+            background: rgba(200, 200, 200, 0.2);
+            border-radius: 50%;
+            filter: blur(10px);
+            transform-origin: 50% 100%;
+            animation: smoke-rise 4s linear infinite;
+            opacity: 0;
+        }
+
+        @keyframes smoke-rise {
+            0% {
+                transform: translateX(-50%) translateY(0) scale(1);
+                opacity: 0;
+            }
+            25% {
+                opacity: 0.5;
+            }
+            50% {
+                transform: translateX(-40%) translateY(-20px) scale(1.2);
+            }
+            75% {
+                 opacity: 0.2;
+            }
+            100% {
+                transform: translateX(-50%) translateY(-40px) scale(1.5);
+                opacity: 0;
+            }
+        }
+        
+        /* Ember Glow Animation */
+        .ember {
+            box-shadow: 0 0 10px 4px rgba(255, 100, 0, 0.7), 
+                        0 0 15px 6px rgba(255, 0, 0, 0.5),
+                        inset 0 0 5px rgba(255, 255, 255, 0.8);
+            animation: ember-glow 1.5s infinite alternate;
+        }
+
+        @keyframes ember-glow {
+            from {
+                box-shadow: 0 0 8px 3px rgba(255, 100, 0, 0.6), 
+                            0 0 12px 5px rgba(255, 0, 0, 0.4),
+                            inset 0 0 4px rgba(255, 255, 255, 0.7);
+            }
+            to {
+                box-shadow: 0 0 12px 5px rgba(255, 100, 0, 0.8), 
+                            0 0 18px 8px rgba(255, 0, 0, 0.6),
+                            inset 0 0 6px rgba(255, 255, 255, 0.9);
+            }
+        }
+        /* Hide number input arrows */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+          -webkit-appearance: none; 
+          margin: 0; 
+        }
+        input[type=number] {
+          -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white flex flex-col items-center justify-center min-h-screen p-4">
+
+    <!-- Main container for controls and visualizer -->
+    <div class="w-full max-w-sm flex flex-col items-center flex-grow justify-center">
+        <!-- Control Panel -->
+        <div class="bg-gray-800 p-8 rounded-2xl shadow-2xl w-full text-center mb-8">
+            <h1 class="text-3xl font-bold mb-6">Thắp Hương Đếm Ngược</h1>
+
+            <!-- Timer Setup Controls -->
+            <div id="controls" class="space-y-4">
+                <div class="flex items-end justify-center space-x-2">
+                    <input type="number" id="minutes" min="0" placeholder="Phút" class="w-24 bg-gray-700 border border-gray-600 text-white rounded-lg p-3 text-center text-2xl focus:ring-2 focus:ring-orange-500 focus:outline-none">
+                    <div class="text-2xl font-bold pb-2">:</div>
+                    <input type="number" id="seconds" min="0" max="59" placeholder="Giây" class="w-24 bg-gray-700 border border-gray-600 text-white rounded-lg p-3 text-center text-2xl focus:ring-2 focus:ring-orange-500 focus:outline-none">
+                </div>
+                <button id="startButton" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 transform hover:scale-105">
+                    Bắt Đầu
+                </button>
+            </div>
+
+            <!-- Timer Display and Active Controls -->
+            <div id="timerDisplay" class="hidden">
+                <p class="text-5xl font-mono" id="time-left">10:00</p>
+                <div class="flex space-x-4 mt-4">
+                    <button id="pauseButton" class="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300">Tạm Dừng</button>
+                    <button id="stopButton" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300">Dừng</button>
+                </div>
+            </div>
+            
+            <!-- Completion Message -->
+            <div id="completionMessage" class="hidden">
+                <p class="text-2xl font-semibold text-green-400">Hoàn Thành</p>
+                 <button id="resetButton" class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-all duration-300">
+                    Hẹn Giờ Mới
+                </button>
+            </div>
+        </div>
+
+        <!-- Incense Visualizer -->
+        <div class="flex flex-col items-center">
+            <!-- Incense Stick Container (acts as a mask) -->
+            <div class="w-4 h-64 flex flex-col justify-end overflow-hidden">
+                <!-- Unburnt Incense (this part shrinks) -->
+                <div id="unburnt" class="w-full bg-amber-800 relative transition-all duration-1000 linear" style="height: 100%;">
+                     <!-- Ember -->
+                    <div id="ember" class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-5 h-5 bg-red-500 rounded-full hidden">
+                        <!-- Smoke rises from the ember -->
+                        <div class="smoke"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- Incense Holder -->
+            <svg width="100" height="50" viewBox="0 0 100 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10 15 C 10 40, 90 40, 90 15 L 80 40 H 20 L 10 15 Z" fill="#4A5568"/>
+                <path d="M20 40 C 20 50, 80 50, 80 40" fill="#2D3748"/>
+            </svg>
+        </div>
+    </div>
+    
+    <footer class="text-center text-gray-500 text-sm p-4 w-full">
+        Encoded by Mr. Dinh Phuoc
+    </footer>
+
+    <script>
+        // DOM Elements
+        const minutesInput = document.getElementById('minutes');
+        const secondsInput = document.getElementById('seconds');
+        const startButton = document.getElementById('startButton');
+        const resetButton = document.getElementById('resetButton');
+        const pauseButton = document.getElementById('pauseButton');
+        const stopButton = document.getElementById('stopButton');
+        const controlsDiv = document.getElementById('controls');
+        const timerDisplayDiv = document.getElementById('timerDisplay');
+        const completionMessageDiv = document.getElementById('completionMessage');
+        const timeLeftDisplay = document.getElementById('time-left');
+        const unburntDiv = document.getElementById('unburnt');
+        const emberDiv = document.getElementById('ember');
+
+        // Timer State
+        let timerInterval = null;
+        let totalSeconds = 0;
+        let remainingSeconds = 0;
+        let isPaused = false;
+
+        // --- Sound Synthesis with Tone.js ---
+        // A simple synth for a normal beep sound
+        const normalSynth = new Tone.Synth({
+            oscillator: { type: 'sine' },
+            envelope: {
+                attack: 0.01,
+                decay: 0.2,
+                sustain: 0.1,
+                release: 0.5
+            }
+        }).toDestination();
+
+        function playCompletionSound() {
+            const now = Tone.now();
+            // Play the beep twice with a half-second delay
+            normalSynth.triggerAttackRelease("C5", "8n", now);
+            normalSynth.triggerAttackRelease("C5", "8n", now + 0.5);
+        }
+
+        function stopCompletionSound() {
+            // This function is here for consistency, but for a short sound,
+            // there's usually no long-running process to stop.
+            // We can ensure any lingering sound is cut off.
+            normalSynth.releaseAll();
+        }
+
+        // --- Timer Logic ---
+        function startTimer() {
+            Tone.start();
+            const minutes = parseInt(minutesInput.value) || 0;
+            const seconds = parseInt(secondsInput.value) || 0;
+            
+            totalSeconds = (minutes * 60) + seconds;
+
+            if (totalSeconds <= 0) {
+                alert("Vui lòng nhập thời gian hợp lệ.");
+                return;
+            }
+
+            remainingSeconds = totalSeconds;
+
+            // UI updates
+            controlsDiv.classList.add('hidden');
+            completionMessageDiv.classList.add('hidden');
+            timerDisplayDiv.classList.remove('hidden');
+            emberDiv.classList.remove('hidden');
+            emberDiv.classList.add('ember');
+
+            updateDisplay(remainingSeconds);
+            updateIncense(remainingSeconds);
+            runTimer();
+        }
+
+        function runTimer() {
+            isPaused = false;
+            pauseButton.textContent = 'Tạm Dừng';
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                remainingSeconds--;
+                updateDisplay(remainingSeconds);
+                updateIncense(remainingSeconds);
+
+                if (remainingSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    timerFinished();
+                }
+            }, 1000);
+        }
+
+        function togglePause() {
+            if (isPaused) {
+                runTimer();
+            } else {
+                clearInterval(timerInterval);
+                isPaused = true;
+                pauseButton.textContent = 'Tiếp Tục';
+            }
+        }
+
+        function stopAndResetTimer() {
+            clearInterval(timerInterval);
+            resetTimer();
+        }
+
+        function updateDisplay(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            timeLeftDisplay.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+        
+        function updateIncense(seconds) {
+            const percentRemaining = (seconds / totalSeconds) * 100;
+            unburntDiv.style.height = `${percentRemaining}%`;
+        }
+
+        function timerFinished() {
+            playCompletionSound();
+            timerDisplayDiv.classList.add('hidden');
+            completionMessageDiv.classList.remove('hidden');
+            emberDiv.classList.remove('ember');
+            emberDiv.classList.add('hidden');
+        }
+
+        function resetTimer() {
+            stopCompletionSound(); // Stop any sound when resetting
+            // Reset UI to initial state
+            controlsDiv.classList.remove('hidden');
+            completionMessageDiv.classList.add('hidden');
+            timerDisplayDiv.classList.add('hidden');
+            
+            // Reset incense visual
+            unburntDiv.style.transition = 'none';
+            unburntDiv.style.height = '100%';
+            setTimeout(() => {
+                unburntDiv.style.transition = 'height 1s linear';
+            }, 50);
+
+            emberDiv.classList.add('hidden');
+            pauseButton.textContent = 'Tạm Dừng';
+            isPaused = false;
+        }
+        
+        // --- Event Listeners ---
+        startButton.addEventListener('click', startTimer);
+        pauseButton.addEventListener('click', togglePause);
+        stopButton.addEventListener('click', stopAndResetTimer);
+        resetButton.addEventListener('click', resetTimer);
+
+    </script>
+</body>
+</html>
