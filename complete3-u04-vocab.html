@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 4: Art and the artist</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem; /* rounded-xl */
+        }
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+    <!-- Chosen Palette: Calm Harmony Neutrals -->
+    <!-- Application Structure Plan: A digital flashcard application. The main view is a single, flippable card. Users can navigate sequentially with 'Previous'/'Next' buttons or test themselves with a 'Random' button. A progress counter shows their position. This structure directly translates the static report into an interactive, proven learning tool, focusing on the core user goal of vocabulary memorization and recall. -->
+    <!-- Visualization & Content Choices: Report Info: Vocabulary list. Goal: Learn & Recall. Viz/Presentation: Interactive flippable card. Interaction: Click to flip, buttons to navigate/shuffle. Justification: This method is the most intuitive and effective for learning flashcard content, promoting active recall over passive reading. Library/Method: HTML/CSS for structure and flip animation, Vanilla JS for logic and content rendering. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 4: Art and the artist</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'accessibility', ipa: '/əkˌses.əˈbɪl.ə.t̬i/' }, back: { vi: 'khả năng tiếp cận', en: 'how easy something is to understand', ex: 'The accessibility of the language in the book makes it suitable for all ages.', ex_vi: 'Khả năng tiếp cận của ngôn ngữ trong cuốn sách làm cho nó phù hợp với mọi lứa tuổi.' } },
+            { front: { term: 'all shapes and sizes', ipa: '/ɔːl ʃeɪps ənd ˈsaɪ.zɪz/' }, back: { vi: 'đủ mọi hình dạng và kích cỡ', en: 'of many different shapes and sizes', ex: 'The museum features sculptures of all shapes and sizes.', ex_vi: 'Bảo tàng trưng bày các tác phẩm điêu khắc đủ mọi hình dạng và kích cỡ.' } },
+            { front: { term: 'call for something', ipa: '/kɔːl fɔːr ˈsʌm.θɪŋ/' }, back: { vi: 'đòi hỏi, yêu cầu', en: 'to need or deserve a particular action or quality', ex: 'This complex painting calls for careful analysis.', ex_vi: 'Bức tranh phức tạp này đòi hỏi sự phân tích cẩn thận.' } },
+            { front: { term: 'clarity', ipa: '/ˈkler.ə.t̬i/' }, back: { vi: 'sự rõ ràng', en: 'the quality of being clear and easy to understand', ex: 'The clarity of the instructions made the art project easy to follow.', ex_vi: 'Sự rõ ràng của các hướng dẫn đã làm cho dự án nghệ thuật trở nên dễ thực hiện.' } },
+            { front: { term: 'decorative', ipa: '/ˈdek.ər.ə.t̬ɪv/' }, back: { vi: 'để trang trí', en: 'intended to be attractive rather than having a use', ex: 'The vase is purely decorative and cannot hold water.', ex_vi: 'Chiếc bình này hoàn toàn để trang trí và không thể đựng nước.' } },
+            { front: { term: 'dogmatic', ipa: '/dɑːɡˈmæt̬.ɪk/' }, back: { vi: 'giáo điều, độc đoán', en: 'not willing to accept other ideas or opinions because you think yours are right', ex: 'He has a very dogmatic approach to art, believing there is only one correct way to paint.', ex_vi: 'Ông có một cách tiếp cận rất giáo điều đối với nghệ thuật, tin rằng chỉ có một cách vẽ đúng.' } },
+            { front: { term: 'dominant', ipa: '/ˈdɑː.mə.nənt/' }, back: { vi: 'chủ đạo, thống trị', en: 'main or most important', ex: 'Blue is the dominant color in this painting.', ex_vi: 'Màu xanh là màu chủ đạo trong bức tranh này.' } },
+            { front: { term: 'durable', ipa: '/ˈdʊr.ə.bəl/' }, back: { vi: 'bền', en: 'remaining in good condition over a long time', ex: 'The artist used durable pigments that would not fade over time.', ex_vi: 'Nghệ sĩ đã sử dụng các chất màu bền không bị phai theo thời gian.' } },
+            { front: { term: 'enhance', ipa: '/ɪnˈhæns/' }, back: { vi: 'nâng cao, tăng cường', en: 'to improve something', ex: 'The new lighting will enhance the beauty of the sculptures.', ex_vi: 'Hệ thống chiếu sáng mới sẽ làm tăng vẻ đẹp của các tác phẩm điêu khắc.' } },
+            { front: { term: 'exert an influence', ipa: '/ɪɡˈzɝːt ən ˈɪn.flu.əns/' }, back: { vi: 'gây ảnh hưởng', en: 'to have an effect', ex: 'Picasso exerted a powerful influence on many modern artists.', ex_vi: 'Picasso đã gây ảnh hưởng mạnh mẽ đến nhiều nghệ sĩ hiện đại.' } },
+            { front: { term: 'format', ipa: '/ˈfɔːr.mæt/' }, back: { vi: 'định dạng', en: 'the way something is designed, arranged or produced', ex: 'The exhibition was presented in a new and innovative format.', ex_vi: 'Triển lãm được trình bày theo một định dạng mới và sáng tạo.' } },
+            { front: { term: 'foster', ipa: '/ˈfɑː.stɚ/' }, back: { vi: 'thúc đẩy, nuôi dưỡng', en: 'to encourage something to develop', ex: 'The art school aims to foster creativity in its students.', ex_vi: 'Trường nghệ thuật nhằm mục đích nuôi dưỡng sự sáng tạo ở sinh viên.' } },
+            { front: { term: 'give someone an opportunity', ipa: '/ɡɪv ˈsʌm.wʌn ən ˌɑː.pɚˈtuː.nə.t̬i/' }, back: { vi: 'cho ai đó một cơ hội', en: 'to allow someone to have the chance to do something', ex: 'The competition gives young artists an opportunity to showcase their work.', ex_vi: 'Cuộc thi mang đến cho các nghệ sĩ trẻ một cơ hội để trưng bày tác phẩm của họ.' } },
+            { front: { term: 'grind', ipa: '/ɡraɪnd/' }, back: { vi: 'nghiền', en: 'to keep rubbing something between two rough, hard surfaces until it becomes a powder', ex: 'Ancient artists had to grind pigments to make their own paints.', ex_vi: 'Các nghệ sĩ cổ đại phải nghiền chất màu để tự làm sơn.' } },
+            { front: { term: 'in stark contrast to', ipa: '/ɪn stɑːrk ˈkɑːn.træst tuː/' }, back: { vi: 'trái ngược hoàn toàn với', en: 'used to show that someone or something is completely different from someone or something else', ex: 'His modern style is in stark contrast to the traditional art of the region.', ex_vi: 'Phong cách hiện đại của ông trái ngược hoàn toàn với nghệ thuật truyền thống của khu vực.' } },
+            { front: { term: 'indigenous people', ipa: '/ɪnˈdɪdʒ.ə.nəs ˈpiː.pəl/' }, back: { vi: 'người bản địa', en: 'people who have lived in a place for a very long time, before other people moved to that place from different parts of the world', ex: 'The museum displays art created by indigenous people.', ex_vi: 'Bảo tàng trưng bày nghệ thuật do người bản địa tạo ra.' } },
+            { front: { term: 'make advances in something', ipa: '/meɪk ədˈvæn.sɪz ɪn ˈsʌm.θɪŋ/' }, back: { vi: 'đạt được tiến bộ trong', en: 'to make something develop or progress', ex: 'Artists are constantly making advances in digital art techniques.', ex_vi: 'Các nghệ sĩ không ngừng đạt được những tiến bộ trong kỹ thuật nghệ thuật kỹ thuật số.' } },
+            { front: { term: 'make use of something', ipa: '/meɪk juːz əv ˈsʌm.θɪŋ/' }, back: { vi: 'tận dụng cái gì', en: 'to use something that is available', ex: 'The artist makes use of recycled materials in her sculptures.', ex_vi: 'Nghệ sĩ tận dụng vật liệu tái chế trong các tác phẩm điêu khắc của mình.' } },
+            { front: { term: 'meet a need for something', ipa: '/miːt ə niːd fɔːr ˈsʌm.θɪŋ/' }, back: { vi: 'đáp ứng nhu cầu về', en: 'to provide what is necessary for something', ex: 'The new community art center meets a need for creative spaces in the city.', ex_vi: 'Trung tâm nghệ thuật cộng đồng mới đáp ứng nhu cầu về không gian sáng tạo trong thành phố.' } },
+            { front: { term: 'nuance', ipa: '/ˈnuː.ɑːns/' }, back: { vi: 'sắc thái', en: 'a very slight difference', ex: 'A great actor can express every nuance of a character\'s emotions.', ex_vi: 'Một diễn viên giỏi có thể thể hiện mọi sắc thái cảm xúc của nhân vật.' } },
+            { front: { term: 'override', ipa: '/ˌoʊ.vɚˈraɪd/' }, back: { vi: 'quan trọng hơn, lấn át', en: 'to be more important than something else', ex: 'In this design, function overrides aesthetics.', ex_vi: 'Trong thiết kế này, chức năng quan trọng hơn tính thẩm mỹ.' } },
+            { front: { term: 'palette', ipa: '/ˈpæl.ət/' }, back: { vi: 'bảng màu', en: 'a board used by an artist to mix their paints on while they are painting', ex: 'The artist used a palette of warm colors for the sunset painting.', ex_vi: 'Nghệ sĩ đã sử dụng một bảng màu ấm cho bức tranh hoàng hôn.' } },
+            { front: { term: 'passionate about something', ipa: '/ˈpæʃ.ən.ət əˈbaʊt ˈsʌm.θɪŋ/' }, back: { vi: 'đam mê cái gì', en: 'very enthusiastic about something', ex: 'She is passionate about modern art.', ex_vi: 'Cô ấy đam mê nghệ thuật hiện đại.' } },
+            { front: { term: 'pigment', ipa: '/ˈpɪɡ.mənt/' }, back: { vi: 'chất màu', en: 'a substance that gives something colour', ex: 'The artist mixed the blue pigment with oil to create the paint.', ex_vi: 'Nghệ sĩ đã trộn chất màu xanh với dầu để tạo ra sơn.' } },
+            { front: { term: 'prior to something', ipa: '/ˈpraɪ.ɚ tuː ˈsʌm.θɪŋ/' }, back: { vi: 'trước khi', en: 'before something', ex: 'Prior to the invention of photography, painting was the main way to capture a person\'s likeness.', ex_vi: 'Trước khi phát minh ra nhiếp ảnh, hội họa là cách chính để ghi lại chân dung một người.' } },
+            { front: { term: 'produce', ipa: '/prəˈduːs/' }, back: { vi: 'sản xuất, tạo ra', en: 'to create something', ex: 'The artist is known to produce large-scale sculptures.', ex_vi: 'Nghệ sĩ được biết đến là người tạo ra các tác phẩm điêu khắc quy mô lớn.' } },
+            { front: { term: 'remarkable', ipa: '/rɪˈmɑːr.kə.bəl/' }, back: { vi: 'đáng chú ý', en: 'very unusual or noticeable in a way that you admire', ex: 'The level of detail in the painting is remarkable.', ex_vi: 'Mức độ chi tiết trong bức tranh thật đáng chú ý.' } },
+            { front: { term: 'share the spotlight with something/someone', ipa: '' }, back: { vi: 'chia sẻ sự chú ý với', en: 'to receive less attention because someone or something else has started to be noticed too', ex: 'Painting now has to share the spotlight with other visual art forms like digital art.', ex_vi: 'Hội họa giờ đây phải chia sẻ sự chú ý với các hình thức nghệ thuật thị giác khác như nghệ thuật kỹ thuật số.' } },
+            { front: { term: 'spectrum', ipa: '/ˈspek.trəm/' }, back: { vi: 'quang phổ, một loạt', en: 'a range of something', ex: 'The exhibition covered a wide spectrum of artistic styles.', ex_vi: 'Triển lãm bao gồm một loạt các phong cách nghệ thuật.' } },
+            { front: { term: 'stimulate', ipa: '/ˈstɪm.jə.leɪt/' }, back: { vi: 'kích thích', en: 'to give someone the interest and excitement to do something', ex: 'The goal of the workshop is to stimulate creativity.', ex_vi: 'Mục tiêu của hội thảo là kích thích sự sáng tạo.' } },
+            { front: { term: 'take advantage of something', ipa: '' }, back: { vi: 'tận dụng cái gì', en: 'to use a situation to get something good', ex: 'Digital artists can take advantage of powerful software to create their work.', ex_vi: 'Các nghệ sĩ kỹ thuật số có thể tận dụng phần mềm mạnh mẽ để tạo ra tác phẩm của họ.' } },
+            { front: { term: 'take hold', ipa: '/teɪk hoʊld/' }, back: { vi: 'trở nên phổ biến', en: 'to become popular', ex: 'The new artistic movement began to take hold in the early 20th century.', ex_vi: 'Trường phái nghệ thuật mới bắt đầu trở nên phổ biến vào đầu thế kỷ 20.' } },
+            { front: { term: 'take off', ipa: '/teɪk ɔːf/' }, back: { vi: 'trở nên thành công', en: 'to suddenly become successful', ex: 'Her career as an artist really took off after her first solo exhibition.', ex_vi: 'Sự nghiệp nghệ sĩ của cô ấy thực sự cất cánh sau triển lãm cá nhân đầu tiên.' } },
+            { front: { term: 'take steps to do something', ipa: '' }, back: { vi: 'thực hiện các bước để làm gì', en: 'to take action in order to solve a problem', ex: 'The museum is taking steps to preserve its collection.', ex_vi: 'Bảo tàng đang thực hiện các bước để bảo tồn bộ sưu tập của mình.' } },
+            { front: { term: 'to this day', ipa: '/tuː ðɪs deɪ/' }, back: { vi: 'cho đến ngày nay', en: 'even now, after a long period', ex: 'To this day, the origins of the ancient cave paintings remain a mystery.', ex_vi: 'Cho đến ngày nay, nguồn gốc của những bức tranh hang động cổ đại vẫn còn là một bí ẩn.' } },
+            { front: { term: 'trace', ipa: '/treɪs/' }, back: { vi: 'vẽ theo, đồ lại', en: 'to copy a picture by putting transparent paper on top and following the outer line of the picture with a pen', ex: 'Children often learn to draw by tracing pictures.', ex_vi: 'Trẻ em thường học vẽ bằng cách đồ lại tranh.' } },
+            { front: { term: 'a vehicle for something / doing something', ipa: '' }, back: { vi: 'một phương tiện cho', en: 'a way of making something happen, often a way of communicating ideas', ex: 'Art can be a powerful vehicle for social change.', ex_vi: 'Nghệ thuật có thể là một phương tiện mạnh mẽ cho sự thay đổi xã hội.' } },
+            { front: { term: 'visual art form', ipa: '/ˈvɪʒ.u.əl ɑːrt fɔːrm/' }, back: { vi: 'hình thức nghệ thuật thị giác', en: 'something that someone has made to be beautiful or to express their ideas which can be seen, for example a painting or a sculpture', ex: 'Photography is a relatively new visual art form.', ex_vi: 'Nhiếp ảnh là một hình thức nghệ thuật thị giác tương đối mới.' } },
+            { front: { term: 'wash away', ipa: '/wɑːʃ əˈweɪ/' }, back: { vi: 'rửa trôi', en: 'If water washes something away, it removes that thing.', ex: 'The rain washed away the chalk drawings on the pavement.', ex_vi: 'Cơn mưa đã rửa trôi những bức vẽ bằng phấn trên vỉa hè.' } },
+            { front: { term: 'when it comes to something / doing something', ipa: '' }, back: { vi: 'khi nói đến', en: 'used to introduce a new idea that you want to say something about', ex: 'When it comes to painting, she is a true expert.', ex_vi: 'Khi nói đến hội họa, cô ấy là một chuyên gia thực thụ.' } },
+            { front: { term: 'work of art', ipa: '/wɝːk əv ɑːrt/' }, back: { vi: 'tác phẩm nghệ thuật', en: 'a very beautiful and important painting, drawing, etc.', ex: 'The Mona Lisa is a world-famous work of art.', ex_vi: 'Bức Mona Lisa là một tác phẩm nghệ thuật nổi tiếng thế giới.' } }
+        ];
+
+        let currentCardIndex = 0;
+        
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+            
+            cardFrontEl.innerHTML = `
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa}</p>
+            `;
+            
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+            
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+    </script>
+</body>
+</html>
