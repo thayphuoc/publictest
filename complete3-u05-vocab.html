@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 5: Stepping back in time</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem; /* rounded-xl */
+        }
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+    <!-- Chosen Palette: Calm Harmony Neutrals -->
+    <!-- Application Structure Plan: A digital flashcard application. The main view is a single, flippable card. Users can navigate sequentially with 'Previous'/'Next' buttons or test themselves with a 'Random' button. A progress counter shows their position. This structure directly translates the static report into an interactive, proven learning tool, focusing on the core user goal of vocabulary memorization and recall. -->
+    <!-- Visualization & Content Choices: Report Info: Vocabulary list. Goal: Learn & Recall. Viz/Presentation: Interactive flippable card. Interaction: Click to flip, buttons to navigate/shuffle. Justification: This method is the most intuitive and effective for learning flashcard content, promoting active recall over passive reading. Library/Method: HTML/CSS for structure and flip animation, Vanilla JS for logic and content rendering. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 5: Stepping back in time</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'allocate', ipa: '/ˈæl.ə.keɪt/' }, back: { vi: 'phân bổ, giao cho', en: 'If you allocate a task to someone, you give them that particular task.', ex: 'The manager will allocate the tasks to the team members.', ex_vi: 'Quản lý sẽ phân bổ nhiệm vụ cho các thành viên trong nhóm.' } },
+            { front: { term: 'artefacts', ipa: '/ˈɑːr.t̬ə.fækts/' }, back: { vi: 'đồ tạo tác', en: 'objects, especially very old objects, of historical interest', ex: 'The museum displays ancient Egyptian artefacts.', ex_vi: 'Bảo tàng trưng bày các đồ tạo tác Ai Cập cổ đại.' } },
+            { front: { term: 'barter', ipa: '/ˈbɑːr.t̬ɚ/' }, back: { vi: 'trao đổi hàng hóa', en: 'to exchange goods or services for other goods or services, without using money', ex: 'In ancient times, people used to barter for the things they needed.', ex_vi: 'Vào thời cổ đại, người ta thường trao đổi hàng hóa để lấy những thứ họ cần.' } },
+            { front: { term: 'be a question of something', ipa: '' }, back: { vi: 'là vấn đề về', en: 'to be related to something', ex: 'For early humans, survival was a question of finding enough food.', ex_vi: 'Đối với người tiền sử, sự sống còn là vấn đề tìm đủ thức ăn.' } },
+            { front: { term: 'burial site', ipa: '/ˈber.i.əl saɪt/' }, back: { vi: 'khu chôn cất', en: 'an area of land where dead bodies are buried', ex: 'Archaeologists have discovered an ancient burial site.', ex_vi: 'Các nhà khảo cổ đã phát hiện ra một khu chôn cất cổ đại.' } },
+            { front: { term: 'catch up on something', ipa: '/kætʃ ʌp ɑːn ˈsʌm.θɪŋ/' }, back: { vi: 'làm bù, cập nhật', en: 'to do something that you did not have time to do earlier', ex: 'I need to catch up on my reading this weekend.', ex_vi: 'Tôi cần đọc bù vào cuối tuần này.' } },
+            { front: { term: 'erode', ipa: '/ɪˈroʊd/' }, back: { vi: 'xói mòn', en: 'If soil, stone, etc. erodes or is eroded, it is gradually damaged and removed by the sea, rain or wind.', ex: 'The coastline is being slowly eroded by the sea.', ex_vi: 'Bờ biển đang dần bị biển xói mòn.' } },
+            { front: { term: 'coastal erosion', ipa: '/ˈkoʊ.stəl ɪˈroʊ.ʒən/' }, back: { vi: 'xói mòn bờ biển', en: 'the gradual disappearance of cliffs, beaches, etc. as a result of the action of the sea', ex: 'Coastal erosion is a serious threat to many seaside towns.', ex_vi: 'Xói mòn bờ biển là một mối đe dọa nghiêm trọng đối với nhiều thị trấn ven biển.' } },
+            { front: { term: 'come about', ipa: '/kʌm əˈbaʊt/' }, back: { vi: 'xảy ra', en: 'to happen or start to happen', ex: 'How did the idea for the project come about?', ex_vi: 'Ý tưởng cho dự án đã nảy sinh như thế nào?' } },
+            { front: { term: 'compact', ipa: '/kəmˈpækt/' }, back: { vi: 'nén chặt', en: 'to press something together so that it becomes tight or solid', ex: 'The layers of sediment were compacted over millions of years to form rock.', ex_vi: 'Các lớp trầm tích đã được nén chặt qua hàng triệu năm để tạo thành đá.' } },
+            { front: { term: 'current', ipa: '/ˈkɝː.ənt/' }, back: { vi: 'dòng chảy', en: 'the natural flow of water in one direction', ex: 'The strong current made it difficult to swim across the river.', ex_vi: 'Dòng chảy mạnh khiến việc bơi qua sông trở nên khó khăn.' } },
+            { front: { term: 'die out', ipa: '/daɪ aʊt/' }, back: { vi: 'tuyệt chủng, biến mất', en: 'to become more and more rare and then disappear completely', ex: 'Many species of animals are in danger of dying out.', ex_vi: 'Nhiều loài động vật đang có nguy cơ tuyệt chủng.' } },
+            { front: { term: 'division of labour', ipa: '/dɪˌvɪʒ.ən əv ˈleɪ.bɚ/' }, back: { vi: 'sự phân công lao động', en: 'a way of organising work so that different people are responsible for different tasks', ex: 'The division of labour in early societies was based on age and gender.', ex_vi: 'Sự phân công lao động trong các xã hội sơ khai dựa trên tuổi tác và giới tính.' } },
+            { front: { term: 'entomb', ipa: '/ɪnˈtuːm/' }, back: { vi: 'chôn vùi', en: 'to bury something or someone in something so they cannot escape', ex: 'The ancient city was entombed by a volcanic eruption.', ex_vi: 'Thành phố cổ đã bị chôn vùi bởi một vụ phun trào núi lửa.' } },
+            { front: { term: 'exceptionally', ipa: '/ɪkˈsep.ʃən.əl.i/' }, back: { vi: 'một cách đặc biệt, lạ thường', en: 'unusually', ex: 'The fossil was exceptionally well-preserved.', ex_vi: 'Hóa thạch được bảo quản một cách đặc biệt tốt.' } },
+            { front: { term: 'fault lines', ipa: '/fɔːlt laɪnz/' }, back: { vi: 'đường đứt gãy', en: 'breaks in the Earth\'s surface', ex: 'Earthquakes often occur along fault lines.', ex_vi: 'Động đất thường xảy ra dọc theo các đường đứt gãy.' } },
+            { front: { term: 'fossilisation', ipa: '/ˌfɑː.səl.əˈzeɪ.ʃən/' }, back: { vi: 'sự hóa thạch', en: 'the process of becoming a fossil', ex: 'Fossilisation requires very specific conditions.', ex_vi: 'Sự hóa thạch đòi hỏi những điều kiện rất cụ thể.' } },
+            { front: { term: 'give someone or something the edge', ipa: '' }, back: { vi: 'mang lại lợi thế', en: 'to give someone an advantage over someone else', ex: 'Their ability to make tools gave early humans the edge over other species.', ex_vi: 'Khả năng chế tạo công cụ đã mang lại cho người tiền sử lợi thế so với các loài khác.' } },
+            { front: { term: 'heritage', ipa: '/ˈher.ɪ.t̬ɪdʒ/' }, back: { vi: 'di sản', en: 'the buildings, paintings, customs, etc. which are important in a culture or society because they have existed for a long time', ex: 'It is important to protect our world heritage sites.', ex_vi: 'Việc bảo vệ các di sản thế giới của chúng ta là rất quan trọng.' } },
+            { front: { term: 'immediate surroundings', ipa: '/ɪˈmiː.di.ət səˈraʊn.dɪŋz/' }, back: { vi: 'môi trường xung quanh trực tiếp', en: 'Your immediate surroundings are the area that is closest to you.', ex: 'Early humans had a deep knowledge of their immediate surroundings.', ex_vi: 'Người tiền sử có kiến thức sâu sắc về môi trường xung quanh trực tiếp của họ.' } },
+            { front: { term: 'implement', ipa: '/ˈɪm.plə.mənt/' }, back: { vi: 'công cụ', en: 'a tool', ex: 'Archaeologists found several stone implements at the site.', ex_vi: 'Các nhà khảo cổ đã tìm thấy một số công cụ bằng đá tại địa điểm này.' } },
+            { front: { term: 'imply', ipa: '/ɪmˈplaɪ/' }, back: { vi: 'ngụ ý', en: 'to suggest or show something', ex: 'The evidence implies that the climate was much warmer in the past.', ex_vi: 'Bằng chứng ngụ ý rằng khí hậu trong quá khứ ấm hơn nhiều.' } },
+            { front: { term: 'inheritance', ipa: '/ɪnˈher.ɪ.t̬əns/' }, back: { vi: 'sự thừa kế', en: 'money or possessions that you get from someone when they die', ex: 'The study of DNA can reveal our genetic inheritance.', ex_vi: 'Nghiên cứu DNA có thể tiết lộ sự thừa kế di truyền của chúng ta.' } },
+            { front: { term: 'an insight into something', ipa: '/ən ˈɪn.saɪt ˈɪn.tuː ˈsʌm.θɪŋ/' }, back: { vi: 'một cái nhìn sâu sắc về', en: 'a way of understanding what something is really like', ex: 'Fossils give us an insight into life in the distant past.', ex_vi: 'Hóa thạch cho chúng ta một cái nhìn sâu sắc về cuộc sống trong quá khứ xa xôi.' } },
+            { front: { term: 'keep themselves to themselves', ipa: '' }, back: { vi: 'sống khép kín', en: 'If a group of people keep themselves to themselves, they stay with that group and do not spend time with other people.', ex: 'The two tribes lived in the same area but kept themselves to themselves.', ex_vi: 'Hai bộ lạc sống trong cùng một khu vực nhưng sống khép kín.' } },
+            { front: { term: 'lead someone to do something', ipa: '/liːd ˈsʌm.wʌn tuː duː ˈsʌm.θɪŋ/' }, back: { vi: 'dẫn đến việc ai đó làm gì', en: 'to cause someone to do or think something', ex: 'New discoveries led scientists to rethink their theories.', ex_vi: 'Những khám phá mới đã dẫn đến việc các nhà khoa học suy nghĩ lại về các lý thuyết của họ.' } },
+            { front: { term: 'lessen', ipa: '/ˈles.ən/' }, back: { vi: 'giảm bớt', en: 'to become less, or to make something less', ex: 'The invention of new tools lessened the difficulty of daily tasks.', ex_vi: 'Việc phát minh ra các công cụ mới đã làm giảm bớt sự khó khăn của các công việc hàng ngày.' } },
+            { front: { term: 'lobe', ipa: '/loʊb/' }, back: { vi: 'thùy (não)', en: 'one of the parts of the brain', ex: 'The frontal lobe is associated with complex thought.', ex_vi: 'Thùy trán có liên quan đến tư duy phức tạp.' } },
+            { front: { term: 'maintain links with something', ipa: '/meɪnˈteɪn lɪŋks wɪθ ˈsʌm.θɪŋ/' }, back: { vi: 'duy trì liên kết với', en: 'to keep a connection with something', ex: 'Ancient trade routes helped communities maintain links with each other.', ex_vi: 'Các tuyến đường thương mại cổ đại đã giúp các cộng đồng duy trì liên kết với nhau.' } },
+            { front: { term: 'mimic', ipa: '/ˈmɪm.ɪk/' }, back: { vi: 'bắt chước', en: 'to have the same behaviour or qualities as something else', ex: 'Some insects mimic the appearance of leaves for camouflage.', ex_vi: 'Một số loài côn trùng bắt chước hình dạng của lá để ngụy trang.' } },
+            { front: { term: 'plummet', ipa: '/ˈplʌm.ɪt/' }, back: { vi: 'giảm mạnh', en: 'If an amount or level of something plummets, it suddenly becomes very much lower.', ex: 'Temperatures plummeted after the sun went down.', ex_vi: 'Nhiệt độ giảm mạnh sau khi mặt trời lặn.' } },
+            { front: { term: 'predator', ipa: '/ˈpred.ə.t̬ɚ/' }, back: { vi: 'động vật ăn thịt', en: 'an animal that kills and eats other animals', ex: 'Early humans had to protect themselves from predators.', ex_vi: 'Người tiền sử phải tự bảo vệ mình khỏi các loài động vật ăn thịt.' } },
+            { front: { term: 'refuge', ipa: '/ˈref.juːdʒ/' }, back: { vi: 'nơi trú ẩn', en: 'a place where you are protected from danger', ex: 'Caves provided a natural refuge for early people.', ex_vi: 'Hang động cung cấp một nơi trú ẩn tự nhiên cho người tiền sử.' } },
+            { front: { term: 'robust', ipa: '/roʊˈbʌst/' }, back: { vi: 'khỏe mạnh, cường tráng', en: 'strong and thick', ex: 'Neanderthals had a more robust build than modern humans.', ex_vi: 'Người Neanderthal có vóc dáng cường tráng hơn người hiện đại.' } },
+            { front: { term: 'sediment', ipa: '/ˈsed.ə.mənt/' }, back: { vi: 'trầm tích', en: 'a layer of sand, stones, etc. that eventually forms a layer of rock', ex: 'Fossils are often found preserved in layers of sediment.', ex_vi: 'Hóa thạch thường được tìm thấy được bảo quản trong các lớp trầm tích.' } },
+            { front: { term: 'sentimental value', ipa: '/ˌsen.t̬əˈmen.t̬əl ˈvæl.juː/' }, back: { vi: 'giá trị tinh thần', en: 'importance that an object has because it makes you remember someone or something and not because it is worth a lot of money', ex: 'This old photograph has great sentimental value to me.', ex_vi: 'Bức ảnh cũ này có giá trị tinh thần lớn đối với tôi.' } },
+            { front: { term: 'silt', ipa: '/sɪlt/' }, back: { vi: 'phù sa', en: 'sand and clay that has been carried along by a river and is left on land', ex: 'The annual floods deposited rich silt on the riverbanks.', ex_vi: 'Các trận lụt hàng năm đã bồi đắp phù sa màu mỡ trên các bờ sông.' } },
+            { front: { term: 'stocky', ipa: '/ˈstɑː.ki/' }, back: { vi: 'vạm vỡ, chắc nịch', en: 'having a wide, strong body', ex: 'He was a short, stocky man with powerful arms.', ex_vi: 'Anh ta là một người đàn ông thấp, vạm vỡ với cánh tay khỏe mạnh.' } },
+            { front: { term: 'trait', ipa: '/treɪt/' }, back: { vi: 'đặc điểm', en: 'a quality in someone\'s character', ex: 'Intelligence is a key trait that helped humans to evolve.', ex_vi: 'Trí thông minh là một đặc điểm quan trọng đã giúp con người tiến hóa.' } },
+            { front: { term: 'turn the clock back', ipa: '' }, back: { vi: 'quay ngược thời gian', en: 'to go back in time', ex: 'Studying history is like turning the clock back to see how people lived.', ex_vi: 'Nghiên cứu lịch sử giống như quay ngược thời gian để xem mọi người đã sống như thế nào.' } },
+            { front: { term: 'wear away', ipa: '/wer əˈweɪ/' }, back: { vi: 'mòn đi', en: 'to disappear after a lot of time or use, or to make something disappear in this way', ex: 'The ancient inscriptions on the stone have worn away over time.', ex_vi: 'Những dòng chữ cổ trên đá đã bị mòn đi theo thời gian.' } },
+            { front: { term: 'wear someone/something down', ipa: '/wer daʊn/' }, back: { vi: 'làm hao mòn', en: 'to make someone or something gradually lose their strength', ex: 'The constant struggle for survival wore down the early humans.', ex_vi: 'Cuộc đấu tranh sinh tồn không ngừng đã làm hao mòn sức lực của người tiền sử.' } },
+            { front: { term: 'widespread', ipa: '/ˈwaɪd.spred/' }, back: { vi: 'lan rộng', en: 'existing in a lot of places', ex: 'The use of fire became widespread among early human groups.', ex_vi: 'Việc sử dụng lửa đã trở nên phổ biến rộng rãi trong các nhóm người tiền sử.' } }
+        ];
+
+        let currentCardIndex = 0;
+        
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+            
+            cardFrontEl.innerHTML = `
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa}</p>
+            `;
+            
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+            
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+    </script>
+</body>
+</html>
