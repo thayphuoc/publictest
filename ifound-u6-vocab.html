@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 6: Toàn cầu hóa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem; /* rounded-xl */
+        }
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+    <!-- Chosen Palette: Calm Harmony Neutrals -->
+    <!-- Application Structure Plan: A digital flashcard application. The main view is a single, flippable card. Users can navigate sequentially with 'Previous'/'Next' buttons or test themselves with a 'Random' button. A progress counter shows their position. This structure directly translates the static report into an interactive, proven learning tool, focusing on the core user goal of vocabulary memorization and recall. -->
+    <!-- Visualization & Content Choices: Report Info: Vocabulary list. Goal: Learn & Recall. Viz/Presentation: Interactive flippable card. Interaction: Click to flip, buttons to navigate/shuffle. Justification: This method is the most intuitive and effective for learning flashcard content, promoting active recall over passive reading. Library/Method: HTML/CSS for structure and flip animation, Vanilla JS for logic and content rendering. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 6: Toàn cầu hóa</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'Globalization', ipa: '/ˌɡloʊ.bəl.əˈzeɪ.ʃən/' }, back: { vi: 'toàn cầu hóa', en: 'The process by which businesses or other organizations develop international influence or start operating on an international scale.', ex: 'Globalization has led to a more interconnected world economy.', ex_vi: 'Toàn cầu hóa đã dẫn đến một nền kinh tế thế giới kết nối hơn.' } },
+            { front: { term: 'International trade', ipa: '/ˌɪn.t̬ɚˈnæʃ.ən.əl treɪd/' }, back: { vi: 'thương mại quốc tế', en: 'The exchange of capital, goods, and services across international borders or territories.', ex: 'International trade allows countries to specialize in producing goods where they have a comparative advantage.', ex_vi: 'Thương mại quốc tế cho phép các quốc gia chuyên sản xuất hàng hóa mà họ có lợi thế so sánh.' } },
+            { front: { term: 'Multinational corporation', ipa: '/ˌmʌl.tiˈnæʃ.ən.əl ˌkɔːr.pəˈreɪ.ʃən/' }, back: { vi: 'tập đoàn đa quốc gia', en: 'A company that operates in its home country, as well as in other countries around the world.', ex: 'Apple is a well-known multinational corporation.', ex_vi: 'Apple là một tập đoàn đa quốc gia nổi tiếng.' } },
+            { front: { term: 'Cultural diversity', ipa: '/ˈkʌl.tʃɚ.əl daɪˈvɝː.sə.t̬i/' }, back: { vi: 'sự đa dạng văn hóa', en: 'The existence of a variety of cultural or ethnic groups within a society.', ex: 'Globalization can both promote and threaten cultural diversity.', ex_vi: 'Toàn cầu hóa có thể vừa thúc đẩy vừa đe dọa sự đa dạng văn hóa.' } },
+            { front: { term: 'Global economy', ipa: '/ˈɡloʊ.bəl iˈkɑː.nə.mi/' }, back: { vi: 'nền kinh tế toàn cầu', en: 'The sum of all economic activities between countries.', ex: 'A crisis in one country can quickly affect the entire global economy.', ex_vi: 'Một cuộc khủng hoảng ở một quốc gia có thể nhanh chóng ảnh hưởng đến toàn bộ nền kinh tế toàn cầu.' } },
+            { front: { term: 'Free trade', ipa: '/ˌfriː ˈtreɪd/' }, back: { vi: 'thương mại tự do', en: 'International trade left to its natural course without tariffs, quotas, or other restrictions.', ex: 'Free trade agreements are designed to eliminate barriers between countries.', ex_vi: 'Các hiệp định thương mại tự do được thiết kế để loại bỏ các rào cản giữa các quốc gia.' } },
+            { front: { term: 'Outsourcing', ipa: '/ˈaʊtˌsɔːr.sɪŋ/' }, back: { vi: 'thuê ngoài', en: 'Obtaining goods or a service from an outside or foreign supplier, especially in place of an internal source.', ex: 'Many companies use outsourcing for customer service to reduce costs.', ex_vi: 'Nhiều công ty sử dụng dịch vụ thuê ngoài cho dịch vụ khách hàng để giảm chi phí.' } },
+            { front: { term: 'Interconnectedness', ipa: '/ˌɪn.t̬ɚ.kəˈnek.tɪd.nəs/' }, back: { vi: 'sự liên kết', en: 'The state of being connected with each other.', ex: 'The interconnectedness of the global financial system means that risks can spread quickly.', ex_vi: 'Sự liên kết của hệ thống tài chính toàn cầu có nghĩa là rủi ro có thể lan truyền nhanh chóng.' } },
+            { front: { term: 'Trade barriers', ipa: '/ˈtreɪd ˌbær.i.ɚz/' }, back: { vi: 'rào cản thương mại', en: 'Government-induced restrictions on international trade.', ex: 'Tariffs and quotas are common types of trade barriers.', ex_vi: 'Thuế quan và hạn ngạch là các loại rào cản thương mại phổ biến.' } },
+            { front: { term: 'Global marketplace', ipa: '/ˈɡloʊ.bəl ˈmɑːr.kɪt.pleɪs/' }, back: { vi: 'thị trường toàn cầu', en: 'The activity of buying or selling goods and services in all the countries of the world.', ex: 'The internet has created a truly global marketplace.', ex_vi: 'Internet đã tạo ra một thị trường toàn cầu thực sự.' } },
+            { front: { term: 'Cultural homogenization', ipa: '/ˌkʌl.tʃɚ.əl həˌmɑː.dʒə.nəˈzeɪ.ʃən/' }, back: { vi: 'đồng nhất văn hóa', en: 'The reduction in cultural diversity through the popularization and diffusion of a wide array of cultural symbols.', ex: 'Some critics worry that globalization leads to cultural homogenization.', ex_vi: 'Một số nhà phê bình lo ngại rằng toàn cầu hóa dẫn đến sự đồng nhất văn hóa.' } },
+            { front: { term: 'Economic integration', ipa: '/ˌiː.kəˈnɑː.mɪk ˌɪn.t̬əˈɡreɪ.ʃən/' }, back: { vi: 'sự hội nhập kinh tế', en: 'An arrangement among nations that typically includes the reduction or elimination of trade barriers.', ex: 'The European Union is a prime example of deep economic integration.', ex_vi: 'Liên minh châu Âu là một ví dụ điển hình về hội nhập kinh tế sâu sắc.' } },
+            { front: { term: 'Developing countries', ipa: '/dɪˈvel.ə.pɪŋ ˈkʌn.triz/' }, back: { vi: 'các nước đang phát triển', en: 'A poor agricultural country that is seeking to become more advanced economically and socially.', ex: 'Globalization offers both opportunities and challenges for developing countries.', ex_vi: 'Toàn cầu hóa mang lại cả cơ hội và thách thức cho các nước đang phát triển.' } },
+            { front: { term: 'Developed countries', ipa: '/dɪˈvel.əpt ˈkʌn.triz/' }, back: { vi: 'các nước phát triển', en: 'A country with a lot of industrial activity and where people generally have high incomes.', ex: 'Developed countries often outsource manufacturing to developing nations.', ex_vi: 'Các nước phát triển thường thuê ngoài sản xuất cho các quốc gia đang phát triển.' } },
+            { front: { term: 'Income inequality', ipa: '/ˈɪn.kʌm ˌɪn.ɪˈkwɑː.lə.t̬i/' }, back: { vi: 'sự bất bình đẳng thu nhập', en: 'The unequal distribution of household or individual income across the various participants in an economy.', ex: 'Some argue that globalization has increased income inequality.', ex_vi: 'Một số người cho rằng toàn cầu hóa đã làm gia tăng bất bình đẳng thu nhập.' } },
+            { front: { term: 'Foreign investment', ipa: '/ˈfɔːr.ən ɪnˈvest.mənt/' }, back: { vi: 'đầu tư nước ngoài', en: 'An investment made by a company or individual from one country in business interests in another country.', ex: 'Foreign investment is crucial for the economic growth of many developing countries.', ex_vi: 'Đầu tư nước ngoài là rất quan trọng cho sự tăng trưởng kinh tế của nhiều nước đang phát triển.' } },
+            { front: { term: 'Global workforce', ipa: '/ˈɡloʊ.bəl ˈwɝːk.fɔːrs/' }, back: { vi: 'lực lượng lao động toàn cầu', en: 'The total number of people who are employed or are seeking employment around the world.', ex: 'Companies can now tap into a global workforce thanks to remote work technologies.', ex_vi: 'Các công ty giờ đây có thể khai thác lực lượng lao động toàn cầu nhờ các công nghệ làm việc từ xa.' } },
+            { front: { term: 'Offshore production', ipa: '/ˌɔːfˈʃɔːr prəˈdʌk.ʃən/' }, back: { vi: 'sản xuất ở nước ngoài', en: 'The manufacturing of products in a country different from where the company\'s headquarters are located.', ex: 'Offshore production can significantly lower labor costs.', ex_vi: 'Sản xuất ở nước ngoài có thể làm giảm đáng kể chi phí lao động.' } },
+            { front: { term: 'Tariffs', ipa: '/ˈter.ɪfs/' }, back: { vi: 'thuế quan', en: 'A tax or duty to be paid on a particular class of imports or exports.', ex: 'The government imposed high tariffs on imported cars.', ex_vi: 'Chính phủ đã áp đặt thuế quan cao đối với ô tô nhập khẩu.' } },
+            { front: { term: 'Global supply chain', ipa: '/ˈɡloʊ.bəl səˈplaɪ tʃeɪn/' }, back: { vi: 'chuỗi cung ứng toàn cầu', en: 'The network created among different worldwide companies producing, handling, and distributing specific goods and/or services.', ex: 'The pandemic caused major disruptions to the global supply chain.', ex_vi: 'Đại dịch đã gây ra những gián đoạn lớn cho chuỗi cung ứng toàn cầu.' } },
+            { front: { term: 'Cultural exchange', ipa: '/ˈkʌl.tʃɚ.əl ɪksˈtʃeɪndʒ/' }, back: { vi: 'trao đổi văn hóa', en: 'The mutual sharing of cultural elements between different societies.', ex: 'Student exchange programs are a great way to foster cultural exchange.', ex_vi: 'Các chương trình trao đổi sinh viên là một cách tuyệt vời để thúc đẩy giao lưu văn hóa.' } },
+            { front: { term: 'Global village', ipa: '/ˈɡloʊ.bəl ˈvɪl.ɪdʒ/' }, back: { vi: 'ngôi làng toàn cầu', en: 'The world considered as a single community linked by telecommunications.', ex: 'The internet and social media have turned our world into a global village.', ex_vi: 'Internet và mạng xã hội đã biến thế giới của chúng ta thành một ngôi làng toàn cầu.' } },
+            { front: { term: 'International relations', ipa: '/ˌɪn.t̬ɚˈnæʃ.ən.əl rɪˈleɪ.ʃənz/' }, back: { vi: 'quan hệ quốc tế', en: 'The way in which two or more nations interact with and regard each other.', ex: 'Trade agreements play a significant role in international relations.', ex_vi: 'Các hiệp định thương mại đóng một vai trò quan trọng trong quan hệ quốc tế.' } },
+            { front: { term: 'Migration', ipa: '/maɪˈɡreɪ.ʃən/' }, back: { vi: 'di cư', en: 'Movement of people from one place to another with the intentions of settling, permanently or temporarily.', ex: 'Globalization has increased both internal and international migration.', ex_vi: 'Toàn cầu hóa đã làm tăng cả di cư trong nước và quốc tế.' } },
+            { front: { term: 'Cross-border collaboration', ipa: '/ˌkrɔːsˈbɔːr.dɚ kəˌlæb.əˈreɪ.ʃən/' }, back: { vi: 'hợp tác xuyên biên giới', en: 'The process of working together across national borders to achieve a common goal.', ex: 'Scientific research often involves cross-border collaboration.', ex_vi: 'Nghiên cứu khoa học thường liên quan đến sự hợp tác xuyên biên giới.' } },
+            { front: { term: '“Break down trade barriers”', ipa: '' }, back: { vi: 'xóa bỏ các rào cản thương mại', en: 'To remove restrictions on international trade.', ex: 'Globalization has helped break down trade barriers between nations.', ex_vi: 'Toàn cầu hóa đã giúp xóa bỏ các rào cản thương mại giữa các quốc gia.' } },
+            { front: { term: '“Boost the economy”', ipa: '' }, back: { vi: 'thúc đẩy nền kinh tế', en: 'To help the economy grow.', ex: 'International trade boosts the economy of both developing and developed nations.', ex_vi: 'Thương mại quốc tế thúc đẩy nền kinh tế của cả các quốc gia đang phát triển và phát triển.' } },
+            { front: { term: '“Level the playing field”', ipa: '' }, back: { vi: 'tạo sân chơi bình đẳng', en: 'To create a fair situation for all participants.', ex: 'Free trade agreements help level the playing field for businesses worldwide.', ex_vi: 'Các hiệp định thương mại tự do giúp tạo sân chơi bình đẳng cho các doanh nghiệp trên toàn thế giới.' } },
+            { front: { term: '“Cultural assimilation”', ipa: '' }, back: { vi: 'sự đồng hóa văn hóa', en: 'The process whereby a minority group gradually adopts the customs and attitudes of the prevailing culture.', ex: 'Some people fear globalization will lead to cultural assimilation, erasing unique traditions.', ex_vi: 'Một số người lo sợ toàn cầu hóa sẽ dẫn đến sự đồng hóa văn hóa, xóa bỏ các truyền thống độc đáo.' } },
+            { front: { term: '“Widen the gap between rich and poor”', ipa: '' }, back: { vi: 'làm rộng khoảng cách giữa người giàu và người nghèo', en: 'To increase the difference in wealth between the wealthy and the less wealthy.', ex: 'Critics argue that globalization can widen the gap between rich and poor countries.', ex_vi: 'Các nhà phê bình cho rằng toàn cầu hóa có thể làm gia tăng khoảng cách giữa các nước giàu và nước nghèo.' } },
+            { front: { term: '“Promote international cooperation”', ipa: '' }, back: { vi: 'thúc đẩy hợp tác quốc tế', en: 'To encourage countries to work together.', ex: 'Globalization promotes international cooperation to tackle global challenges like climate change.', ex_vi: 'Toàn cầu hóa thúc đẩy hợp tác quốc tế để giải quyết các thách thức toàn cầu như biến đổi khí hậu.' } },
+            { front: { term: '“Increase foreign investment”', ipa: '' }, back: { vi: 'tăng cường đầu tư nước ngoài', en: 'To attract more investment from other countries.', ex: 'Globalization often increases foreign investment in developing countries, boosting their economies.', ex_vi: 'Toàn cầu hóa thường làm tăng đầu tư nước ngoài vào các nước đang phát triển, thúc đẩy nền kinh tế của họ.' } },
+            { front: { term: '“Create job opportunities”', ipa: '' }, back: { vi: 'tạo ra cơ hội việc làm', en: 'To make new jobs available.', ex: 'Globalization creates job opportunities, especially in sectors like technology and manufacturing.', ex_vi: 'Toàn cầu hóa tạo ra cơ hội việc làm, đặc biệt là trong các lĩnh vực như công nghệ và sản xuất.' } },
+            { front: { term: '“Lead to cultural homogenization”', ipa: '' }, back: { vi: 'dẫn đến sự đồng nhất văn hóa', en: 'To cause cultures to become more alike.', ex: 'Some people believe that globalization is leading to cultural homogenization and the loss of local traditions.', ex_vi: 'Một số người tin rằng toàn cầu hóa đang dẫn đến sự đồng nhất văn hóa và mất đi các truyền thống địa phương.' } },
+            { front: { term: '“Stimulate economic growth”', ipa: '' }, back: { vi: 'kích thích sự tăng trưởng kinh tế', en: 'To encourage the economy to grow.', ex: 'Globalization stimulates economic growth by opening up new markets for businesses.', ex_vi: 'Toàn cầu hóa kích thích tăng trưởng kinh tế bằng cách mở ra các thị trường mới cho doanh nghiệp.' } },
+            { front: { term: '“Encourage cross-border collaboration”', ipa: '' }, back: { vi: 'khuyến khích hợp tác xuyên biên giới', en: 'To promote teamwork between people from different countries.', ex: 'Globalization encourages cross-border collaboration in science, technology, and education.', ex_vi: 'Toàn cầu hóa khuyến khích hợp tác xuyên biên giới trong khoa học, công nghệ và giáo dục.' } },
+            { front: { term: '“A global village”', ipa: '' }, back: { vi: 'một ngôi làng toàn cầu', en: 'The idea that the world is becoming like a single community.', ex: 'The internet has turned the world into a global village, where information is shared instantly.', ex_vi: 'Internet đã biến thế giới thành một ngôi làng toàn cầu, nơi thông tin được chia sẻ ngay lập tức.' } },
+            { front: { term: '“Access to a global market”', ipa: '' }, back: { vi: 'tiếp cận thị trường toàn cầu', en: 'The ability to sell goods and services to customers worldwide.', ex: 'Small businesses now have access to a global market thanks to e-commerce and globalization.', ex_vi: 'Các doanh nghiệp nhỏ hiện có thể tiếp cận thị trường toàn cầu nhờ thương mại điện tử và toàn cầu hóa.' } },
+            { front: { term: '“Fuel economic disparities”', ipa: '' }, back: { vi: 'làm trầm trọng thêm sự chênh lệch kinh tế', en: 'To worsen the economic differences between groups.', ex: 'Some argue that globalization fuels economic disparities between wealthy and poor nations.', ex_vi: 'Một số người cho rằng toàn cầu hóa làm trầm trọng thêm sự chênh lệch kinh tế giữa các quốc gia giàu và nghèo.' } },
+            { front: { term: '“Free flow of goods and services”', ipa: '' }, back: { vi: 'luồng lưu thông hàng hóa và dịch vụ tự do', en: 'The movement of products and services between countries without restrictions.', ex: 'Globalization ensures the free flow of goods and services across national borders.', ex_vi: 'Toàn cầu hóa đảm bảo luồng lưu thông hàng hóa và dịch vụ tự do qua biên giới quốc gia.' } }
+        ];
+
+        let currentCardIndex = 0;
+        
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+            
+            cardFrontEl.innerHTML = `
+                <h2 class="text-2xl sm:text-3xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa || ''}</p>
+            `;
+            
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+            
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+    </script>
+</body>
+</html>
