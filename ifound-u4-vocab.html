@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 4: Luật pháp & Tội phạm</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem; /* rounded-xl */
+        }
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+    <!-- Chosen Palette: Calm Harmony Neutrals -->
+    <!-- Application Structure Plan: A digital flashcard application. The main view is a single, flippable card. Users can navigate sequentially with 'Previous'/'Next' buttons or test themselves with a 'Random' button. A progress counter shows their position. This structure directly translates the static report into an interactive, proven learning tool, focusing on the core user goal of vocabulary memorization and recall. -->
+    <!-- Visualization & Content Choices: Report Info: Vocabulary list. Goal: Learn & Recall. Viz/Presentation: Interactive flippable card. Interaction: Click to flip, buttons to navigate/shuffle. Justification: This method is the most intuitive and effective for learning flashcard content, promoting active recall over passive reading. Library/Method: HTML/CSS for structure and flip animation, Vanilla JS for logic and content rendering. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 4: Luật pháp & Tội phạm</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'Commit a crime', ipa: '/kəˈmɪt ə kraɪm/' }, back: { vi: 'phạm tội', en: 'To do something illegal or something that is considered wrong.', ex: 'He was sent to prison for a crime he didn\'t commit.', ex_vi: 'Anh ta bị tống vào tù vì một tội ác mà anh ta không phạm phải.' } },
+            { front: { term: 'Break the law', ipa: '/breɪk ðə lɔː/' }, back: { vi: 'vi phạm pháp luật', en: 'To do something that is not allowed by law.', ex: 'If you drive after drinking alcohol, you are breaking the law.', ex_vi: 'Nếu bạn lái xe sau khi uống rượu, bạn đang vi phạm pháp luật.' } },
+            { front: { term: 'Law-abiding citizen', ipa: '/ˌlɔː.əˈbaɪ.dɪŋ ˈsɪt̬.ə.zən/' }, back: { vi: 'công dân tuân thủ luật pháp', en: 'A person who obeys and respects the law.', ex: 'Most people consider themselves to be law-abiding citizens.', ex_vi: 'Hầu hết mọi người đều coi mình là những công dân tuân thủ pháp luật.' } },
+            { front: { term: 'Juvenile delinquency', ipa: '/ˌdʒuː.və.naɪl dɪˈlɪŋ.kwən.si/' }, back: { vi: 'tội phạm vị thành niên', en: 'Illegal or criminal behavior by young people.', ex: 'The rise in juvenile delinquency is a serious concern for the community.', ex_vi: 'Sự gia tăng tội phạm vị thành niên là một mối lo ngại nghiêm trọng cho cộng đồng.' } },
+            { front: { term: 'Criminal record', ipa: '/ˈkrɪm.ə.nəl ˈrek.ɚd/' }, back: { vi: 'tiền án, tiền sự', en: 'An official record of the crimes that a person has committed.', ex: 'It can be difficult to find a job if you have a criminal record.', ex_vi: 'Có thể khó tìm được việc làm nếu bạn có tiền án tiền sự.' } },
+            { front: { term: 'Serious offense', ipa: '/ˈsɪr.i.əs əˈfens/' }, back: { vi: 'tội phạm nghiêm trọng', en: 'A major crime, such as murder or robbery.', ex: 'Armed robbery is considered a serious offense and carries a long prison sentence.', ex_vi: 'Cướp có vũ trang được coi là một tội phạm nghiêm trọng và phải chịu án tù dài hạn.' } },
+            { front: { term: 'Minor offense', ipa: '/ˈmaɪ.nɚ əˈfens/' }, back: { vi: 'tội phạm nhẹ', en: 'A less serious crime, such as shoplifting or vandalism.', ex: 'He was only given a warning for the minor offense of littering.', ex_vi: 'Anh ta chỉ bị cảnh cáo vì tội nhẹ là xả rác.' } },
+            { front: { term: 'Convicted criminal', ipa: '/kənˈvɪk.tɪd ˈkrɪm.ə.nəl/' }, back: { vi: 'tội phạm bị kết án', en: 'A person who has been found guilty of a crime in a court of law.', ex: 'The convicted criminal was sentenced to ten years in prison.', ex_vi: 'Tội phạm bị kết án đã bị phạt mười năm tù.' } },
+            { front: { term: 'Repeat offender', ipa: '/rɪˈpiːt əˈfen.dɚ/' }, back: { vi: 'tái phạm', en: 'A person who continues to commit crimes after being caught and punished.', ex: 'The judge gave the repeat offender a harsher sentence.', ex_vi: 'Thẩm phán đã đưa ra một bản án khắc nghiệt hơn cho người tái phạm.' } },
+            { front: { term: 'White-collar crime', ipa: '/ˌwaɪt.kɑː.lɚ ˈkraɪm/' }, back: { vi: 'tội phạm cổ cồn trắng (tội phạm tài chính)', en: 'Financially motivated, nonviolent crime committed by business and government professionals.', ex: 'Fraud and embezzlement are examples of white-collar crime.', ex_vi: 'Lừa đảo và tham ô là những ví dụ về tội phạm cổ cồn trắng.' } },
+            { front: { term: 'Violent crime', ipa: '/ˈvaɪə.lənt kraɪm/' }, back: { vi: 'tội phạm bạo lực', en: 'A crime in which the offender uses or threatens to use force upon a victim.', ex: 'The city has seen a decrease in violent crime this year.', ex_vi: 'Thành phố đã chứng kiến sự sụt giảm tội phạm bạo lực trong năm nay.' } },
+            { front: { term: 'Cybercrime', ipa: '/ˈsaɪ.bɚ.kraɪm/' }, back: { vi: 'tội phạm mạng', en: 'Criminal activities carried out by means of computers or the Internet.', ex: 'Phishing and identity theft are common forms of cybercrime.', ex_vi: 'Lừa đảo và đánh cắp danh tính là các hình thức phổ biến của tội phạm mạng.' } },
+            { front: { term: 'Capital punishment', ipa: '/ˌkæp.ə.t̬əl ˈpʌn.ɪʃ.mənt/' }, back: { vi: 'án tử hình', en: 'The legally authorized killing of someone as punishment for a crime; the death penalty.', ex: 'Some countries have abolished capital punishment.', ex_vi: 'Một số quốc gia đã bãi bỏ án tử hình.' } },
+            { front: { term: 'Life imprisonment', ipa: '/ˈlaɪf ɪmˌprɪz.ən.mənt/' }, back: { vi: 'án tù chung thân', en: 'The punishment of being kept in prison for the rest of one\'s life.', ex: 'He is serving a sentence of life imprisonment for murder.', ex_vi: 'Anh ta đang thụ án tù chung thân vì tội giết người.' } },
+            { front: { term: 'Community service', ipa: '/kəˌmjuː.nə.t̬i ˈsɝː.vɪs/' }, back: { vi: 'lao động công ích', en: 'Unpaid work, intended to be of social use, that an offender is required to do instead of going to prison.', ex: 'The judge ordered him to perform 100 hours of community service.', ex_vi: 'Thẩm phán đã ra lệnh cho anh ta thực hiện 100 giờ lao động công ích.' } },
+            { front: { term: 'Rehabilitation', ipa: '/ˌriː.həˌbɪl.əˈteɪ.ʃən/' }, back: { vi: 'cải tạo, phục hồi', en: 'The action of restoring someone to health or normal life through training and therapy after imprisonment.', ex: 'The prison offers rehabilitation programs to help inmates reintegrate into society.', ex_vi: 'Nhà tù cung cấp các chương trình cải tạo để giúp tù nhân tái hòa nhập xã hội.' } },
+            { front: { term: 'Probation', ipa: '/proʊˈbeɪ.ʃən/' }, back: { vi: 'án treo, quản chế', en: 'The release of an offender from detention, subject to a period of good behavior under supervision.', ex: 'She was given two years\' probation instead of a prison sentence.', ex_vi: 'Cô ấy được hưởng hai năm án treo thay vì một bản án tù.' } },
+            { front: { term: 'Deterrent', ipa: '/dɪˈtɝː.ənt/' }, back: { vi: 'sự răn đe', en: 'A thing that discourages or is intended to discourage someone from doing something.', ex: 'Many people believe that long prison sentences act as a deterrent to crime.', ex_vi: 'Nhiều người tin rằng các bản án tù dài hạn có tác dụng răn đe tội phạm.' } },
+            { front: { term: 'Plea bargain', ipa: '/ˈpliː ˌbɑːr.ɡən/' }, back: { vi: 'thương lượng nhận tội', en: 'An arrangement between a prosecutor and a defendant whereby the defendant pleads guilty to a lesser charge in exchange for a more lenient sentence.', ex: 'He accepted a plea bargain to avoid a lengthy trial.', ex_vi: 'Anh ta đã chấp nhận một thỏa thuận nhận tội để tránh một phiên tòa kéo dài.' } },
+            { front: { term: 'Acquittal', ipa: '/əˈkwɪt̬.əl/' }, back: { vi: 'sự tuyên trắng án', en: 'A judgment that a person is not guilty of the crime with which they have been charged.', ex: 'The trial ended with the acquittal of the defendant.', ex_vi: 'Phiên tòa kết thúc với việc tuyên trắng án cho bị cáo.' } },
+            { front: { term: 'Legislation', ipa: '/ˌledʒ.ɪˈsleɪ.ʃən/' }, back: { vi: 'luật pháp', en: 'Laws, considered collectively.', ex: 'The government has passed new legislation to combat cybercrime.', ex_vi: 'Chính phủ đã thông qua luật pháp mới để chống tội phạm mạng.' } },
+            { front: { term: 'Criminal justice system', ipa: '/ˌkrɪm.ə.nəl ˈdʒʌs.tɪs ˌsɪs.təm/' }, back: { vi: 'hệ thống tư pháp hình sự', en: 'The system of police, courts, and prisons set up to deal with people who are accused of having committed a crime.', ex: 'The criminal justice system is designed to uphold the law and punish offenders.', ex_vi: 'Hệ thống tư pháp hình sự được thiết kế để duy trì luật pháp và trừng phạt những người phạm tội.' } },
+            { front: { term: 'Impose a fine', ipa: '/ɪmˈpoʊz ə faɪn/' }, back: { vi: 'áp đặt tiền phạt', en: 'To officially order someone to pay an amount of money as a punishment.', ex: 'The court can impose a heavy fine for tax evasion.', ex_vi: 'Tòa án có thể áp đặt một khoản tiền phạt nặng đối với hành vi trốn thuế.' } },
+            { front: { term: 'Bail', ipa: '/beɪl/' }, back: { vi: 'tiền bảo lãnh', en: 'The temporary release of an accused person awaiting trial, sometimes on condition that a sum of money be lodged to guarantee their appearance in court.', ex: 'The defendant was released on bail pending trial.', ex_vi: 'Bị cáo đã được tại ngoại sau khi nộp tiền bảo lãnh trong khi chờ xét xử.' } },
+            { front: { term: 'Custodial sentence', ipa: '/kʌˈstoʊ.di.əl ˈsen.təns/' }, back: { vi: 'án phạt tù', en: 'A sentence to be served in a prison or similar institution.', ex: 'He received a custodial sentence of two years for the assault.', ex_vi: 'Anh ta đã nhận một án phạt tù hai năm vì tội hành hung.' } }
+        ];
+
+        let currentCardIndex = 0;
+        
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+            
+            cardFrontEl.innerHTML = `
+                <div class="p-6">
+                    <h2 class="text-3xl sm:text-4xl font-bold mb-4">${card.front.term}</h2>
+                    <p class="text-lg text-stone-500">${card.front.ipa}</p>
+                </div>
+            `;
+            
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+            
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+    </script>
+</body>
+</html>
