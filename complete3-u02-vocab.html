@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 2: Colour my world</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem; /* rounded-xl */
+        }
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+    <!-- Chosen Palette: Calm Harmony Neutrals -->
+    <!-- Application Structure Plan: A digital flashcard application. The main view is a single, flippable card. Users can navigate sequentially with 'Previous'/'Next' buttons or test themselves with a 'Random' button. A progress counter shows their position. This structure directly translates the static report into an interactive, proven learning tool, focusing on the core user goal of vocabulary memorization and recall. -->
+    <!-- Visualization & Content Choices: Report Info: Vocabulary list. Goal: Learn & Recall. Viz/Presentation: Interactive flippable card. Interaction: Click to flip, buttons to navigate/shuffle. Justification: This method is the most intuitive and effective for learning flashcard content, promoting active recall over passive reading. Library/Method: HTML/CSS for structure and flip animation, Vanilla JS for logic and content rendering. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 2: Colour my world</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'bold', ipa: '/boʊld/' }, back: { vi: 'đậm, rõ nét', en: 'describes a colour which is bright and strong', ex: 'She painted the room in bold shades of red and orange.', ex_vi: 'Cô ấy đã sơn căn phòng bằng những gam màu đỏ và cam đậm.' } },
+            { front: { term: 'camouflage', ipa: '/ˈkæm.ə.flɑːʒ/' }, back: { vi: 'sự ngụy trang', en: 'when the colour or pattern on something is similar to the area around it, making it difficult to see', ex: 'The lizard\'s skin provides excellent camouflage in the desert.', ex_vi: 'Làn da của con thằn lằn cung cấp khả năng ngụy trang tuyệt vời trên sa mạc.' } },
+            { front: { term: 'colour scheme', ipa: '/ˈkʌl.ɚ skiːm/' }, back: { vi: 'bảng màu, cách phối màu', en: 'a combination of colours that has been chosen for the walls, furniture, etc. of a particular room or building', ex: 'They chose a neutral colour scheme for the living room.', ex_vi: 'Họ đã chọn một cách phối màu trung tính cho phòng khách.' } },
+            { front: { term: 'comprise', ipa: '/kəmˈpraɪz/' }, back: { vi: 'bao gồm', en: 'to have as parts or members, or to be those parts or members', ex: 'The collection comprises 327 paintings.', ex_vi: 'Bộ sưu tập bao gồm 327 bức tranh.' } },
+            { front: { term: 'concept', ipa: '/ˈkɑːn.sept/' }, back: { vi: 'khái niệm, ý tưởng', en: 'an idea or principle of something that exists', ex: 'The concept of the exhibition is "Art in Nature".', ex_vi: 'Khái niệm của triển lãm là "Nghệ thuật trong Tự nhiên".' } },
+            { front: { term: 'confirm', ipa: '/kənˈfɝːm/' }, back: { vi: 'xác nhận', en: 'to prove that a belief or an opinion which was previously not completely certain is true', ex: 'The new evidence seems to confirm his theory.', ex_vi: 'Bằng chứng mới dường như xác nhận lý thuyết của ông.' } },
+            { front: { term: 'consistent', ipa: '/kənˈsɪs.tənt/' }, back: { vi: 'nhất quán', en: 'always behaving or happening in a similar, especially positive, way', ex: 'Her test results are consistent with our initial hypothesis.', ex_vi: 'Kết quả xét nghiệm của cô ấy nhất quán với giả thuyết ban đầu của chúng tôi.' } },
+            { front: { term: 'cue', ipa: '/kjuː/' }, back: { vi: 'ra hiệu', en: 'to give someone a signal to do something', ex: 'The change in music will cue the dancers to begin.', ex_vi: 'Sự thay đổi trong âm nhạc sẽ ra hiệu cho các vũ công bắt đầu.' } },
+            { front: { term: 'decoration', ipa: '/ˌdek.əˈreɪ.ʃən/' }, back: { vi: 'sự trang trí', en: 'the style and colour of paint or paper on the walls of a room or building', ex: 'The decoration of the room was simple but elegant.', ex_vi: 'Sự trang trí của căn phòng đơn giản nhưng thanh lịch.' } },
+            { front: { term: 'distinguish', ipa: '/dɪˈstɪŋ.ɡwɪʃ/' }, back: { vi: 'phân biệt', en: 'to recognise the differences between two people, ideas or things', ex: 'It is difficult to distinguish between the two shades of blue.', ex_vi: 'Rất khó để phân biệt giữa hai sắc thái của màu xanh.' } },
+            { front: { term: 'draw someone to something', ipa: '/drɔː ˈsʌm.wʌn tuː ˈsʌm.θɪŋ/' }, back: { vi: 'thu hút ai đó đến cái gì', en: 'to attract someone to a thing or person', ex: 'The bright colours of the display draw customers to the window.', ex_vi: 'Màu sắc tươi sáng của khu trưng bày thu hút khách hàng đến cửa sổ.' } },
+            { front: { term: 'entities', ipa: '/ˈen.t̬ə.t̬iz/' }, back: { vi: 'thực thể', en: 'things which exist apart from other things, having their own independent existence', ex: 'The mind and the body are sometimes seen as separate entities.', ex_vi: 'Tâm trí và cơ thể đôi khi được xem là những thực thể riêng biệt.' } },
+            { front: { term: 'give someone a taste of something', ipa: '' }, back: { vi: 'cho ai đó nếm thử', en: 'to allow someone to see or experience a little of something', ex: 'The museum tour gives you a taste of what life was like in the 18th century.', ex_vi: 'Chuyến tham quan bảo tàng cho bạn nếm thử một chút về cuộc sống trong thế kỷ 18.' } },
+            { front: { term: 'give someone an idea of something', ipa: '' }, back: { vi: 'cho ai đó một ý tưởng về', en: 'to allow someone to see or experience a little of something', ex: 'This chart will give you an idea of the project timeline.', ex_vi: 'Biểu đồ này sẽ cho bạn một ý tưởng về tiến trình của dự án.' } },
+            { front: { term: 'haphazard', ipa: '/hæpˈhæz.ɚd/' }, back: { vi: 'bừa bãi, lộn xộn', en: 'not having an obvious order or plan', ex: 'The books were arranged in a haphazard way on the shelves.', ex_vi: 'Những cuốn sách được sắp xếp một cách bừa bãi trên kệ.' } },
+            { front: { term: 'house', ipa: '/haʊs/' }, back: { vi: 'chứa đựng', en: 'to contain or provide a space for something', ex: 'The new gallery will house the museum\'s modern art collection.', ex_vi: 'Phòng trưng bày mới sẽ chứa đựng bộ sưu tập nghệ thuật hiện đại của bảo tàng.' } },
+            { front: { term: 'hypothesise', ipa: '/haɪˈpɑː.θə.saɪz/' }, back: { vi: 'đưa ra giả thuyết', en: 'to suggest an explanation for something which has not yet been proved to be true', ex: 'Scientists hypothesise that the colors of some animals are used for communication.', ex_vi: 'Các nhà khoa học đưa ra giả thuyết rằng màu sắc của một số loài động vật được sử dụng để giao tiếp.' } },
+            { front: { term: 'in an effort to', ipa: '/ɪn ən ˈef.ɚt tuː/' }, back: { vi: 'trong nỗ lực để', en: 'trying to', ex: 'In an effort to save money, they started cooking at home more often.', ex_vi: 'Trong nỗ lực tiết kiệm tiền, họ bắt đầu nấu ăn ở nhà thường xuyên hơn.' } },
+            { front: { term: 'in such a way that', ipa: '/ɪn sʌtʃ ə weɪ ðæt/' }, back: { vi: 'theo cách mà', en: 'If you do something in such a way that something happens, you do it in order to make that thing happen.', ex: 'He designed the room in such a way that it feels spacious.', ex_vi: 'Anh ấy đã thiết kế căn phòng theo cách mà nó tạo cảm giác rộng rãi.' } },
+            { front: { term: 'in the course of', ipa: '/ɪn ðə kɔːrs əv/' }, back: { vi: 'trong quá trình', en: 'during', ex: 'In the course of our research, we made some interesting discoveries.', ex_vi: 'Trong quá trình nghiên cứu, chúng tôi đã có một số khám phá thú vị.' } },
+            { front: { term: 'incompetence (at)', ipa: '/ɪnˈkɑːm.pə.t̬əns/' }, back: { vi: 'sự thiếu năng lực', en: 'lack of ability or skill to do something successfully or as it should be done', ex: 'His incompetence at the job led to his dismissal.', ex_vi: 'Sự thiếu năng lực trong công việc đã dẫn đến việc anh ta bị sa thải.' } },
+            { front: { term: 'interactive displays', ipa: '/ˌɪn.t̬ɚˈæk.tɪv dɪˈspleɪz/' }, back: { vi: 'trưng bày tương tác', en: 'collections of objects for people to look at which react when people use them and instruct them to do particular things', ex: 'The science museum is famous for its interactive displays.', ex_vi: 'Bảo tàng khoa học nổi tiếng với các khu trưng bày tương tác.' } },
+            { front: { term: 'make predictions', ipa: '/meɪk prɪˈdɪk.ʃənz/' }, back: { vi: 'đưa ra dự đoán', en: 'say what will happen in the future', ex: 'It is difficult to make accurate predictions about the weather.', ex_vi: 'Rất khó để đưa ra những dự đoán chính xác về thời tiết.' } },
+            { front: { term: 'master', ipa: '/ˈmæs.tɚ/' }, back: { vi: 'làm chủ, thành thạo', en: 'to learn how to do something well', ex: 'She spent years trying to master the art of painting.', ex_vi: 'Cô ấy đã dành nhiều năm để cố gắng làm chủ nghệ thuật hội họa.' } },
+            { front: { term: 'novel', ipa: '/ˈnɑː.vəl/' }, back: { vi: 'mới lạ', en: 'new and original, not like anything seen before', ex: 'The architect came up with a novel design for the building.', ex_vi: 'Kiến trúc sư đã đưa ra một thiết kế mới lạ cho tòa nhà.' } },
+            { front: { term: 'occupants', ipa: '/ˈɑː.kjə.pənts/' }, back: { vi: 'người ở, người cư ngụ', en: 'the people who live in a building', ex: 'The occupants of the house were asked to evacuate.', ex_vi: 'Những người ở trong nhà đã được yêu cầu sơ tán.' } },
+            { front: { term: 'occupy', ipa: '/ˈɑː.kjə.paɪ/' }, back: { vi: 'chiếm giữ, ở', en: 'to live in a building', ex: 'The top floor of the building is occupied by a law firm.', ex_vi: 'Tầng trên cùng của tòa nhà được một công ty luật chiếm giữ.' } },
+            { front: { term: 'one by one', ipa: '/wʌn baɪ wʌn/' }, back: { vi: 'lần lượt từng cái một', en: 'separately, one after the other', ex: 'The students entered the classroom one by one.', ex_vi: 'Các sinh viên lần lượt vào lớp học.' } },
+            { front: { term: 'overwhelmingly', ipa: '/ˌoʊ.vɚˈwel.mɪŋ.li/' }, back: { vi: 'một cách áp đảo', en: 'very strongly or completely', ex: 'The response to the new exhibition has been overwhelmingly positive.', ex_vi: 'Phản ứng đối với triển lãm mới là tích cực một cách áp đảo.' } },
+            { front: { term: 'parental', ipa: '/pəˈren.t̬əl/' }, back: { vi: 'thuộc về cha mẹ', en: 'connected with parents or with being a parent', ex: 'Parental involvement is crucial for a child\'s education.', ex_vi: 'Sự tham gia của cha mẹ là rất quan trọng đối với giáo dục của trẻ.' } },
+            { front: { term: 'pastel colours / pastels', ipa: '/pæsˈtel ˈkʌl.ɚz/' }, back: { vi: 'màu phấn', en: 'light colours that are not strong', ex: 'The room was decorated in soft pastel colours.', ex_vi: 'Căn phòng được trang trí bằng những gam màu phấn nhẹ nhàng.' } },
+            { front: { term: 'play a role in something', ipa: '' }, back: { vi: 'đóng một vai trò trong', en: 'to be involved in something and have an effect on it', ex: 'Colour plays an important role in how we perceive the world.', ex_vi: 'Màu sắc đóng một vai trò quan trọng trong cách chúng ta nhận thức thế giới.' } },
+            { front: { term: 'property', ipa: '/ˈprɑː.pɚ.t̬i/' }, back: { vi: 'đặc tính', en: 'a quality in a substance or material, especially one which means that it can be used in a particular way', ex: 'One of the properties of glass is its transparency.', ex_vi: 'Một trong những đặc tính của thủy tinh là độ trong suốt.' } },
+            { front: { term: 'repertoire', ipa: '/ˈrep.ɚ.twɑːr/' }, back: { vi: 'vốn, tiết mục', en: 'all the words that you know or can produce', ex: 'A baby\'s verbal repertoire is limited at first.', ex_vi: 'Vốn từ vựng của một em bé ban đầu còn hạn chế.' } },
+            { front: { term: 'shade', ipa: '/ʃeɪd/' }, back: { vi: 'sắc thái (màu)', en: 'one form of a colour, especially a darker or a lighter form', ex: 'The walls were painted a pale shade of green.', ex_vi: 'Các bức tường được sơn một sắc thái xanh nhạt.' } },
+            { front: { term: 'striking', ipa: '/ˈstraɪ.kɪŋ/' }, back: { vi: 'nổi bật, ấn tượng', en: 'easily noticed and unusual', ex: 'She bears a striking resemblance to her mother.', ex_vi: 'Cô ấy có một sự giống nhau nổi bật với mẹ của mình.' } },
+            { front: { term: 'systematic', ipa: '/ˌsɪs.təˈmæt̬.ɪk/' }, back: { vi: 'có hệ thống', en: 'using a fixed and organised plan', ex: 'They conducted a systematic review of all the available data.', ex_vi: 'Họ đã tiến hành một đánh giá có hệ thống tất cả các dữ liệu có sẵn.' } },
+            { front: { term: 'to all intents and purposes', ipa: '' }, back: { vi: 'trên thực tế', en: 'used when you describe the real result of a situation', ex: 'To all intents and purposes, the project was a complete failure.', ex_vi: 'Trên thực tế, dự án đã thất bại hoàn toàn.' } },
+            { front: { term: 'to some degree', ipa: '/tuː sʌm dɪˈɡriː/' }, back: { vi: 'ở một mức độ nào đó', en: 'partly', ex: 'I agree with you to some degree, but not completely.', ex_vi: 'Tôi đồng ý với bạn ở một mức độ nào đó, nhưng không hoàn toàn.' } },
+            { front: { term: 'unique', ipa: '/juːˈniːk/' }, back: { vi: 'độc đáo', en: 'being the only existing one of its type or, more generally, unusual or special in some way', ex: 'Each person\'s fingerprint is unique.', ex_vi: 'Dấu vân tay của mỗi người là độc đáo.' } }
+        ];
+
+        let currentCardIndex = 0;
+        
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+            
+            cardFrontEl.innerHTML = `
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa}</p>
+            `;
+            
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+            
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+    </script>
+</body>
+</html>
