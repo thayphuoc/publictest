@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 5: Animal world</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem; /* rounded-xl */
+        }
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+    <!-- Chosen Palette: Calm Harmony Neutrals -->
+    <!-- Application Structure Plan: A digital flashcard application. The main view is a single, flippable card. Users can navigate sequentially with 'Previous'/'Next' buttons or test themselves with a 'Random' button. A progress counter shows their position. This structure directly translates the static report into an interactive, proven learning tool, focusing on the core user goal of vocabulary memorization and recall. -->
+    <!-- Visualization & Content Choices: Report Info: Vocabulary list. Goal: Learn & Recall. Viz/Presentation: Interactive flippable card. Interaction: Click to flip, buttons to navigate/shuffle. Justification: This method is the most intuitive and effective for learning flashcard content, promoting active recall over passive reading. Library/Method: HTML/CSS for structure and flip animation, Vanilla JS for logic and content rendering. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 5: Animal world</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'agricultural land', ipa: '/ˌæɡ.rɪˈkʌl.tʃɚ.əl lænd/' }, back: { vi: 'đất nông nghiệp', en: 'land which is used for or suitable for farming', ex: 'The government has policies to protect agricultural land from development.', ex_vi: 'Chính phủ có các chính sách để bảo vệ đất nông nghiệp khỏi sự phát triển.' } },
+            { front: { term: 'archive', ipa: '/ˈɑːr.kaɪv/' }, back: { vi: 'kho lưu trữ, văn khố', en: 'a collection of historical documents that provides information about the past, or a place where they are kept', ex: 'We found the old city maps in the national archive.', ex_vi: 'Chúng tôi đã tìm thấy những bản đồ thành phố cũ trong kho lưu trữ quốc gia.' } },
+            { front: { term: 'beehive', ipa: '/ˈbiː.haɪv/' }, back: { vi: 'tổ ong', en: 'a special container where people keep bees, or a place where bees live', ex: 'The beekeeper collected honey from the beehive.', ex_vi: 'Người nuôi ong đã thu hoạch mật ong từ tổ ong.' } },
+            { front: { term: 'brilliant', ipa: '/ˈbrɪl.jənt/' }, back: { vi: 'rực rỡ, chói lọi', en: 'full of light or colour', ex: 'The peacock has brilliant tail feathers.', ex_vi: 'Con công có bộ lông đuôi rực rỡ.' } },
+            { front: { term: 'colony', ipa: '/ˈkɑː.lə.ni/' }, back: { vi: 'bầy, đàn, quần thể', en: 'a group of the same type of animals, insects or plants living together in a particular place', ex: 'A colony of ants was marching across the path.', ex_vi: 'Một đàn kiến đang diễu hành qua con đường.' } },
+            { front: { term: 'come upon', ipa: '/kʌm əˈpɑːn/' }, back: { vi: 'tình cờ tìm thấy', en: 'to discover something by chance', ex: 'While hiking, we came upon a hidden waterfall.', ex_vi: 'Trong khi đi bộ đường dài, chúng tôi tình cờ tìm thấy một thác nước ẩn.' } },
+            { front: { term: 'cut off', ipa: '/kʌt ɔːf/' }, back: { vi: 'cắt, ngừng cung cấp', en: 'to stop the supply of something', ex: 'The storm cut off the power to the entire town.', ex_vi: 'Cơn bão đã cắt điện của toàn bộ thị trấn.' } },
+            { front: { term: 'destination', ipa: '/ˌdes.təˈneɪ.ʃən/' }, back: { vi: 'điểm đến', en: 'the place where someone or something is going', ex: 'Paris is a popular tourist destination.', ex_vi: 'Paris là một điểm đến du lịch nổi tiếng.' } },
+            { front: { term: 'distinctive markings', ipa: '/dɪˈstɪŋk.tɪv ˈmɑːr.kɪŋz/' }, back: { vi: 'những dấu hiệu đặc biệt', en: 'marks on living creatures that make them easy to recognise', ex: 'The zebra is known for its distinctive markings.', ex_vi: 'Ngựa vằn được biết đến với những dấu hiệu đặc biệt của nó.' } },
+            { front: { term: 'ecology', ipa: '/iˈkɑː.lə.dʒi/' }, back: { vi: 'sinh thái học', en: 'the relationship between living things and the environment, or the scientific study of this', ex: 'She is studying the ecology of the rainforest.', ex_vi: 'Cô ấy đang nghiên cứu sinh thái học của rừng nhiệt đới.' } },
+            { front: { term: 'estimate', ipa: '/ˈes.tə.meɪt/' }, back: { vi: 'ước tính, đánh giá', en: 'to guess the cost, size, value, etc. of something', ex: 'Can you estimate the number of people who will attend?', ex_vi: 'Bạn có thể ước tính số người sẽ tham dự không?' } },
+            { front: { term: 'extend', ipa: '/ɪkˈstend/' }, back: { vi: 'kéo dài, mở rộng', en: 'to reach, stretch or continue for a particular distance', ex: 'The forest extends for many miles.', ex_vi: 'Khu rừng kéo dài nhiều dặm.' } },
+            { front: { term: 'farmland', ipa: '/ˈfɑːrm.lænd/' }, back: { vi: 'đất nông nghiệp', en: 'land which is used for or suitable for farming', ex: 'The city is surrounded by rich farmland.', ex_vi: 'Thành phố được bao quanh bởi đất nông nghiệp trù phú.' } },
+            { front: { term: 'focus efforts on something', ipa: '/ˈfoʊ.kəs ˈef.ɚts ɑːn ˈsʌm.θɪŋ/' }, back: { vi: 'tập trung nỗ lực vào việc gì', en: 'to give all your attention or effort to something', ex: 'We need to focus our efforts on something more productive.', ex_vi: 'Chúng ta cần tập trung nỗ lực vào việc gì đó hiệu quả hơn.' } },
+            { front: { term: 'get rid of', ipa: '/ɡet rɪd əv/' }, back: { vi: 'loại bỏ, thoát khỏi', en: 'to make something unpleasant go away', ex: 'I need to get rid of all this old furniture.', ex_vi: 'Tôi cần loại bỏ tất cả đồ đạc cũ này.' } },
+            { front: { term: 'grassland', ipa: '/ˈɡræs.lænd/' }, back: { vi: 'đồng cỏ', en: 'a large area of land covered with grass', ex: 'The African safari took us across vast grasslands.', ex_vi: 'Chuyến đi săn ở châu Phi đã đưa chúng tôi qua những đồng cỏ rộng lớn.' } },
+            { front: { term: 'harmless', ipa: '/ˈhɑːrm.ləs/' }, back: { vi: 'vô hại', en: 'not able or not likely to cause any hurt or damage', ex: 'Don\'t worry, the snake is completely harmless.', ex_vi: 'Đừng lo, con rắn này hoàn toàn vô hại.' } },
+            { front: { term: 'hemisphere', ipa: '/ˈhem.ɪ.sfɪr/' }, back: { vi: 'bán cầu', en: 'one half of the Earth', ex: 'Australia is in the Southern Hemisphere.', ex_vi: 'Úc nằm ở Bán cầu Nam.' } },
+            { front: { term: 'hostile environment', ipa: '/ˈhɑː.stəl ɪnˈvaɪ.rən.mənt/' }, back: { vi: 'môi trường khắc nghiệt', en: 'a place where the weather or conditions make it difficult or dangerous to be', ex: 'The desert is a hostile environment for most plants and animals.', ex_vi: 'Sa mạc là một môi trường khắc nghiệt đối với hầu hết các loài thực vật và động vật.' } },
+            { front: { term: 'indicate', ipa: '/ˈɪn.dɪ.keɪt/' }, back: { vi: 'chỉ ra, cho thấy', en: 'to show that something exists or is likely to be true', ex: 'Dark clouds indicate that a storm is coming.', ex_vi: 'Mây đen cho thấy một cơn bão đang đến.' } },
+            { front: { term: 'near-extinction', ipa: '/ˌnɪr.ɪkˈstɪŋk.ʃən/' }, back: { vi: 'gần như tuyệt chủng', en: 'the state where a type of creature is so rare that it may soon not exist at all', ex: 'The white rhino is on the verge of near-extinction.', ex_vi: 'Tê giác trắng đang trên bờ vực gần như tuyệt chủng.' } },
+            { front: { term: 'observe', ipa: '/əbˈzɝːv/' }, back: { vi: 'quan sát', en: 'to watch someone or something carefully', ex: 'Scientists observe the behavior of birds in the wild.', ex_vi: 'Các nhà khoa học quan sát hành vi của các loài chim trong tự nhiên.' } },
+            { front: { term: 'pattern', ipa: '/ˈpæt̬.ɚn/' }, back: { vi: 'quy luật, khuôn mẫu', en: 'a particular way that something is often done or repeated', ex: 'We\'ve noticed a pattern in the way the attacks have occurred.', ex_vi: 'Chúng tôi đã nhận thấy một quy luật trong cách các cuộc tấn công đã xảy ra.' } },
+            { front: { term: 'pesticide', ipa: '/ˈpes.tə.saɪd/' }, back: { vi: 'thuốc trừ sâu', en: 'a chemical that is used to kill insects which damage plants', ex: 'Farmers often use pesticides to protect their crops.', ex_vi: 'Nông dân thường sử dụng thuốc trừ sâu để bảo vệ cây trồng của họ.' } },
+            { front: { term: 'poison', ipa: '/ˈpɔɪ.zən/' }, back: { vi: 'chất độc', en: 'a substance that can make you ill or kill you if it gets in your body', ex: 'Some mushrooms contain a deadly poison.', ex_vi: 'Một số loại nấm chứa chất độc chết người.' } },
+            { front: { term: 'risky', ipa: '/ˈrɪs.ki/' }, back: { vi: 'mạo hiểm, rủi ro', en: 'dangerous because something bad might happen', ex: 'Investing all your money in one company is risky.', ex_vi: 'Đầu tư tất cả tiền của bạn vào một công ty là rất rủi ro.' } },
+            { front: { term: 'shift', ipa: '/ʃɪft/' }, back: { vi: 'thay đổi, chuyển dịch', en: 'to change', ex: 'Public opinion has begun to shift on this issue.', ex_vi: 'Dư luận đã bắt đầu thay đổi về vấn đề này.' } },
+            { front: { term: 'soil', ipa: '/sɔɪl/' }, back: { vi: 'đất', en: 'the top layer of earth that plants grow in', ex: 'The soil here is very fertile and good for growing vegetables.', ex_vi: 'Đất ở đây rất màu mỡ và tốt cho việc trồng rau.' } },
+            { front: { term: 'source of food', ipa: '/sɔːrs əv fuːd/' }, back: { vi: 'nguồn thức ăn', en: 'something that is used as food by a person or creature', ex: 'Nuts are an important source of food for squirrels.', ex_vi: 'Các loại hạt là một nguồn thức ăn quan trọng cho sóc.' } },
+            { front: { term: 'spot', ipa: '/spɑːt/' }, back: { vi: 'phát hiện, nhận ra', en: 'to see or notice something or someone', ex: 'I finally spotted my friend in the crowd.', ex_vi: 'Cuối cùng tôi đã phát hiện ra bạn mình trong đám đông.' } },
+            { front: { term: 'underestimate', ipa: '/ˌʌn.dɚˈes.tə.meɪt/' }, back: { vi: 'sự đánh giá thấp', en: 'a guess that is lower than the real size or amount of something', ex: 'His prediction was a clear underestimate of the final costs.', ex_vi: 'Dự đoán của anh ấy là một sự đánh giá thấp rõ ràng về chi phí cuối cùng.' } },
+            { front: { term: 'achievement', ipa: '/əˈtʃiːv.mənt/' }, back: { vi: 'thành tựu, thành tích', en: 'something good that you achieve', ex: 'Winning the championship was a great achievement.', ex_vi: 'Giành chức vô địch là một thành tựu tuyệt vời.' } }
+        ];
+
+        let currentCardIndex = 0;
+        
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+            
+            cardFrontEl.innerHTML = `
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa}</p>
+            `;
+            
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+            
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+    </script>
+</body>
+</html>
