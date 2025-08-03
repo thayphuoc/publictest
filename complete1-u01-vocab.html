@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 1: Great places to be</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem; /* rounded-xl */
+        }
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+    
+</head>
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 1: Great places to be</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'access', ipa: '/ˈæk.sɛs/' }, back: { vi: 'quyền truy cập, quyền sử dụng', en: 'when you have the right or opportunity to use or see something', ex: 'Students need a password to get access to the online library.', ex_vi: 'Sinh viên cần mật khẩu để có quyền truy cập vào thư viện trực tuyến.' } },
+            { front: { term: 'conclude', ipa: '/kənˈkluːd/' }, back: { vi: 'kết luận', en: 'to decide something after studying all the information about it very carefully', ex: 'After reviewing the evidence, they concluded he was innocent.', ex_vi: 'Sau khi xem xét bằng chứng, họ kết luận anh ta vô tội.' } },
+            { front: { term: 'conduct research', ipa: '/kənˌdʌkt rɪˈsɜːrtʃ/' }, back: { vi: 'tiến hành nghiên cứu', en: 'to study a subject to find information about it', ex: 'Scientists will conduct research to find a cure for the disease.', ex_vi: 'Các nhà khoa học sẽ tiến hành nghiên cứu để tìm ra phương pháp chữa trị căn bệnh này.' } },
+            { front: { term: 'consume', ipa: '/kənˈsuːm/' }, back: { vi: 'tiêu thụ, tiêu dùng', en: 'to use something such as a product, energy or fuel', ex: 'Modern appliances consume less electricity.', ex_vi: 'Các thiết bị hiện đại tiêu thụ ít điện hơn.' } },
+            { front: { term: 'crime rate', ipa: '/ˈkraɪm ˌreɪt/' }, back: { vi: 'tỷ lệ tội phạm', en: 'the amount of crime that happens in a place or during a period of time', ex: 'The city has seen a steady decrease in the crime rate.', ex_vi: 'Thành phố đã chứng kiến sự giảm đều đặn về tỷ lệ tội phạm.' } },
+            { front: { term: 'culture', ipa: '/ˈkʌl.tʃɚ/' }, back: { vi: 'văn hóa', en: 'the habits, traditions and beliefs of a country, society or group of people', ex: 'It\'s important to respect the local culture when you travel.', ex_vi: 'Điều quan trọng là phải tôn trọng văn hóa địa phương khi bạn đi du lịch.' } },
+            { front: { term: 'diverse', ipa: '/dɪˈvɝːs/' }, back: { vi: 'đa dạng', en: 'including many different types', ex: 'The restaurant has a diverse menu with dishes from all over the world.', ex_vi: 'Nhà hàng có một thực đơn đa dạng với các món ăn từ khắp nơi trên thế giới.' } },
+            { front: { term: 'environment', ipa: '/ɪnˈvaɪ.rən.mənt/' }, back: { vi: 'môi trường', en: 'the situation that you live or work in, and how it influences how you feel', ex: 'A positive work environment can increase productivity.', ex_vi: 'Một môi trường làm việc tích cực có thể tăng năng suất.' } },
+            { front: { term: 'feature', ipa: '/ˈfiː.tʃɚ/' }, back: { vi: 'đặc điểm, tính năng', en: 'a quality or important part of something', ex: 'An important feature of this car is its safety system.', ex_vi: 'Một tính năng quan trọng của chiếc xe này là hệ thống an toàn của nó.' } },
+            { front: { term: 'grow up', ipa: '/ɡroʊ ʌp/' }, back: { vi: 'lớn lên, trưởng thành', en: 'to become older or an adult', ex: 'She wants to be a doctor when she grows up.', ex_vi: 'Cô ấy muốn trở thành bác sĩ khi lớn lên.' } },
+            { front: { term: 'have access to', ipa: '/hæv ˈæk.sɛs tu/' }, back: { vi: 'có quyền truy cập/sử dụng', en: 'to have the right or opportunity to have, use or see something', ex: 'All members have access to the gym\'s facilities.', ex_vi: 'Tất cả các thành viên đều có quyền sử dụng các cơ sở vật chất của phòng tập.' } },
+            { front: { term: 'ignore', ipa: '/ɪɡˈnɔːr/' }, back: { vi: 'phớt lờ, bỏ qua', en: 'to pay no attention to something or someone', ex: 'It\'s best to ignore negative comments online.', ex_vi: 'Tốt nhất là nên phớt lờ những bình luận tiêu cực trên mạng.' } },
+            { front: { term: 'impact', ipa: '/ˈɪm.pækt/' }, back: { vi: 'tác động, ảnh hưởng', en: 'the effect that a person, event or situation has on someone or something', ex: 'The teacher\'s encouragement had a huge impact on his students.', ex_vi: 'Sự động viên của giáo viên đã có tác động lớn đến học sinh của ông.' } },
+            { front: { term: 'income', ipa: '/ˈɪn.kʌm/' }, back: { vi: 'thu nhập', en: 'money that you earn by working, investing or producing goods', ex: 'His monthly income is not enough to support his family.', ex_vi: 'Thu nhập hàng tháng của anh ấy không đủ để nuôi sống gia đình.' } },
+            { front: { term: 'industrial', ipa: '/ɪnˈdʌs.tri.əl/' }, back: { vi: '(thuộc) công nghiệp', en: 'with a lot of factories', ex: 'The city is a major industrial center.', ex_vi: 'Thành phố là một trung tâm công nghiệp lớn.' } },
+            { front: { term: 'influence', ipa: '/ˈɪn.flu.əns/' }, back: { vi: 'ảnh hưởng', en: 'to affect or change how someone or something develops, behaves or thinks', ex: 'Her older sister was a big influence on her.', ex_vi: 'Chị gái của cô ấy có ảnh hưởng lớn đến cô ấy.' } },
+            { front: { term: 'landscape', ipa: '/ˈlænd.skeɪp/' }, back: { vi: 'phong cảnh', en: 'the appearance of an area of land, especially in the countryside', ex: 'The rural landscape was dotted with small farms.', ex_vi: 'Phong cảnh nông thôn điểm xuyết những trang trại nhỏ.' } },
+            { front: { term: 'lifestyle', ipa: '/ˈlaɪf.staɪl/' }, back: { vi: 'lối sống, phong cách sống', en: 'the way that you live', ex: 'Regular exercise is part of a healthy lifestyle.', ex_vi: 'Tập thể dục thường xuyên là một phần của lối sống lành mạnh.' } },
+            { front: { term: 'local', ipa: '/ˈloʊ.kəl/' }, back: { vi: 'người dân địa phương', en: 'someone who lives in the area you are talking about', ex: 'We asked a local for directions to the train station.', ex_vi: 'Chúng tôi đã hỏi một người dân địa phương để chỉ đường đến ga tàu.' } },
+            { front: { term: 'measurement', ipa: '/ˈmeʒ.ɚ.mənt/' }, back: { vi: 'sự đo lường', en: 'a way of measuring something', ex: 'Precise measurement is essential in construction.', ex_vi: 'Sự đo lường chính xác là điều cần thiết trong xây dựng.' } },
+            { front: { term: 'nutrition', ipa: '/nuːˈtrɪʃ.ən/' }, back: { vi: 'dinh dưỡng', en: 'the food that you eat and the way that it affects your health', ex: 'Proper nutrition is vital for a child\'s development.', ex_vi: 'Dinh dưỡng hợp lý là rất quan trọng cho sự phát triển của trẻ.' } },
+            { front: { term: 'outcome', ipa: '/ˈaʊt.kʌm/' }, back: { vi: 'kết quả, hậu quả', en: 'the final result of an activity or process', ex: 'It is too early to know the outcome of the negotiations.', ex_vi: 'Còn quá sớm để biết kết quả của các cuộc đàm phán.' } },
+            { front: { term: 'rank', ipa: '/ræŋk/' }, back: { vi: 'xếp hạng', en: 'to give someone or something a position in a list which shows them in order of importance or quality', ex: 'The hotels are ranked from best to worst.', ex_vi: 'Các khách sạn được xếp hạng từ tốt nhất đến tệ nhất.' } },
+            { front: { term: 'reaction', ipa: '/riˈæk.ʃən/' }, back: { vi: 'sự phản ứng', en: 'something you say, feel or do because of something that has happened', ex: 'What was his reaction to the news?', ex_vi: 'Phản ứng của anh ấy trước tin tức đó là gì?' } },
+            { front: { term: 'reputation', ipa: '/ˌrep.jəˈteɪ.ʃən/' }, back: { vi: 'danh tiếng', en: 'the opinion that people have about someone or something based on their behaviour or character in the past', ex: 'The restaurant has an excellent reputation for its food.', ex_vi: 'Nhà hàng có danh tiếng xuất sắc về đồ ăn.' } },
+            { front: { term: 'resources', ipa: '/ˈriː.sɔːr.sɪz/' }, back: { vi: 'tài nguyên', en: 'things that a country, person or organisation has which they can use', ex: 'The library is a great resource for students.', ex_vi: 'Thư viện là một nguồn tài nguyên tuyệt vời cho sinh viên.' } },
+            { front: { term: 'short of', ipa: '/ʃɔːrt əv/' }, back: { vi: 'thiếu hụt', en: 'If you are short of something, you do not have enough of it.', ex: 'I can\'t buy it because I\'m short of money this week.', ex_vi: 'Tôi không thể mua nó vì tuần này tôi thiếu tiền.' } },
+            { front: { term: 'status', ipa: '/ˈsteɪ.t̬əs/' }, back: { vi: 'địa vị, tình trạng', en: 'the position that you have in relation to other people because of your job or social position', ex: 'Her job gives her a high social status.', ex_vi: 'Công việc của cô ấy mang lại cho cô ấy một địa vị xã hội cao.' } },
+            { front: { term: 'surround', ipa: '/səˈraʊnd/' }, back: { vi: 'bao quanh, vây quanh', en: 'to be or go everywhere around something or someone', ex: 'Tall trees surround the house, giving it privacy.', ex_vi: 'Những cây cao bao quanh ngôi nhà, tạo sự riêng tư cho nó.' } },
+            { front: { term: 'tend to be', ipa: '/tend tu bi/' }, back: { vi: 'có xu hướng là', en: 'to often be in a particular state', ex: 'I tend to be more creative in the morning.', ex_vi: 'Tôi có xu hướng sáng tạo hơn vào buổi sáng.' } },
+            { front: { term: 'way of life', ipa: '/weɪ əv laɪf/' }, back: { vi: 'lối sống, cách sống', en: 'the manner in which a person lives', ex: 'For many, farming is more than a job; it\'s a way of life.', ex_vi: 'Đối với nhiều người, nông nghiệp không chỉ là một công việc; đó là một lối sống.' } }
+        ];
+
+        let currentCardIndex = 0;
+        
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+            
+            cardFrontEl.innerHTML = `
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa}</p>
+            `;
+            
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+            
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+    </script>
+</body>
+</html>
