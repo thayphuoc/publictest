@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 4: It was all new once</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem; /* rounded-xl */
+        }
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+    <!-- Chosen Palette: Calm Harmony Neutrals -->
+    <!-- Application Structure Plan: A digital flashcard application. The main view is a single, flippable card. Users can navigate sequentially with 'Previous'/'Next' buttons or test themselves with a 'Random' button. A progress counter shows their position. This structure directly translates the static report into an interactive, proven learning tool, focusing on the core user goal of vocabulary memorization and recall. -->
+    <!-- Visualization & Content Choices: Report Info: Vocabulary list. Goal: Learn & Recall. Viz/Presentation: Interactive flippable card. Interaction: Click to flip, buttons to navigate/shuffle. Justification: This method is the most intuitive and effective for learning flashcard content, promoting active recall over passive reading. Library/Method: HTML/CSS for structure and flip animation, Vanilla JS for logic and content rendering. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 4: It was all new once</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'atmosphere', ipa: '/ˈæt.mə.sfɪr/' }, back: { vi: 'không khí, bầu không khí', en: 'the feeling which exists in a place or situation', ex: 'The hotel had a very relaxed and friendly atmosphere.', ex_vi: 'Khách sạn có một bầu không khí rất thư thái và thân thiện.' } },
+            { front: { term: 'attractive', ipa: '/əˈtræk.tɪv/' }, back: { vi: 'hấp dẫn, lôi cuốn', en: 'beautiful or pleasant to look at', ex: 'She wore a very attractive dress to the party.', ex_vi: 'Cô ấy đã mặc một chiếc váy rất hấp dẫn đến bữa tiệc.' } },
+            { front: { term: 'cite', ipa: '/saɪt/' }, back: { vi: 'trích dẫn, viện dẫn', en: 'to mention something as an example or proof of something else', ex: 'The lawyer cited a previous case to support his argument.', ex_vi: 'Luật sư đã trích dẫn một vụ án trước đó để hỗ trợ cho lập luận của mình.' } },
+            { front: { term: 'consist of', ipa: '/kənˈsɪst əv/' }, back: { vi: 'bao gồm, gồm có', en: 'to be formed or made from two or more things', ex: 'The team consists of four Europeans and two Americans.', ex_vi: 'Đội bao gồm bốn người châu Âu và hai người Mỹ.' } },
+            { front: { term: 'cool', ipa: '/kuːl/' }, back: { vi: 'làm mát', en: 'to make something become less hot', ex: 'Let the soup cool for a few minutes before you eat it.', ex_vi: 'Hãy để súp nguội trong vài phút trước khi bạn ăn.' } },
+            { front: { term: 'demonstrate', ipa: '/ˈdem.ən.streɪt/' }, back: { vi: 'chứng minh, thể hiện', en: 'to show someone how to do something or how something works', ex: 'The teacher will demonstrate how to conduct the experiment.', ex_vi: 'Giáo viên sẽ thể hiện cách tiến hành thí nghiệm.' } },
+            { front: { term: 'design', ipa: '/dɪˈzaɪn/' }, back: { vi: 'thiết kế, kiểu dáng', en: 'the way in which something is planned and made to have a particular appearance', ex: 'The design of the new building is very modern.', ex_vi: 'Thiết kế của tòa nhà mới rất hiện đại.' } },
+            { front: { term: 'device', ipa: '/dɪˈvaɪs/' }, back: { vi: 'thiết bị, dụng cụ', en: 'a piece of equipment that is used for a particular purpose', ex: 'A thermometer is a device for measuring temperature.', ex_vi: 'Nhiệt kế là một thiết bị để đo nhiệt độ.' } },
+            { front: { term: 'diagonally', ipa: '/daɪˈæɡ.ən.əli/' }, back: { vi: 'theo đường chéo', en: 'going from the top corner of a square to the bottom corner on the other side', ex: 'Draw a line diagonally across the page.', ex_vi: 'Vẽ một đường chéo ngang qua trang giấy.' } },
+            { front: { term: 'drop', ipa: '/drɑːp/' }, back: { vi: 'giọt', en: 'a small, round-shaped amount of liquid', ex: 'A single drop of rain fell on her hand.', ex_vi: 'Một giọt mưa duy nhất rơi trên tay cô ấy.' } },
+            { front: { term: 'end up with', ipa: '/end ʌp wɪð/' }, back: { vi: 'cuối cùng có được', en: 'to finally have something', ex: 'If you don\'t study, you\'ll end up with a bad grade.', ex_vi: 'Nếu bạn không học, cuối cùng bạn sẽ nhận được điểm kém.' } },
+            { front: { term: 'ensure', ipa: '/ɪnˈʃʊr/' }, back: { vi: 'đảm bảo', en: 'to make certain that something is done or happens', ex: 'Please ensure that all the doors are locked before you leave.', ex_vi: 'Vui lòng đảm bảo rằng tất cả các cửa đã được khóa trước khi bạn rời đi.' } },
+            { front: { term: 'entrance', ipa: '/ˈen.trəns/' }, back: { vi: 'lối vào, cổng vào', en: 'a door or other opening which you use to enter a building or place', ex: 'The entrance to the museum is on the main street.', ex_vi: 'Lối vào bảo tàng nằm trên đường chính.' } },
+            { front: { term: 'equipment', ipa: '/ɪˈkwɪp.mənt/' }, back: { vi: 'thiết bị, dụng cụ', en: 'the things that are used for a particular activity or purpose', ex: 'The laboratory has all the necessary equipment for the experiments.', ex_vi: 'Phòng thí nghiệm có tất cả các thiết bị cần thiết cho các thí nghiệm.' } },
+            { front: { term: 'extent', ipa: '/ɪkˈstent/' }, back: { vi: 'mức độ, phạm vi', en: 'the amount or importance of something', ex: 'It is difficult to assess the full extent of the damage.', ex_vi: 'Rất khó để đánh giá toàn bộ mức độ thiệt hại.' } },
+            { front: { term: 'factor', ipa: '/ˈfæk.tɚ/' }, back: { vi: 'yếu tố, nhân tố', en: 'one of the things that has an effect on a particular situation, decision, event, etc.', ex: 'Price is a major factor in our decision to buy the house.', ex_vi: 'Giá cả là một yếu tố chính trong quyết định mua nhà của chúng tôi.' } },
+            { front: { term: 'go on to do something', ipa: '/ɡoʊ ɑːn tə du ˈsʌmθɪŋ/' }, back: { vi: 'tiếp tục làm gì', en: 'to do something else in the future', ex: 'After finishing college, she will go on to do something in medicine.', ex_vi: 'Sau khi học xong đại học, cô ấy sẽ tiếp tục làm gì đó trong lĩnh vực y học.' } },
+            { front: { term: 'humidity', ipa: '/hjuːˈmɪd.ə.t̬i/' }, back: { vi: 'độ ẩm', en: 'a measurement of how much water there is in the air', ex: 'The humidity is very high today, making it feel even hotter.', ex_vi: 'Độ ẩm hôm nay rất cao, khiến cảm giác càng nóng hơn.' } },
+            { front: { term: 'interior', ipa: '/ɪnˈtɪr.i.ɚ/' }, back: { vi: 'bên trong, nội thất', en: 'the inside part of something', ex: 'The interior of the house was beautifully decorated.', ex_vi: 'Nội thất của ngôi nhà được trang trí rất đẹp.' } },
+            { front: { term: 'interior design', ipa: '/ɪnˌtɪr.i.ɚ dɪˈzaɪn/' }, back: { vi: 'thiết kế nội thất', en: 'the job of choosing colours, designs, etc for the inside of a house or room', ex: 'She is studying interior design at college.', ex_vi: 'Cô ấy đang học thiết kế nội thất ở trường cao đẳng.' } },
+            { front: { term: 'investigate', ipa: '/ɪnˈves.tə.ɡeɪt/' }, back: { vi: 'điều tra, nghiên cứu', en: 'to try to discover all the facts about something, especially a crime or an accident', ex: 'The police are investigating the cause of the fire.', ex_vi: 'Cảnh sát đang điều tra nguyên nhân vụ cháy.' } },
+            { front: { term: 'moisture', ipa: '/ˈmɔɪs.tʃɚ/' }, back: { vi: 'hơi ẩm, độ ẩm', en: 'very small drops of water in the air or on a surface', ex: 'You can feel the moisture in the air after the rain.', ex_vi: 'Bạn có thể cảm nhận được hơi ẩm trong không khí sau cơn mưa.' } },
+            { front: { term: 'money-conscious', ipa: '/ˈmʌn.iˌkɑːn.ʃəs/' }, back: { vi: 'có ý thức về tiền bạc, tiết kiệm', en: 'not wanting to spend too much money', ex: 'Being money-conscious, she always looks for the best deals.', ex_vi: 'Là người có ý thức về tiền bạc, cô ấy luôn tìm kiếm những ưu đãi tốt nhất.' } },
+            { front: { term: 'permit', ipa: '/pərˈmɪt/' }, back: { vi: 'cho phép', en: 'to allow something', ex: 'The rules do not permit smoking inside the building.', ex_vi: 'Các quy định không cho phép hút thuốc bên trong tòa nhà.' } },
+            { front: { term: 'persuade', ipa: '/pɚˈsweɪd/' }, back: { vi: 'thuyết phục', en: 'to make someone agree to do something by talking to them a lot about it', ex: 'He managed to persuade her to come to the party.', ex_vi: 'Anh ấy đã thuyết phục được cô ấy đến bữa tiệc.' } },
+            { front: { term: 'printing', ipa: '/ˈprɪn.t̬ɪŋ/' }, back: { vi: 'sự in ấn', en: 'when writing or images are produced on paper or other material using a machine', ex: 'The book is now ready for printing.', ex_vi: 'Cuốn sách bây giờ đã sẵn sàng để in.' } },
+            { front: { term: 'reasonable amount', ipa: '/ˈriː.zən.ə.bəl əˈmaʊnt/' }, back: { vi: 'một lượng hợp lý', en: 'an amount that is not too much and not too little', ex: 'You should drink a reasonable amount of water every day.', ex_vi: 'Bạn nên uống một lượng nước hợp lý mỗi ngày.' } },
+            { front: { term: 'smoothly', ipa: '/ˈsmuːð.li/' }, back: { vi: 'một cách trôi chảy, suôn sẻ', en: 'happening without any sudden movements or changes', ex: 'The meeting went smoothly without any disagreements.', ex_vi: 'Cuộc họp diễn ra suôn sẻ không có bất kỳ bất đồng nào.' } },
+            { front: { term: 'special occasion', ipa: '/ˈspeʃ.əl əˈkeɪ.ʒən/' }, back: { vi: 'dịp đặc biệt', en: 'an event that is important and enjoyable, such as a birthday or a wedding', ex: 'I only wear this dress on a special occasion.', ex_vi: 'Tôi chỉ mặc chiếc váy này vào một dịp đặc biệt.' } },
+            { front: { term: 'take up space', ipa: '/teɪk ʌp speɪs/' }, back: { vi: 'chiếm không gian, chiếm chỗ', en: 'to use an amount of space', ex: 'The old furniture takes up too much space in the room.', ex_vi: 'Đồ đạc cũ chiếm quá nhiều không gian trong phòng.' } },
+            { front: { term: 'three-dimensional', ipa: '/ˌθriː.dɪˈmen.ʃən.əl/' }, back: { vi: 'ba chiều (3D)', en: 'having length, depth and height', ex: 'The movie was shown in three-dimensional format.', ex_vi: 'Bộ phim được chiếu ở định dạng ba chiều.' } },
+            { front: { term: 'transfer', ipa: '/trænsˈfɝː/' }, back: { vi: 'di chuyển, chuyển giao', en: 'to move someone or something from one place to another', ex: 'You can transfer the files to a different folder.', ex_vi: 'Bạn có thể chuyển các tệp sang một thư mục khác.' } },
+            { front: { term: 'twist', ipa: '/twɪst/' }, back: { vi: 'xoắn, vặn', en: 'to turn something using your hand', ex: 'Twist the cap to open the bottle.', ex_vi: 'Vặn nắp để mở chai.' } },
+            { front: { term: 'widespread', ipa: '/ˈwaɪd.spred/' }, back: { vi: 'lan rộng, phổ biến', en: 'affecting or including a lot of places, people, etc.', ex: 'There is widespread support for the new policy.', ex_vi: 'Có sự ủng hộ rộng rãi cho chính sách mới.' } },
+            { front: { term: 'worldwide', ipa: '/ˈwɝːld.waɪd/' }, back: { vi: 'trên toàn thế giới', en: 'in all parts of the world', ex: 'The company has offices worldwide.', ex_vi: 'Công ty có văn phòng trên toàn thế giới.' } }
+        ];
+
+        let currentCardIndex = 0;
+        
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+            
+            cardFrontEl.innerHTML = `
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa}</p>
+            `;
+            
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+            
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+    </script>
+</body>
+</html>
