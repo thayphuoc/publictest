@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 5: The world in our hands</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem; /* rounded-xl */
+        }
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+    <!-- Chosen Palette: Calm Harmony Neutrals -->
+    <!-- Application Structure Plan: A digital flashcard application. The main view is a single, flippable card. Users can navigate sequentially with 'Previous'/'Next' buttons or test themselves with a 'Random' button. A progress counter shows their position. This structure directly translates the static report into an interactive, proven learning tool, focusing on the core user goal of vocabulary memorization and recall. -->
+    <!-- Visualization & Content Choices: Report Info: Vocabulary list. Goal: Learn & Recall. Viz/Presentation: Interactive flippable card. Interaction: Click to flip, buttons to navigate/shuffle. Justification: This method is the most intuitive and effective for learning flashcard content, promoting active recall over passive reading. Library/Method: HTML/CSS for structure and flip animation, Vanilla JS for logic and content rendering. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 5: The world in our hands</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'advance payment', ipa: '/ədˈvæns ˈpeɪ.mənt/' }, back: { vi: 'thanh toán trước', en: 'a sum of money that is paid some time before you get the thing you want to buy', ex: 'They require an advance payment before starting the construction.', ex_vi: 'Họ yêu cầu thanh toán trước khi bắt đầu xây dựng.' } },
+            { front: { term: 'calculate', ipa: '/ˈkæl.kjə.leɪt/' }, back: { vi: 'tính toán', en: 'to discover an amount or number using mathematics', ex: 'We need to calculate the total cost of the project.', ex_vi: 'Chúng ta cần tính toán tổng chi phí của dự án.' } },
+            { front: { term: 'challenge', ipa: '/ˈtʃæl.ɪndʒ/' }, back: { vi: 'thách thức', en: 'something that is difficult and that tests someone\'s ability or determination', ex: 'Protecting the environment is a major challenge for our generation.', ex_vi: 'Bảo vệ môi trường là một thách thức lớn đối với thế hệ chúng ta.' } },
+            { front: { term: 'climate change', ipa: '/ˈklaɪ.mət tʃeɪndʒ/' }, back: { vi: 'biến đổi khí hậu', en: 'the way the Earth\'s weather is changing', ex: 'Climate change is causing rising sea levels.', ex_vi: 'Biến đổi khí hậu đang gây ra tình trạng nước biển dâng.' } },
+            { front: { term: 'dependence (on)', ipa: '/dɪˈpen.dəns/' }, back: { vi: 'sự phụ thuộc (vào)', en: 'when you need someone or something in order to exist or continue as before', ex: 'Our dependence on fossil fuels is harmful to the planet.', ex_vi: 'Sự phụ thuộc của chúng ta vào nhiên liệu hóa thạch có hại cho hành tinh.' } },
+            { front: { term: 'destruction', ipa: '/dɪˈstrʌk.ʃən/' }, back: { vi: 'sự phá hủy', en: 'when something is destroyed', ex: 'The destruction of the rainforest is a serious environmental issue.', ex_vi: 'Sự phá hủy rừng nhiệt đới là một vấn đề môi trường nghiêm trọng.' } },
+            { front: { term: 'drawback', ipa: '/ˈdrɔː.bæk/' }, back: { vi: 'nhược điểm', en: 'a problem or disadvantage', ex: 'The main drawback of this plan is the high cost.', ex_vi: 'Nhược điểm chính của kế hoạch này là chi phí cao.' } },
+            { front: { term: 'endangered species', ipa: '/ɪnˈdeɪn.dʒɚd ˈspiː.ʃiːz/' }, back: { vi: 'loài có nguy cơ tuyệt chủng', en: 'a type of animal or plant that soon may not exist because there are very few now alive', ex: 'Conservation programs aim to protect endangered species.', ex_vi: 'Các chương trình bảo tồn nhằm bảo vệ các loài có nguy cơ tuyệt chủng.' } },
+            { front: { term: 'estimate the cost', ipa: '/ˈes.tə.meɪt ðə kɑːst/' }, back: { vi: 'ước tính chi phí', en: 'to use any information that you have to guess how much something will cost', ex: 'It is difficult to estimate the cost of the environmental damage.', ex_vi: 'Rất khó để ước tính chi phí của thiệt hại môi trường.' } },
+            { front: { term: 'focus on', ipa: '/ˈfoʊ.kəs ɑːn/' }, back: { vi: 'tập trung vào', en: 'to give a lot of attention to one particular subject or thing', ex: 'We need to focus on finding renewable energy sources.', ex_vi: 'Chúng ta cần tập trung vào việc tìm kiếm các nguồn năng lượng tái tạo.' } },
+            { front: { term: 'fossil fuels', ipa: '/ˈfɑː.səl ˌfjʊəlz/' }, back: { vi: 'nhiên liệu hóa thạch', en: 'fuels such as coal or oil that are obtained from under the ground', ex: 'Burning fossil fuels releases greenhouse gases.', ex_vi: 'Đốt nhiên liệu hóa thạch thải ra khí nhà kính.' } },
+            { front: { term: 'fresh air', ipa: '/freʃ er/' }, back: { vi: 'không khí trong lành', en: 'air outside buildings that is clean and cool', ex: 'It\'s important to get some fresh air every day.', ex_vi: 'Việc hít thở không khí trong lành mỗi ngày là rất quan trọng.' } },
+            { front: { term: 'harness energy', ipa: '/ˈhɑːr.nəs ˈen.ɚ.dʒi/' }, back: { vi: 'khai thác năng lượng', en: 'to control energy so that you can use it', ex: 'Scientists are finding new ways to harness energy from the sun.', ex_vi: 'Các nhà khoa học đang tìm ra những cách mới để khai thác năng lượng từ mặt trời.' } },
+            { front: { term: 'infrastructure', ipa: '/ˈɪn.frəˌstrʌk.tʃɚ/' }, back: { vi: 'cơ sở hạ tầng', en: 'the basic systems, such as transport and communication, that a country or organisation uses in order to work effectively', ex: 'The country needs to invest in its infrastructure to support economic growth.', ex_vi: 'Đất nước cần đầu tư vào cơ sở hạ tầng để hỗ trợ tăng trưởng kinh tế.' } },
+            { front: { term: 'a major source of electricity', ipa: '/ə ˈmeɪ.dʒɚ sɔːrs əv ɪˌlekˈtrɪs.ə.t̬i/' }, back: { vi: 'một nguồn điện chính', en: 'something that produces a lot of electricity', ex: 'Hydroelectric dams are a major source of electricity in this region.', ex_vi: 'Các đập thủy điện là một nguồn điện chính trong khu vực này.' } },
+            { front: { term: 'natural habitat', ipa: '/ˈnætʃ.ɚ.əl ˈhæb.ə.tæt/' }, back: { vi: 'môi trường sống tự nhiên', en: 'the place where animals live or plants grow naturally', ex: 'Deforestation is destroying the natural habitat of many animals.', ex_vi: 'Nạn phá rừng đang phá hủy môi trường sống tự nhiên của nhiều loài động vật.' } },
+            { front: { term: 'nature reserve', ipa: '/ˈneɪ.tʃɚ rɪˌzɝːv/' }, back: { vi: 'khu bảo tồn thiên nhiên', en: 'a place where animals and plants live and are protected', ex: 'The nature reserve is home to many rare birds.', ex_vi: 'Khu bảo tồn thiên nhiên là nơi sinh sống của nhiều loài chim quý hiếm.' } },
+            { front: { term: 'the next step', ipa: '/ðə nekst step/' }, back: { vi: 'bước tiếp theo', en: 'the next in a series of actions', ex: 'The next step is to implement the plan.', ex_vi: 'Bước tiếp theo là thực hiện kế hoạch.' } },
+            { front: { term: 'power station / power plant', ipa: '/ˈpaʊ.ɚ ˌsteɪ.ʃən/' }, back: { vi: 'nhà máy điện', en: 'a large building or group of buildings where electricity is produced by machines', ex: 'The new power plant will use solar energy.', ex_vi: 'Nhà máy điện mới sẽ sử dụng năng lượng mặt trời.' } },
+            { front: { term: 'produce profitably', ipa: '/prəˈduːs ˈprɑː.fɪ.t̬ə.bli/' }, back: { vi: 'sản xuất có lãi', en: 'to produce something in such a way that it makes profit', ex: 'The company is looking for ways to produce its goods more profitably.', ex_vi: 'Công ty đang tìm cách sản xuất hàng hóa của mình một cách có lãi hơn.' } },
+            { front: { term: 'release into the atmosphere', ipa: '/rɪˈliːs ˌɪn.tuː ði ˈæt.mə.sfɪr/' }, back: { vi: 'thải vào khí quyển', en: 'to allow substance to get into the air around the Earth', ex: 'Factories are not allowed to release toxic chemicals into the atmosphere.', ex_vi: 'Các nhà máy không được phép thải hóa chất độc hại vào khí quyển.' } },
+            { front: { term: 'renewable energy', ipa: '/rɪˈnuː.ə.bəl ˈen.ɚ.dʒi/' }, back: { vi: 'năng lượng tái tạo', en: 'energy from sources that continue to exist, for example wind or the sun', ex: 'Investing in renewable energy is essential for a sustainable future.', ex_vi: 'Đầu tư vào năng lượng tái tạo là điều cần thiết cho một tương lai bền vững.' } },
+            { front: { term: 'rising sea levels', ipa: '/ˈraɪ.zɪŋ siː ˌlev.əlz/' }, back: { vi: 'mực nước biển dâng', en: 'the increased height of the level of seas and oceans', ex: 'Rising sea levels are a direct consequence of global warming.', ex_vi: 'Mực nước biển dâng là hậu quả trực tiếp của sự nóng lên toàn cầu.' } },
+            { front: { term: 'sceptical', ipa: '/ˈskep.tɪ.kəl/' }, back: { vi: 'hoài nghi', en: 'doubting that something is true or useful', ex: 'Many scientists are sceptical about the new theory.', ex_vi: 'Nhiều nhà khoa học hoài nghi về lý thuyết mới.' } },
+            { front: { term: 'scenery', ipa: '/ˈsiː.nɚ.i/' }, back: { vi: 'phong cảnh', en: 'attractive, natural things that you see in the countryside', ex: 'The mountain scenery was breathtaking.', ex_vi: 'Phong cảnh núi non thật ngoạn mục.' } },
+            { front: { term: 'switch (to)', ipa: '/swɪtʃ/' }, back: { vi: 'chuyển sang', en: 'to change from using one thing to using another', ex: 'We need to switch to cleaner sources of energy.', ex_vi: 'Chúng ta cần chuyển sang các nguồn năng lượng sạch hơn.' } },
+            { front: { term: 'unspoilt countryside', ipa: '/ʌnˈspɔɪlt ˈkʌn.tri.saɪd/' }, back: { vi: 'vùng nông thôn hoang sơ', en: 'areas of land that have not been changed or damaged by people', ex: 'They enjoyed a peaceful holiday in the unspoilt countryside.', ex_vi: 'Họ đã tận hưởng một kỳ nghỉ yên bình ở vùng nông thôn hoang sơ.' } },
+            { front: { term: 'yield', ipa: '/jiːld/' }, back: { vi: 'sản xuất ra, mang lại', en: 'to produce or provide something', ex: 'This land can yield a good harvest.', ex_vi: 'Mảnh đất này có thể mang lại một vụ mùa bội thu.' } },
+            { front: { term: 'wildlife conservation programme', ipa: '/ˈwaɪld.laɪf ˌkɑːn.sɚˈveɪ.ʃən ˈproʊ.ɡræm/' }, back: { vi: 'chương trình bảo tồn động vật hoang dã', en: 'a plan whose aim is to protect wild animals and plants', ex: 'The government has launched a new wildlife conservation programme.', ex_vi: 'Chính phủ đã khởi động một chương trình bảo tồn động vật hoang dã mới.' } },
+            { front: { term: 'zero emissions', ipa: '/ˈzɪr.oʊ ɪˌmɪʃ.ənz/' }, back: { vi: 'không phát thải', en: 'If something such as a machine or an industry has zero emissions, it does not release any harmful substances into the atmosphere.', ex: 'The new electric car boasts zero emissions.', ex_vi: 'Chiếc ô tô điện mới tự hào có mức phát thải bằng không.' } }
+        ];
+
+        let currentCardIndex = 0;
+        
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+            
+            cardFrontEl.innerHTML = `
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa}</p>
+            `;
+            
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+            
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+    </script>
+</body>
+</html>
