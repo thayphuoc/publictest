@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 4: New media</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem; /* rounded-xl */
+        }
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+    <!-- Chosen Palette: Calm Harmony Neutrals -->
+    <!-- Application Structure Plan: A digital flashcard application. The main view is a single, flippable card. Users can navigate sequentially with 'Previous'/'Next' buttons or test themselves with a 'Random' button. A progress counter shows their position. This structure directly translates the static report into an interactive, proven learning tool, focusing on the core user goal of vocabulary memorization and recall. -->
+    <!-- Visualization & Content Choices: Report Info: Vocabulary list. Goal: Learn & Recall. Viz/Presentation: Interactive flippable card. Interaction: Click to flip, buttons to navigate/shuffle. Justification: This method is the most intuitive and effective for learning flashcard content, promoting active recall over passive reading. Library/Method: HTML/CSS for structure and flip animation, Vanilla JS for logic and content rendering. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 4: New media</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'accuracy', ipa: '/ˈæk.jɚ.ə.si/' }, back: { vi: 'sự chính xác', en: 'how correct or exact something is', ex: 'The accuracy of the report was questioned by the experts.', ex_vi: 'Sự chính xác của báo cáo đã bị các chuyên gia đặt câu hỏi.' } },
+            { front: { term: 'amateur', ipa: '/ˈæm.ə.tʃɚ/' }, back: { vi: 'nghiệp dư', en: 'someone who does something as a hobby and not as their job', ex: 'The photo was taken by an amateur photographer, but it looks professional.', ex_vi: 'Bức ảnh được chụp bởi một nhiếp ảnh gia nghiệp dư, nhưng nó trông rất chuyên nghiệp.' } },
+            { front: { term: 'ambitious project', ipa: '/æmˈbɪʃ.əs ˈprɑː.dʒekt/' }, back: { vi: 'dự án tham vọng', en: 'a planned piece of work which will need a lot of effort and will be difficult to achieve', ex: 'Building a city on Mars is a very ambitious project.', ex_vi: 'Xây dựng một thành phố trên sao Hỏa là một dự án rất tham vọng.' } },
+            { front: { term: 'anonymous', ipa: '/əˈnɑː.nə.məs/' }, back: { vi: 'ẩn danh', en: 'If someone is anonymous, their name is not given.', ex: 'The donation was made by an anonymous benefactor.', ex_vi: 'Khoản quyên góp được thực hiện bởi một nhà hảo tâm ẩn danh.' } },
+            { front: { term: 'attract attention', ipa: '/əˈtrækt əˈten.ʃən/' }, back: { vi: 'thu hút sự chú ý', en: 'to cause people to notice something and be interested in it', ex: 'The unusual advertisement was designed to attract attention.', ex_vi: 'Quảng cáo khác thường được thiết kế để thu hút sự chú ý.' } },
+            { front: { term: 'carry out research', ipa: '/ˈker.i aʊt ˈriː.sɝːtʃ/' }, back: { vi: 'tiến hành nghiên cứu', en: 'to study something in order to discover information about it', ex: 'Scientists are carrying out research on the effects of social media.', ex_vi: 'Các nhà khoa học đang tiến hành nghiên cứu về tác động của mạng xã hội.' } },
+            { front: { term: 'collaboration', ipa: '/kəˌlæb.əˈreɪ.ʃən/' }, back: { vi: 'sự hợp tác', en: 'when two or more people work together to create or achieve something', ex: 'The new encyclopedia was a result of a collaboration between many scholars.', ex_vi: 'Bộ bách khoa toàn thư mới là kết quả của sự hợp tác giữa nhiều học giả.' } },
+            { front: { term: 'disappointing results', ipa: '/ˌdɪs.əˈpɔɪn.t̬ɪŋ rɪˈzʌlts/' }, back: { vi: 'kết quả đáng thất vọng', en: 'results are not as good as you had hoped or expected', ex: 'The experiment produced disappointing results and had to be repeated.', ex_vi: 'Thí nghiệm đã cho ra những kết quả đáng thất vọng và phải được lặp lại.' } },
+            { front: { term: 'discourage sb from doing sth', ipa: '/dɪˈskɝː.ɪdʒ/' }, back: { vi: 'làm nản lòng ai làm gì', en: 'to try to persuade someone not to do something', ex: 'His parents tried to discourage him from becoming an actor.', ex_vi: 'Cha mẹ anh đã cố gắng làm anh nản lòng với việc trở thành một diễn viên.' } },
+            { front: { term: 'do research', ipa: '/duː ˈriː.sɝːtʃ/' }, back: { vi: 'làm nghiên cứu', en: 'to study something in order to discover information about it', ex: 'Before writing the article, she had to do a lot of research.', ex_vi: 'Trước khi viết bài báo, cô ấy đã phải làm rất nhiều nghiên cứu.' } },
+            { front: { term: 'evolve', ipa: '/ɪˈvɑːlv/' }, back: { vi: 'tiến hóa, phát triển', en: 'to develop or make something develop, usually gradually', ex: 'The way we communicate has evolved dramatically with the invention of the internet.', ex_vi: 'Cách chúng ta giao tiếp đã phát triển một cách đáng kể với sự phát minh của internet.' } },
+            { front: { term: 'experiment (with)', ipa: '/ɪkˈsper.ə.mənt/' }, back: { vi: 'thử nghiệm (với)', en: 'to try something new in order to see what happens and how succesful it is', ex: 'The website is experimenting with a new design to improve user experience.', ex_vi: 'Trang web đang thử nghiệm một thiết kế mới để cải thiện trải nghiệm người dùng.' } },
+            { front: { term: 'feedback', ipa: '/ˈfiːd.bæk/' }, back: { vi: 'phản hồi, góp ý', en: 'comments about something that you have done or made, given to help you improve it if necessary', ex: 'We received a lot of positive feedback from our users.', ex_vi: 'Chúng tôi đã nhận được rất nhiều phản hồi tích cực từ người dùng của mình.' } },
+            { front: { term: 'in response to', ipa: '/ɪn rɪˈspɑːns tuː/' }, back: { vi: 'để đáp lại', en: 'as a reaction to something that has happened or been done', ex: 'The company developed the new feature in response to customer requests.', ex_vi: 'Công ty đã phát triển tính năng mới để đáp lại yêu cầu của khách hàng.' } },
+            { front: { term: 'keep in touch (with)', ipa: '/kiːp ɪn tʌtʃ/' }, back: { vi: 'giữ liên lạc (với)', en: 'to continue to communicate with someone, for example by telephoning them or writing to them', ex: 'Social media makes it easy to keep in touch with friends who live far away.', ex_vi: 'Mạng xã hội giúp dễ dàng giữ liên lạc với những người bạn sống ở xa.' } },
+            { front: { term: 'keep up (with)', ipa: '/kiːp ʌp/' }, back: { vi: 'theo kịp (với)', en: 'to be able to understand and deal with something that is happening or changing fast', ex: 'It\'s hard to keep up with all the latest technological developments.', ex_vi: 'Thật khó để theo kịp tất cả các phát triển công nghệ mới nhất.' } },
+            { front: { term: 'lack incentive', ipa: '/læk ɪnˈsen.t̬ɪv/' }, back: { vi: 'thiếu động lực', en: 'to have nothing to encourage you to do something', ex: 'Without a clear reward, people may lack incentive to contribute.', ex_vi: 'Nếu không có phần thưởng rõ ràng, mọi người có thể thiếu động lực để đóng góp.' } },
+            { front: { term: 'latest fashions', ipa: '/ˈleɪ.t̬ɪst ˈfæʃ.ənz/' }, back: { vi: 'thời trang mới nhất', en: 'things that have recently become fashionable', ex: 'Many blogs are dedicated to discussing the latest fashions.', ex_vi: 'Nhiều blog dành riêng để thảo luận về các xu hướng thời trang mới nhất.' } },
+            { front: { term: 'launch', ipa: '/lɔːntʃ/' }, back: { vi: 'ra mắt, khởi động', en: 'to begin an activity', ex: 'The organization plans to launch a new online campaign.', ex_vi: 'Tổ chức có kế hoạch khởi động một chiến dịch trực tuyến mới.' } },
+            { front: { term: 'law', ipa: '/lɔː/' }, back: { vi: 'quy luật', en: 'something that is always true', ex: 'It is a law of physics that what goes up must come down.', ex_vi: 'Đó là một quy luật vật lý rằng cái gì đi lên thì phải đi xuống.' } },
+            { front: { term: 'potential', ipa: '/pəˈten.ʃəl/' }, back: { vi: 'tiềm năng', en: 'A potential problem, employer, partner, etc. may become one in the future, although they are not one now.', ex: 'The new website has the potential to attract millions of users.', ex_vi: 'Trang web mới có tiềm năng thu hút hàng triệu người dùng.' } },
+            { front: { term: 'proposal', ipa: '/prəˈpoʊ.zəl/' }, back: { vi: 'đề xuất', en: 'a suggestion for a plan', ex: 'He submitted a proposal for a new collaborative project.', ex_vi: 'Anh ấy đã nộp một đề xuất cho một dự án hợp tác mới.' } },
+            { front: { term: 'publication', ipa: '/ˌpʌb.lɪˈkeɪ.ʃən/' }, back: { vi: 'ấn phẩm', en: 'a book, newspaper or magazine', ex: 'She is a writer for a well-known scientific publication.', ex_vi: 'Cô ấy là một nhà văn cho một ấn phẩm khoa học nổi tiếng.' } },
+            { front: { term: 'publish', ipa: '/ˈpʌb.lɪʃ/' }, back: { vi: 'xuất bản', en: 'to prepare and print a book, newspaper, magazine, article, etc. so that people can buy it', ex: 'They decided to publish the research findings in a journal.', ex_vi: 'Họ đã quyết định xuất bản các kết quả nghiên cứu trên một tạp chí.' } },
+            { front: { term: 'restrict', ipa: '/rɪˈstrɪkt/' }, back: { vi: 'hạn chế, giới hạn', en: 'to limit something', ex: 'Some websites restrict access to their content.', ex_vi: 'Một số trang web hạn chế quyền truy cập vào nội dung của họ.' } },
+            { front: { term: 'review', ipa: '/rɪˈvjuː/' }, back: { vi: 'bài đánh giá, sự xem xét', en: 'an examination of what has been written about a particular subject', ex: 'The book received a positive review in the newspaper.', ex_vi: 'Cuốn sách đã nhận được một bài đánh giá tích cực trên báo.' } },
+            { front: { term: 'reveal', ipa: '/rɪˈviːl/' }, back: { vi: 'tiết lộ', en: 'to give someone information that was not known before', ex: 'The study revealed a strong link between social media use and anxiety.', ex_vi: 'Nghiên cứu đã tiết lộ một mối liên hệ mạnh mẽ giữa việc sử dụng mạng xã hội và sự lo lắng.' } },
+            { front: { term: 'social networking', ipa: '/ˈsoʊ.ʃəl ˈnet.wɝː.kɪŋ/' }, back: { vi: 'mạng xã hội', en: 'using websites to communicate with friends and to meet other people', ex: 'Social networking has changed the way we interact with each other.', ex_vi: 'Mạng xã hội đã thay đổi cách chúng ta tương tác với nhau.' } },
+            { front: { term: 'transform', ipa: '/trænsˈfɔːrm/' }, back: { vi: 'biến đổi', en: 'to change something completely, usually to improve it', ex: 'The internet has transformed the way we get information.', ex_vi: 'Internet đã biến đổi cách chúng ta tiếp nhận thông tin.' } },
+            { front: { term: 'turn out', ipa: '/tɝːn aʊt/' }, back: { vi: 'hóa ra, trở thành', en: 'to happen in a particular way, or to have a particular result', ex: 'The collaborative project turned out to be a great success.', ex_vi: 'Dự án hợp tác hóa ra lại là một thành công lớn.' } }
+        ];
+
+        let currentCardIndex = 0;
+        
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+            
+            cardFrontEl.innerHTML = `
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa}</p>
+            `;
+            
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+            
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+    </script>
+</body>
+</html>
