@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 2: It’s good for you</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem; /* rounded-xl */
+        }
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+    <!-- Chosen Palette: Calm Harmony Neutrals -->
+    <!-- Application Structure Plan: A digital flashcard application. The main view is a single, flippable card. Users can navigate sequentially with 'Previous'/'Next' buttons or test themselves with a 'Random' button. A progress counter shows their position. This structure directly translates the static report into an interactive, proven learning tool, focusing on the core user goal of vocabulary memorization and recall. -->
+    <!-- Visualization & Content Choices: Report Info: Vocabulary list. Goal: Learn & Recall. Viz/Presentation: Interactive flippable card. Interaction: Click to flip, buttons to navigate/shuffle. Justification: This method is the most intuitive and effective for learning flashcard content, promoting active recall over passive reading. Library/Method: HTML/CSS for structure and flip animation, Vanilla JS for logic and content rendering. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 2: It’s good for you</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'approach', ipa: '/əˈproʊtʃ/' }, back: { vi: 'cách tiếp cận, phương pháp', en: 'a way of doing something', ex: 'We need a new approach to tackle this problem.', ex_vi: 'Chúng ta cần một cách tiếp cận mới để giải quyết vấn đề này.' } },
+            { front: { term: 'artificial', ipa: '/ˌɑːr.t̬əˈfɪʃ.əl/' }, back: { vi: 'nhân tạo', en: 'not natural, but made by people', ex: 'The juice contains no artificial colors or flavors.', ex_vi: 'Nước ép không chứa màu sắc hay hương vị nhân tạo.' } },
+            { front: { term: 'attitudes (towards)', ipa: '/ˈæt̬.ə.tuːdz/' }, back: { vi: 'thái độ (đối với)', en: 'how people think or feel about something and how this makes them behave', ex: 'Public attitudes towards mental health have changed over the years.', ex_vi: 'Thái độ của công chúng đối với sức khỏe tâm thần đã thay đổi qua nhiều năm.' } },
+            { front: { term: 'avoid', ipa: '/əˈvɔɪd/' }, back: { vi: 'tránh', en: 'to choose not to use something or have something', ex: 'You should avoid eating too much sugar.', ex_vi: 'Bạn nên tránh ăn quá nhiều đường.' } },
+            { front: { term: 'conventional', ipa: '/kənˈven.ʃən.əl/' }, back: { vi: 'thông thường, truyền thống', en: 'Conventional objects or ways of doing things are the usual ones which have been used for a long time.', ex: 'He prefers conventional farming methods over modern techniques.', ex_vi: 'Anh ấy thích các phương pháp canh tác truyền thống hơn là các kỹ thuật hiện đại.' } },
+            { front: { term: 'create', ipa: '/kriˈeɪt/' }, back: { vi: 'tạo ra', en: 'to make something happen or exist', ex: 'The new factory will create hundreds of jobs.', ex_vi: 'Nhà máy mới sẽ tạo ra hàng trăm việc làm.' } },
+            { front: { term: 'crop yields', ipa: '/krɑːp jiːldz/' }, back: { vi: 'năng suất cây trồng', en: 'the amount of a plant such as grain, fruit or vegetable that is grown', ex: 'Good weather has led to high crop yields this year.', ex_vi: 'Thời tiết tốt đã dẫn đến năng suất cây trồng cao trong năm nay.' } },
+            { front: { term: 'emit', ipa: '/iˈmɪt/' }, back: { vi: 'thải ra, phát ra', en: 'to send out gas, heat, light, etc. into the air', ex: 'Factories often emit harmful gases into the atmosphere.', ex_vi: 'Các nhà máy thường thải khí độc hại vào khí quyển.' } },
+            { front: { term: 'farming techniques', ipa: '/ˈfɑːr.mɪŋ tekˌniːks/' }, back: { vi: 'kỹ thuật canh tác', en: 'methods used for working on farms', ex: 'Organic farming techniques are becoming more popular.', ex_vi: 'Các kỹ thuật canh tác hữu cơ đang trở nên phổ biến hơn.' } },
+            { front: { term: 'food stall', ipa: '/fuːd stɔːl/' }, back: { vi: 'quầy hàng thực phẩm', en: 'a small shop with an open front or a table from which food is sold', ex: 'I bought a delicious snack from a food stall at the market.', ex_vi: 'Tôi đã mua một món ăn vặt ngon từ một quầy hàng thực phẩm ở chợ.' } },
+            { front: { term: 'for one thing', ipa: '/fɔːr wʌn θɪŋ/' }, back: { vi: 'một là, vì một lý do', en: 'used to give a reason for something', ex: 'I don\'t want to go out. For one thing, it\'s raining.', ex_vi: 'Tôi không muốn ra ngoài. Một là, trời đang mưa.' } },
+            { front: { term: 'frozen food', ipa: '/ˈfroʊ.zən fuːd/' }, back: { vi: 'thực phẩm đông lạnh', en: 'food that has been frozen (made very cold and hard) in order to store it', ex: 'Frozen food is convenient, but fresh food is often healthier.', ex_vi: 'Thực phẩm đông lạnh tiện lợi, nhưng thực phẩm tươi thường tốt cho sức khỏe hơn.' } },
+            { front: { term: 'gain access to', ipa: '/ɡeɪn ˈæk.ses tuː/' }, back: { vi: 'tiếp cận được', en: 'to get the opportunity to have or use something', ex: 'The new road will help villagers gain access to the city.', ex_vi: 'Con đường mới sẽ giúp dân làng tiếp cận được thành phố.' } },
+            { front: { term: 'greenhouse gases', ipa: '/ˈɡriːn.haʊs ˌɡæs.ɪz/' }, back: { vi: 'khí nhà kính', en: 'gases which cause the Earth to become warmer', ex: 'Reducing greenhouse gases is crucial to combat climate change.', ex_vi: 'Giảm khí nhà kính là rất quan trọng để chống lại biến đổi khí hậu.' } },
+            { front: { term: 'hygiene', ipa: '/ˈhaɪ.dʒiːn/' }, back: { vi: 'vệ sinh', en: 'the process of keeping things clean, especially to prevent disease', ex: 'Good personal hygiene is important for preventing illness.', ex_vi: 'Vệ sinh cá nhân tốt rất quan trọng để phòng bệnh.' } },
+            { front: { term: 'influence', ipa: '/ˈɪn.flu.əns/' }, back: { vi: 'ảnh hưởng', en: 'to affect or change how someone behaves or thinks', ex: 'Advertisements can influence our buying decisions.', ex_vi: 'Quảng cáo có thể ảnh hưởng đến quyết định mua hàng của chúng ta.' } },
+            { front: { term: 'likely to', ipa: '/ˈlaɪ.kli tuː/' }, back: { vi: 'có khả năng', en: 'If something is more likely to be or do something, it will probably be or do that thing.', ex: 'People who exercise regularly are less likely to get sick.', ex_vi: 'Những người tập thể dục thường xuyên ít có khả năng bị ốm hơn.' } },
+            { front: { term: 'locally', ipa: '/ˈloʊ.kəl.i/' }, back: { vi: 'tại địa phương', en: 'in the area that is near to where you live or near to the place you are talking about', ex: 'We try to buy our vegetables locally from the farmer\'s market.', ex_vi: 'Chúng tôi cố gắng mua rau tại địa phương từ chợ nông sản.' } },
+            { front: { term: 'luxury', ipa: '/ˈlʌk.ʃɚ.i/' }, back: { vi: 'sự xa xỉ', en: 'something expensive that you enjoy but do not need', ex: 'For many people, a car is a necessity, not a luxury.', ex_vi: 'Đối với nhiều người, ô tô là một thứ cần thiết, không phải là một thứ xa xỉ.' } },
+            { front: { term: 'man-made', ipa: '/ˈmæn.meɪd/' }, back: { vi: 'nhân tạo', en: 'not natural, but made by people', ex: 'The park features a large man-made lake.', ex_vi: 'Công viên có một hồ nước nhân tạo lớn.' } },
+            { front: { term: 'nutrition', ipa: '/nuːˈtrɪʃ.ən/' }, back: { vi: 'dinh dưỡng', en: 'the food that you eat and the way that it affects your health', ex: 'Proper nutrition is essential for growing children.', ex_vi: 'Dinh dưỡng hợp lý là điều cần thiết cho trẻ em đang lớn.' } },
+            { front: { term: 'point (sth) out', ipa: '/pɔɪnt aʊt/' }, back: { vi: 'chỉ ra', en: 'to tell someone a fact', ex: 'She was quick to point out my mistakes.', ex_vi: 'Cô ấy đã nhanh chóng chỉ ra những sai lầm của tôi.' } },
+            { front: { term: 'reject', ipa: '/rɪˈdʒekt/' }, back: { vi: 'từ chối, bác bỏ', en: 'to refuse to accept or agree with something', ex: 'The company had to reject the proposal because it was too expensive.', ex_vi: 'Công ty đã phải từ chối đề xuất vì nó quá đắt.' } },
+            { front: { term: 'sound', ipa: '/saʊnd/' }, back: { vi: 'nghe có vẻ', en: 'to seem to have a particular quality', ex: 'That sounds like a good idea.', ex_vi: 'Nghe có vẻ là một ý kiến hay đấy.' } },
+            { front: { term: 'trend', ipa: '/trend/' }, back: { vi: 'xu hướng', en: 'a general development or change in a situation', ex: 'There is a growing trend towards vegetarianism.', ex_vi: 'Có một xu hướng ngày càng tăng về việc ăn chay.' } },
+            { front: { term: 'ultimately', ipa: '/ˈʌl.tə.mət.li/' }, back: { vi: 'cuối cùng, rốt cuộc', en: 'used to emphasise the most important fact in a situation', ex: 'Ultimately, the decision is yours.', ex_vi: 'Cuối cùng, quyết định là của bạn.' } },
+            { front: { term: 'value', ipa: '/ˈvæl.juː/' }, back: { vi: 'giá trị', en: 'how useful or important something is', ex: 'The value of a good education should not be underestimated.', ex_vi: 'Giá trị của một nền giáo dục tốt không nên bị đánh giá thấp.' } },
+            { front: { term: 'weather conditions', ipa: '/ˈweð.ɚ kənˌdɪʃ.ənz/' }, back: { vi: 'điều kiện thời tiết', en: 'the type of weather that a place has', ex: 'The game was cancelled due to poor weather conditions.', ex_vi: 'Trận đấu đã bị hủy do điều kiện thời tiết xấu.' } }
+        ];
+
+        let currentCardIndex = 0;
+        
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+            
+            cardFrontEl.innerHTML = `
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa}</p>
+            `;
+            
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+            
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+    </script>
+</body>
+</html>
