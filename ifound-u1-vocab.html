@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 1: Du học</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem; /* rounded-xl */
+        }
+        /* Mặt trước (mặt từ vựng) */
+        #card-front {
+            background-color: #ffffff; /* bg-white */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        /* Mặt sau (mặt định nghĩa) */
+        #card-back {
+            background-color: #f0fdfa; /* bg-teal-50 */
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+    <!-- Chosen Palette: Calm Harmony Neutrals -->
+    <!-- Application Structure Plan: A digital flashcard application. The main view is a single, flippable card. Users can navigate sequentially with 'Previous'/'Next' buttons or test themselves with a 'Random' button. A progress counter shows their position. This structure directly translates the static report into an interactive, proven learning tool, focusing on the core user goal of vocabulary memorization and recall. -->
+    <!-- Visualization & Content Choices: Report Info: Vocabulary list. Goal: Learn & Recall. Viz/Presentation: Interactive flippable card. Interaction: Click to flip, buttons to navigate/shuffle. Justification: This method is the most intuitive and effective for learning flashcard content, promoting active recall over passive reading. Library/Method: HTML/CSS for structure and flip animation, Vanilla JS for logic and content rendering. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 1: Du học</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'Overseas / Abroad', ipa: '/ˌoʊ.vɚˈsiːz/ /əˈbrɔːd/' }, back: { vi: 'ở nước ngoài, hải ngoại', en: 'in, from, or to other countries.', ex: 'She spent a year studying abroad to experience a new culture.', ex_vi: 'Cô ấy đã dành một năm học tập ở nước ngoài để trải nghiệm một nền văn hóa mới.' } },
+            { front: { term: 'International students', ipa: '/ˌɪn.t̬ɚˈnæʃ.nəl ˈstuː.dənts/' }, back: { vi: 'du học sinh, sinh viên quốc tế', en: 'students who choose to undertake all or part of their tertiary education in a country other than their own.', ex: 'Our university welcomes hundreds of international students each year.', ex_vi: 'Trường đại học của chúng tôi chào đón hàng trăm sinh viên quốc tế mỗi năm.' } },
+            { front: { term: 'Cultural exchange', ipa: '/ˈkʌl.tʃɚ.əl ɪksˈtʃeɪndʒ/' }, back: { vi: 'trao đổi văn hóa', en: 'a program where people from different countries visit each other to share their culture.', ex: 'The festival was a great opportunity for cultural exchange between the local community and tourists.', ex_vi: 'Lễ hội là một cơ hội tuyệt vời để trao đổi văn hóa giữa cộng đồng địa phương và khách du lịch.' } },
+            { front: { term: 'Language barrier', ipa: '/ˈlæŋ.ɡwɪdʒ ˈbær.i.ɚ/' }, back: { vi: 'rào cản ngôn ngữ', en: 'a difficulty in communication between people who do not speak the same language well.', ex: 'Despite the language barrier, they managed to become good friends.', ex_vi: 'Bất chấp rào cản ngôn ngữ, họ đã cố gắng trở thành những người bạn tốt.' } },
+            { front: { term: 'Tuition fees', ipa: '/tuˈɪʃ.ən fiːz/' }, back: { vi: 'học phí', en: 'the money paid for instruction at a school, college, or university.', ex: 'The tuition fees at private universities can be very high.', ex_vi: 'Học phí tại các trường đại học tư thục có thể rất cao.' } },
+            { front: { term: 'Living expenses', ipa: '/ˈlɪv.ɪŋ ɪkˈspen.səz/' }, back: { vi: 'chi phí sinh hoạt', en: 'the money an individual needs to cover necessary costs such as housing, food, and transportation.', ex: "It's important to budget for your living expenses when you move to a new city.", ex_vi: 'Việc lập ngân sách cho chi phí sinh hoạt là rất quan trọng khi bạn chuyển đến một thành phố mới.' } },
+            { front: { term: 'Scholarship', ipa: '/ˈskɑː.lɚ.ʃɪp/' }, back: { vi: 'học bổng', en: 'an amount of money given by a school, college, university, or other organization to pay for the studies of a person with great ability.', ex: 'He won a scholarship to study engineering at MIT.', ex_vi: 'Anh ấy đã giành được học bổng để học ngành kỹ thuật tại MIT.' } },
+            { front: { term: 'Student visa', ipa: '/ˈstuː.dənt ˈviː.zə/' }, back: { vi: 'visa du học', en: 'an endorsement on a passport indicating that the holder is allowed to enter, leave, or stay for a specified period of time in a country for the purpose of study.', ex: 'You must apply for a student visa before you can study in the United States.', ex_vi: 'Bạn phải xin visa du học trước khi có thể học tập tại Hoa Kỳ.' } },
+            { front: { term: 'Accommodation', ipa: '/əˌkɑː.məˈdeɪ.ʃən/' }, back: { vi: 'chỗ ở', en: 'a place to live, work, stay, etc.', ex: 'The university provides accommodation for first-year students in dormitories.', ex_vi: 'Trường đại học cung cấp chỗ ở cho sinh viên năm nhất trong ký túc xá.' } },
+            { front: { term: 'Exchange program', ipa: '/ɪksˈtʃeɪndʒ ˈproʊ.ɡræm/' }, back: { vi: 'chương trình trao đổi', en: "a program in which students study abroad at one of their institution's partner institutions.", ex: 'She is going to Spain for a semester as part of an exchange program.', ex_vi: 'Cô ấy sẽ đến Tây Ban Nha một học kỳ trong khuôn khổ một chương trình trao đổi.' } },
+            { front: { term: 'Higher education', ipa: '/ˌhaɪ.ɚ ˌedʒ.əˈkeɪ.ʃən/' }, back: { vi: 'giáo dục đại học', en: 'education at a college or university level.', ex: 'Many governments are investing more in higher education to build a skilled workforce.', ex_vi: 'Nhiều chính phủ đang đầu tư nhiều hơn vào giáo dục đại học để xây dựng một lực lượng lao động có tay nghề cao.' } },
+            { front: { term: 'Degree / Diploma', ipa: '/dɪˈɡriː/ /dɪˈploʊ.mə/' }, back: { vi: 'bằng cấp / chứng chỉ', en: 'a qualification given for completing a university course (degree) or a shorter, more practical course (diploma).', ex: "After four years of study, she earned her bachelor's degree in marketing.", ex_vi: 'Sau bốn năm học, cô đã lấy được bằng cử nhân ngành marketing.' } },
+            { front: { term: 'Curriculum', ipa: '/kəˈrɪk.jə.ləm/' }, back: { vi: 'chương trình học', en: 'the subjects comprising a course of study in a school or college.', ex: "The school's curriculum includes a wide range of subjects, from arts to sciences.", ex_vi: 'Chương trình học của trường bao gồm nhiều môn học đa dạng, từ nghệ thuật đến khoa học.' } },
+            { front: { term: 'Multicultural environment', ipa: '/ˌmʌl.taɪˈkʌl.tʃɚ.əl ɪnˈvaɪ.rən.mənt/' }, back: { vi: 'môi trường đa văn hóa', en: 'a setting that includes people from various cultural backgrounds.', ex: 'Studying in London allows you to live in a truly multicultural environment.', ex_vi: 'Học tập tại London cho phép bạn sống trong một môi trường thực sự đa văn hóa.' } },
+            { front: { term: 'Study abroad program', ipa: '/ˈstʌd.i əˈbrɔːd ˈproʊ.ɡræm/' }, back: { vi: 'chương trình du học', en: 'a program that gives students the opportunity to live in a different country and experience another culture and language while taking classes.', ex: 'Enrolling in a study abroad program was the best decision of her life.', ex_vi: 'Đăng ký một chương trình du học là quyết định sáng suốt nhất trong đời cô ấy.' } },
+            { front: { term: 'Homesickness', ipa: '/ˈhoʊm.sɪk.nəs/' }, back: { vi: 'nỗi nhớ nhà', en: 'the feeling of being unhappy because you are away from home and miss your family and friends.', ex: 'Many freshmen experience homesickness during their first few weeks at college.', ex_vi: 'Nhiều sinh viên năm nhất trải qua cảm giác nhớ nhà trong vài tuần đầu tiên ở trường đại học.' } },
+            { front: { term: 'Culture shock', ipa: '/ˈkʌl.tʃɚ ʃɑːk/' }, back: { vi: 'sốc văn hóa', en: 'a feeling of confusion and anxiety experienced by someone suddenly exposed to an alien culture or way of life.', ex: 'When he moved to Japan, he experienced culture shock due to the different social customs.', ex_vi: 'Khi chuyển đến Nhật Bản, anh ấy đã bị sốc văn hóa do những phong tục xã hội khác biệt.' } },
+            { front: { term: 'Adapt to a new environment', ipa: '/əˈdæpt tu ə nuː ɪnˈvaɪ.rən.mənt/' }, back: { vi: 'thích nghi với môi trường mới', en: 'to change your behavior or ideas to be successful in a new situation.', ex: 'It took him a while to adapt to the new environment at his workplace.', ex_vi: 'Anh ấy phải mất một thời gian để thích nghi với môi trường mới tại nơi làm việc của mình.' } },
+            { front: { term: 'Gain global perspective', ipa: '/ɡeɪn ˈɡloʊ.bəl pɚˈspek.tɪv/' }, back: { vi: 'có được góc nhìn toàn cầu', en: 'to develop a broader and more international outlook on the world.', ex: 'Traveling helps you gain a global perspective and understand different ways of life.', ex_vi: 'Du lịch giúp bạn có được góc nhìn toàn cầu và thấu hiểu những lối sống khác nhau.' } },
+            { front: { term: 'Broaden horizons', ipa: '/ˈbrɔː.dən həˈraɪ.zənz/' }, back: { vi: 'mở rộng tầm nhìn', en: 'to expand your range of interests, knowledge, and experience.', ex: 'Reading books is a great way to broaden your horizons.', ex_vi: 'Đọc sách là một cách tuyệt vời để mở rộng tầm nhìn của bạn.' } },
+            { front: { term: 'Independence', ipa: '/ˌɪn.dəˈpen.dəns/' }, back: { vi: 'sự độc lập, sự tự lập', en: 'the state of being free from the control, influence, support, aid, or the like, of others.', ex: 'Living alone for the first time taught her a great deal about independence.', ex_vi: 'Sống một mình lần đầu tiên đã dạy cho cô ấy rất nhiều điều về sự độc lập.' } },
+            { front: { term: 'Career prospects', ipa: '/kəˈrɪr ˈprɑː.spekts/' }, back: { vi: 'triển vọng nghề nghiệp', en: 'the chances of future success in a particular job or profession.', ex: 'A degree from a top university can significantly improve your career prospects.', ex_vi: 'Bằng cấp từ một trường đại học hàng đầu có thể cải thiện đáng kể triển vọng nghề nghiệp của bạn.' } }
+        ];
+
+        let currentCardIndex = 0;
+        
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+            
+            // Mặt trước (từ vựng)
+            cardFrontEl.innerHTML = `
+                <div class="p-6">
+                    <h2 class="text-3xl sm:text-4xl font-bold mb-4">${card.front.term}</h2>
+                    <p class="text-lg text-stone-500">${card.front.ipa}</p>
+                </div>
+            `;
+            
+            // Mặt sau (định nghĩa)
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+            
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+    </script>
+</body>
+</html>
