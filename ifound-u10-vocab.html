@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 10: Lối sống & Tiêu dùng</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem; /* rounded-xl */
+        }
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+    <!-- Chosen Palette: Calm Harmony Neutrals -->
+    <!-- Application Structure Plan: A digital flashcard application. The main view is a single, flippable card. Users can navigate sequentially with 'Previous'/'Next' buttons or test themselves with a 'Random' button. A progress counter shows their position. This structure directly translates the static report into an interactive, proven learning tool, focusing on the core user goal of vocabulary memorization and recall. -->
+    <!-- Visualization & Content Choices: Report Info: Vocabulary list. Goal: Learn & Recall. Viz/Presentation: Interactive flippable card. Interaction: Click to flip, buttons to navigate/shuffle. Justification: This method is the most intuitive and effective for learning flashcard content, promoting active recall over passive reading. Library/Method: HTML/CSS for structure and flip animation, Vanilla JS for logic and content rendering. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 10: Lối sống & Tiêu dùng</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'Predicted', ipa: '/prɪˈdɪk.tɪd/' }, back: { vi: 'dự đoán', en: 'Stated or estimated as likely to happen in the future.', ex: 'Experts predicted a rise in online shopping during the holidays.', ex_vi: 'Các chuyên gia đã dự đoán sự gia tăng mua sắm trực tuyến trong các ngày lễ.' } },
+            { front: { term: 'Pattern', ipa: '/ˈpæt̬.ɚn/' }, back: { vi: 'mô hình', en: 'A regularly repeated arrangement or sequence.', ex: 'There is a clear pattern of consumers prioritizing experiences over goods.', ex_vi: 'Có một mô hình rõ ràng về việc người tiêu dùng ưu tiên trải nghiệm hơn hàng hóa.' } },
+            { front: { term: 'Affordable', ipa: '/əˈfɔːr.də.bəl/' }, back: { vi: 'phải chăng', en: 'Inexpensive; reasonably priced.', ex: 'The store offers affordable options for home entertainment.', ex_vi: 'Cửa hàng cung cấp các lựa chọn giải trí tại nhà với giá cả phải chăng.' } },
+            { front: { term: 'Shopping centres', ipa: '/ˈʃɑː.pɪŋ ˌsen.t̬ɚz/' }, back: { vi: 'trung tâm mua sắm', en: 'Large indoor areas containing many stores.', ex: 'Shopping centres are evolving to include more dining and entertainment options.', ex_vi: 'Các trung tâm mua sắm đang phát triển để bao gồm nhiều lựa chọn ăn uống và giải trí hơn.' } },
+            { front: { term: 'Experiences over material goods', ipa: '' }, back: { vi: 'trải nghiệm hơn hàng hóa vật chất', en: 'The preference for spending money on experiences (like travel, concerts) rather than physical items.', ex: 'The trend shows a clear preference for experiences over material goods.', ex_vi: 'Xu hướng cho thấy sự ưu tiên rõ ràng cho trải nghiệm hơn là hàng hóa vật chất.' } },
+            { front: { term: 'Participation rates', ipa: '/pɑːrˌtɪs.əˈpeɪ.ʃən reɪts/' }, back: { vi: 'tỷ lệ tham gia', en: 'The percentage of a group that is involved in a particular activity.', ex: 'Participation rates in cultural events have increased significantly.', ex_vi: 'Tỷ lệ tham gia các sự kiện văn hóa đã tăng lên đáng kể.' } },
+            { front: { term: 'Online grocery shopping', ipa: '' }, back: { vi: 'mua sắm thực phẩm trực tuyến', en: 'The act of buying food items over the internet.', ex: 'Online grocery shopping has become more popular due to its convenience.', ex_vi: 'Mua sắm thực phẩm trực tuyến đã trở nên phổ biến hơn do sự tiện lợi của nó.' } },
+            { front: { term: 'Labour-saving devices', ipa: '/ˈleɪ.bɚ ˌseɪ.vɪŋ dɪˈvaɪ.sɪz/' }, back: { vi: 'thiết bị tiết kiệm lao động', en: 'Appliances or tools that reduce the amount of work needed to do something.', ex: 'Washing machines and dishwashers are common labour-saving devices.', ex_vi: 'Máy giặt và máy rửa chén là những thiết bị tiết kiệm lao động phổ biến.' } },
+            { front: { term: 'Cultural events', ipa: '/ˈkʌl.tʃɚ.əl ɪˈvents/' }, back: { vi: 'sự kiện văn hóa', en: 'Events related to the arts, heritage, and customs of a society.', ex: 'Attending cultural events is a popular leisure activity.', ex_vi: 'Tham dự các sự kiện văn hóa là một hoạt động giải trí phổ biến.' } },
+            { front: { term: 'Increasing options', ipa: '' }, back: { vi: 'các lựa chọn ngày càng tăng', en: 'A growing number of choices available.', ex: 'Consumers now have increasing options for entertainment and leisure.', ex_vi: 'Người tiêu dùng hiện có các lựa chọn ngày càng tăng cho giải trí và thư giãn.' } },
+            { front: { term: 'Personal fulfillment', ipa: '/ˈpɝː.sən.əl fʊlˈfɪl.mənt/' }, back: { vi: 'sự thỏa mãn cá nhân', en: 'A feeling of satisfaction that you have achieved what you wanted to do.', ex: 'Many people seek personal fulfillment through hobbies and travel.', ex_vi: 'Nhiều người tìm kiếm sự thỏa mãn cá nhân thông qua sở thích và du lịch.' } },
+            { front: { term: 'Consumer preferences', ipa: '/kənˈsuː.mɚ ˈpref.ɚ.əns.ɪz/' }, back: { vi: 'sở thích của người tiêu dùng', en: 'The types of products and services that consumers like and choose to buy.', ex: 'Consumer preferences are shifting towards sustainable and ethical products.', ex_vi: 'Sở thích của người tiêu dùng đang chuyển dịch sang các sản phẩm bền vững và có đạo đức.' } },
+            { front: { term: 'Economic climate', ipa: '/ˌiː.kəˈnɑː.mɪk ˈklaɪ.mət/' }, back: { vi: 'khí hậu kinh tế', en: 'The general state of the economy.', ex: 'The current economic climate has influenced how people spend their leisure time.', ex_vi: 'Khí hậu kinh tế hiện tại đã ảnh hưởng đến cách mọi người dành thời gian rảnh rỗi.' } },
+            { front: { term: 'Family outings', ipa: '/ˈfæm.əl.i ˈaʊ.t̬ɪŋz/' }, back: { vi: 'chuyến đi chơi gia đình', en: 'Short trips or excursions made by a family for pleasure.', ex: 'Visiting parks and museums are popular family outings.', ex_vi: 'Tham quan công viên và bảo tàng là những chuyến đi chơi gia đình phổ biến.' } },
+            { front: { term: 'Social engagement', ipa: '/ˈsoʊ.ʃəl ɪnˈɡeɪdʒ.mənt/' }, back: { vi: 'sự tham gia xã hội', en: 'The degree of one\'s participation in a community or society.', ex: 'Volunteering is a great form of social engagement.', ex_vi: 'Tình nguyện là một hình thức tham gia xã hội tuyệt vời.' } },
+            { front: { term: 'Workplace flexibility', ipa: '/ˈwɝːk.pleɪs ˌflek.səˈbɪl.ə.t̬i/' }, back: { vi: 'sự linh hoạt trong công việc', en: 'The ability of workers to make choices influencing when, where, and for how long they engage in work-related tasks.', ex: 'Workplace flexibility can lead to a better work-life balance.', ex_vi: 'Sự linh hoạt trong công việc có thể dẫn đến sự cân bằng tốt hơn giữa công việc và cuộc sống.' } },
+            { front: { term: 'Quality of life', ipa: '/ˈkwɑː.lə.t̬i əv laɪf/' }, back: { vi: 'chất lượng cuộc sống', en: 'The standard of health, comfort, and happiness experienced by an individual or group.', ex: 'Leisure activities can significantly improve one\'s quality of life.', ex_vi: 'Các hoạt động giải trí có thể cải thiện đáng kể chất lượng cuộc sống của một người.' } },
+            { front: { term: 'Social interaction', ipa: '/ˈsoʊ.ʃəl ˌɪn.t̬ɚˈæk.ʃən/' }, back: { vi: 'tương tác xã hội', en: 'The process of acting and reacting to those around us.', ex: 'Group activities promote social interaction among participants.', ex_vi: 'Các hoạt động nhóm thúc đẩy tương tác xã hội giữa những người tham gia.' } },
+            { front: { term: 'Physical and mental well-being', ipa: '' }, back: { vi: 'sức khỏe thể chất và tinh thần', en: 'The overall state of being healthy in both body and mind.', ex: 'Regular leisure is crucial for physical and mental well-being.', ex_vi: 'Giải trí thường xuyên là rất quan trọng cho sức khỏe thể chất và tinh thần.' } },
+            { front: { term: 'Experiential consumption', ipa: '/ɪkˌspɪr.iˈen.ʃəl kənˈsʌmp.ʃən/' }, back: { vi: 'tiêu dùng trải nghiệm', en: 'The act of spending money on doing rather than having.', ex: 'Experiential consumption is on the rise as people seek happiness through memories.', ex_vi: 'Tiêu dùng trải nghiệm đang gia tăng khi mọi người tìm kiếm hạnh phúc thông qua những kỷ niệm.' } },
+            { front: { term: 'Rising trends', ipa: '/ˈraɪ.zɪŋ trendz/' }, back: { vi: 'xu hướng đang gia tăng', en: 'Patterns or tendencies that are becoming more common.', ex: 'Working from home is one of the rising trends in the modern workforce.', ex_vi: 'Làm việc tại nhà là một trong những xu hướng đang gia tăng trong lực lượng lao động hiện đại.' } },
+            { front: { term: 'Quality leisure time', ipa: '' }, back: { vi: 'thời gian rảnh rỗi chất lượng', en: 'Free time that is spent in a satisfying and fulfilling way.', ex: 'People are increasingly seeking quality leisure time to de-stress.', ex_vi: 'Mọi người đang ngày càng tìm kiếm thời gian rảnh rỗi chất lượng để giảm căng thẳng.' } },
+            { front: { term: 'Workforce dynamics', ipa: '/ˈwɝːk.fɔːrs daɪˈnæm.ɪks/' }, back: { vi: 'động lực lực lượng lao động', en: 'The forces and patterns that influence the workforce.', ex: 'Workforce dynamics are changing with the rise of automation and remote work.', ex_vi: 'Động lực lực lượng lao động đang thay đổi với sự gia tăng của tự động hóa và làm việc từ xa.' } },
+            { front: { term: 'Changing lifestyles', ipa: '' }, back: { vi: 'lối sống đang thay đổi', en: 'Shifts in the way people live and work.', ex: 'Technology has been a major driver of changing lifestyles.', ex_vi: 'Công nghệ là động lực chính của lối sống đang thay đổi.' } },
+            { front: { term: 'Diminishing value of material possessions', ipa: '' }, back: { vi: 'giá trị ngày càng giảm của tài sản vật chất', en: 'The idea that physical items are becoming less important to people.', ex: 'The focus on experiences reflects the diminishing value of material possessions.', ex_vi: 'Việc tập trung vào trải nghiệm phản ánh giá trị ngày càng giảm của tài sản vật chất.' } },
+            { front: { term: '“The number of hours people work is likely to continue rising”', ipa: '' }, back: { vi: 'số giờ làm việc của mọi người có khả năng tiếp tục gia tăng', en: 'It is probable that people will work more hours in the future.', ex: 'The number of hours people work is likely to continue rising as economies evolve.', ex_vi: 'Số giờ làm việc của mọi người có khả năng tiếp tục gia tăng khi các nền kinh tế phát triển.' } },
+            { front: { term: '“Making leisure pursuits a priority”', ipa: '' }, back: { vi: 'đặt hoạt động giải trí lên hàng đầu', en: 'Considering recreational activities as very important.', ex: 'Many individuals are making leisure pursuits a priority in their lives.', ex_vi: 'Nhiều cá nhân đang đặt các hoạt động giải trí lên hàng đầu trong cuộc sống của họ.' } },
+            { front: { term: '“Shifting focus from material goods to experiences”', ipa: '' }, back: { vi: 'chuyển sự chú ý từ hàng hóa vật chất sang trải nghiệm', en: 'Changing priorities from owning things to having experiences.', ex: 'There is a noticeable shift in focus from material goods to experiences among consumers.', ex_vi: 'Có một sự chuyển dịch đáng chú ý trong sự tập trung từ hàng hóa vật chất sang trải nghiệm của người tiêu dùng.' } },
+            { front: { term: '“Labour-saving technology has transformed our daily lives”', ipa: '' }, back: { vi: 'công nghệ tiết kiệm lao động đã biến đổi cuộc sống hàng ngày của chúng ta', en: 'Technology that reduces work has changed how we live.', ex: 'Labour-saving technology has transformed our daily lives, giving us more free time.', ex_vi: 'Công nghệ tiết kiệm lao động đã biến đổi cuộc sống hàng ngày của chúng ta, cho chúng ta nhiều thời gian rảnh rỗi hơn.' } },
+            { front: { term: '“An increase in disposable income”', ipa: '' }, back: { vi: 'sự gia tăng thu nhập khả dụng', en: 'Having more money left to spend after paying for essential things.', ex: 'With an increase in disposable income, people are more willing to spend on experiences.', ex_vi: 'Với sự gia tăng thu nhập khả dụng, mọi người sẵn sàng chi tiêu nhiều hơn cho các trải nghiệm.' } },
+            { front: { term: '“Creating memorable experiences”', ipa: '' }, back: { vi: 'tạo ra những trải nghiệm đáng nhớ', en: 'Making experiences that people will remember.', ex: 'Businesses are focusing on creating memorable experiences for their customers.', ex_vi: 'Các doanh nghiệp đang tập trung vào việc tạo ra những trải nghiệm đáng nhớ cho khách hàng của họ.' } },
+            { front: { term: '“To enhance the quality of life”', ipa: '' }, back: { vi: 'nâng cao chất lượng cuộc sống', en: 'To improve the standard of health, comfort, and happiness.', ex: 'Engaging in leisure activities helps enhance the quality of life for many individuals.', ex_vi: 'Tham gia vào các hoạt động giải trí giúp nâng cao chất lượng cuộc sống cho nhiều cá nhân.' } },
+            { front: { term: '“A growing interest in personal development”', ipa: '' }, back: { vi: 'sự quan tâm ngày càng tăng đến phát triển cá nhân', en: 'More people are becoming interested in self-improvement.', ex: 'There is a growing interest in personal development and self-improvement among people.', ex_vi: 'Có một sự quan tâm ngày càng tăng đến phát triển cá nhân và tự cải thiện bản thân của mọi người.' } },
+            { front: { term: '“Redefining what it means to live well”', ipa: '' }, back: { vi: 'định nghĩa lại ý nghĩa của việc sống tốt', en: 'Changing the understanding of a good life.', ex: 'Society is redefining what it means to live well in the modern world.', ex_vi: 'Xã hội đang định nghĩa lại ý nghĩa của việc sống tốt trong thế giới hiện đại.' } },
+            { front: { term: '“Navigating through changing economic landscapes”', ipa: '' }, back: { vi: 'điều hướng qua các bối cảnh kinh tế đang thay đổi', en: 'Managing one\'s life in shifting economic conditions.', ex: 'Individuals are navigating through changing economic landscapes while seeking fulfillment.', ex_vi: 'Các cá nhân đang điều hướng qua các bối cảnh kinh tế đang thay đổi trong khi tìm kiếm sự thỏa mãn.' } },
+            { front: { term: '“To invest in experiences”', ipa: '' }, back: { vi: 'đầu tư vào trải nghiệm', en: 'To spend money on experiences rather than objects.', ex: 'Consumers are increasingly willing to invest in experiences rather than material possessions.', ex_vi: 'Người tiêu dùng ngày càng sẵn sàng đầu tư vào trải nghiệm hơn là tài sản vật chất.' } },
+            { front: { term: '“To adapt to a fast-paced world”', ipa: '' }, back: { vi: 'thích nghi với thế giới nhanh chóng', en: 'To adjust to a world that changes quickly.', ex: 'People are learning to adapt to a fast-paced world that demands flexibility.', ex_vi: 'Mọi người đang học cách thích nghi với một thế giới có nhịp độ nhanh đòi hỏi sự linh hoạt.' } },
+            { front: { term: '“Valuing time spent with family and friends”', ipa: '' }, back: { vi: 'đánh giá cao thời gian dành cho gia đình và bạn bè', en: 'Considering time with loved ones to be very important.', ex: 'Many individuals are valuing time spent with family and friends over material possessions.', ex_vi: 'Nhiều cá nhân đang đánh giá cao thời gian dành cho gia đình và bạn bè hơn là tài sản vật chất.' } },
+            { front: { term: '“Evolving consumer behavior”', ipa: '' }, back: { vi: 'hành vi tiêu dùng đang tiến hóa', en: 'The changing habits of consumers.', ex: 'Evolving consumer behavior reflects changes in societal values and priorities.', ex_vi: 'Hành vi tiêu dùng đang tiến hóa phản ánh những thay đổi trong các giá trị và ưu tiên của xã hội.' } },
+            { front: { term: '“To maximize leisure opportunities”', ipa: '' }, back: { vi: 'tối đa hóa cơ hội giải trí', en: 'To make the most of free time.', ex: 'People strive to maximize leisure opportunities to improve their overall well-being.', ex_vi: 'Mọi người cố gắng tối đa hóa các cơ hội giải trí để cải thiện sức khỏe tổng thể của họ.' } }
+        ];
+
+        let currentCardIndex = 0;
+        
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+            
+            cardFrontEl.innerHTML = `
+                <h2 class="text-2xl sm:text-3xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa || ''}</p>
+            `;
+            
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+            
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+    </script>
+</body>
+</html>
