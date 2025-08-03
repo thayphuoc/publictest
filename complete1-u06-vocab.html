@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 6: Being human</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem; /* rounded-xl */
+        }
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+    <!-- Chosen Palette: Calm Harmony Neutrals -->
+    <!-- Application Structure Plan: A digital flashcard application. The main view is a single, flippable card. Users can navigate sequentially with 'Previous'/'Next' buttons or test themselves with a 'Random' button. A progress counter shows their position. This structure directly translates the static report into an interactive, proven learning tool, focusing on the core user goal of vocabulary memorization and recall. -->
+    <!-- Visualization & Content Choices: Report Info: Vocabulary list. Goal: Learn & Recall. Viz/Presentation: Interactive flippable card. Interaction: Click to flip, buttons to navigate/shuffle. Justification: This method is the most intuitive and effective for learning flashcard content, promoting active recall over passive reading. Library/Method: HTML/CSS for structure and flip animation, Vanilla JS for logic and content rendering. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 6: Being human</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'background', ipa: '/ˈbæk.ɡraʊnd/' }, back: { vi: 'lý lịch, nền tảng', en: 'a person\'s education, family and experience of life', ex: 'He has a strong background in science.', ex_vi: 'Anh ấy có một nền tảng vững chắc về khoa học.' } },
+            { front: { term: 'be good at something', ipa: '/bi ɡʊd æt ˈsʌmθɪŋ/' }, back: { vi: 'giỏi về cái gì', en: 'to be able to do something well', ex: 'She is good at playing the piano.', ex_vi: 'Cô ấy giỏi chơi piano.' } },
+            { front: { term: 'charity', ipa: '/ˈtʃær.ə.t̬i/' }, back: { vi: 'tổ chức từ thiện', en: 'an official organisation that gives money, food or help to people who need it', ex: 'They donated a lot of money to charity.', ex_vi: 'Họ đã quyên góp rất nhiều tiền cho tổ chức từ thiện.' } },
+            { front: { term: 'demand', ipa: '/dɪˈmænd/' }, back: { vi: 'nhu cầu, yêu cầu', en: 'a need for something to be sold or supplied', ex: 'There is a high demand for skilled workers in the tech industry.', ex_vi: 'Có một nhu cầu cao về lao động có tay nghề trong ngành công nghệ.' } },
+            { front: { term: 'diary', ipa: '/ˈdaɪ.ə.ri/' }, back: { vi: 'nhật ký, sổ tay', en: 'a book containing spaces for all the days and months of the year, in which you write meetings and other things that you must remember', ex: 'I write in my diary every night before I go to bed.', ex_vi: 'Tôi viết nhật ký mỗi tối trước khi đi ngủ.' } },
+            { front: { term: 'elderly people', ipa: '/ˈel.dɚ.li ˈpiː.pəl/' }, back: { vi: 'người cao tuổi', en: 'people who are old', ex: 'We should respect and care for elderly people.', ex_vi: 'Chúng ta nên tôn trọng và chăm sóc người cao tuổi.' } },
+            { front: { term: 'encourage', ipa: '/ɪnˈkɝː.ɪdʒ/' }, back: { vi: 'khuyến khích, động viên', en: 'to make someone more likely to do something, or make something more likely to happen', ex: 'My parents always encourage me to follow my dreams.', ex_vi: 'Bố mẹ tôi luôn khuyến khích tôi theo đuổi ước mơ của mình.' } },
+            { front: { term: 'experience', ipa: '/ɪkˈspɪr.i.əns/' }, back: { vi: 'kinh nghiệm, trải nghiệm', en: 'something that happens to you that affects how you feel', ex: 'Traveling to a new country was an amazing experience for me.', ex_vi: 'Du lịch đến một đất nước mới là một trải nghiệm tuyệt vời đối với tôi.' } },
+            { front: { term: 'fall asleep', ipa: '/fɔːl əˈsliːp/' }, back: { vi: 'ngủ thiếp đi', en: 'to start sleeping', ex: 'I was so tired that I fell asleep on the sofa.', ex_vi: 'Tôi mệt đến nỗi đã ngủ thiếp đi trên ghế sofa.' } },
+            { front: { term: 'familiar', ipa: '/fəˈmɪl.jɚ/' }, back: { vi: 'quen thuộc, thân quen', en: 'easy to recognise because of being seen, met, heard, etc. before', ex: 'The song sounded familiar, but I couldn\'t remember the name of it.', ex_vi: 'Bài hát nghe quen thuộc, nhưng tôi không thể nhớ tên của nó.' } },
+            { front: { term: 'flood', ipa: '/flʌd/' }, back: { vi: 'lũ lụt', en: 'when a lot of water covers an area of land that is usually dry', ex: 'The heavy rain caused a massive flood in the city.', ex_vi: 'Cơn mưa lớn đã gây ra một trận lụt lớn trong thành phố.' } },
+            { front: { term: 'generous', ipa: '/ˈdʒen.ər.əs/' }, back: { vi: 'hào phóng, rộng lượng', en: 'giving other people a lot of money, presents or time in a kind way', ex: 'He is a very generous person and always helps those in need.', ex_vi: 'Anh ấy là một người rất hào phóng và luôn giúp đỡ những người có nhu cầu.' } },
+            { front: { term: 'get to the top', ipa: '/ɡet tə ðə tɑːp/' }, back: { vi: 'đạt đến đỉnh cao, thành công', en: 'to be very successful in a job or activity', ex: 'With hard work and dedication, she managed to get to the top of her profession.', ex_vi: 'Với sự chăm chỉ và cống hiến, cô ấy đã đạt đến đỉnh cao trong nghề nghiệp của mình.' } },
+            { front: { term: 'graduate', ipa: '/ˈɡrædʒ.u.ət/' }, back: { vi: 'người tốt nghiệp đại học', en: 'someone who has studied for and received a degree from a university', ex: 'He is a recent graduate from Harvard University.', ex_vi: 'Anh ấy là một sinh viên mới tốt nghiệp từ Đại học Harvard.' } },
+            { front: { term: 'identify', ipa: '/aɪˈden.t̬ə.faɪ/' }, back: { vi: 'nhận dạng, xác định', en: 'to find a particular thing or all the things of a particular group', ex: 'The police are trying to identify the suspect from the security camera footage.', ex_vi: 'Cảnh sát đang cố gắng nhận dạng nghi phạm từ đoạn phim camera an ninh.' } },
+            { front: { term: 'image', ipa: '/ˈɪm.ɪdʒ/' }, back: { vi: 'hình ảnh, ấn tượng', en: 'the way that other people think someone or something is', ex: 'The company is trying to improve its public image.', ex_vi: 'Công ty đang cố gắng cải thiện hình ảnh của mình trước công chúng.' } },
+            { front: { term: 'in conclusion', ipa: '/ɪn kənˈkluː.ʒən/' }, back: { vi: 'kết luận lại, cuối cùng', en: 'finally (used to introduce the last part of a speech or piece of writing)', ex: 'In conclusion, I would like to thank you all for your attention.', ex_vi: 'Kết luận lại, tôi muốn cảm ơn tất cả các bạn đã chú ý lắng nghe.' } },
+            { front: { term: 'keen on (doing) something', ipa: '/kiːn ɑːn (ˈduː.ɪŋ) ˈsʌmθɪŋ/' }, back: { vi: 'say mê, thích (làm) cái gì', en: 'very interested in something or wanting (to do) something very much', ex: 'He is keen on playing football in his free time.', ex_vi: 'Anh ấy say mê chơi bóng đá trong thời gian rảnh.' } },
+            { front: { term: 'key to success', ipa: '/kiː tə səkˈses/' }, back: { vi: 'chìa khóa thành công', en: 'the most important thing that will help you achieve success', ex: 'Hard work is the key to success.', ex_vi: 'Chăm chỉ là chìa khóa thành công.' } },
+            { front: { term: 'natural ability', ipa: '/ˈnætʃ.ɚ.əl əˈbɪl.ə.t̬i/' }, back: { vi: 'khả năng thiên bẩm', en: 'a skill or quality that someone is born with', ex: 'She has a natural ability for music.', ex_vi: 'Cô ấy có khả năng thiên bẩm về âm nhạc.' } },
+            { front: { term: 'plans', ipa: '/plænz/' }, back: { vi: 'bản vẽ, kế hoạch', en: 'drawings from which something is made or built', ex: 'The architect showed us the plans for the new house.', ex_vi: 'Kiến trúc sư đã cho chúng tôi xem bản vẽ của ngôi nhà mới.' } },
+            { front: { term: 'presentation', ipa: '/ˌprez.ənˈteɪ.ʃən/' }, back: { vi: 'bài thuyết trình', en: 'a talk giving information about something', ex: 'She gave an excellent presentation on the new marketing strategy.', ex_vi: 'Cô ấy đã có một bài thuyết trình xuất sắc về chiến lược marketing mới.' } },
+            { front: { term: 'quality of life', ipa: '/ˈkwɑː.lə.t̬i əv laɪf/' }, back: { vi: 'chất lượng cuộc sống', en: 'the level of enjoyment, comfort and health in someone\'s life', ex: 'The new park has greatly improved the quality of life for the residents.', ex_vi: 'Công viên mới đã cải thiện đáng kể chất lượng cuộc sống cho người dân.' } },
+            { front: { term: 'reject', ipa: '/rɪˈdʒekt/' }, back: { vi: 'từ chối, bác bỏ', en: 'to refuse to accept or agree with something', ex: 'They rejected his proposal for the new project.', ex_vi: 'Họ đã từ chối đề xuất của anh ấy cho dự án mới.' } },
+            { front: { term: 'seminar', ipa: '/ˈsem.ə.nɑːr/' }, back: { vi: 'hội thảo', en: 'a meeting of a group of people with a teacher or expert for training, discussion, or study of a subject', ex: 'I attended a seminar on creative writing last week.', ex_vi: 'Tuần trước tôi đã tham dự một hội thảo về viết sáng tạo.' } },
+            { front: { term: 'try hard', ipa: '/traɪ hɑːrd/' }, back: { vi: 'cố gắng hết sức', en: 'to do everything you can to do your best at something', ex: 'If you try hard, you can achieve anything you want.', ex_vi: 'Nếu bạn cố gắng hết sức, bạn có thể đạt được bất cứ điều gì bạn muốn.' } },
+            { front: { term: 'unexpected', ipa: '/ˌʌn.ɪkˈspek.tɪd/' }, back: { vi: 'bất ngờ, không mong đợi', en: 'Something that is unexpected surprises you because you did not know it was going to happen.', ex: 'The news of his resignation was completely unexpected.', ex_vi: 'Tin tức về việc anh ấy từ chức hoàn toàn bất ngờ.' } },
+            { front: { term: 'vital element', ipa: '/ˈvaɪ.t̬əl ˈel.ə.mənt/' }, back: { vi: 'yếu tố quan trọng, thiết yếu', en: 'a necessary part of something', ex: 'Trust is a vital element in any relationship.', ex_vi: 'Lòng tin là một yếu tố thiết yếu trong bất kỳ mối quan hệ nào.' } },
+            { front: { term: 'wealthy', ipa: '/ˈwel.θi/' }, back: { vi: 'giàu có', en: 'rich', ex: 'He comes from a very wealthy family.', ex_vi: 'Anh ấy xuất thân từ một gia đình rất giàu có.' } },
+            { front: { term: 'well-paid job', ipa: '/wel peɪd dʒɑːb/' }, back: { vi: 'công việc được trả lương cao', en: 'a job in which you earn a lot of money', ex: 'He is looking for a well-paid job in the city.', ex_vi: 'Anh ấy đang tìm kiếm một công việc được trả lương cao trong thành phố.' } }
+        ];
+
+        let currentCardIndex = 0;
+        
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+            
+            cardFrontEl.innerHTML = `
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa}</p>
+            `;
+            
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+            
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+    </script>
+</body>
+</html>
