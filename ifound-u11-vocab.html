@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 11: Marketing & Chiến lược Kinh doanh</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem; /* rounded-xl */
+        }
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+    <!-- Chosen Palette: Calm Harmony Neutrals -->
+    <!-- Application Structure Plan: A digital flashcard application. The main view is a single, flippable card. Users can navigate sequentially with 'Previous'/'Next' buttons or test themselves with a 'Random' button. A progress counter shows their position. This structure directly translates the static report into an interactive, proven learning tool, focusing on the core user goal of vocabulary memorization and recall. -->
+    <!-- Visualization & Content Choices: Report Info: Vocabulary list. Goal: Learn & Recall. Viz/Presentation: Interactive flippable card. Interaction: Click to flip, buttons to navigate/shuffle. Justification: This method is the most intuitive and effective for learning flashcard content, promoting active recall over passive reading. Library/Method: HTML/CSS for structure and flip animation, Vanilla JS for logic and content rendering. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 11: Marketing & Chiến lược Kinh doanh</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'Standardization', ipa: '/ˌstæn.dɚ.dɪˈzeɪ.ʃən/' }, back: { vi: 'chuẩn hóa', en: 'The process of making things of the same type have the same basic features.', ex: 'The standardization of car parts makes repairs cheaper and easier.', ex_vi: 'Việc chuẩn hóa các bộ phận ô tô giúp việc sửa chữa rẻ hơn và dễ dàng hơn.' } },
+            { front: { term: 'Globalization', ipa: '/ˌɡloʊ.bəl.əˈzeɪ.ʃən/' }, back: { vi: 'toàn cầu hóa', en: 'The process by which businesses develop international influence or start operating on an international scale.', ex: 'Globalization allows companies to sell their products in many different countries.', ex_vi: 'Toàn cầu hóa cho phép các công ty bán sản phẩm của họ ở nhiều quốc gia khác nhau.' } },
+            { front: { term: 'Market research', ipa: '/ˈmɑːr.kɪt ˈriː.sɝːtʃ/' }, back: { vi: 'nghiên cứu thị trường', en: 'The action or activity of gathering information about consumers\' needs and preferences.', ex: 'Companies conduct market research before launching a new product.', ex_vi: 'Các công ty tiến hành nghiên cứu thị trường trước khi tung ra một sản phẩm mới.' } },
+            { front: { term: 'Consumer buying patterns', ipa: '' }, back: { vi: 'mẫu hành vi mua sắm của người tiêu dùng', en: 'The typical way in which consumers purchase goods and services.', ex: 'Understanding consumer buying patterns is key to successful marketing.', ex_vi: 'Hiểu được các mẫu hành vi mua sắm của người tiêu dùng là chìa khóa để tiếp thị thành công.' } },
+            { front: { term: 'Cultural factors', ipa: '/ˈkʌl.tʃɚ.əl ˈfæk.tɚz/' }, back: { vi: 'yếu tố văn hóa', en: 'Factors related to the culture of a society that influence consumer behavior.', ex: 'Cultural factors play a significant role in advertising.', ex_vi: 'Các yếu tố văn hóa đóng một vai trò quan trọng trong quảng cáo.' } },
+            { front: { term: 'Local tastes', ipa: '/ˈloʊ.kəl teɪsts/' }, back: { vi: 'khẩu vị địa phương', en: 'The specific preferences of consumers in a particular region.', ex: 'Fast-food chains often adapt their menus to suit local tastes.', ex_vi: 'Các chuỗi thức ăn nhanh thường điều chỉnh thực đơn của họ để phù hợp với khẩu vị địa phương.' } },
+            { front: { term: 'Chassis designs', ipa: '/ˈʃæs.i dɪˈzaɪnz/' }, back: { vi: 'thiết kế khung gầm', en: 'The design of the base frame of a motor vehicle or other wheeled conveyance.', ex: 'Car manufacturers use standardized chassis designs to save costs.', ex_vi: 'Các nhà sản xuất ô tô sử dụng các thiết kế khung gầm được chuẩn hóa để tiết kiệm chi phí.' } },
+            { front: { term: 'Sequential launch', ipa: '/sɪˈkwen.ʃəl lɔːntʃ/' }, back: { vi: 'ra mắt tuần tự', en: 'Introducing a product in different markets one after another.', ex: 'A sequential launch allows the company to learn from initial markets.', ex_vi: 'Việc ra mắt tuần tự cho phép công ty học hỏi từ các thị trường ban đầu.' } },
+            { front: { term: 'Simultaneous launch', ipa: '/ˌsaɪ.məlˈteɪ.ni.əs lɔːntʃ/' }, back: { vi: 'ra mắt đồng thời', en: 'Introducing a product in all markets at the same time.', ex: 'A simultaneous launch is risky but can create a huge global impact.', ex_vi: 'Ra mắt đồng thời rất rủi ro nhưng có thể tạo ra tác động toàn cầu lớn.' } },
+            { front: { term: 'Consumer goods', ipa: '/kənˈsuː.mɚ ɡʊdz/' }, back: { vi: 'hàng tiêu dùng', en: 'Goods bought and used by consumers, rather than by manufacturers for producing other goods.', ex: 'The market for consumer goods is highly competitive.', ex_vi: 'Thị trường hàng tiêu dùng có tính cạnh tranh cao.' } },
+            { front: { term: 'Technical products', ipa: '/ˈtek.nɪ.kəl ˈprɑː.dʌkts/' }, back: { vi: 'sản phẩm công nghệ', en: 'Products that are complex and require specialized knowledge to use or understand.', ex: 'Marketing for technical products often requires detailed explanations.', ex_vi: 'Tiếp thị cho các sản phẩm công nghệ thường đòi hỏi những giải thích chi tiết.' } },
+            { front: { term: 'Market entry', ipa: '/ˈmɑːr.kɪt ˈen.tri/' }, back: { vi: 'gia nhập thị trường', en: 'The activities associated with a company\'s initial foray into a new market.', ex: 'Thorough research is crucial for a successful market entry.', ex_vi: 'Nghiên cứu kỹ lưỡng là rất quan trọng để gia nhập thị trường thành công.' } },
+            { front: { term: 'Initial problems', ipa: '/ɪˈnɪʃ.əl ˈprɑː.bləmz/' }, back: { vi: 'vấn đề ban đầu', en: 'Difficulties that occur at the beginning of a process.', ex: 'The company faced some initial problems with its supply chain.', ex_vi: 'Công ty đã đối mặt với một số vấn đề ban đầu với chuỗi cung ứng của mình.' } },
+            { front: { term: 'Cultural differences', ipa: '/ˈkʌl.tʃɚ.əl ˈdɪf.ɚ.əns.ɪz/' }, back: { vi: 'sự khác biệt văn hóa', en: 'The variations in the way of life, beliefs, traditions, and laws between different countries or societies.', ex: 'Ignoring cultural differences can lead to marketing failures.', ex_vi: 'Phớt lờ sự khác biệt văn hóa có thể dẫn đến thất bại trong tiếp thị.' } },
+            { front: { term: 'Legal documents', ipa: '/ˈliː.ɡəl ˈdɑː.kjə.mənts/' }, back: { vi: 'tài liệu pháp lý', en: 'Documents that state some contractual relationship or grant some right.', ex: 'Translating legal documents requires high accuracy.', ex_vi: 'Dịch thuật tài liệu pháp lý đòi hỏi độ chính xác cao.' } },
+            { front: { term: 'Offence', ipa: '/əˈfens/' }, back: { vi: 'xúc phạm', en: 'An act that insults or causes annoyance to someone.', ex: 'The advertisement caused offence to many viewers and was withdrawn.', ex_vi: 'Quảng cáo đã gây xúc phạm cho nhiều người xem và đã bị thu hồi.' } },
+            { front: { term: 'Business operation', ipa: '/ˈbɪz.nəs ˌɑː.pəˈreɪ.ʃən/' }, back: { vi: 'hoạt động kinh doanh', en: 'The harvesting of value from assets owned by a business.', ex: 'The company streamlined its business operation to improve efficiency.', ex_vi: 'Công ty đã tinh gọn hoạt động kinh doanh của mình để cải thiện hiệu quả.' } },
+            { front: { term: 'Local customs', ipa: '/ˈloʊ.kəl ˈkʌs.təmz/' }, back: { vi: 'phong tục địa phương', en: 'Traditions or ways of behaving that are particular to a certain society or place.', ex: 'It is important to respect local customs when doing business abroad.', ex_vi: 'Điều quan trọng là phải tôn trọng phong tục địa phương khi kinh doanh ở nước ngoài.' } },
+            { front: { term: 'Cabin crew', ipa: '/ˈkæb.ɪn kruː/' }, back: { vi: 'tiếp viên hàng không', en: 'The members of an aircraft crew who attend to passengers.', ex: 'The airline retrained its cabin crew to improve customer service.', ex_vi: 'Hãng hàng không đã đào tạo lại đội ngũ tiếp viên hàng không để cải thiện dịch vụ khách hàng.' } },
+            { front: { term: 'Marketing success', ipa: '/ˈmɑːr.kɪ.t̬ɪŋ səkˈses/' }, back: { vi: 'thành công trong tiếp thị', en: 'The achievement of goals through marketing activities.', ex: 'Understanding the target audience is vital for marketing success.', ex_vi: 'Hiểu đối tượng mục tiêu là rất quan trọng cho sự thành công trong tiếp thị.' } },
+            { front: { term: 'Viable option', ipa: '/ˈvaɪ.ə.bəl ˈɑːp.ʃən/' }, back: { vi: 'lựa chọn khả thi', en: 'A choice that is capable of working successfully.', ex: 'Standardization is not always a viable option for consumer goods.', ex_vi: 'Chuẩn hóa không phải lúc nào cũng là một lựa chọn khả thi cho hàng tiêu dùng.' } },
+            { front: { term: 'Competitors', ipa: '/kəmˈpet̬.ə.t̬ɚz/' }, back: { vi: 'đối thủ cạnh tranh', en: 'Organizations or companies that are in the same industry or a similar industry and offer a similar product or service.', ex: 'A simultaneous launch can prevent competitors from copying your product.', ex_vi: 'Việc ra mắt đồng thời có thể ngăn chặn các đối thủ cạnh tranh sao chép sản phẩm của bạn.' } },
+            { front: { term: 'Reputation', ipa: '/ˌrep.jəˈteɪ.ʃən/' }, back: { vi: 'danh tiếng', en: 'The beliefs or opinions that are generally held about someone or something.', ex: 'A failed product launch can damage a company\'s reputation.', ex_vi: 'Một lần ra mắt sản phẩm thất bại có thể làm tổn hại đến danh tiếng của một công ty.' } },
+            { front: { term: 'Launching strategies', ipa: '/ˈlɔːn.tʃɪŋ ˈstræt̬.ə.dʒiz/' }, back: { vi: 'chiến lược ra mắt', en: 'Plans for how to introduce a new product or service to the market.', ex: 'Companies carefully consider different launching strategies for new products.', ex_vi: 'Các công ty xem xét cẩn thận các chiến lược ra mắt khác nhau cho sản phẩm mới.' } },
+            { front: { term: 'Grave consequences', ipa: '/ɡreɪv ˈkɑːn.sə.kwens.ɪz/' }, back: { vi: 'hậu quả nghiêm trọng', en: 'Very serious and significant results of an action.', ex: 'Deceptive marketing can have grave consequences for a brand.', ex_vi: 'Tiếp thị lừa dối có thể gây ra những hậu quả nghiêm trọng cho một thương hiệu.' } },
+            { front: { term: 'Deception', ipa: '/dɪˈsep.ʃən/' }, back: { vi: 'sự lừa dối', en: 'The act of hiding the truth, especially to get an advantage.', ex: 'Honest advertising should be free from deception.', ex_vi: 'Quảng cáo trung thực nên không có sự lừa dối.' } },
+            { front: { term: 'Guerrilla marketing', ipa: '/ɡəˌrɪl.ə ˈmɑːr.kɪ.t̬ɪŋ/' }, back: { vi: 'marketing du kích', en: 'An advertising strategy that focuses on low-cost unconventional marketing tactics that yield maximum results.', ex: 'Guerrilla marketing campaigns are often very creative and memorable.', ex_vi: 'Các chiến dịch marketing du kích thường rất sáng tạo và đáng nhớ.' } },
+            { front: { term: 'Stealth marketing', ipa: '/stelθ ˈmɑːr.kɪ.t̬ɪŋ/' }, back: { vi: 'marketing bí mật', en: 'A method of marketing where consumers are not aware they are being marketed to.', ex: 'Stealth marketing raises ethical questions about transparency.', ex_vi: 'Marketing bí mật đặt ra các câu hỏi về đạo đức liên quan đến tính minh bạch.' } },
+            { front: { term: 'Buzz', ipa: '/bʌz/' }, back: { vi: 'sự ồn ào, xôn xao', en: 'An atmosphere of excitement and activity.', ex: 'The goal of the campaign was to create a buzz around the new phone.', ex_vi: 'Mục tiêu của chiến dịch là tạo ra sự xôn xao xung quanh chiếc điện thoại mới.' } },
+            { front: { term: 'Advertorial', ipa: '/ˌæd.vɚˈtɔːr.i.əl/' }, back: { vi: 'bài viết quảng cáo', en: 'An advertisement in a newspaper or magazine that is designed to look like a normal article.', ex: 'The magazine published an advertorial for the new skincare line.', ex_vi: 'Tạp chí đã đăng một bài viết quảng cáo cho dòng sản phẩm chăm sóc da mới.' } },
+            { front: { term: 'Impressionable', ipa: '/ɪmˈpreʃ.ə.nə.bəl/' }, back: { vi: 'dễ bị ảnh hưởng', en: 'Easily influenced by other people, especially because you are young.', ex: 'Children are highly impressionable, so advertising aimed at them is heavily regulated.', ex_vi: 'Trẻ em rất dễ bị ảnh hưởng, vì vậy quảng cáo nhắm vào chúng được quy định rất chặt chẽ.' } },
+            { front: { term: 'Recruit', ipa: '/rɪˈkruːt/' }, back: { vi: 'tuyển dụng', en: 'To persuade someone to work for a company or become a new member of an organization.', ex: 'The company recruited actors to promote their product in public spaces.', ex_vi: 'Công ty đã tuyển dụng các diễn viên để quảng bá sản phẩm của họ ở những nơi công cộng.' } },
+            { front: { term: 'Manipulate', ipa: '/məˈnɪp.jə.leɪt/' }, back: { vi: 'thao túng', en: 'To control or influence a person or situation cleverly, unfairly, or unscrupulously.', ex: 'Some people feel that stealth marketing unfairly manipulates consumers.', ex_vi: 'Một số người cảm thấy rằng marketing bí mật thao túng người tiêu dùng một cách không công bằng.' } },
+            { front: { term: 'Unscrupulous', ipa: '/ʌnˈskruː.pjə.ləs/' }, back: { vi: 'không có nguyên tắc, vô đạo đức', en: 'Having or showing no moral principles; not honest or fair.', ex: 'Unscrupulous companies might use deceptive tactics to sell their products.', ex_vi: 'Các công ty vô đạo đức có thể sử dụng các chiến thuật lừa dối để bán sản phẩm của họ.' } },
+            { front: { term: 'Market', ipa: '/ˈmɑːr.kɪt/' }, back: { vi: 'thị trường', en: 'A particular area, country, or group of people to which a company sells its products.', ex: 'They are trying to break into the Asian market.', ex_vi: 'Họ đang cố gắng thâm nhập vào thị trường châu Á.' } },
+            { front: { term: 'Creative', ipa: '/kriˈeɪ.t̬ɪv/' }, back: { vi: 'sáng tạo', en: 'Producing or using original and unusual ideas.', ex: 'The marketing team came up with a very creative campaign.', ex_vi: 'Đội ngũ marketing đã đưa ra một chiến dịch rất sáng tạo.' } },
+            { front: { term: 'Scenarios', ipa: '/səˈner.i.oʊz/' }, back: { vi: 'tình huống, kịch bản', en: 'A postulated sequence or development of events.', ex: 'The actors were given different scenarios to act out in public.', ex_vi: 'Các diễn viên được giao các kịch bản khác nhau để diễn ở nơi công cộng.' } },
+            { front: { term: 'Campaign', ipa: '/kæmˈpeɪn/' }, back: { vi: 'chiến dịch', en: 'A planned group of especially political, business, or military activities that are intended to achieve a particular aim.', ex: 'The advertising campaign was a huge success.', ex_vi: 'Chiến dịch quảng cáo đã thành công rực rỡ.' } },
+            { front: { term: 'Dull', ipa: '/dʌl/' }, back: { vi: 'tẻ nhạt', en: 'Not interesting or exciting in any way.', ex: 'Traditional advertising can sometimes be dull and ineffective.', ex_vi: 'Quảng cáo truyền thống đôi khi có thể tẻ nhạt và không hiệu quả.' } },
+            { front: { term: 'Word of mouth', ipa: '/ˌwɝːd.əvˈmaʊθ/' }, back: { vi: 'truyền miệng', en: 'The passing of information from person to person by oral communication.', ex: 'The best form of advertising is often word of mouth.', ex_vi: 'Hình thức quảng cáo tốt nhất thường là truyền miệng.' } },
+            { front: { term: 'Create a buzz', ipa: '' }, back: { vi: 'tạo sự xôn xao', en: 'To generate excitement and discussion about something.', ex: 'The new product launch managed to create a huge buzz online.', ex_vi: 'Việc ra mắt sản phẩm mới đã tạo ra một sự xôn xao lớn trên mạng.' } },
+            { front: { term: 'Paid to pretend', ipa: '' }, back: { vi: 'được trả tiền để giả vờ', en: 'Being compensated to act as if you are a regular consumer.', ex: 'In stealth marketing, actors are paid to pretend they are fans of a product.', ex_vi: 'Trong marketing bí mật, các diễn viên được trả tiền để giả vờ là người hâm mộ của một sản phẩm.' } },
+            { front: { term: 'Encourage others to buy', ipa: '' }, back: { vi: 'khuyến khích người khác mua', en: 'To persuade other people to purchase something.', ex: 'The campaign\'s goal was to encourage others to buy the new energy drink.', ex_vi: 'Mục tiêu của chiến dịch là khuyến khích người khác mua nước tăng lực mới.' } },
+            { front: { term: 'Take their photos', ipa: '' }, back: { vi: 'chụp ảnh của họ', en: 'To capture images of people, often for marketing purposes.', ex: 'The actors would ask strangers to take their photos with the new camera.', ex_vi: 'Các diễn viên sẽ nhờ người lạ chụp ảnh của họ bằng chiếc máy ảnh mới.' } },
+            { front: { term: 'Engage in a conversation', ipa: '' }, back: { vi: 'tham gia vào cuộc trò chuyện', en: 'To start or take part in a discussion.', ex: 'The marketers would engage in a conversation with people about the product.', ex_vi: 'Các nhà tiếp thị sẽ tham gia vào cuộc trò chuyện với mọi người về sản phẩm.' } },
+            { front: { term: 'Honest advertising', ipa: '' }, back: { vi: 'quảng cáo trung thực', en: 'Advertising that is truthful and not misleading.', ex: 'Consumers are demanding more honest advertising from brands.', ex_vi: 'Người tiêu dùng đang yêu cầu các thương hiệu quảng cáo trung thực hơn.' } },
+            { front: { term: 'Look into these practices', ipa: '' }, back: { vi: 'xem xét các thực tiễn này', en: 'To investigate or examine these methods.', ex: 'Regulators need to look into these practices to protect consumers.', ex_vi: 'Các cơ quan quản lý cần xem xét các thực tiễn này để bảo vệ người tiêu dùng.' } },
+            { front: { term: 'Bring in new laws', ipa: '' }, back: { vi: 'ban hành luật mới', en: 'To introduce new legislation.', ex: 'The government plans to bring in new laws to regulate stealth marketing.', ex_vi: 'Chính phủ có kế hoạch ban hành luật mới để điều chỉnh marketing bí mật.' } },
+            { front: { term: 'Creative ways to promote', ipa: '' }, back: { vi: 'cách sáng tạo để quảng bá', en: 'Innovative methods for promotion.', ex: 'Guerrilla marketing uses creative ways to promote products on a small budget.', ex_vi: 'Marketing du kích sử dụng các cách sáng tạo để quảng bá sản phẩm với ngân sách nhỏ.' } },
+            { front: { term: 'Traditional advertising', ipa: '' }, back: { vi: 'quảng cáo truyền thống', en: 'Conventional forms of advertising, such as print, television, and radio ads.', ex: 'Many companies are moving away from traditional advertising towards digital marketing.', ex_vi: 'Nhiều công ty đang chuyển từ quảng cáo truyền thống sang tiếp thị kỹ thuật số.' } }
+        ];
+
+        let currentCardIndex = 0;
+        
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+            
+            cardFrontEl.innerHTML = `
+                <h2 class="text-2xl sm:text-3xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa || ''}</p>
+            `;
+            
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+            
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+    </script>
+</body>
+</html>
