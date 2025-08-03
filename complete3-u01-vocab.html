@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 1: Getting higher qualifications</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem; /* rounded-xl */
+        }
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+    <!-- Chosen Palette: Calm Harmony Neutrals -->
+    <!-- Application Structure Plan: A digital flashcard application. The main view is a single, flippable card. Users can navigate sequentially with 'Previous'/'Next' buttons or test themselves with a 'Random' button. A progress counter shows their position. This structure directly translates the static report into an interactive, proven learning tool, focusing on the core user goal of vocabulary memorization and recall. -->
+    <!-- Visualization & Content Choices: Report Info: Vocabulary list. Goal: Learn & Recall. Viz/Presentation: Interactive flippable card. Interaction: Click to flip, buttons to navigate/shuffle. Justification: This method is the most intuitive and effective for learning flashcard content, promoting active recall over passive reading. Library/Method: HTML/CSS for structure and flip animation, Vanilla JS for logic and content rendering. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 1: Getting higher qualifications</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'automated', ipa: '/ˈɔː.t̬ə.meɪ.t̬ɪd/' }, back: { vi: 'tự động hóa', en: 'done by machines and not people', ex: 'Many manufacturing processes are now fully automated.', ex_vi: 'Nhiều quy trình sản xuất hiện nay đã được tự động hóa hoàn toàn.' } },
+            { front: { term: 'base something on something', ipa: '/beɪs ˈsʌm.θɪŋ ɑːn ˈsʌm.θɪŋ/' }, back: { vi: 'dựa vào cái gì', en: 'If you base something on facts or ideas, you use those facts or ideas to develop it.', ex: 'The movie is based on a true story.', ex_vi: 'Bộ phim được dựa trên một câu chuyện có thật.' } },
+            { front: { term: 'bring people together', ipa: '/brɪŋ ˈpiː.pəl təˈɡeð.ɚ/' }, back: { vi: 'gắn kết mọi người', en: 'If an organisation or activity brings people together, it causes people to do something as a group.', ex: 'The community event was a great way to bring people together.', ex_vi: 'Sự kiện cộng đồng là một cách tuyệt vời để gắn kết mọi người lại với nhau.' } },
+            { front: { term: 'by the time', ipa: '/baɪ ðə taɪm/' }, back: { vi: 'vào lúc', en: 'at the point when', ex: 'By the time we arrived, the party was already over.', ex_vi: 'Vào lúc chúng tôi đến, bữa tiệc đã kết thúc.' } },
+            { front: { term: 'channel resources into something', ipa: '/ˈtʃæn.əl ˈriː.sɔːr.sɪz ˈɪn.tuː ˈsʌm.θɪŋ/' }, back: { vi: 'dồn nguồn lực vào việc gì', en: 'to use energy and effort for a particular purpose', ex: 'The company decided to channel its resources into developing new products.', ex_vi: 'Công ty đã quyết định dồn nguồn lực vào việc phát triển sản phẩm mới.' } },
+            { front: { term: 'a common desire', ipa: '/ə ˈkɑː.mən dɪˈzaɪr/' }, back: { vi: 'một mong muốn chung', en: 'a strong feeling of wanting to achieve or have something, felt by all the members of a group', ex: 'The team shared a common desire to win the championship.', ex_vi: 'Cả đội chia sẻ một mong muốn chung là giành chức vô địch.' } },
+            { front: { term: 'concentrate on something', ipa: '/ˈkɑːn.sən.treɪt ɑːn ˈsʌm.θɪŋ/' }, back: { vi: 'tập trung vào việc gì', en: 'to use most of your time and effort to do something', ex: 'I need to concentrate on my studies for the final exams.', ex_vi: 'Tôi cần tập trung vào việc học cho các kỳ thi cuối kỳ.' } },
+            { front: { term: 'crucial', ipa: '/ˈkruː.ʃəl/' }, back: { vi: 'quan trọng, cốt yếu', en: 'necessary to make something succeed', ex: 'It is crucial that we solve this problem as soon as possible.', ex_vi: 'Việc chúng ta giải quyết vấn đề này càng sớm càng tốt là rất quan trọng.' } },
+            { front: { term: 'down-to-earth', ipa: '/ˌdaʊn.tuːˈɝːθ/' }, back: { vi: 'thực tế', en: 'practical and realistic', ex: 'She is a very down-to-earth person, not at all pretentious.', ex_vi: 'Cô ấy là một người rất thực tế, không hề kiêu căng.' } },
+            { front: { term: 'discipline', ipa: '/ˈdɪs.ə.plɪn/' }, back: { vi: 'ngành học, môn học', en: 'a particular subject of study', ex: 'He is studying in the discipline of computer science.', ex_vi: 'Anh ấy đang học ngành khoa học máy tính.' } },
+            { front: { term: 'everyday', ipa: '/ˈev.ri.deɪ/' }, back: { vi: 'hàng ngày', en: 'normal and used every day', ex: 'The internet has become a part of our everyday lives.', ex_vi: 'Internet đã trở thành một phần của cuộc sống hàng ngày của chúng ta.' } },
+            { front: { term: 'extraordinary', ipa: '/ɪkˈstrɔːr.dən.er.i/' }, back: { vi: 'phi thường, đặc biệt', en: 'very unusual, special or surprising', ex: 'She has an extraordinary talent for music.', ex_vi: 'Cô ấy có một tài năng phi thường về âm nhạc.' } },
+            { front: { term: 'facilities', ipa: '/fəˈsɪl.ə.t̬iz/' }, back: { vi: 'cơ sở vật chất', en: 'buildings, equipment or services that are provided for a particular purpose', ex: 'The university has excellent sports facilities.', ex_vi: 'Trường đại học có cơ sở vật chất thể thao tuyệt vời.' } },
+            { front: { term: 'field', ipa: '/fiːld/' }, back: { vi: 'lĩnh vực', en: 'an area of study or activity', ex: 'He is an expert in the field of artificial intelligence.', ex_vi: 'Ông là một chuyên gia trong lĩnh vực trí tuệ nhân tạo.' } },
+            { front: { term: 'get to the top', ipa: '/ɡet tə ðə tɑːp/' }, back: { vi: 'đạt đến đỉnh cao', en: 'to succeed in getting one of the most important jobs in a particular career', ex: 'She worked hard and eventually got to the top of her profession.', ex_vi: 'Cô ấy đã làm việc chăm chỉ và cuối cùng đã đạt đến đỉnh cao trong nghề nghiệp của mình.' } },
+            { front: { term: 'go on to do something', ipa: '/ɡoʊ ɑːn tə duː ˈsʌm.θɪŋ/' }, back: { vi: 'tiếp tục làm gì', en: 'to do something after first doing something else', ex: 'After graduating, she went on to do a master\'s degree.', ex_vi: 'Sau khi tốt nghiệp, cô ấy tiếp tục học lên thạc sĩ.' } },
+            { front: { term: 'growth rate', ipa: '/ɡroʊθ reɪt/' }, back: { vi: 'tốc độ tăng trưởng', en: 'the speed at which something increases', ex: 'The company has a high growth rate.', ex_vi: 'Công ty có tốc độ tăng trưởng cao.' } },
+            { front: { term: 'high achiever', ipa: '/haɪ əˈtʃiː.vɚ/' }, back: { vi: 'người thành đạt', en: 'a very successful person who achieves a lot in their life', ex: 'The school is known for producing high achievers.', ex_vi: 'Ngôi trường được biết đến là nơi đào tạo ra những người thành đạt.' } },
+            { front: { term: 'highly gifted', ipa: '/ˈhaɪ.li ˈɡɪf.tɪd/' }, back: { vi: 'có năng khiếu cao', en: 'extremely intelligent, or having a natural ability to do something extremely well', ex: 'She is a highly gifted musician.', ex_vi: 'Cô ấy là một nhạc sĩ có năng khiếu cao.' } },
+            { front: { term: 'human potential', ipa: '/ˈhjuː.mən pəˈten.ʃəl/' }, back: { vi: 'tiềm năng con người', en: 'people\'s ability to develop and achieve good things in the future', ex: 'Education helps to unlock human potential.', ex_vi: 'Giáo dục giúp khai phá tiềm năng con người.' } },
+            { front: { term: 'inspire', ipa: '/ɪnˈspaɪr/' }, back: { vi: 'truyền cảm hứng', en: 'to make someone feel enthusiastic about a subject and give them the idea to do something', ex: 'Her story inspired millions of people around the world.', ex_vi: 'Câu chuyện của cô đã truyền cảm hứng cho hàng triệu người trên khắp thế giới.' } },
+            { front: { term: 'institute', ipa: '/ˈɪn.stə.tuːt/' }, back: { vi: 'học viện, viện', en: 'an organisation where people do a particular kind of scientific or educational work', ex: 'He works at a research institute.', ex_vi: 'Anh ấy làm việc tại một viện nghiên cứu.' } },
+            { front: { term: 'interact with someone/something', ipa: '/ˌɪn.t̬ɚˈækt wɪθ/' }, back: { vi: 'tương tác với ai đó/cái gì đó', en: 'If two people or things interact with each other, they speak or do things with each other.', ex: 'The students were encouraged to interact with each other in groups.', ex_vi: 'Các sinh viên được khuyến khích tương tác với nhau theo nhóm.' } },
+            { front: { term: 'master', ipa: '/ˈmæs.tɚ/' }, back: { vi: 'thành thạo, làm chủ', en: 'to learn how to do something very well', ex: 'It takes years to master a musical instrument.', ex_vi: 'Phải mất nhiều năm để thành thạo một nhạc cụ.' } },
+            { front: { term: 'obtain', ipa: '/əbˈteɪn/' }, back: { vi: 'đạt được, có được', en: 'to get something that you want', ex: 'She managed to obtain a scholarship to a top university.', ex_vi: 'Cô ấy đã xoay sở để có được học bổng vào một trường đại học hàng đầu.' } },
+            { front: { term: 'recruitment program(me)', ipa: '/rɪˈkruːt.mənt ˈproʊ.ɡræm/' }, back: { vi: 'chương trình tuyển dụng', en: 'a series of actions intended to get people to join an organisation or work for a company', ex: 'The company has a new recruitment program for graduates.', ex_vi: 'Công ty có một chương trình tuyển dụng mới cho sinh viên tốt nghiệp.' } },
+            { front: { term: 'remain unchanged', ipa: '/rɪˈmeɪn ʌnˈtʃeɪndʒd/' }, back: { vi: 'vẫn không thay đổi', en: 'to stay the same, not changing in any way', ex: 'Despite the changes, his attitude remained unchanged.', ex_vi: 'Bất chấp những thay đổi, thái độ của anh ấy vẫn không thay đổi.' } },
+            { front: { term: 'responsible for something', ipa: '/rɪˈspɑːn.sə.bəl fɔːr ˈsʌm.θɪŋ/' }, back: { vi: 'chịu trách nhiệm về việc gì', en: 'being the person who causes something to happen', ex: 'He is responsible for managing the team.', ex_vi: 'Anh ấy chịu trách nhiệm quản lý đội.' } },
+            { front: { term: 'sensors', ipa: '/ˈsen.sɚz/' }, back: { vi: 'cảm biến', en: 'pieces of equipment that can find heat, light, etc.', ex: 'The new car is equipped with advanced sensors for safety.', ex_vi: 'Chiếc xe mới được trang bị các cảm biến tiên tiến để đảm bảo an toàn.' } },
+            { front: { term: 'take something for granted', ipa: '/teɪk ˈsʌm.θɪŋ fɔːr ˈɡræn.t̬ɪd/' }, back: { vi: 'coi việc gì là hiển nhiên', en: 'to use something all the time, without thinking how useful it is or how lucky you are to have it', ex: 'We often take our health for granted until we get sick.', ex_vi: 'Chúng ta thường coi sức khỏe của mình là điều hiển nhiên cho đến khi bị bệnh.' } },
+            { front: { term: 'telecoms', ipa: '/ˈtel.ə.kɑːmz/' }, back: { vi: 'viễn thông', en: 'short for telecommunications, the process or business of sending information or messages by telephone, radio, etc.', ex: 'The telecoms industry is constantly evolving.', ex_vi: 'Ngành công nghiệp viễn thông không ngừng phát triển.' } },
+            { front: { term: 'thus', ipa: '/ðʌs/' }, back: { vi: 'do đó, vì vậy', en: 'in this way', ex: 'He studied hard and thus passed the exam easily.', ex_vi: 'Anh ấy đã học chăm chỉ và do đó đã vượt qua kỳ thi một cách dễ dàng.' } },
+            { front: { term: 'a vast range (of)', ipa: '/ə væst reɪndʒ əv/' }, back: { vi: 'một loạt', en: 'a very large number of different things', ex: 'The library offers a vast range of books on various subjects.', ex_vi: 'Thư viện cung cấp một loạt sách về các chủ đề khác nhau.' } },
+            { front: { term: 'visible', ipa: '/ˈvɪz.ə.bəl/' }, back: { vi: 'có thể nhìn thấy', en: 'able to be seen', ex: 'The mountains were clearly visible in the distance.', ex_vi: 'Những ngọn núi có thể nhìn thấy rõ ở phía xa.' } },
+            { front: { term: 'vocational training', ipa: '/voʊˈkeɪ.ʃən.əl ˈtreɪ.nɪŋ/' }, back: { vi: 'đào tạo nghề', en: 'the learning of skills that prepare you for a job', ex: 'Vocational training can be a good alternative to a university degree.', ex_vi: 'Đào tạo nghề có thể là một sự thay thế tốt cho bằng đại học.' } }
+        ];
+
+        let currentCardIndex = 0;
+        
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+            
+            cardFrontEl.innerHTML = `
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa}</p>
+            `;
+            
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+            
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+    </script>
+</body>
+</html>
