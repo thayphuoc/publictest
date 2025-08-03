@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 8: Sức khỏe & Y học</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem; /* rounded-xl */
+        }
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+    <!-- Chosen Palette: Calm Harmony Neutrals -->
+    <!-- Application Structure Plan: A digital flashcard application. The main view is a single, flippable card. Users can navigate sequentially with 'Previous'/'Next' buttons or test themselves with a 'Random' button. A progress counter shows their position. This structure directly translates the static report into an interactive, proven learning tool, focusing on the core user goal of vocabulary memorization and recall. -->
+    <!-- Visualization & Content Choices: Report Info: Vocabulary list. Goal: Learn & Recall. Viz/Presentation: Interactive flippable card. Interaction: Click to flip, buttons to navigate/shuffle. Justification: This method is the most intuitive and effective for learning flashcard content, promoting active recall over passive reading. Library/Method: HTML/CSS for structure and flip animation, Vanilla JS for logic and content rendering. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 8: Sức khỏe & Y học</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'Preventive medicine', ipa: '/prɪˈven.t̬ɪv ˈmed.ə.sən/' }, back: { vi: 'y học dự phòng', en: 'Medical practices that are designed to avert and avoid disease.', ex: 'Regular check-ups are a key part of preventive medicine.', ex_vi: 'Khám sức khỏe định kỳ là một phần quan trọng của y học dự phòng.' } },
+            { front: { term: 'Public health', ipa: '/ˌpʌb.lɪk ˈhelθ/' }, back: { vi: 'sức khỏe cộng đồng', en: 'The health of the population as a whole, especially as monitored, regulated, and promoted by the state.', ex: 'Public health initiatives aim to improve the well-being of the entire community.', ex_vi: 'Các sáng kiến sức khỏe cộng đồng nhằm mục đích cải thiện phúc lợi của toàn bộ cộng đồng.' } },
+            { front: { term: 'Chronic disease', ipa: '/ˈkrɑː.nɪk dɪˈziːz/' }, back: { vi: 'bệnh mãn tính', en: 'A disease that persists for a long time, typically lasting 3 months or more.', ex: 'Diabetes and heart disease are common chronic diseases.', ex_vi: 'Tiểu đường và bệnh tim là những bệnh mãn tính phổ biến.' } },
+            { front: { term: 'Acute illness', ipa: '/əˈkjuːt ˈɪl.nəs/' }, back: { vi: 'bệnh cấp tính', en: 'An illness that is of short duration, rapidly progressive, and in need of urgent care.', ex: 'The flu is an example of an acute illness.', ex_vi: 'Cúm là một ví dụ về bệnh cấp tính.' } },
+            { front: { term: 'Immunization', ipa: '/ˌɪm.jə.nəˈzeɪ.ʃən/' }, back: { vi: 'tiêm chủng, sự miễn dịch', en: 'The process whereby a person is made immune or resistant to an infectious disease, typically by the administration of a vaccine.', ex: 'Childhood immunization is crucial for preventing many dangerous diseases.', ex_vi: 'Tiêm chủng cho trẻ em là rất quan trọng để ngăn ngừa nhiều bệnh nguy hiểm.' } },
+            { front: { term: 'Pandemic', ipa: '/pænˈdem.ɪk/' }, back: { vi: 'đại dịch', en: 'A disease prevalent over a whole country or the world.', ex: 'The COVID-19 pandemic had a profound impact on the global population.', ex_vi: 'Đại dịch COVID-19 đã có tác động sâu sắc đến dân số toàn cầu.' } },
+            { front: { term: 'Vaccination', ipa: '/ˌvæk.səˈneɪ.ʃən/' }, back: { vi: 'tiêm vắc-xin', en: 'Treatment with a vaccine to produce immunity against a disease.', ex: 'Vaccination is one of the most effective ways to prevent infectious diseases.', ex_vi: 'Tiêm vắc-xin là một trong những cách hiệu quả nhất để phòng ngừa các bệnh truyền nhiễm.' } },
+            { front: { term: 'Mental health', ipa: '/ˈmen.təl helθ/' }, back: { vi: 'sức khỏe tinh thần', en: 'A person\'s condition with regard to their psychological and emotional well-being.', ex: 'It is important to take care of your mental health as well as your physical health.', ex_vi: 'Điều quan trọng là phải chăm sóc sức khỏe tinh thần cũng như sức khỏe thể chất của bạn.' } },
+            { front: { term: 'Nutrition', ipa: '/nuːˈtrɪʃ.ən/' }, back: { vi: 'dinh dưỡng', en: 'The process of providing or obtaining the food necessary for health and growth.', ex: 'Good nutrition is essential for a child\'s development.', ex_vi: 'Dinh dưỡng tốt là điều cần thiết cho sự phát triển của trẻ.' } },
+            { front: { term: 'Antibiotic resistance', ipa: '/ˌæn.t̬i.baɪˌɑː.t̬ɪk rɪˈzɪs.təns/' }, back: { vi: 'kháng kháng sinh', en: 'The ability of bacteria to resist the effects of an antibiotic.', ex: 'Antibiotic resistance is a major threat to global health.', ex_vi: 'Kháng kháng sinh là một mối đe dọa lớn đối với sức khỏe toàn cầu.' } },
+            { front: { term: 'Cardiovascular disease', ipa: '/ˌkɑːr.di.oʊˈvæs.kjə.lɚ dɪˌziːz/' }, back: { vi: 'bệnh tim mạch', en: 'A class of diseases that involve the heart or blood vessels.', ex: 'High blood pressure is a major risk factor for cardiovascular disease.', ex_vi: 'Huyết áp cao là một yếu tố nguy cơ chính gây bệnh tim mạch.' } },
+            { front: { term: 'Non-communicable disease', ipa: '/ˌnɑːn.kəˈmjuː.nɪ.kə.bəl dɪˌziːz/' }, back: { vi: 'bệnh không lây nhiễm', en: 'A disease that is not transmissible directly from one person to another.', ex: 'Cancer and diabetes are examples of non-communicable diseases.', ex_vi: 'Ung thư và tiểu đường là những ví dụ về bệnh không lây nhiễm.' } },
+            { front: { term: 'Contagious disease', ipa: '/kənˈteɪ.dʒəs dɪˈziːz/' }, back: { vi: 'bệnh truyền nhiễm', en: 'A disease that can be spread from one person or organism to another by direct or indirect contact.', ex: 'The common cold is a highly contagious disease.', ex_vi: 'Cảm lạnh thông thường là một bệnh rất dễ lây lan.' } },
+            { front: { term: 'Sedentary lifestyle', ipa: '/ˈsed.ən.ter.i ˈlaɪf.staɪl/' }, back: { vi: 'lối sống ít vận động', en: 'A type of lifestyle involving little or no physical activity.', ex: 'A sedentary lifestyle increases the risk of obesity and other health problems.', ex_vi: 'Lối sống ít vận động làm tăng nguy cơ béo phì và các vấn đề sức khỏe khác.' } },
+            { front: { term: 'Obesity', ipa: '/oʊˈbiː.sə.t̬i/' }, back: { vi: 'bệnh béo phì', en: 'The condition of being grossly fat or overweight.', ex: 'Obesity is a growing health crisis in many developed countries.', ex_vi: 'Béo phì là một cuộc khủng hoảng sức khỏe ngày càng gia tăng ở nhiều nước phát triển.' } },
+            { front: { term: 'Life expectancy', ipa: '/ˈlaɪf ɪkˌspek.tən.si/' }, back: { vi: 'tuổi thọ trung bình', en: 'The average period that a person may expect to live.', ex: 'Life expectancy has increased significantly over the past century due to medical advancements.', ex_vi: 'Tuổi thọ trung bình đã tăng đáng kể trong thế kỷ qua nhờ những tiến bộ y học.' } },
+            { front: { term: 'Healthcare system', ipa: '/ˈhelθ.ker ˌsɪs.təm/' }, back: { vi: 'hệ thống chăm sóc sức khỏe', en: 'The organization of people, institutions, and resources that deliver health care services to meet the health needs of target populations.', ex: 'A strong healthcare system is essential for a nation\'s well-being.', ex_vi: 'Một hệ thống chăm sóc sức khỏe mạnh mẽ là điều cần thiết cho sự thịnh vượng của một quốc gia.' } },
+            { front: { term: 'Surgical intervention', ipa: '/ˈsɝː.dʒɪ.kəl ˌɪn.t̬ɚˈven.ʃən/' }, back: { vi: 'can thiệp phẫu thuật', en: 'The treatment of injuries or disorders of the body by incision or manipulation, especially with instruments.', ex: 'In some cases, surgical intervention is necessary to treat the condition.', ex_vi: 'Trong một số trường hợp, can thiệp phẫu thuật là cần thiết để điều trị bệnh.' } },
+            { front: { term: 'Diagnosis', ipa: '/ˌdaɪ.əɡˈnoʊ.sɪs/' }, back: { vi: 'chẩn đoán', en: 'The identification of the nature of an illness or other problem by examination of the symptoms.', ex: 'An accurate diagnosis is the first step toward effective treatment.', ex_vi: 'Một chẩn đoán chính xác là bước đầu tiên hướng tới điều trị hiệu quả.' } },
+            { front: { term: 'Therapeutic treatment', ipa: '/ˌθer.əˈpjuː.t̬ɪk ˈtriːt.mənt/' }, back: { vi: 'điều trị liệu pháp', en: 'Treatment intended to relieve or heal a disorder.', ex: 'He is receiving therapeutic treatment for his chronic back pain.', ex_vi: 'Anh ấy đang được điều trị liệu pháp cho chứng đau lưng mãn tính của mình.' } },
+            { front: { term: 'Rehabilitation', ipa: '/ˌriː.həˌbɪl.əˈteɪ.ʃən/' }, back: { vi: 'phục hồi chức năng', en: 'The action of restoring someone to health or normal life through training and therapy after illness or injury.', ex: 'After the accident, he needed months of rehabilitation.', ex_vi: 'Sau tai nạn, anh ấy cần nhiều tháng để phục hồi chức năng.' } },
+            { front: { term: 'Health insurance', ipa: '/ˈhelθ ɪnˌʃʊr.əns/' }, back: { vi: 'bảo hiểm y tế', en: 'Insurance that covers the whole or a part of the risk of a person incurring medical expenses.', ex: 'Having good health insurance can protect you from high medical costs.', ex_vi: 'Có bảo hiểm y tế tốt có thể bảo vệ bạn khỏi chi phí y tế cao.' } },
+            { front: { term: 'Preventive care', ipa: '/prɪˈven.t̬ɪv ker/' }, back: { vi: 'chăm sóc phòng ngừa', en: 'Care you receive to prevent illnesses or diseases.', ex: 'Vaccinations and annual check-ups are forms of preventive care.', ex_vi: 'Tiêm chủng và khám sức khỏe hàng năm là các hình thức chăm sóc phòng ngừa.' } },
+            { front: { term: 'Telemedicine', ipa: '/ˈtel.əˌmed.ə.sən/' }, back: { vi: 'y tế từ xa', en: 'The remote diagnosis and treatment of patients by means of telecommunications technology.', ex: 'Telemedicine became very popular during the pandemic.', ex_vi: 'Y tế từ xa đã trở nên rất phổ biến trong thời gian đại dịch.' } },
+            { front: { term: 'Medical breakthrough', ipa: '/ˈmed.ɪ.kəl ˈbreɪk.θruː/' }, back: { vi: 'bước đột phá y học', en: 'A significant new development or discovery in medicine.', ex: 'The development of mRNA vaccines was a major medical breakthrough.', ex_vi: 'Sự phát triển của vắc-xin mRNA là một bước đột phá y học lớn.' } },
+            { front: { term: '“To undergo surgery”', ipa: '' }, back: { vi: 'trải qua phẫu thuật', en: 'To have a surgical operation.', ex: 'He had to undergo surgery to remove a tumor.', ex_vi: 'Anh ấy đã phải trải qua phẫu thuật để loại bỏ một khối u.' } },
+            { front: { term: '“Eradicate a disease”', ipa: '' }, back: { vi: 'xóa sổ một căn bệnh', en: 'To completely get rid of a disease.', ex: 'The global vaccination program aims to eradicate diseases like polio and measles.', ex_vi: 'Chương trình tiêm chủng toàn cầu nhằm mục đích xóa sổ các bệnh như bại liệt và sởi.' } },
+            { front: { term: '“To combat obesity”', ipa: '' }, back: { vi: 'chống lại bệnh béo phì', en: 'To fight against the problem of obesity.', ex: 'Governments are introducing policies to combat obesity through education and healthy eating campaigns.', ex_vi: 'Các chính phủ đang đưa ra các chính sách để chống lại bệnh béo phì thông qua các chiến dịch giáo dục và ăn uống lành mạnh.' } },
+            { front: { term: '“Lead a sedentary lifestyle”', ipa: '' }, back: { vi: 'sống lối sống ít vận động', en: 'To live a lifestyle with little physical activity.', ex: 'People who lead a sedentary lifestyle are at higher risk of developing heart disease.', ex_vi: 'Những người sống lối sống ít vận động có nguy cơ mắc bệnh tim cao hơn.' } },
+            { front: { term: '“Health-conscious individual”', ipa: '' }, back: { vi: 'cá nhân có ý thức về sức khỏe', en: 'A person who is aware of and concerned about their health.', ex: 'Health-conscious individuals are more likely to engage in regular exercise and maintain a balanced diet.', ex_vi: 'Những cá nhân có ý thức về sức khỏe có nhiều khả năng tham gia tập thể dục thường xuyên và duy trì một chế độ ăn uống cân bằng.' } },
+            { front: { term: '“Early detection and diagnosis”', ipa: '' }, back: { vi: 'phát hiện và chẩn đoán sớm', en: 'Finding and identifying a disease at an early stage.', ex: 'Early detection and diagnosis of cancer significantly improve the chances of successful treatment.', ex_vi: 'Phát hiện và chẩn đoán sớm ung thư giúp cải thiện đáng kể cơ hội điều trị thành công.' } },
+            { front: { term: '“To develop a resistance to antibiotics”', ipa: '' }, back: { vi: 'phát triển khả năng kháng kháng sinh', en: 'When bacteria change in response to the use of these medicines.', ex: 'The overuse of antibiotics is causing many bacteria to develop a resistance to antibiotics.', ex_vi: 'Việc lạm dụng kháng sinh đang khiến nhiều vi khuẩn phát triển khả năng kháng kháng sinh.' } },
+            { front: { term: '“To administer a vaccine”', ipa: '' }, back: { vi: 'tiêm vắc-xin', en: 'To give a vaccine to someone.', ex: 'The health workers are administering vaccines to prevent the spread of infectious diseases.', ex_vi: 'Các nhân viên y tế đang tiêm vắc-xin để ngăn chặn sự lây lan của các bệnh truyền nhiễm.' } },
+            { front: { term: '“Mental health issues”', ipa: '' }, back: { vi: 'các vấn đề về sức khỏe tinh thần', en: 'Problems related to psychological and emotional well-being.', ex: 'Mental health issues like anxiety and depression have become more common in recent years.', ex_vi: 'Các vấn đề sức khỏe tinh thần như lo âu và trầm cảm đã trở nên phổ biến hơn trong những năm gần đây.' } },
+            { front: { term: '“To be susceptible to disease”', ipa: '' }, back: { vi: 'dễ mắc bệnh', en: 'To be likely to be influenced or harmed by a particular disease.', ex: 'Elderly people are more susceptible to disease due to weaker immune systems.', ex_vi: 'Người cao tuổi dễ mắc bệnh hơn do hệ miễn dịch yếu hơn.' } },
+            { front: { term: '“To promote a healthy lifestyle”', ipa: '' }, back: { vi: 'thúc đẩy lối sống lành mạnh', en: 'To encourage people to live in a healthy way.', ex: 'Health organizations constantly promote a healthy lifestyle through awareness campaigns.', ex_vi: 'Các tổ chức y tế liên tục thúc đẩy lối sống lành mạnh thông qua các chiến dịch nâng cao nhận thức.' } },
+            { front: { term: '“Holistic approach to healthcare”', ipa: '' }, back: { vi: 'phương pháp chăm sóc sức khỏe toàn diện', en: 'A healthcare approach that treats the whole person, not just the symptoms of a disease.', ex: 'A holistic approach to healthcare considers not just physical well-being but also mental and emotional health.', ex_vi: 'Phương pháp chăm sóc sức khỏe toàn diện không chỉ xem xét sức khỏe thể chất mà còn cả sức khỏe tinh thần và cảm xúc.' } },
+            { front: { term: '“Medical advancements”', ipa: '' }, back: { vi: 'những tiến bộ y học', en: 'Progress in the field of medicine.', ex: 'Medical advancements in recent years have greatly improved the survival rates of many chronic diseases.', ex_vi: 'Những tiến bộ y học trong những năm gần đây đã cải thiện đáng kể tỷ lệ sống sót của nhiều bệnh mãn tính.' } },
+            { front: { term: '“Preventive measures”', ipa: '' }, back: { vi: 'các biện pháp phòng ngừa', en: 'Actions taken to prevent disease.', ex: 'Preventive measures such as regular exercise and a balanced diet can reduce the risk of serious illness.', ex_vi: 'Các biện pháp phòng ngừa như tập thể dục thường xuyên và chế độ ăn uống cân bằng có thể làm giảm nguy cơ mắc bệnh nghiêm trọng.' } },
+            { front: { term: '“To boost the immune system”', ipa: '' }, back: { vi: 'tăng cường hệ miễn dịch', en: 'To make the immune system stronger.', ex: 'Consuming a diet rich in vitamins and minerals helps boost the immune system.', ex_vi: 'Tiêu thụ một chế độ ăn giàu vitamin và khoáng chất giúp tăng cường hệ miễn dịch.' } },
+            { front: { term: '“Healthcare expenditure”', ipa: '' }, back: { vi: 'chi phí chăm sóc sức khỏe', en: 'The amount of money spent on health services.', ex: 'Increased healthcare expenditure is a major concern for many governments around the world.', ex_vi: 'Chi phí chăm sóc sức khỏe gia tăng là một mối quan tâm lớn đối với nhiều chính phủ trên thế giới.' } },
+            { front: { term: '“Health deterioration”', ipa: '' }, back: { vi: 'sự suy giảm sức khỏe', en: 'The process of health becoming worse.', ex: 'Health deterioration is inevitable in old age, but it can be slowed down with proper care and lifestyle choices.', ex_vi: 'Sự suy giảm sức khỏe là không thể tránh khỏi ở tuổi già, nhưng nó có thể được làm chậm lại bằng cách chăm sóc và lựa chọn lối sống phù hợp.' } },
+            { front: { term: '“A balanced diet”', ipa: '' }, back: { vi: 'chế độ ăn uống cân bằng', en: 'A diet that contains the different kinds of foods that are needed for good health.', ex: 'A balanced diet is essential for maintaining good health and preventing chronic diseases.', ex_vi: 'Một chế độ ăn uống cân bằng là điều cần thiết để duy trì sức khỏe tốt và ngăn ngừa các bệnh mãn tính.' } },
+            { front: { term: '“To make a full recovery”', ipa: '' }, back: { vi: 'hồi phục hoàn toàn', en: 'To get completely well again after an illness or injury.', ex: 'After months of rehabilitation, he made a full recovery from his injury.', ex_vi: 'Sau nhiều tháng phục hồi chức năng, anh ấy đã hồi phục hoàn toàn sau chấn thương.' } },
+            { front: { term: '“To prescribe medication”', ipa: '' }, back: { vi: 'kê đơn thuốc', en: 'To officially tell someone to take a particular medicine.', ex: 'The doctor prescribed medication to manage his high blood pressure.', ex_vi: 'Bác sĩ đã kê đơn thuốc để kiểm soát huyết áp cao của anh ấy.' } },
+            { front: { term: '“Outbreak of a disease”', ipa: '' }, back: { vi: 'sự bùng phát của bệnh dịch', en: 'The sudden start of something unwelcome, such as a war or disease.', ex: 'The outbreak of the disease has spread to neighboring countries, causing widespread panic.', ex_vi: 'Sự bùng phát của dịch bệnh đã lan sang các nước láng giềng, gây ra sự hoảng loạn trên diện rộng.' } },
+            { front: { term: '“Health-related issues”', ipa: '' }, back: { vi: 'các vấn đề liên quan đến sức khỏe', en: 'Problems connected with health.', ex: 'Rising pollution levels are contributing to various health-related issues such as respiratory problems.', ex_vi: 'Mức độ ô nhiễm gia tăng đang góp phần gây ra các vấn đề liên quan đến sức khỏe khác nhau như các vấn đề về hô hấp.' } }
+        ];
+
+        let currentCardIndex = 0;
+        
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+            
+            cardFrontEl.innerHTML = `
+                <h2 class="text-2xl sm:text-3xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa || ''}</p>
+            `;
+            
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+            
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+    </script>
+</body>
+</html>
