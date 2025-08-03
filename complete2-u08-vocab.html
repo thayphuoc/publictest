@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 8: Fashion and design</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem; /* rounded-xl */
+        }
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+    <!-- Chosen Palette: Calm Harmony Neutrals -->
+    <!-- Application Structure Plan: A digital flashcard application. The main view is a single, flippable card. Users can navigate sequentially with 'Previous'/'Next' buttons or test themselves with a 'Random' button. A progress counter shows their position. This structure directly translates the static report into an interactive, proven learning tool, focusing on the core user goal of vocabulary memorization and recall. -->
+    <!-- Visualization & Content Choices: Report Info: Vocabulary list. Goal: Learn & Recall. Viz/Presentation: Interactive flippable card. Interaction: Click to flip, buttons to navigate/shuffle. Justification: This method is the most intuitive and effective for learning flashcard content, promoting active recall over passive reading. Library/Method: HTML/CSS for structure and flip animation, Vanilla JS for logic and content rendering. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 8: Fashion and design</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'ancient', ipa: '/ˈeɪn.ʃənt/' }, back: { vi: 'cổ xưa, cổ đại', en: 'from a long time ago', ex: 'Designers often draw inspiration from ancient Greek and Roman clothing.', ex_vi: 'Các nhà thiết kế thường lấy cảm hứng từ trang phục Hy Lạp và La Mã cổ đại.' } },
+            { front: { term: 'casual clothes', ipa: '/ˈkæʒ.u.əl kloʊðz/' }, back: { vi: 'quần áo thường ngày', en: 'clothes that are comfortable and suitable for informal occasions', ex: 'On weekends, I prefer to wear casual clothes like jeans and a T-shirt.', ex_vi: 'Vào cuối tuần, tôi thích mặc quần áo thường ngày như quần jean và áo phông.' } },
+            { front: { term: 'celebrity', ipa: '/səˈleb.rə.t̬i/' }, back: { vi: 'người nổi tiếng', en: 'a famous person', ex: 'Many fashion trends are started by a popular celebrity.', ex_vi: 'Nhiều xu hướng thời trang được bắt đầu bởi một người nổi tiếng.' } },
+            { front: { term: 'conservation', ipa: '/ˌkɑːn.sɚˈveɪ.ʃən/' }, back: { vi: 'sự bảo tồn', en: 'the act of repairing something or protecting it from damage', ex: 'The museum specializes in the conservation of delicate ancient textiles.', ex_vi: 'Bảo tàng chuyên về việc bảo tồn các loại vải cổ mỏng manh.' } },
+            { front: { term: 'contemporary', ipa: '/kənˈtem.pə.rer.i/' }, back: { vi: 'đương đại', en: 'existing or happening at the same time as something', ex: 'The gallery features both contemporary and traditional art.', ex_vi: 'Phòng trưng bày có cả nghệ thuật đương đại và truyền thống.' } },
+            { front: { term: 'decorative', ipa: '/ˈdek.ər.ə.t̬ɪv/' }, back: { vi: 'để trang trí', en: 'making something or someone look more attractive', ex: 'The mirror has a beautiful decorative frame.', ex_vi: 'Chiếc gương có một khung trang trí rất đẹp.' } },
+            { front: { term: 'delicate structure', ipa: '/ˈdel.ə.kət ˈstrʌk.tʃɚ/' }, back: { vi: 'cấu trúc mỏng manh', en: 'If something has a delicate structure, the parts it is made of are easy to damage or break.', ex: 'The antique lace has a very delicate structure and must be handled with care.', ex_vi: 'Mảnh ren cổ có cấu trúc rất mỏng manh và phải được xử lý cẩn thận.' } },
+            { front: { term: 'designer clothes / brands', ipa: '/dɪˈzaɪ.nɚ kloʊðz/' }, back: { vi: 'quần áo / thương hiệu thiết kế', en: 'clothes/ products made by fashionable designers', ex: 'She loves to shop for designer clothes on Fifth Avenue.', ex_vi: 'Cô ấy thích mua sắm quần áo thiết kế trên Đại lộ số Năm.' } },
+            { front: { term: 'fabric', ipa: '/ˈfæb.rɪk/' }, back: { vi: 'vải', en: 'cloth', ex: 'This dress is made from a very soft, lightweight fabric.', ex_vi: 'Chiếc váy này được làm từ một loại vải rất mềm và nhẹ.' } },
+            { front: { term: 'flexibility', ipa: '/ˌflek.səˈbɪl.ə.t̬i/' }, back: { vi: 'sự linh hoạt', en: 'the ability to bend or stretch', ex: 'The new fabric offers great flexibility and comfort for athletes.', ex_vi: 'Loại vải mới mang lại sự linh hoạt và thoải mái tuyệt vời cho các vận động viên.' } },
+            { front: { term: 'fragile', ipa: '/ˈfrædʒ.əl/' }, back: { vi: 'mong manh, dễ vỡ', en: 'easily broken, damaged or destroyed', ex: 'The ancient vase is extremely fragile.', ex_vi: 'Chiếc bình cổ cực kỳ mong manh.' } },
+            { front: { term: 'functional', ipa: '/ˈfʌŋk.ʃən.əl/' }, back: { vi: 'tiện dụng, có tính ứng dụng cao', en: 'designed to be practical or useful and not only attractive', ex: 'Modern sportswear is both functional and fashionable.', ex_vi: 'Quần áo thể thao hiện đại vừa tiện dụng vừa thời trang.' } },
+            { front: { term: 'garment', ipa: '/ˈɡɑːr.mənt/' }, back: { vi: 'trang phục, quần áo', en: 'a piece of clothing', ex: 'Each garment is carefully inspected before it is shipped.', ex_vi: 'Mỗi sản phẩm quần áo đều được kiểm tra cẩn thận trước khi vận chuyển.' } },
+            { front: { term: 'give a sense of', ipa: '/ɡɪv ə sens əv/' }, back: { vi: 'mang lại cảm giác', en: 'to give someone a particular impression or feeling about something', ex: 'The flowing fabric gives the dress a sense of movement.', ex_vi: 'Chất liệu vải rủ mang lại cho chiếc váy cảm giác chuyển động.' } },
+            { front: { term: 'innovations', ipa: '/ˌɪn.əˈveɪ.ʃənz/' }, back: { vi: 'sự đổi mới', en: 'new ideas or methods', ex: 'The fashion industry is always looking for new innovations in materials.', ex_vi: 'Ngành công nghiệp thời trang luôn tìm kiếm những đổi mới trong vật liệu.' } },
+            { front: { term: 'miss the point', ipa: '/mɪs ðə pɔɪnt/' }, back: { vi: 'hiểu sai ý', en: 'to not understand what someone means', ex: 'I think you missed the point of the designer\'s collection.', ex_vi: 'Tôi nghĩ bạn đã hiểu sai ý của bộ sưu tập của nhà thiết kế.' } },
+            { front: { term: 'original', ipa: '/əˈrɪdʒ.ən.əl/' }, back: { vi: 'nguyên bản', en: 'existing since the beginning or being the earliest form of something', ex: 'The museum has the original painting, not a copy.', ex_vi: 'Bảo tàng có bức tranh nguyên bản, không phải bản sao.' } },
+            { front: { term: 'origins', ipa: '/ˈɔːr.ə.dʒɪnz/' }, back: { vi: 'nguồn gốc', en: 'the place where something started to exist', ex: 'The book explores the origins of modern fashion.', ex_vi: 'Cuốn sách khám phá nguồn gốc của thời trang hiện đại.' } },
+            { front: { term: 'performance', ipa: '/pɚˈfɔːr.məns/' }, back: { vi: 'buổi biểu diễn', en: 'the act of acting, singing, dancing or playing music to entertain people', ex: 'The costumes for the ballet performance were stunning.', ex_vi: 'Trang phục cho buổi biểu diễn ba lê thật lộng lẫy.' } },
+            { front: { term: 'pastime', ipa: '/ˈpæs.taɪm/' }, back: { vi: 'thú tiêu khiển', en: 'an activity that you enjoy doing when you are not working', ex: 'Sewing and knitting are popular pastimes.', ex_vi: 'May vá và đan len là những thú tiêu khiển phổ biến.' } },
+            { front: { term: 'preserve', ipa: '/prəˈzɝːv/' }, back: { vi: 'bảo tồn, gìn giữ', en: 'to keep something the same or prevent it from being damaged or destroyed', ex: 'Special techniques are used to preserve the delicate fabrics of ancient garments.', ex_vi: 'Các kỹ thuật đặc biệt được sử dụng để bảo tồn các loại vải mỏng manh của trang phục cổ.' } },
+            { front: { term: 'portrait', ipa: '/ˈpɔːr.trət/' }, back: { vi: 'chân dung', en: 'a painting, drawing or photograph of someone', ex: 'The queen sat for her official portrait.', ex_vi: 'Nữ hoàng đã ngồi làm mẫu cho bức chân dung chính thức của mình.' } },
+            { front: { term: 'produced by hand', ipa: '/prəˈduːst baɪ hænd/' }, back: { vi: 'sản xuất thủ công', en: 'made by a person instead of a machine', ex: 'This intricate lace was produced by hand.', ex_vi: 'Mảnh ren phức tạp này được sản xuất thủ công.' } },
+            { front: { term: 'repair', ipa: '/rɪˈper/' }, back: { vi: 'sửa chữa', en: 'to fix something that is broken or damaged', ex: 'Can you repair this tear in my jacket?', ex_vi: 'Bạn có thể sửa vết rách này trên áo khoác của tôi không?' } },
+            { front: { term: 'retire', ipa: '/rɪˈtaɪr/' }, back: { vi: 'nghỉ hưu', en: 'to leave your job and stop working, usually because you are old', ex: 'After a long career in fashion, she decided to retire.', ex_vi: 'Sau một sự nghiệp dài trong ngành thời trang, bà quyết định nghỉ hưu.' } },
+            { front: { term: 'social events', ipa: '/ˈsoʊ.ʃəl ɪˈvents/' }, back: { vi: 'sự kiện xã hội', en: 'events such as parties that are organised for people to enjoy themselves with other people', ex: 'She needs a new dress for the upcoming social events.', ex_vi: 'Cô ấy cần một chiếc váy mới cho các sự kiện xã hội sắp tới.' } },
+            { front: { term: 'textile(s)', ipa: '/ˈtek.staɪl/' }, back: { vi: 'vải dệt', en: 'any type of cloth that is made by weaving crossing threads under and over each other', ex: 'The country is a major producer of textiles.', ex_vi: 'Đất nước này là một nhà sản xuất vải dệt lớn.' } },
+            { front: { term: 'unique', ipa: '/juːˈniːk/' }, back: { vi: 'độc đáo', en: 'different from everyone and everything else', ex: 'Each of her designs is completely unique.', ex_vi: 'Mỗi thiết kế của cô ấy đều hoàn toàn độc đáo.' } }
+        ];
+
+        let currentCardIndex = 0;
+        
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+            
+            cardFrontEl.innerHTML = `
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa}</p>
+            `;
+            
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+            
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+    </script>
+</body>
+</html>
