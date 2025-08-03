@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 7: Công nghệ & Sáng tạo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem; /* rounded-xl */
+        }
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+    <!-- Chosen Palette: Calm Harmony Neutrals -->
+    <!-- Application Structure Plan: A digital flashcard application. The main view is a single, flippable card. Users can navigate sequentially with 'Previous'/'Next' buttons or test themselves with a 'Random' button. A progress counter shows their position. This structure directly translates the static report into an interactive, proven learning tool, focusing on the core user goal of vocabulary memorization and recall. -->
+    <!-- Visualization & Content Choices: Report Info: Vocabulary list. Goal: Learn & Recall. Viz/Presentation: Interactive flippable card. Interaction: Click to flip, buttons to navigate/shuffle. Justification: This method is the most intuitive and effective for learning flashcard content, promoting active recall over passive reading. Library/Method: HTML/CSS for structure and flip animation, Vanilla JS for logic and content rendering. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 7: Công nghệ & Sáng tạo</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'Technological advancement', ipa: '/ˌtek.nəˈlɑː.dʒɪ.kəl ədˈvæns.mənt/' }, back: { vi: 'sự tiến bộ công nghệ', en: 'The generation of information or the discovery of knowledge that advances technology.', ex: 'The 21st century has seen rapid technological advancement.', ex_vi: 'Thế kỷ 21 đã chứng kiến sự tiến bộ công nghệ nhanh chóng.' } },
+            { front: { term: 'Innovative device', ipa: '/ˈɪn.ə.veɪ.t̬ɪv dɪˈvaɪs/' }, back: { vi: 'thiết bị sáng tạo', en: 'A new and original device that introduces new ideas.', ex: 'Smartphones were a truly innovative device when they first appeared.', ex_vi: 'Điện thoại thông minh là một thiết bị thực sự sáng tạo khi chúng lần đầu tiên xuất hiện.' } },
+            { front: { term: 'State-of-the-art', ipa: '/ˌsteɪt.əv.ðiːˈɑːrt/' }, back: { vi: 'hiện đại nhất', en: 'Very modern and using the most recent ideas and methods.', ex: 'The new hospital is equipped with state-of-the-art medical technology.', ex_vi: 'Bệnh viện mới được trang bị công nghệ y tế hiện đại nhất.' } },
+            { front: { term: 'Sophisticated technology', ipa: '/səˈfɪs.təˌkeɪ.t̬ɪd tekˈnɑː.lə.dʒi/' }, back: { vi: 'công nghệ tinh vi', en: 'Advanced and complex technology.', ex: 'Modern aircraft rely on sophisticated technology for navigation and safety.', ex_vi: 'Máy bay hiện đại dựa vào công nghệ tinh vi để điều hướng và đảm bảo an toàn.' } },
+            { front: { term: 'Automation', ipa: '/ˌɔː.t̬əˈmeɪ.ʃən/' }, back: { vi: 'sự tự động hóa', en: 'The use of largely automatic equipment in a system of manufacturing or other production process.', ex: 'Automation has increased efficiency in many factories.', ex_vi: 'Tự động hóa đã làm tăng hiệu quả trong nhiều nhà máy.' } },
+            { front: { term: 'Artificial intelligence (AI)', ipa: '/ˌɑːr.t̬əˌfɪʃ.əl ɪnˈtel.ə.dʒəns/' }, back: { vi: 'trí tuệ nhân tạo', en: 'The theory and development of computer systems able to perform tasks that normally require human intelligence.', ex: 'Artificial intelligence is transforming many industries, from healthcare to finance.', ex_vi: 'Trí tuệ nhân tạo đang biến đổi nhiều ngành công nghiệp, từ y tế đến tài chính.' } },
+            { front: { term: 'Cutting-edge innovation', ipa: '/ˈkʌt̬.ɪŋˌedʒ ˌɪn.əˈveɪ.ʃən/' }, back: { vi: 'sáng tạo tiên tiến', en: 'The most modern and advanced stage of development in a particular type of work or activity.', ex: 'The company is known for its cutting-edge innovation in robotics.', ex_vi: 'Công ty được biết đến với sự sáng tạo tiên tiến trong lĩnh vực robot.' } },
+            { front: { term: 'Digital transformation', ipa: '/ˈdɪdʒ.ə.t̬əl ˌtræns.fɚˈmeɪ.ʃən/' }, back: { vi: 'chuyển đổi kỹ thuật số', en: 'The process of using digital technologies to create new — or modify existing — business processes, culture, and customer experiences.', ex: 'The pandemic accelerated the digital transformation of many businesses.', ex_vi: 'Đại dịch đã thúc đẩy quá trình chuyển đổi kỹ thuật số của nhiều doanh nghiệp.' } },
+            { front: { term: 'Internet of Things (IoT)', ipa: '/ˈɪn.t̬ɚ.net əv θɪŋz/' }, back: { vi: 'Internet vạn vật', en: 'A system of interrelated computing devices that are provided with unique identifiers and the ability to transfer data over a network without requiring human-to-human or human-to-computer interaction.', ex: 'Smart homes use the Internet of Things to connect appliances and devices.', ex_vi: 'Nhà thông minh sử dụng Internet vạn vật để kết nối các thiết bị và đồ dùng.' } },
+            { front: { term: 'Disruptive technology', ipa: '/dɪsˈrʌp.tɪv tekˈnɑː.lə.dʒi/' }, back: { vi: 'công nghệ đột phá', en: 'An innovation that significantly alters the way that consumers, industries, or businesses operate.', ex: 'Streaming services were a disruptive technology for the traditional television industry.', ex_vi: 'Các dịch vụ phát trực tuyến là một công nghệ đột phá đối với ngành công nghiệp truyền hình truyền thống.' } },
+            { front: { term: 'Technological dependency', ipa: '/ˌtek.nəˈlɑː.dʒɪ.kəl dɪˈpen.dən.si/' }, back: { vi: 'sự phụ thuộc vào công nghệ', en: 'The state of relying on or being controlled by technology.', ex: 'Many people worry about our growing technological dependency.', ex_vi: 'Nhiều người lo lắng về sự phụ thuộc ngày càng tăng của chúng ta vào công nghệ.' } },
+            { front: { term: 'Ubiquitous computing', ipa: '/juːˈbɪk.wə.t̬əs kəmˈpjuː.t̬ɪŋ/' }, back: { vi: 'điện toán phổ biến', en: 'The idea that computing can occur using any device, in any location, and in any format.', ex: 'Ubiquitous computing aims to make technology seamlessly integrated into our environment.', ex_vi: 'Điện toán phổ biến nhằm mục đích làm cho công nghệ được tích hợp liền mạch vào môi trường của chúng ta.' } },
+            { front: { term: 'Interoperability', ipa: '/ˌɪn.t̬ɚˌɑː.pɚ.əˈbɪl.ə.t̬i/' }, back: { vi: 'khả năng tương tác giữa các hệ thống', en: 'The ability of computer systems or software to exchange and make use of information.', ex: 'Interoperability is key for different smart devices to work together.', ex_vi: 'Khả năng tương tác là chìa khóa để các thiết bị thông minh khác nhau hoạt động cùng nhau.' } },
+            { front: { term: 'Wearable tech', ipa: '/ˈwer.ə.bəl tek/' }, back: { vi: 'công nghệ đeo', en: 'Electronic devices that can be worn as accessories, embedded in clothing, implanted in the user\'s body, or even tattooed on the skin.', ex: 'Smartwatches and fitness trackers are popular examples of wearable tech.', ex_vi: 'Đồng hồ thông minh và thiết bị theo dõi thể dục là những ví dụ phổ biến về công nghệ đeo.' } },
+            { front: { term: 'Haptic feedback', ipa: '/ˈhæp.tɪk ˈfiːd.bæk/' }, back: { vi: 'phản hồi xúc giác', en: 'The use of touch to communicate with users.', ex: 'Modern game controllers use haptic feedback to create a more immersive experience.', ex_vi: 'Các bộ điều khiển trò chơi hiện đại sử dụng phản hồi xúc giác để tạo ra trải nghiệm chân thực hơn.' } },
+            { front: { term: 'Cloud computing', ipa: '/ˈklaʊd kəmˌpjuː.t̬ɪŋ/' }, back: { vi: 'điện toán đám mây', en: 'The practice of using a network of remote servers hosted on the Internet to store, manage, and process data, rather than a local server or a personal computer.', ex: 'Cloud computing allows us to access our files from any device.', ex_vi: 'Điện toán đám mây cho phép chúng ta truy cập các tệp của mình từ bất kỳ thiết bị nào.' } },
+            { front: { term: 'Quantum computing', ipa: '/ˈkwɑːn.t̬əm kəmˌpjuː.t̬ɪŋ/' }, back: { vi: 'máy tính lượng tử', en: 'A type of computation that harnesses the collective properties of quantum states, such as superposition and entanglement, to perform calculations.', ex: 'Quantum computing has the potential to solve problems that are impossible for classical computers.', ex_vi: 'Máy tính lượng tử có tiềm năng giải quyết các vấn đề mà máy tính cổ điển không thể giải quyết được.' } },
+            { front: { term: 'Smart infrastructure', ipa: '/ˈsmɑːrt ˈɪn.frəˌstrʌk.tʃɚ/' }, back: { vi: 'cơ sở hạ tầng thông minh', en: 'Physical infrastructure that is enhanced with technology, allowing for better management and efficiency.', ex: 'Smart infrastructure is essential for building the cities of the future.', ex_vi: 'Cơ sở hạ tầng thông minh là điều cần thiết để xây dựng các thành phố của tương lai.' } },
+            { front: { term: 'Biometrics', ipa: '/ˌbaɪ.oʊˈmet.rɪks/' }, back: { vi: 'sinh trắc học', en: 'The measurement and statistical analysis of people\'s unique physical and behavioral characteristics.', ex: 'Many smartphones use biometrics like fingerprint scanners for security.', ex_vi: 'Nhiều điện thoại thông minh sử dụng sinh trắc học như máy quét vân tay để bảo mật.' } },
+            { front: { term: 'Digital ecosystem', ipa: '/ˈdɪdʒ.ə.t̬əl ˈiː.koʊˌsɪs.təm/' }, back: { vi: 'hệ sinh thái kỹ thuật số', en: 'A distributed, adaptive, open socio-technical system with properties of self-organization, scalability and sustainability.', ex: 'Apple has created a powerful digital ecosystem with its interconnected devices and services.', ex_vi: 'Apple đã tạo ra một hệ sinh thái kỹ thuật số mạnh mẽ với các thiết bị và dịch vụ được kết nối với nhau.' } },
+            { front: { term: 'Augmented reality (AR)', ipa: '/ɔːɡˌmen.t̬ɪd riˈæl.ə.t̬i/' }, back: { vi: 'thực tế tăng cường', en: 'An interactive experience of a real-world environment where the objects that reside in the real world are enhanced by computer-generated perceptual information.', ex: 'Games like Pokémon GO use augmented reality to blend the virtual and real worlds.', ex_vi: 'Các trò chơi như Pokémon GO sử dụng thực tế tăng cường để hòa trộn thế giới ảo và thực.' } },
+            { front: { term: 'Virtual reality (VR)', ipa: '/ˌvɝː.tʃu.əl riˈæl.ə.t̬i/' }, back: { vi: 'thực tế ảo', en: 'A simulated experience that can be similar to or completely different from the real world.', ex: 'Virtual reality headsets are used for gaming, training, and virtual tours.', ex_vi: 'Kính thực tế ảo được sử dụng để chơi game, đào tạo và các chuyến tham quan ảo.' } },
+            { front: { term: 'Touchscreen interface', ipa: '/ˈtʌtʃ.skriːn ˈɪn.t̬ɚ.feɪs/' }, back: { vi: 'giao diện màn hình cảm ứng', en: 'A display screen that allows a user to interact with a computer by touching areas on the screen.', ex: 'The touchscreen interface has made smartphones incredibly easy to use.', ex_vi: 'Giao diện màn hình cảm ứng đã làm cho điện thoại thông minh trở nên cực kỳ dễ sử dụng.' } },
+            { front: { term: 'Voice recognition technology', ipa: '/ˈvɔɪs ˌrek.əɡˈnɪʃ.ən tekˌnɑː.lə.dʒi/' }, back: { vi: 'công nghệ nhận diện giọng nói', en: 'Technology that enables a machine or program to identify and understand spoken words.', ex: 'Virtual assistants like Siri and Alexa rely on voice recognition technology.', ex_vi: 'Các trợ lý ảo như Siri và Alexa dựa vào công nghệ nhận diện giọng nói.' } },
+            { front: { term: 'Sustainable technology', ipa: '/səˈsteɪ.nə.bəl tekˈnɑː.lə.dʒi/' }, back: { vi: 'công nghệ bền vững', en: 'Technology that is designed to conserve energy and resources.', ex: 'Solar panels are a form of sustainable technology.', ex_vi: 'Tấm pin mặt trời là một dạng công nghệ bền vững.' } },
+            { front: { term: '“Revolutionize the way we interact with technology”', ipa: '' }, back: { vi: 'cách mạng hóa cách chúng ta tương tác với công nghệ', en: 'To completely change how we use technology.', ex: 'Wearable tech has revolutionized the way we interact with technology on a daily basis.', ex_vi: 'Công nghệ đeo đã cách mạng hóa cách chúng ta tương tác với công nghệ hàng ngày.' } },
+            { front: { term: '“Enhance user experience”', ipa: '' }, back: { vi: 'nâng cao trải nghiệm người dùng', en: 'To improve the overall experience a person has when using a product or service.', ex: 'Advanced haptic feedback in smartphones greatly enhances user experience.', ex_vi: 'Phản hồi xúc giác tiên tiến trong điện thoại thông minh giúp nâng cao đáng kể trải nghiệm người dùng.' } },
+            { front: { term: '“Pioneering advancements in AI”', ipa: '' }, back: { vi: 'những tiến bộ tiên phong trong trí tuệ nhân tạo', en: 'Leading-edge developments in artificial intelligence.', ex: 'Pioneering advancements in AI are transforming industries like healthcare and finance.', ex_vi: 'Những tiến bộ tiên phong trong AI đang biến đổi các ngành công nghiệp như y tế và tài chính.' } },
+            { front: { term: '“Integration of IoT devices”', ipa: '' }, back: { vi: 'sự tích hợp các thiết bị Internet vạn vật', en: 'The process of connecting various IoT devices so they can work together.', ex: 'The integration of IoT devices has led to smarter homes and cities.', ex_vi: 'Sự tích hợp các thiết bị IoT đã dẫn đến những ngôi nhà và thành phố thông minh hơn.' } },
+            { front: { term: '“Streamline processes”', ipa: '' }, back: { vi: 'đơn giản hóa quy trình', en: 'To make a system or process more efficient and effective.', ex: 'Automation in industries has streamlined processes, reducing human error.', ex_vi: 'Tự động hóa trong các ngành công nghiệp đã giúp đơn giản hóa quy trình, giảm thiểu lỗi do con người.' } },
+            { front: { term: '“A double-edged sword”', ipa: '' }, back: { vi: 'con dao hai lưỡi (vừa có lợi vừa có hại)', en: 'Something that has both advantages and disadvantages.', ex: 'The rise of gadgets can be a double-edged sword, offering convenience but also fostering dependency.', ex_vi: 'Sự trỗi dậy của các thiết bị có thể là một con dao hai lưỡi, mang lại sự tiện lợi nhưng cũng nuôi dưỡng sự phụ thuộc.' } },
+            { front: { term: '“A paradigm shift”', ipa: '' }, back: { vi: 'sự thay đổi mô hình', en: 'A fundamental change in approach or underlying assumptions.', ex: 'The advent of quantum computing represents a paradigm shift in how we solve complex problems.', ex_vi: 'Sự ra đời của máy tính lượng tử đại diện cho một sự thay đổi mô hình trong cách chúng ta giải quyết các vấn đề phức tạp.' } },
+            { front: { term: '“Proliferation of smart devices”', ipa: '' }, back: { vi: 'sự phát triển nhanh chóng của các thiết bị thông minh', en: 'The rapid increase in the number of smart devices.', ex: 'The proliferation of smart devices has made our lives more connected but also more vulnerable to cyber threats.', ex_vi: 'Sự phát triển nhanh chóng của các thiết bị thông minh đã làm cho cuộc sống của chúng ta kết nối hơn nhưng cũng dễ bị tổn thương hơn trước các mối đe dọa mạng.' } },
+            { front: { term: '“Bridge the digital divide”', ipa: '' }, back: { vi: 'thu hẹp khoảng cách kỹ thuật số', en: 'To reduce the gap between people who have access to modern technology and those who do not.', ex: 'Affordable gadgets and internet access help bridge the digital divide between urban and rural areas.', ex_vi: 'Các thiết bị giá cả phải chăng và truy cập internet giúp thu hẹp khoảng cách kỹ thuật số giữa khu vực thành thị và nông thôn.' } },
+            { front: { term: '“Impose ethical dilemmas”', ipa: '' }, back: { vi: 'đặt ra các tình huống khó xử về đạo đức', en: 'To create situations where difficult choices must be made based on moral principles.', ex: 'The use of AI in surveillance technology imposes ethical dilemmas concerning privacy.', ex_vi: 'Việc sử dụng AI trong công nghệ giám sát đặt ra các tình huống khó xử về đạo đức liên quan đến quyền riêng tư.' } },
+            { front: { term: '“Fuel consumerism”', ipa: '' }, back: { vi: 'thúc đẩy chủ nghĩa tiêu dùng', en: 'To encourage the buying of goods and services.', ex: 'New gadgets often fuel consumerism, encouraging people to constantly upgrade their devices.', ex_vi: 'Các thiết bị mới thường thúc đẩy chủ nghĩa tiêu dùng, khuyến khích mọi người liên tục nâng cấp thiết bị của họ.' } },
+            { front: { term: '“Exponential growth in technology”', ipa: '' }, back: { vi: 'sự phát triển vượt bậc trong công nghệ', en: 'Extremely rapid increase in technological development.', ex: 'The exponential growth in technology has led to advancements that were unimaginable a decade ago.', ex_vi: 'Sự phát triển vượt bậc trong công nghệ đã dẫn đến những tiến bộ không thể tưởng tượng được một thập kỷ trước.' } },
+            { front: { term: '“Tech-savvy individuals”', ipa: '' }, back: { vi: 'những người thành thạo công nghệ', en: 'People who are well informed about or proficient in the use of modern technology.', ex: 'Tech-savvy individuals are quick to adopt new gadgets and utilize them to their full potential.', ex_vi: 'Những người thành thạo công nghệ nhanh chóng tiếp nhận các thiết bị mới và sử dụng chúng hết tiềm năng.' } },
+            { front: { term: '“To drive innovation”', ipa: '' }, back: { vi: 'thúc đẩy sự sáng tạo', en: 'To be the force that pushes innovation forward.', ex: 'Investment in research and development is crucial to drive innovation in the gadget industry.', ex_vi: 'Đầu tư vào nghiên cứu và phát triển là rất quan trọng để thúc đẩy sự sáng tạo trong ngành công nghiệp thiết bị.' } },
+            { front: { term: '“Unprecedented technological leap”', ipa: '' }, back: { vi: 'bước nhảy công nghệ chưa từng có', en: 'A technological advancement greater than any in the past.', ex: 'The development of 5G networks represents an unprecedented technological leap in communication.', ex_vi: 'Sự phát triển của mạng 5G đại diện cho một bước nhảy vọt công nghệ chưa từng có trong truyền thông.' } }
+        ];
+
+        let currentCardIndex = 0;
+        
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+            
+            cardFrontEl.innerHTML = `
+                <h2 class="text-2xl sm:text-3xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa || ''}</p>
+            `;
+            
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+            
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+    </script>
+</body>
+</html>
