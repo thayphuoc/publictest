@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 09: Every drop counts</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem; /* rounded-xl */
+        }
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+    <!-- Chosen Palette: Calm Harmony Neutrals -->
+    <!-- Application Structure Plan: A digital flashcard application. The main view is a single, flippable card. Users can navigate sequentially with 'Previous'/'Next' buttons or test themselves with a 'Random' button. A progress counter shows their position. This structure directly translates the static report into an interactive, proven learning tool, focusing on the core user goal of vocabulary memorization and recall. -->
+    <!-- Visualization & Content Choices: Report Info: Vocabulary list. Goal: Learn & Recall. Viz/Presentation: Interactive flippable card. Interaction: Click to flip, buttons to navigate/shuffle. Justification: This method is the most intuitive and effective for learning flashcard content, promoting active recall over passive reading. Library/Method: HTML/CSS for structure and flip animation, Vanilla JS for logic and content rendering. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 09: Every drop counts</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'access', ipa: '/ˈæk.ses/' }, back: { vi: 'sự truy cập, quyền sử dụng', en: 'when you have the right or opportunity to use or see something', ex: 'The villagers now have access to clean drinking water.', ex_vi: 'Dân làng giờ đây đã có quyền sử dụng nước uống sạch.' } },
+            { front: { term: 'accessible', ipa: '/əkˈses.ə.bəl/' }, back: { vi: 'có thể tiếp cận, dễ dàng đến được', en: 'easy to find or reach', ex: 'The new library is accessible to everyone, including people with disabilities.', ex_vi: 'Thư viện mới có thể tiếp cận được với tất cả mọi người, kể cả người khuyết tật.' } },
+            { front: { term: 'account for something', ipa: '/əˈkaʊnt fɔːr ˈsʌm.θɪŋ/' }, back: { vi: 'giải thích cho, là nguyên nhân của', en: 'to be the reason for something', ex: 'Heavy rains accounted for the flooding in the region.', ex_vi: 'Mưa lớn là nguyên nhân gây ra lũ lụt trong khu vực.' } },
+            { front: { term: 'benefit', ipa: '/ˈben.ə.fɪt/' }, back: { vi: 'lợi ích', en: 'something that helps you or gives you an advantage', ex: 'The new park will be a great benefit to the local community.', ex_vi: 'Công viên mới sẽ là một lợi ích lớn cho cộng đồng địa phương.' } },
+            { front: { term: 'construct', ipa: '/kənˈstrʌkt/' }, back: { vi: 'xây dựng, công trình', en: 'something large that is built', ex: 'They plan to construct a new bridge over the river.', ex_vi: 'Họ dự định xây một cây cầu mới bắc qua sông.' } },
+            { front: { term: 'construction', ipa: '/kənˈstrʌk.ʃən/' }, back: { vi: 'sự xây dựng, công trình xây dựng', en: 'the work of building houses, offices, bridges, etc.', ex: 'The construction of the new hospital will take two years.', ex_vi: 'Việc xây dựng bệnh viện mới sẽ mất hai năm.' } },
+            { front: { term: 'cultivate crops', ipa: '/ˈkʌl.tə.veɪt krɑːps/' }, back: { vi: 'trồng trọt, canh tác', en: 'to grow plants such as grains, fruit or vegetables in large amounts', ex: 'Farmers in this area mainly cultivate crops like rice and corn.', ex_vi: 'Nông dân ở khu vực này chủ yếu trồng các loại cây như lúa và ngô.' } },
+            { front: { term: 'the developing world', ipa: '/ðə dɪˈvel.ə.pɪŋ wɝːld/' }, back: { vi: 'thế giới đang phát triển', en: 'describes an area of the world which is poorer and has less-advanced industries, especially in Africa, Latin America or Asia', ex: 'Many charities work to improve conditions in the developing world.', ex_vi: 'Nhiều tổ chức từ thiện hoạt động để cải thiện điều kiện ở các nước đang phát triển.' } },
+            { front: { term: 'drain away', ipa: '/dreɪn əˈweɪ/' }, back: { vi: 'chảy đi, thoát đi', en: 'If a liquid drains away, it flows out of a place.', ex: 'The water from the flood is slowly beginning to drain away.', ex_vi: 'Nước lũ đang dần bắt đầu rút đi.' } },
+            { front: { term: 'drought', ipa: '/draʊt/' }, back: { vi: 'hạn hán', en: 'a long period when there is no rain and people do not have enough water', ex: 'The long drought has caused serious problems for farmers.', ex_vi: 'Hạn hán kéo dài đã gây ra những vấn đề nghiêm trọng cho nông dân.' } },
+            { front: { term: 'fetch', ipa: '/fetʃ/' }, back: { vi: 'đi lấy, mang về', en: 'to go to another place to get something or someone and bring them back', ex: 'Can you fetch me a glass of water, please?', ex_vi: 'Bạn có thể đi lấy cho tôi một ly nước được không?' } },
+            { front: { term: 'follow', ipa: '/ˈfɑː.loʊ/' }, back: { vi: 'hiểu, theo kịp', en: 'to understand something', ex: 'I\'m sorry, I don\'t follow your argument.', ex_vi: 'Tôi xin lỗi, tôi không hiểu lập luận của bạn.' } },
+            { front: { term: 'geological', ipa: '/ˌdʒiː.əˈlɑː.dʒɪ.kəl/' }, back: { vi: 'thuộc về địa chất', en: 'relating to geology (= the study of rocks and the structure of the Earth)', ex: 'The country has diverse geological features.', ex_vi: 'Đất nước có các đặc điểm địa chất đa dạng.' } },
+            { front: { term: 'human consumption', ipa: '/ˈhjuː.mən kənˈsʌmp.ʃən/' }, back: { vi: 'sự tiêu thụ của con người', en: 'when people eat or use something', ex: 'This water is not safe for human consumption.', ex_vi: 'Nước này không an toàn cho người tiêu thụ.' } },
+            { front: { term: 'human waste', ipa: '/ˈhjuː.mən weɪst/' }, back: { vi: 'chất thải của con người', en: 'substances that come out of your body after your food has been digested', ex: 'Proper disposal of human waste is essential for public health.', ex_vi: 'Việc xử lý chất thải của con người đúng cách là cần thiết cho sức khỏe cộng đồng.' } },
+            { front: { term: 'hygiene', ipa: '/ˈhaɪ.dʒiːn/' }, back: { vi: 'vệ sinh', en: 'the process of keeping things clean, especially to prevent disease', ex: 'Good hygiene can help prevent the spread of germs.', ex_vi: 'Vệ sinh tốt có thể giúp ngăn ngừa sự lây lan của vi trùng.' } },
+            { front: { term: 'irrigation', ipa: '/ˌɪr.əˈɡeɪ.ʃən/' }, back: { vi: 'sự tưới tiêu', en: 'the process of providing water to an area of land so that crops can be grown', ex: 'They have installed a new irrigation system for the farm.', ex_vi: 'Họ đã lắp đặt một hệ thống tưới tiêu mới cho trang trại.' } },
+            { front: { term: 'the natural world', ipa: '/ðə ˈnætʃ.ɚ.əl wɝːld/' }, back: { vi: 'thế giới tự nhiên', en: 'all the things in the world that were not created by people, especially the countryside, animals, etc.', ex: 'I love spending time in the natural world.', ex_vi: 'Tôi thích dành thời gian trong thế giới tự nhiên.' } },
+            { front: { term: 'polluted', ipa: '/pəˈluː.t̬ɪd/' }, back: { vi: 'bị ô nhiễm', en: 'water, air, soil, etc. that has become dirty or harmful to humans or animals', ex: 'The river is heavily polluted with industrial waste.', ex_vi: 'Con sông bị ô nhiễm nặng bởi chất thải công nghiệp.' } },
+            { front: { term: 'pour', ipa: '/pɔːr/' }, back: { vi: 'rót, đổ', en: 'to make a liquid flow from or into a container', ex: 'She poured the milk into a glass.', ex_vi: 'Cô ấy rót sữa vào ly.' } },
+            { front: { term: 'the pros and cons', ipa: '/ðə proʊz ənd kɑːnz/' }, back: { vi: 'ưu và nhược điểm', en: 'the advantages and disadvantages of something', ex: 'We discussed the pros and cons of moving to a new city.', ex_vi: 'Chúng tôi đã thảo luận về những ưu và nhược điểm của việc chuyển đến một thành phố mới.' } },
+            { front: { term: 'rainwater', ipa: '/ˈreɪnˌwɔː.t̬ɚ/' }, back: { vi: 'nước mưa', en: 'water that has fallen as rain, rather than water which has come from a tap', ex: 'They collect rainwater to use in the garden.', ex_vi: 'Họ thu gom nước mưa để sử dụng trong vườn.' } },
+            { front: { term: 'running water', ipa: '/ˈrʌn.ɪŋ ˈwɔː.t̬ɚ/' }, back: { vi: 'nước máy', en: 'water that comes through a system of pipes', ex: 'Many homes in the village still do not have running water.', ex_vi: 'Nhiều ngôi nhà trong làng vẫn chưa có nước máy.' } },
+            { front: { term: 'rural', ipa: '/ˈrʊr.əl/' }, back: { vi: 'thuộc về nông thôn', en: 'relating to the countryside and not to towns', ex: 'She grew up in a small, rural community.', ex_vi: 'Cô ấy lớn lên trong một cộng đồng nông thôn nhỏ.' } },
+            { front: { term: 'specialist', ipa: '/ˈspeʃ.ə.lɪst/' }, back: { vi: 'chuyên gia, chuyên môn', en: 'having a lot of experience, knowledge or skill in a particular subject', ex: 'You need a specialist to fix this type of engine.', ex_vi: 'Bạn cần một chuyên gia để sửa loại động cơ này.' } },
+            { front: { term: 'treat someone for a disease', ipa: '/triːt ˈsʌm.wʌn fɔːr ə dɪˈziːz/' }, back: { vi: 'điều trị bệnh cho ai đó', en: 'to give medical care to someone to try to cure their illness', ex: 'The doctors are treating him for a rare tropical disease.', ex_vi: 'Các bác sĩ đang điều trị cho anh ấy một căn bệnh nhiệt đới hiếm gặp.' } },
+            { front: { term: 'turn on a tap', ipa: '/tɝːn ɑːn ə tæp/' }, back: { vi: 'mở vòi nước', en: 'to turn the part at the end of a pipe to start the flow of water', ex: 'He turned on the tap to wash his hands.', ex_vi: 'Anh ấy mở vòi nước để rửa tay.' } },
+            { front: { term: 'water supplies', ipa: '/ˈwɔː.t̬ɚ səˈplaɪz/' }, back: { vi: 'nguồn cung cấp nước', en: 'amounts of water that are available to be used', ex: 'The drought has seriously affected the city\'s water supplies.', ex_vi: 'Hạn hán đã ảnh hưởng nghiêm trọng đến nguồn cung cấp nước của thành phố.' } },
+            { front: { term: 'water source', ipa: '/ˈwɔː.t̬ɚ sɔːrs/' }, back: { vi: 'nguồn nước', en: 'a place where water comes from, especially under the ground', ex: 'The main water source for the village is a spring in the mountains.', ex_vi: 'Nguồn nước chính của làng là một con suối trên núi.' } },
+            { front: { term: 'water sports', ipa: '/ˈwɔː.t̬ɚ spɔːrts/' }, back: { vi: 'thể thao dưới nước', en: 'sports which take place on or in water', ex: 'I enjoy all kinds of water sports, especially swimming and sailing.', ex_vi: 'Tôi thích tất cả các loại thể thao dưới nước, đặc biệt là bơi lội và chèo thuyền.' } },
+            { front: { term: 'water purification', ipa: '/ˈwɔː.t̬ɚ ˌpjʊr.ə.fəˈkeɪ.ʃən/' }, back: { vi: 'sự lọc nước, sự làm sạch nước', en: 'the process of removing harmful substances from water', ex: 'The camp has a small water purification system.', ex_vi: 'Trại có một hệ thống lọc nước nhỏ.' } },
+            { front: { term: 'wet suit', ipa: '/wet suːt/' }, back: { vi: 'đồ lặn', en: 'a piece of clothing covering the whole body that keeps you warm when you are under water', ex: 'You\'ll need a wet suit if you want to go diving in this cold water.', ex_vi: 'Bạn sẽ cần một bộ đồ lặn nếu muốn đi lặn trong vùng nước lạnh này.' } }
+        ];
+
+        let currentCardIndex = 0;
+        
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+            
+            cardFrontEl.innerHTML = `
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa}</p>
+            `;
+            
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+            
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+    </script>
+</body>
+</html>
