@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 9: Trí thông minh & Nghiên cứu Động vật</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem; /* rounded-xl */
+        }
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+    <!-- Chosen Palette: Calm Harmony Neutrals -->
+    <!-- Application Structure Plan: A digital flashcard application. The main view is a single, flippable card. Users can navigate sequentially with 'Previous'/'Next' buttons or test themselves with a 'Random' button. A progress counter shows their position. This structure directly translates the static report into an interactive, proven learning tool, focusing on the core user goal of vocabulary memorization and recall. -->
+    <!-- Visualization & Content Choices: Report Info: Vocabulary list. Goal: Learn & Recall. Viz/Presentation: Interactive flippable card. Interaction: Click to flip, buttons to navigate/shuffle. Justification: This method is the most intuitive and effective for learning flashcard content, promoting active recall over passive reading. Library/Method: HTML/CSS for structure and flip animation, Vanilla JS for logic and content rendering. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 9: Trí thông minh & Nghiên cứu Động vật</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'Behavioral experiments', ipa: '/bɪˈheɪ.vjɚ.əl ɪkˈsper.ə.mənts/' }, back: { vi: 'thí nghiệm hành vi', en: 'Experiments designed to study the behavior of organisms.', ex: 'Researchers use behavioral experiments to understand animal decision-making.', ex_vi: 'Các nhà nghiên cứu sử dụng các thí nghiệm hành vi để hiểu việc ra quyết định của động vật.' } },
+            { front: { term: 'Ecological research', ipa: '/ˌiː.kəˈlɑː.dʒɪ.kəl ˈriː.sɝːtʃ/' }, back: { vi: 'nghiên cứu sinh thái', en: 'The study of the relationships between living organisms and their environment.', ex: 'Ecological research helps us understand the impact of climate change on wildlife.', ex_vi: 'Nghiên cứu sinh thái giúp chúng ta hiểu tác động của biến đổi khí hậu đối với động vật hoang dã.' } },
+            { front: { term: 'Trial and observation', ipa: '/ˈtraɪ.əl ənd ˌɑːb.zɚˈveɪ.ʃən/' }, back: { vi: 'thử nghiệm và quan sát', en: 'A method of learning or problem-solving that involves trying a number of different methods and learning from the mistakes.', ex: 'The crow learned to use the tool through trial and observation.', ex_vi: 'Con quạ đã học cách sử dụng công cụ thông qua thử nghiệm và quan sát.' } },
+            { front: { term: 'Cognitive skills', ipa: '/ˈkɑːɡ.nə.t̬ɪv skɪlz/' }, back: { vi: 'kỹ năng nhận thức', en: 'The core skills your brain uses to think, read, learn, remember, reason, and pay attention.', ex: 'The study was designed to assess the cognitive skills of primates.', ex_vi: 'Nghiên cứu được thiết kế để đánh giá các kỹ năng nhận thức của các loài linh trưởng.' } },
+            { front: { term: 'Mirror test', ipa: '/ˈmɪr.ɚ test/' }, back: { vi: 'bài kiểm tra với gương', en: 'A behavioral technique developed to determine whether an animal possesses the ability of self-recognition.', ex: 'Dolphins and elephants have passed the mirror test, suggesting self-awareness.', ex_vi: 'Cá heo và voi đã vượt qua bài kiểm tra với gương, cho thấy sự tự nhận thức.' } },
+            { front: { term: 'Species-specific traits', ipa: '/ˈspiː.ʃiːz spəˈsɪf.ɪk treɪts/' }, back: { vi: 'đặc điểm riêng của loài', en: 'Characteristics that are unique to a particular species.', ex: 'Tool-making in crows is a fascinating species-specific trait.', ex_vi: 'Việc chế tạo công cụ ở quạ là một đặc điểm riêng biệt hấp dẫn của loài.' } },
+            { front: { term: 'Abstract reasoning', ipa: '/ˈæb.strækt ˈriː.zən.ɪŋ/' }, back: { vi: 'lý luận trừu tượng', en: 'The ability to understand and think about complex concepts that are not tied to concrete, physical reality.', ex: 'The experiment tested the ape\'s capacity for abstract reasoning.', ex_vi: 'Thí nghiệm đã kiểm tra khả năng lý luận trừu tượng của loài vượn.' } },
+            { front: { term: 'Symbol recognition', ipa: '/ˈsɪm.bəl ˌrek.əɡˈnɪʃ.ən/' }, back: { vi: 'nhận diện ký hiệu', en: 'The ability to identify and understand symbols.', ex: 'The orangutans showed impressive symbol recognition skills on the touchscreen.', ex_vi: 'Những con đười ươi đã thể hiện kỹ năng nhận diện ký hiệu ấn tượng trên màn hình cảm ứng.' } },
+            { front: { term: 'Touchscreen technology', ipa: '/ˈtʌtʃ.skriːn tekˈnɑː.lə.dʒi/' }, back: { vi: 'công nghệ màn hình cảm ứng', en: 'Technology that enables a user to interact with a computer by touching areas on the screen.', ex: 'Touchscreen technology has become a valuable tool in animal cognition research.', ex_vi: 'Công nghệ màn hình cảm ứng đã trở thành một công cụ có giá trị trong nghiên cứu nhận thức của động vật.' } },
+            { front: { term: 'Observational study', ipa: '/ˌɑːb.zɚˈveɪ.ʃən.əl ˈstʌd.i/' }, back: { vi: 'nghiên cứu quan sát', en: 'A study in which researchers observe subjects and measure variables of interest without assigning treatments to the subjects.', ex: 'Jane Goodall conducted a famous observational study of chimpanzees in the wild.', ex_vi: 'Jane Goodall đã tiến hành một nghiên cứu quan sát nổi tiếng về tinh tinh trong tự nhiên.' } },
+            { front: { term: 'Laboratory confinement', ipa: '/ˈlæb.rə.tɔːr.i kənˈfaɪn.mənt/' }, back: { vi: 'giam giữ trong phòng thí nghiệm', en: 'The state of being kept in a laboratory for research purposes.', ex: 'The ethics of laboratory confinement for animals is a contentious issue.', ex_vi: 'Đạo đức của việc giam giữ động vật trong phòng thí nghiệm là một vấn đề gây tranh cãi.' } },
+            { front: { term: 'Problem-solving ability', ipa: '/ˈprɑː.bləm ˌsɑːl.vɪŋ əˈbɪl.ə.t̬i/' }, back: { vi: 'khả năng giải quyết vấn đề', en: 'The capacity to find solutions to difficult or complex issues.', ex: 'The crow demonstrated remarkable problem-solving ability.', ex_vi: 'Con quạ đã thể hiện khả năng giải quyết vấn đề đáng chú ý.' } },
+            { front: { term: 'Research methodology', ipa: '/ˈriː.sɝːtʃ ˌmeθ.əˈdɑː.lə.dʒi/' }, back: { vi: 'phương pháp nghiên cứu', en: 'The specific procedures or techniques used to identify, select, process, and analyze information about a topic.', ex: 'A clear research methodology is essential for a credible scientific study.', ex_vi: 'Một phương pháp nghiên cứu rõ ràng là điều cần thiết cho một nghiên cứu khoa học đáng tin cậy.' } },
+            { front: { term: 'Control group', ipa: '/kənˈtroʊl ɡruːp/' }, back: { vi: 'nhóm đối chứng', en: 'The group in an experiment or study that does not receive treatment by the researchers and is then used as a benchmark to measure how the other tested subjects do.', ex: 'The results from the experimental group were compared with the control group.', ex_vi: 'Kết quả từ nhóm thí nghiệm được so sánh với nhóm đối chứng.' } },
+            { front: { term: 'Environmental adaptation', ipa: '/ɪnˌvaɪ.rənˈmen.t̬əl ˌæd.æpˈteɪ.ʃən/' }, back: { vi: 'sự thích nghi với môi trường', en: 'The process by which a species becomes fitted to its environment.', ex: 'The crow\'s tool-making is an example of environmental adaptation.', ex_vi: 'Việc chế tạo công cụ của quạ là một ví dụ về sự thích nghi với môi trường.' } },
+            { front: { term: 'Behavioral conditioning', ipa: '/bɪˈheɪ.vjɚ.əl kənˈdɪʃ.ən.ɪŋ/' }, back: { vi: 'điều kiện hóa hành vi', en: 'A theory that states behavior can be changed or taught through reinforcement, either positive or negative.', ex: 'Pavlov\'s experiments are a classic example of behavioral conditioning.', ex_vi: 'Các thí nghiệm của Pavlov là một ví dụ kinh điển về điều kiện hóa hành vi.' } },
+            { front: { term: 'Tool usage', ipa: '/ˈtuːl ˈjuː.sɪdʒ/' }, back: { vi: 'việc sử dụng công cụ', en: 'The act of using an object to achieve a goal.', ex: 'Tool usage was once thought to be a uniquely human trait.', ex_vi: 'Việc sử dụng công cụ từng được cho là một đặc điểm chỉ có ở con người.' } },
+            { front: { term: 'Neural capacity', ipa: '/ˈnʊr.əl kəˈpæs.ə.t̬i/' }, back: { vi: 'khả năng thần kinh', en: 'The capacity of the nervous system to process information.', ex: 'The study explores the neural capacity behind the dolphin\'s complex social behaviors.', ex_vi: 'Nghiên cứu khám phá khả năng thần kinh đằng sau các hành vi xã hội phức tạp của cá heo.' } },
+            { front: { term: 'Data collection', ipa: '/ˈdeɪ.t̬ə kəˌlek.ʃən/' }, back: { vi: 'thu thập dữ liệu', en: 'The process of gathering and measuring information on targeted variables.', ex: 'Accurate data collection is critical to maintaining the integrity of research.', ex_vi: 'Thu thập dữ liệu chính xác là rất quan trọng để duy trì tính toàn vẹn của nghiên cứu.' } },
+            { front: { term: 'Experimental trial', ipa: '/ɪkˌsper.əˈmen.t̬əl ˈtraɪ.əl/' }, back: { vi: 'thử nghiệm thí nghiệm', en: 'A test done in order to learn something or to discover if something works or is true.', ex: 'Each experimental trial was repeated several times to ensure reliability.', ex_vi: 'Mỗi thử nghiệm thí nghiệm được lặp lại nhiều lần để đảm bảo độ tin cậy.' } },
+            { front: { term: 'Cognitive development', ipa: '/ˈkɑːɡ.nə.t̬ɪv dɪˈvel.əp.mənt/' }, back: { vi: 'sự phát triển nhận thức', en: 'The construction of thought processes, including remembering, problem solving, and decision-making.', ex: 'The research focuses on the cognitive development of young chimpanzees.', ex_vi: 'Nghiên cứu tập trung vào sự phát triển nhận thức của tinh tinh non.' } },
+            { front: { term: 'Observational behaviour', ipa: '/ˌɑːb.zɚˈveɪ.ʃən.əl bɪˈheɪ.vjɚ/' }, back: { vi: 'hành vi quan sát', en: 'Behavior that is learned by watching others.', ex: 'Young animals often learn through observational behaviour, mimicking their parents.', ex_vi: 'Động vật non thường học thông qua hành vi quan sát, bắt chước cha mẹ của chúng.' } },
+            { front: { term: 'Animal welfare', ipa: '/ˈæn.ə.məl ˈwel.fer/' }, back: { vi: 'phúc lợi động vật', en: 'The well-being of non-human animals.', ex: 'Modern research must adhere to strict guidelines on animal welfare.', ex_vi: 'Nghiên cứu hiện đại phải tuân thủ các hướng dẫn nghiêm ngặt về phúc lợi động vật.' } },
+            { front: { term: 'Trial repetition', ipa: '/ˈtraɪ.əl ˌrep.əˈtɪʃ.ən/' }, back: { vi: 'lặp lại thử nghiệm', en: 'The act of repeating an experimental trial.', ex: 'Trial repetition is necessary to validate the experimental results.', ex_vi: 'Việc lặp lại thử nghiệm là cần thiết để xác thực kết quả thí nghiệm.' } },
+            { front: { term: 'Experimental outcome', ipa: '/ɪkˌsper.əˈmen.t̬əl ˈaʊt.kʌm/' }, back: { vi: 'kết quả thí nghiệm', en: 'The result of an experiment.', ex: 'The experimental outcome supported the hypothesis that crows can reason.', ex_vi: 'Kết quả thí nghiệm ủng hộ giả thuyết rằng quạ có thể suy luận.' } },
+            { front: { term: '“To conduct behavioral experiments”', ipa: '' }, back: { vi: 'tiến hành các thí nghiệm hành vi', en: 'To carry out experiments to study behavior.', ex: 'Researchers conducted behavioral experiments to assess the crow\'s ability to make tools.', ex_vi: 'Các nhà nghiên cứu đã tiến hành các thí nghiệm hành vi để đánh giá khả năng chế tạo công cụ của loài quạ.' } },
+            { front: { term: '“To test cognitive skills”', ipa: '' }, back: { vi: 'kiểm tra kỹ năng nhận thức', en: 'To evaluate the mental abilities of a subject.', ex: 'The study aimed to test the cognitive skills of dolphins using the mirror test.', ex_vi: 'Nghiên cứu nhằm mục đích kiểm tra kỹ năng nhận thức của cá heo bằng bài kiểm tra với gương.' } },
+            { front: { term: '“To undergo observational studies”', ipa: '' }, back: { vi: 'trải qua các nghiên cứu quan sát', en: 'To be the subject of studies based on observation.', ex: 'The dolphins underwent observational studies to assess their self-awareness.', ex_vi: 'Những con cá heo đã trải qua các nghiên cứu quan sát để đánh giá sự tự nhận thức của chúng.' } },
+            { front: { term: '“To observe species-specific traits”', ipa: '' }, back: { vi: 'quan sát các đặc điểm riêng của loài', en: 'To watch for characteristics unique to a species.', ex: 'The experiment revealed species-specific traits in the crows\' tool-making behavior.', ex_vi: 'Thí nghiệm đã tiết lộ các đặc điểm riêng của loài trong hành vi chế tạo công cụ của quạ.' } },
+            { front: { term: '“To demonstrate abstract reasoning”', ipa: '' }, back: { vi: 'thể hiện khả năng lý luận trừu tượng', en: 'To show the ability to think about non-concrete concepts.', ex: 'Orangutans demonstrated abstract reasoning by selecting the correct symbols.', ex_vi: 'Đười ươi đã thể hiện khả năng lý luận trừu tượng bằng cách chọn các ký hiệu chính xác.' } },
+            { front: { term: '“To recognize abstract symbols”', ipa: '' }, back: { vi: 'nhận diện các ký hiệu trừu tượng', en: 'To identify and understand non-literal symbols.', ex: 'The orangutans were able to recognize abstract symbols on the touchscreen.', ex_vi: 'Những con đười ươi có thể nhận diện các ký hiệu trừu tượng trên màn hình cảm ứng.' } },
+            { front: { term: '“To adapt to unfamiliar environments”', ipa: '' }, back: { vi: 'thích nghi với các môi trường không quen thuộc', en: 'To adjust to new surroundings.', ex: 'Betty the crow adapted to unfamiliar materials by bending wire to create tools.', ex_vi: 'Con quạ Betty đã thích nghi với các vật liệu không quen thuộc bằng cách uốn cong dây để tạo ra công cụ.' } },
+            { front: { term: '“To show problem-solving ability”', ipa: '' }, back: { vi: 'thể hiện khả năng giải quyết vấn đề', en: 'To display the capacity to find solutions.', ex: 'The crow showed remarkable problem-solving ability by creating a tool out of a straight wire.', ex_vi: 'Con quạ đã thể hiện khả năng giải quyết vấn đề đáng chú ý bằng cách tạo ra một công cụ từ một sợi dây thẳng.' } },
+            { front: { term: '“To test the animal’s reaction”', ipa: '' }, back: { vi: 'kiểm tra phản ứng của động vật', en: 'To check how an animal responds to a stimulus.', ex: 'The experiment tested the animal\'s reaction to seeing its reflection in a mirror.', ex_vi: 'Thí nghiệm đã kiểm tra phản ứng của con vật khi nhìn thấy hình ảnh phản chiếu của nó trong gương.' } },
+            { front: { term: '“To exhibit advanced cognitive processes”', ipa: '' }, back: { vi: 'thể hiện các quá trình nhận thức tiên tiến', en: 'To display complex mental capabilities.', ex: 'Dolphins exhibited advanced cognitive processes by recognizing themselves in the mirror.', ex_vi: 'Cá heo đã thể hiện các quá trình nhận thức tiên tiến bằng cách nhận ra chính mình trong gương.' } },
+            { front: { term: '“To collect data on behavior”', ipa: '' }, back: { vi: 'thu thập dữ liệu về hành vi', en: 'To gather information about how a subject acts.', ex: 'Researchers collected data on the behavior of the orangutans as they interacted with the touchscreens.', ex_vi: 'Các nhà nghiên cứu đã thu thập dữ liệu về hành vi của những con đười ươi khi chúng tương tác với màn hình cảm ứng.' } },
+            { front: { term: '“To analyze the experimental outcome”', ipa: '' }, back: { vi: 'phân tích kết quả thí nghiệm', en: 'To examine the result of an experiment in detail.', ex: 'Scientists analyzed the experimental outcome to determine the intelligence of the animals.', ex_vi: 'Các nhà khoa học đã phân tích kết quả thí nghiệm để xác định trí thông minh của các loài động vật.' } },
+            { front: { term: '“To achieve high accuracy rates”', ipa: '' }, back: { vi: 'đạt được tỷ lệ chính xác cao', en: 'To get a high percentage of correct results.', ex: 'The orangutans achieved high accuracy rates in selecting the correct symbols.', ex_vi: 'Những con đười ươi đã đạt được tỷ lệ chính xác cao trong việc chọn các ký hiệu đúng.' } },
+            { front: { term: '“To test self-awareness”', ipa: '' }, back: { vi: 'kiểm tra sự tự nhận thức', en: 'To check if a subject is conscious of itself as an individual.', ex: 'The mirror test was used to test the self-awareness of dolphins.', ex_vi: 'Bài kiểm tra với gương được sử dụng để kiểm tra sự tự nhận thức của cá heo.' } },
+            { front: { term: '“To compare behavior with control groups”', ipa: '' }, back: { vi: 'so sánh hành vi với nhóm đối chứng', en: 'To contrast the actions of the test subjects with a baseline group.', ex: 'The researchers compared the behavior of marked dolphins with that of the control group.', ex_vi: 'Các nhà nghiên cứu đã so sánh hành vi của những con cá heo được đánh dấu với hành vi của nhóm đối chứng.' } }
+        ];
+
+        let currentCardIndex = 0;
+        
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+            
+            cardFrontEl.innerHTML = `
+                <h2 class="text-2xl sm:text-3xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa || ''}</p>
+            `;
+            
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+            
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+    </script>
+</body>
+</html>
