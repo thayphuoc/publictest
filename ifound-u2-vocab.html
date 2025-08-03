@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 2: Giao thông & Môi trường</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem; /* rounded-xl */
+        }
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+    <!-- Chosen Palette: Calm Harmony Neutrals -->
+    <!-- Application Structure Plan: A digital flashcard application. The main view is a single, flippable card. Users can navigate sequentially with 'Previous'/'Next' buttons or test themselves with a 'Random' button. A progress counter shows their position. This structure directly translates the static report into an interactive, proven learning tool, focusing on the core user goal of vocabulary memorization and recall. -->
+    <!-- Visualization & Content Choices: Report Info: Vocabulary list. Goal: Learn & Recall. Viz/Presentation: Interactive flippable card. Interaction: Click to flip, buttons to navigate/shuffle. Justification: This method is the most intuitive and effective for learning flashcard content, promoting active recall over passive reading. Library/Method: HTML/CSS for structure and flip animation, Vanilla JS for logic and content rendering. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 2: Giao thông & Môi trường</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'Congestion', ipa: '/kənˈdʒes.tʃən/' }, back: { vi: 'tắc nghẽn', en: 'The state of being blocked or overcrowded.', ex: 'The city is trying to find ways to reduce traffic congestion.', ex_vi: 'Thành phố đang cố gắng tìm cách giảm tắc nghẽn giao thông.' } },
+            { front: { term: 'Privilege', ipa: '/ˈprɪv.əl.ɪdʒ/' }, back: { vi: 'đặc quyền', en: 'A special right, advantage, or immunity granted or available only to a particular person or group.', ex: 'Owning a car in a crowded city is a privilege, not a right.', ex_vi: 'Sở hữu một chiếc ô tô trong một thành phố đông đúc là một đặc quyền, không phải là một quyền.' } },
+            { front: { term: 'Exacerbate', ipa: '/ɪɡˈzæs.ɚ.beɪt/' }, back: { vi: 'làm trầm trọng thêm', en: 'To make (a problem, bad situation, or negative feeling) worse.', ex: 'Building more roads can sometimes exacerbate traffic problems.', ex_vi: 'Việc xây dựng thêm đường đôi khi có thể làm trầm trọng thêm các vấn đề giao thông.' } },
+            { front: { term: 'Impose', ipa: '/ɪmˈpoʊz/' }, back: { vi: 'áp đặt', en: 'To force (an unwelcome decision or ruling) on someone.', ex: 'The government decided to impose a new tax on fuel.', ex_vi: 'Chính phủ đã quyết định áp đặt một loại thuế mới đối với nhiên liệu.' } },
+            { front: { term: 'Infrastructure', ipa: '/ˈɪn.frəˌstrʌk.tʃɚ/' }, back: { vi: 'cơ sở hạ tầng', en: 'The basic physical and organizational structures and facilities needed for the operation of a society.', ex: 'The country needs to invest more in its public transport infrastructure.', ex_vi: 'Đất nước cần đầu tư nhiều hơn vào cơ sở hạ tầng giao thông công cộng.' } },
+            { front: { term: 'Deterrent', ipa: '/dɪˈtɝː.ənt/' }, back: { vi: 'rào cản, sự ngăn cản', en: 'A thing that discourages or is intended to discourage someone from doing something.', ex: 'High fines can be an effective deterrent to illegal parking.', ex_vi: 'Mức phạt cao có thể là một rào cản hiệu quả đối với việc đỗ xe trái phép.' } },
+            { front: { term: 'Implement', ipa: '/ˈɪm.plə.ment/' }, back: { vi: 'thực hiện', en: 'To put (a decision, plan, agreement, etc.) into effect.', ex: 'The city plans to implement a new recycling program next month.', ex_vi: 'Thành phố có kế hoạch thực hiện một chương trình tái chế mới vào tháng tới.' } },
+            { front: { term: 'Incentivize', ipa: '/ɪnˈsen.t̬ə.vaɪz/' }, back: { vi: 'khuyến khích', en: 'To provide with a reason for doing something; to motivate.', ex: 'The company offers bonuses to incentivize employees to work harder.', ex_vi: 'Công ty đưa ra các khoản thưởng để khuyến khích nhân viên làm việc chăm chỉ hơn.' } },
+            { front: { term: 'Stall', ipa: '/stɔːl/' }, back: { vi: 'đình trệ', en: 'To stop or cause to stop making progress.', ex: 'Negotiations have stalled due to disagreements on key issues.', ex_vi: 'Các cuộc đàm phán đã bị đình trệ do những bất đồng về các vấn đề chính.' } },
+            { front: { term: 'Gridlock', ipa: '/ˈɡrɪd.lɑːk/' }, back: { vi: 'tắc nghẽn giao thông', en: 'A traffic jam so bad that no movement is possible.', ex: 'The accident caused complete gridlock on the highway for hours.', ex_vi: 'Vụ tai nạn đã gây ra tắc nghẽn giao thông hoàn toàn trên đường cao tốc trong nhiều giờ.' } },
+            { front: { term: 'Curb', ipa: '/kɝːb/' }, back: { vi: 'kiềm chế', en: 'To restrain or keep in check.', ex: 'We need to find effective ways to curb air pollution.', ex_vi: 'Chúng ta cần tìm ra những cách hiệu quả để kiềm chế ô nhiễm không khí.' } },
+            { front: { term: 'Alternative', ipa: '/ɔːlˈtɝː.nə.t̬ɪv/' }, back: { vi: 'lựa chọn thay thế', en: 'One of two or more available possibilities.', ex: 'Cycling is a healthy alternative to driving.', ex_vi: 'Đạp xe là một lựa chọn thay thế lành mạnh cho việc lái xe.' } },
+            { front: { term: 'Viable', ipa: '/ˈvaɪ.ə.bəl/' }, back: { vi: 'khả thi', en: 'Capable of working successfully; feasible.', ex: 'We need to find a viable solution to the waste problem.', ex_vi: 'Chúng ta cần tìm một giải pháp khả thi cho vấn đề rác thải.' } },
+            { front: { term: 'Dependent', ipa: '/dɪˈpen.dənt/' }, back: { vi: 'phụ thuộc', en: 'Requiring someone or something for financial, emotional, or other support.', ex: 'The local economy is heavily dependent on tourism.', ex_vi: 'Nền kinh tế địa phương phụ thuộc nhiều vào du lịch.' } },
+            { front: { term: 'Independent', ipa: '/ˌɪn.dɪˈpen.dənt/' }, back: { vi: 'độc lập', en: "Free from outside control; not depending on another's authority.", ex: "It's important for young adults to become financially independent.", ex_vi: 'Điều quan trọng đối với những người trẻ tuổi là trở nên độc lập về tài chính.' } },
+            { front: { term: 'Survey', ipa: '/ˈsɝː.veɪ/' }, back: { vi: 'khảo sát', en: 'An investigation of the opinions or experience of a group of people, based on a series of questions.', ex: 'A recent survey showed that most people support renewable energy.', ex_vi: 'Một khảo sát gần đây cho thấy hầu hết mọi người ủng hộ năng lượng tái tạo.' } },
+            { front: { term: 'Trade-off', ipa: '/ˈtreɪd.ɑːf/' }, back: { vi: 'đánh đổi', en: 'A balance achieved between two desirable but incompatible features; a compromise.', ex: 'There is a trade-off between working more hours and having more free time.', ex_vi: 'Có một sự đánh đổi giữa việc làm nhiều giờ hơn và có nhiều thời gian rảnh hơn.' } },
+            { front: { term: 'Repercussions', ipa: '/ˌriː.pɚˈkʌʃ.ənz/' }, back: { vi: 'hậu quả', en: 'Unintended consequences occurring some time after an event or action, especially unwelcome ones.', ex: 'The new policy could have serious repercussions for the environment.', ex_vi: 'Chính sách mới có thể gây ra những hậu quả nghiêm trọng cho môi trường.' } },
+            { front: { term: 'Dilemma', ipa: '/daɪˈlem.ə/' }, back: { vi: 'tình thế khó xử', en: 'A situation in which a difficult choice has to be made between two or more alternatives, especially equally undesirable ones.', ex: 'She faced the dilemma of choosing between her career and her family.', ex_vi: 'Cô ấy phải đối mặt với tình thế khó xử khi phải lựa chọn giữa sự nghiệp và gia đình.' } },
+            { front: { term: 'Sustainable', ipa: '/səˈsteɪ.nə.bəl/' }, back: { vi: 'bền vững', en: 'Able to be maintained at a certain rate or level; conserving an ecological balance by avoiding depletion of natural resources.', ex: 'We need to develop more sustainable farming methods.', ex_vi: 'Chúng ta cần phát triển các phương pháp canh tác bền vững hơn.' } },
+            { front: { term: 'Climate change', ipa: '/ˈklaɪ.mət tʃeɪndʒ/' }, back: { vi: 'biến đổi khí hậu', en: 'A change in global or regional climate patterns.', ex: 'Climate change is causing more extreme weather events.', ex_vi: 'Biến đổi khí hậu đang gây ra các hiện tượng thời tiết khắc nghiệt hơn.' } },
+            { front: { term: 'Global warming', ipa: '/ˌɡloʊ.bəl ˈwɔːr.mɪŋ/' }, back: { vi: 'sự nóng lên toàn cầu', en: "A gradual increase in the overall temperature of the earth's atmosphere.", ex: 'Melting glaciers are a clear sign of global warming.', ex_vi: 'Sông băng tan chảy là một dấu hiệu rõ ràng của sự nóng lên toàn cầu.' } },
+            { front: { term: 'Greenhouse gases', ipa: '/ˈɡriːn.haʊs ˈɡæs.ɪz/' }, back: { vi: 'khí nhà kính', en: 'Gases in an atmosphere that absorb and emit radiation, causing the greenhouse effect.', ex: 'Carbon dioxide is one of the main greenhouse gases.', ex_vi: 'Carbon dioxide là một trong những khí nhà kính chính.' } },
+            { front: { term: 'Renewable energy', ipa: '/rɪˈnuː.ə.bəl ˈen.ɚ.dʒi/' }, back: { vi: 'năng lượng tái tạo', en: 'Energy from a source that is not depleted when used, such as wind or solar power.', ex: 'Investing in renewable energy is crucial for a sustainable future.', ex_vi: 'Đầu tư vào năng lượng tái tạo là rất quan trọng cho một tương lai bền vững.' } },
+            { front: { term: 'Fossil fuels', ipa: '/ˈfɑː.səl ˈfjuː.əlz/' }, back: { vi: 'nhiên liệu hóa thạch', en: 'A natural fuel such as coal or gas, formed in the geological past from the remains of living organisms.', ex: 'The world is still heavily reliant on fossil fuels.', ex_vi: 'Thế giới vẫn còn phụ thuộc nhiều vào nhiên liệu hóa thạch.' } },
+            { front: { term: 'Sustainable development', ipa: '/səˈsteɪ.nə.bəl dɪˈvel.əp.mənt/' }, back: { vi: 'phát triển bền vững', en: 'Development that meets the needs of the present without compromising the ability of future generations to meet their own needs.', ex: 'Sustainable development aims to balance economic growth with environmental protection.', ex_vi: 'Phát triển bền vững nhằm mục đích cân bằng giữa tăng trưởng kinh tế và bảo vệ môi trường.' } },
+            { front: { term: 'Deforestation', ipa: '/diːˌfɔːr.əˈsteɪ.ʃən/' }, back: { vi: 'nạn phá rừng', en: 'The clearing of a wide area of trees.', ex: 'Deforestation is a major threat to biodiversity.', ex_vi: 'Nạn phá rừng là một mối đe dọa lớn đối với đa dạng sinh học.' } },
+            { front: { term: 'Reforestation', ipa: '/ˌriː.fɔːr.əˈsteɪ.ʃən/' }, back: { vi: 'tái trồng rừng', en: 'The process of replanting an area with trees.', ex: 'Reforestation projects can help combat climate change.', ex_vi: 'Các dự án tái trồng rừng có thể giúp chống lại biến đổi khí hậu.' } },
+            { front: { term: 'Biodiversity', ipa: '/ˌbaɪ.oʊ.dɪˈvɝː.sə.t̬i/' }, back: { vi: 'đa dạng sinh học', en: 'The variety of life in the world or in a particular habitat or ecosystem.', ex: 'The Amazon rainforest is known for its rich biodiversity.', ex_vi: 'Rừng nhiệt đới Amazon được biết đến với đa dạng sinh học phong phú.' } },
+            { front: { term: 'Endangered species', ipa: '/ɪnˈdeɪn.dʒɚd ˈspiː.ʃiːz/' }, back: { vi: 'các loài có nguy cơ tuyệt chủng', en: 'A species of animal or plant that is seriously at risk of extinction.', ex: 'We need to protect the habitats of endangered species.', ex_vi: 'Chúng ta cần bảo vệ môi trường sống của các loài có nguy cơ tuyệt chủng.' } },
+            { front: { term: 'Pollution', ipa: '/pəˈluː.ʃən/' }, back: { vi: 'sự ô nhiễm', en: 'The presence in or introduction into the environment of a substance or thing that has harmful or poisonous effects.', ex: 'Plastic pollution is a serious problem for our oceans.', ex_vi: 'Ô nhiễm nhựa là một vấn đề nghiêm trọng đối với các đại dương của chúng ta.' } },
+            { front: { term: 'Air quality', ipa: '/ˈer ˌkwɑː.lə.t̬i/' }, back: { vi: 'chất lượng không khí', en: 'The degree to which the air in a particular place is free from pollution.', ex: "The city's air quality has improved since they banned old cars.", ex_vi: 'Chất lượng không khí của thành phố đã được cải thiện kể từ khi họ cấm xe ô tô cũ.' } },
+            { front: { term: 'Ecosystem', ipa: '/ˈiː.koʊˌsɪs.təm/' }, back: { vi: 'hệ sinh thái', en: 'A biological community of interacting organisms and their physical environment.', ex: 'Coral reefs are a very fragile ecosystem.', ex_vi: 'Rạn san hô là một hệ sinh thái rất mong manh.' } },
+            { front: { term: 'Natural resources', ipa: '/ˈnætʃ.ɚ.əl ˈriː.sɔːr.sɪz/' }, back: { vi: 'tài nguyên thiên nhiên', en: 'Materials or substances such as minerals, forests, water, and fertile land that occur in nature and can be used for economic gain.', ex: 'We must use our natural resources wisely.', ex_vi: 'Chúng ta phải sử dụng tài nguyên thiên nhiên một cách khôn ngoan.' } },
+            { front: { term: 'Water scarcity', ipa: '/ˈwɔː.t̬ɚ ˈsker.sə.t̬i/' }, back: { vi: 'sự khan hiếm nước', en: 'The lack of sufficient available water resources to meet the demands of water usage within a region.', ex: 'Water scarcity is a growing problem in many parts of the world.', ex_vi: 'Sự khan hiếm nước là một vấn đề ngày càng gia tăng ở nhiều nơi trên thế giới.' } },
+            { front: { term: 'Waste management', ipa: '/ˈweɪst ˌmæn.ədʒ.mənt/' }, back: { vi: 'quản lý chất thải', en: 'The collection, transportation, and disposal of garbage, sewage, and other waste products.', ex: 'Proper waste management is essential for public health.', ex_vi: 'Quản lý chất thải đúng cách là điều cần thiết cho sức khỏe cộng đồng.' } },
+            { front: { term: 'Recycling', ipa: '/riːˈsaɪ.klɪŋ/' }, back: { vi: 'tái chế', en: 'The action or process of converting waste into reusable material.', ex: 'Recycling helps to conserve resources and reduce pollution.', ex_vi: 'Tái chế giúp bảo tồn tài nguyên và giảm ô nhiễm.' } },
+            { front: { term: 'Environmental degradation', ipa: '/ɪnˌvaɪ.rənˈmen.t̬əl ˌdeɡ.rəˈdeɪ.ʃən/' }, back: { vi: 'sự suy thoái môi trường', en: 'The deterioration of the environment through depletion of resources such as air, water, and soil.', ex: 'Environmental degradation is a consequence of unsustainable human activities.', ex_vi: 'Sự suy thoái môi trường là hậu quả của các hoạt động không bền vững của con người.' } },
+            { front: { term: 'Overpopulation', ipa: '/ˌoʊ.vɚ.pɑː.pjəˈleɪ.ʃən/' }, back: { vi: 'sự quá tải dân số', en: 'The condition of being populated with excessively large numbers.', ex: 'Overpopulation can put a strain on natural resources.', ex_vi: 'Sự quá tải dân số có thể gây áp lực lên tài nguyên thiên nhiên.' } },
+            { front: { term: 'Conservation', ipa: '/ˌkɑːn.sɚˈveɪ.ʃən/' }, back: { vi: 'bảo tồn', en: 'The protection of animals, plants, and natural resources.', ex: 'Wildlife conservation is important for maintaining biodiversity.', ex_vi: 'Bảo tồn động vật hoang dã rất quan trọng để duy trì đa dạng sinh học.' } },
+            { front: { term: 'Ecological balance', ipa: '/ˌiː.kəˈlɑː.dʒɪ.kəl ˈbæl.əns/' }, back: { vi: 'cân bằng sinh thái', en: 'A state of dynamic equilibrium within a community of organisms in which genetic, species and ecosystem diversity remain relatively stable.', ex: 'Human activities can disrupt the delicate ecological balance.', ex_vi: 'Các hoạt động của con người có thể phá vỡ cân bằng sinh thái mong manh.' } }
+        ];
+
+        let currentCardIndex = 0;
+        
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+            
+            cardFrontEl.innerHTML = `
+                <div class="p-6">
+                    <h2 class="text-3xl sm:text-4xl font-bold mb-4">${card.front.term}</h2>
+                    <p class="text-lg text-stone-500">${card.front.ipa}</p>
+                </div>
+            `;
+            
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+            
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+    </script>
+</body>
+</html>
