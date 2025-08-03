@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 12: Thi cử & Sự thành công</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem; /* rounded-xl */
+        }
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+    <!-- Chosen Palette: Calm Harmony Neutrals -->
+    <!-- Application Structure Plan: A digital flashcard application. The main view is a single, flippable card. Users can navigate sequentially with 'Previous'/'Next' buttons or test themselves with a 'Random' button. A progress counter shows their position. This structure directly translates the static report into an interactive, proven learning tool, focusing on the core user goal of vocabulary memorization and recall. -->
+    <!-- Visualization & Content Choices: Report Info: Vocabulary list. Goal: Learn & Recall. Viz/Presentation: Interactive flippable card. Interaction: Click to flip, buttons to navigate/shuffle. Justification: This method is the most intuitive and effective for learning flashcard content, promoting active recall over passive reading. Library/Method: HTML/CSS for structure and flip animation, Vanilla JS for logic and content rendering. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 12: Thi cử & Sự thành công</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'Perception', ipa: '/pərˈsep.ʃən/' }, back: { vi: 'cách nhận thức', en: 'The way in which something is regarded, understood, or interpreted.', ex: 'His perception of the problem was different from mine.', ex_vi: 'Cách nhận thức của anh ấy về vấn đề khác với của tôi.' } },
+            { front: { term: 'Prospect', ipa: '/ˈprɑː.spekt/' }, back: { vi: 'triển vọng', en: 'The possibility or likelihood of some future event occurring.', ex: 'The exam results can affect a student\'s future career prospects.', ex_vi: 'Kết quả kỳ thi có thể ảnh hưởng đến triển vọng nghề nghiệp tương lai của một sinh viên.' } },
+            { front: { term: 'Eligibility', ipa: '/ˌel.ə.dʒəˈbɪl.ə.t̬i/' }, back: { vi: 'tính đủ điều kiện', en: 'The state of having the right to do or obtain something through satisfaction of the appropriate conditions.', ex: 'Good grades are part of the eligibility requirements for the scholarship.', ex_vi: 'Điểm số tốt là một phần của yêu cầu đủ điều kiện để nhận học bổng.' } },
+            { front: { term: 'Determinism', ipa: '/dɪˈtɝː.mɪ.nɪ.zəm/' }, back: { vi: 'thuyết tất định', en: 'The doctrine that all events, including human action, are ultimately determined by causes external to the will.', ex: 'Some people believe in determinism, thinking that our lives are already planned out.', ex_vi: 'Một số người tin vào thuyết tất định, nghĩ rằng cuộc sống của chúng ta đã được định sẵn.' } },
+            { front: { term: 'Outcomes', ipa: '/ˈaʊt.kʌmz/' }, back: { vi: 'kết quả', en: 'The way a thing turns out; a consequence.', ex: 'The outcomes of the experiment were surprising.', ex_vi: 'Kết quả của thí nghiệm thật đáng ngạc nhiên.' } },
+            { front: { term: 'Inadequate', ipa: '/ɪnˈæd.ə.kwət/' }, back: { vi: 'không đủ', en: 'Lacking the quality or quantity required; insufficient for a purpose.', ex: 'Feeling inadequate can prevent you from trying new things.', ex_vi: 'Cảm thấy không đủ năng lực có thể ngăn cản bạn thử những điều mới.' } },
+            { front: { term: 'Psychological', ipa: '/ˌsaɪ.kəˈlɑː.dʒɪ.kəl/' }, back: { vi: 'thuộc về tâm lý', en: 'Of, affecting, or arising in the mind; related to the mental and emotional state of a person.', ex: 'Exam stress can have a significant psychological impact on students.', ex_vi: 'Căng thẳng thi cử có thể có tác động tâm lý đáng kể đến học sinh.' } },
+            { front: { term: 'Self-efficacy', ipa: '/ˌselfˈef.ə.kə.si/' }, back: { vi: 'sự tự tin vào khả năng', en: 'An individual\'s belief in their capacity to execute behaviors necessary to produce specific performance attainments.', ex: 'High self-efficacy can lead to better performance in exams.', ex_vi: 'Sự tự tin cao vào khả năng có thể dẫn đến thành tích tốt hơn trong các kỳ thi.' } },
+            { front: { term: 'Serendipity', ipa: '/ˌser.ənˈdɪp.ə.t̬i/' }, back: { vi: 'sự tình cờ', en: 'The occurrence and development of events by chance in a happy or beneficial way.', ex: 'Sometimes, success comes from serendipity rather than careful planning.', ex_vi: 'Đôi khi, thành công đến từ sự tình cờ may mắn hơn là kế hoạch cẩn thận.' } },
+            { front: { term: 'Resilience', ipa: '/rɪˈzɪl.jəns/' }, back: { vi: 'khả năng phục hồi', en: 'The capacity to recover quickly from difficulties; toughness.', ex: 'Building resilience is key to coping with the stress of exams.', ex_vi: 'Xây dựng khả năng phục hồi là chìa khóa để đối phó với căng thẳng của các kỳ thi.' } },
+            { front: { term: 'Scrutiny', ipa: '/ˈskruː.t̬ən.i/' }, back: { vi: 'sự xem xét kỹ lưỡng', en: 'Critical observation or examination.', ex: 'Students\' work often comes under close scrutiny from their teachers.', ex_vi: 'Bài làm của học sinh thường được giáo viên xem xét kỹ lưỡng.' } },
+            { front: { term: 'Prerequisite', ipa: '/ˌpriːˈrek.wə.zɪt/' }, back: { vi: 'điều kiện tiên quyết', en: 'A thing that is required as a prior condition for something else to happen or exist.', ex: 'Passing the entrance exam is a prerequisite for admission to the university.', ex_vi: 'Vượt qua kỳ thi tuyển sinh là điều kiện tiên quyết để được nhập học vào trường đại học.' } },
+            { front: { term: 'Cumulative', ipa: '/ˈkjuː.mjə.lə.t̬ɪv/' }, back: { vi: 'tích lũy', en: 'Increasing or increased in quantity, degree, or force by successive additions.', ex: 'Knowledge is cumulative; what you learn today builds on what you learned yesterday.', ex_vi: 'Kiến thức có tính tích lũy; những gì bạn học hôm nay được xây dựng dựa trên những gì bạn đã học ngày hôm qua.' } },
+            { front: { term: 'Assurance', ipa: '/əˈʃʊr.əns/' }, back: { vi: 'sự đảm bảo', en: 'A positive declaration intended to give confidence; a promise.', ex: 'He gave his parents assurance that he would study hard for the exam.', ex_vi: 'Anh ấy đã đảm bảo với bố mẹ rằng anh ấy sẽ học hành chăm chỉ cho kỳ thi.' } },
+            { front: { term: 'Imposter syndrome', ipa: '/ɪmˈpɑː.stɚ ˌsɪn.droʊm/' }, back: { vi: 'hội chứng giả mạo', en: 'The persistent inability to believe that one\'s success is deserved or has been legitimately achieved as a result of one\'s own efforts or skills.', ex: 'Even successful students can suffer from imposter syndrome.', ex_vi: 'Ngay cả những học sinh thành công cũng có thể mắc hội chứng giả mạo.' } },
+            { front: { term: 'Abstraction', ipa: '/æbˈstræk.ʃən/' }, back: { vi: 'sự trừu tượng', en: 'The quality of dealing with ideas rather than events.', ex: 'Mathematics requires a high level of abstraction.', ex_vi: 'Toán học đòi hỏi một mức độ trừu tượng cao.' } },
+            { front: { term: 'Specialization', ipa: '/ˌspeʃ.ə.ləˈzeɪ.ʃən/' }, back: { vi: 'chuyên môn hóa', en: 'The process of concentrating on and becoming expert in a particular subject or skill.', ex: 'Early specialization can be beneficial, but it might limit future options.', ex_vi: 'Chuyên môn hóa sớm có thể có lợi, nhưng nó có thể hạn chế các lựa chọn trong tương lai.' } },
+            { front: { term: 'Vulnerability', ipa: '/ˌvʌl.nɚ.əˈbɪl.ə.t̬i/' }, back: { vi: 'sự dễ bị tổn thương', en: 'The quality or state of being exposed to the possibility of being attacked or harmed, either physically or emotionally.', ex: 'Sharing your fears about an exam shows vulnerability.', ex_vi: 'Chia sẻ nỗi sợ hãi của bạn về một kỳ thi cho thấy sự dễ bị tổn thương.' } },
+            { front: { term: 'Rationale', ipa: '/ˌræʃ.əˈnæl/' }, back: { vi: 'lý do hợp lý', en: 'A set of reasons or a logical basis for a course of action or a particular belief.', ex: 'The rationale behind the new exam format was to test practical skills.', ex_vi: 'Lý do hợp lý đằng sau định dạng bài thi mới là để kiểm tra các kỹ năng thực tế.' } },
+            { front: { term: 'Interconnected', ipa: '/ˌɪn.t̬ɚ.kəˈnek.tɪd/' }, back: { vi: 'liên kết', en: 'Having all constituent parts linked or connected.', ex: 'Success in different subjects is often interconnected.', ex_vi: 'Thành công trong các môn học khác nhau thường liên kết với nhau.' } },
+            { front: { term: 'The outcome of an examination can significantly impact future prospects', ipa: '' }, back: { vi: 'Kết quả của một kỳ thi có thể ảnh hưởng đáng kể đến triển vọng tương lai.', en: 'Exam results can greatly affect future opportunities.', ex: 'The outcome of an examination can significantly impact future prospects, from university admission to career paths.', ex_vi: 'Kết quả của một kỳ thi có thể ảnh hưởng đáng kể đến triển vọng tương lai, từ việc nhập học đại học đến con đường sự nghiệp.' } },
+            { front: { term: 'Success in exams often correlates with access to lucrative career opportunities', ipa: '' }, back: { vi: 'Thành công trong các kỳ thi thường liên quan đến khả năng tiếp cận các cơ hội nghề nghiệp hấp dẫn.', en: 'Doing well in exams is often linked to getting good job opportunities.', ex: 'Success in exams often correlates with access to lucrative career opportunities in fields like medicine and law.', ex_vi: 'Thành công trong các kỳ thi thường liên quan đến khả năng tiếp cận các cơ hội nghề nghiệp hấp dẫn trong các lĩnh vực như y học và luật.' } },
+            { front: { term: 'Many individuals thrive despite their performance in formal examinations', ipa: '' }, back: { vi: 'Nhiều cá nhân vẫn phát triển mặc dù thành tích của họ trong các kỳ thi chính thức.', en: 'Many people succeed in life even if they don\'t do well on official tests.', ex: 'Many individuals thrive despite their performance in formal examinations by focusing on practical skills and creativity.', ex_vi: 'Nhiều cá nhân vẫn phát triển mặc dù thành tích của họ trong các kỳ thi chính thức bằng cách tập trung vào các kỹ năng thực tế và sự sáng tạo.' } },
+            { front: { term: 'Exam preparation should encompass a comprehensive understanding of the syllabus', ipa: '' }, back: { vi: 'Chuẩn bị cho kỳ thi nên bao gồm sự hiểu biết toàn diện về chương trình học.', en: 'Preparing for tests should involve understanding the entire curriculum.', ex: 'Exam preparation should encompass a comprehensive understanding of the syllabus, not just memorizing facts.', ex_vi: 'Chuẩn bị cho kỳ thi nên bao gồm sự hiểu biết toàn diện về chương trình học, không chỉ là ghi nhớ các sự kiện.' } },
+            { front: { term: 'The fear of being perceived as inadequate can undermine self-confidence', ipa: '' }, back: { vi: 'Nỗi sợ bị xem là không đủ có thể làm suy yếu sự tự tin.', en: 'Worrying about not being good enough can damage your confidence.', ex: 'The fear of being perceived as inadequate can undermine self-confidence and lead to poor exam performance.', ex_vi: 'Nỗi sợ bị xem là không đủ năng lực có thể làm suy yếu sự tự tin và dẫn đến kết quả thi kém.' } },
+            { front: { term: 'It is crucial to develop effective examination techniques to enhance performance', ipa: '' }, back: { vi: 'Phát triển các kỹ thuật thi cử hiệu quả là rất quan trọng để nâng cao hiệu suất.', en: 'Learning good test-taking strategies is essential for better results.', ex: 'It is crucial to develop effective examination techniques, such as time management and question analysis, to enhance performance.', ex_vi: 'Việc phát triển các kỹ thuật thi cử hiệu quả, như quản lý thời gian và phân tích câu hỏi, là rất quan trọng để nâng cao hiệu suất.' } },
+            { front: { term: 'Examining past performance can provide valuable insights for improvement', ipa: '' }, back: { vi: 'Xem xét thành tích trong quá khứ có thể cung cấp những hiểu biết quý giá để cải thiện.', en: 'Looking at past results can give useful ideas for getting better.', ex: 'Examining past performance can provide valuable insights into your strengths and weaknesses, helping you improve.', ex_vi: 'Xem xét thành tích trong quá khứ có thể cung cấp những hiểu biết quý giá về điểm mạnh và điểm yếu của bạn, giúp bạn cải thiện.' } },
+            { front: { term: 'There exists a pervasive belief that failure equates to a lack of ability', ipa: '' }, back: { vi: 'Có một niềm tin phổ biến rằng thất bại tương đương với sự thiếu khả năng.', en: 'Many people commonly believe that failing means you are not capable.', ex: 'There exists a pervasive belief that failure equates to a lack of ability, which can discourage students from taking risks.', ex_vi: 'Có một niềm tin phổ biến rằng thất bại tương đương với sự thiếu khả năng, điều này có thể làm nản lòng học sinh trong việc chấp nhận rủi ro.' } },
+            { front: { term: 'The complexity of exams increases as students progress through different levels', ipa: '' }, back: { vi: 'Độ phức tạp của các kỳ thi tăng lên khi sinh viên tiến bộ qua các cấp độ khác nhau.', en: 'Tests get harder as students move to higher educational levels.', ex: 'The complexity of exams increases as students progress from high school to university.', ex_vi: 'Độ phức tạp của các kỳ thi tăng lên khi sinh viên tiến bộ từ trung học lên đại học.' } },
+            { front: { term: 'Coping with exam-related stress requires developing resilience and positive attitudes', ipa: '' }, back: { vi: 'Đối phó với căng thẳng liên quan đến kỳ thi đòi hỏi phát triển sự kiên cường và thái độ tích cực.', en: 'To handle test stress, you need to be tough and think positively.', ex: 'Coping with exam-related stress requires developing resilience and positive attitudes towards challenges.', ex_vi: 'Đối phó với căng thẳng liên quan đến kỳ thi đòi hỏi phải phát triển khả năng phục hồi và thái độ tích cực đối với những thách thức.' } }
+        ];
+
+        let currentCardIndex = 0;
+        
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+            
+            cardFrontEl.innerHTML = `
+                <h2 class="text-2xl sm:text-3xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa || ''}</p>
+            `;
+            
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+            
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+    </script>
+</body>
+</html>
