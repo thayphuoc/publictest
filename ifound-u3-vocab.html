@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 3: Du lịch & Khám phá</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem; /* rounded-xl */
+        }
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+    <!-- Chosen Palette: Calm Harmony Neutrals -->
+    <!-- Application Structure Plan: A digital flashcard application. The main view is a single, flippable card. Users can navigate sequentially with 'Previous'/'Next' buttons or test themselves with a 'Random' button. A progress counter shows their position. This structure directly translates the static report into an interactive, proven learning tool, focusing on the core user goal of vocabulary memorization and recall. -->
+    <!-- Visualization & Content Choices: Report Info: Vocabulary list. Goal: Learn & Recall. Viz/Presentation: Interactive flippable card. Interaction: Click to flip, buttons to navigate/shuffle. Justification: This method is the most intuitive and effective for learning flashcard content, promoting active recall over passive reading. Library/Method: HTML/CSS for structure and flip animation, Vanilla JS for logic and content rendering. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 3: Du lịch & Khám phá</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'Routine', ipa: '/ruːˈtiːn/' }, back: { vi: 'thói quen, công việc hàng ngày', en: 'A sequence of actions regularly followed.', ex: 'My morning routine includes jogging and having breakfast.', ex_vi: 'Thói quen buổi sáng của tôi bao gồm chạy bộ và ăn sáng.' } },
+            { front: { term: 'Appeal', ipa: '/əˈpiːl/' }, back: { vi: 'sức hấp dẫn, lôi cuốn', en: 'The quality of being attractive or interesting.', ex: 'The appeal of adventure travel is growing among young people.', ex_vi: 'Sức hấp dẫn của du lịch mạo hiểm đang ngày càng tăng trong giới trẻ.' } },
+            { front: { term: 'Adventure seekers', ipa: '/ədˈven.tʃɚ ˌsiː.kɚz/' }, back: { vi: 'người tìm kiếm sự phiêu lưu', en: 'People who look for exciting and risky experiences.', ex: 'This remote island is a popular destination for adventure seekers.', ex_vi: 'Hòn đảo xa xôi này là một điểm đến phổ biến cho những người tìm kiếm sự phiêu lưu.' } },
+            { front: { term: 'Daring', ipa: '/ˈder.ɪŋ/' }, back: { vi: 'táo bạo, liều lĩnh', en: 'Adventurous and bold.', ex: 'His daring climb to the summit without oxygen was incredible.', ex_vi: 'Chuyến leo núi táo bạo của anh ấy lên đỉnh mà không cần oxy thật đáng kinh ngạc.' } },
+            { front: { term: 'Dangerous', ipa: '/ˈdeɪn.dʒɚ.əs/' }, back: { vi: 'nguy hiểm', en: 'Able or likely to cause harm or injury.', ex: 'Exploring old, unstable caves can be very dangerous.', ex_vi: 'Khám phá những hang động cũ, không ổn định có thể rất nguy hiểm.' } },
+            { front: { term: 'Far-flung', ipa: '/ˌfɑːrˈflʌŋ/' }, back: { vi: 'xa xôi, hẻo lánh', en: 'Distant or remote.', ex: 'They have traveled to the most far-flung corners of the globe.', ex_vi: 'Họ đã đi du lịch đến những góc xa xôi nhất của địa cầu.' } },
+            { front: { term: 'Inhospitable', ipa: '/ˌɪn.hɑːˈspɪt̬.ə.bəl/' }, back: { vi: 'khắc nghiệt, khó sống', en: '(of an environment) harsh and difficult to live in.', ex: 'The Antarctic is one of the most inhospitable environments on Earth.', ex_vi: 'Nam Cực là một trong những môi trường khắc nghiệt nhất trên Trái Đất.' } },
+            { front: { term: 'Risky', ipa: '/ˈrɪs.ki/' }, back: { vi: 'đầy rủi ro', en: 'Full of the possibility of danger, failure, or loss.', ex: 'Solo trekking in the wilderness is a risky undertaking.', ex_vi: 'Đi bộ một mình trong vùng hoang dã là một công việc đầy rủi ro.' } },
+            { front: { term: 'Intrepid', ipa: '/ɪnˈtrep.ɪd/' }, back: { vi: 'gan dạ, dũng cảm', en: 'Fearless and adventurous.', ex: 'An intrepid explorer set out to find the lost city in the jungle.', ex_vi: 'Một nhà thám hiểm gan dạ đã lên đường tìm kiếm thành phố đã mất trong rừng rậm.' } },
+            { front: { term: 'Hazardous', ipa: '/ˈhæz.ɚ.dəs/' }, back: { vi: 'nguy hiểm', en: 'Risky; dangerous.', ex: 'The journey through the storm was extremely hazardous.', ex_vi: 'Hành trình vượt qua cơn bão cực kỳ nguy hiểm.' } },
+            { front: { term: 'Ultimate', ipa: '/ˈʌl.tə.mət/' }, back: { vi: 'tột cùng, tối thượng', en: 'Being or happening at the end of a process; final.', ex: 'Climbing Mount Everest is the ultimate challenge for many mountaineers.', ex_vi: 'Leo lên đỉnh Everest là thử thách tột cùng đối với nhiều nhà leo núi.' } },
+            { front: { term: 'Weightless', ipa: '/ˈweɪt.ləs/' }, back: { vi: 'không trọng lực', en: 'Having no apparent weight, as in freefall or orbit.', ex: 'Astronauts float in the spaceship because they are weightless.', ex_vi: 'Các phi hành gia trôi nổi trong tàu vũ trụ vì họ ở trong trạng thái không trọng lực.' } },
+            { front: { term: 'Cramped', ipa: '/kræmpt/' }, back: { vi: 'chật chội', en: 'Feeling or causing to feel uncomfortably confined or restricted.', ex: 'The submarine had very cramped living quarters for the crew.', ex_vi: 'Tàu ngầm có khu sinh hoạt rất chật chội cho thủy thủ đoàn.' } },
+            { front: { term: 'Inaccessible', ipa: '/ˌɪn.əkˈses.ə.bəl/' }, back: { vi: 'khó tiếp cận', en: 'Unable to be reached.', ex: 'The ancient monastery is located in a remote and inaccessible valley.', ex_vi: 'Tu viện cổ nằm trong một thung lũng xa xôi và khó tiếp cận.' } },
+            { front: { term: 'Magnificent', ipa: '/mæɡˈnɪf.ə.sənt/' }, back: { vi: 'tuyệt đẹp, tráng lệ', en: 'Extremely beautiful, elaborate, or impressive.', ex: 'The view of the Grand Canyon at sunrise was magnificent.', ex_vi: 'Khung cảnh Grand Canyon lúc bình minh thật tráng lệ.' } },
+            { front: { term: 'Trek', ipa: '/trek/' }, back: { vi: 'hành trình dài, chuyến đi bộ', en: 'A long, arduous journey, especially one made on foot.', ex: 'They went on a three-day trek through the Himalayas.', ex_vi: 'Họ đã thực hiện một chuyến đi bộ kéo dài ba ngày qua dãy Himalaya.' } },
+            { front: { term: 'Creature comforts', ipa: '/ˈkriː.tʃɚ ˈkʌm.fɚts/' }, back: { vi: 'tiện nghi cơ bản', en: 'Material comforts that contribute to physical ease and well-being.', ex: 'The remote cabin lacked many creature comforts like hot water and electricity.', ex_vi: 'Căn nhà gỗ hẻo lánh thiếu nhiều tiện nghi cơ bản như nước nóng và điện.' } },
+            { front: { term: 'Hazards', ipa: '/ˈhæz.ɚdz/' }, back: { vi: 'mối nguy hiểm', en: 'A danger or risk.', ex: 'Rockfalls and avalanches are major hazards for climbers.', ex_vi: 'Đá lở và tuyết lở là những mối nguy hiểm chính đối với những người leo núi.' } },
+            { front: { term: 'Indigenous', ipa: '/ɪnˈdɪdʒ.ə.nəs/' }, back: { vi: 'bản địa', en: 'Originating or occurring naturally in a particular place; native.', ex: 'We learned about the customs of the indigenous people of Australia.', ex_vi: 'Chúng tôi đã tìm hiểu về phong tục của người dân bản địa Úc.' } },
+            { front: { term: 'Reinforced', ipa: '/ˌriː.ɪnˈfɔːrst/' }, back: { vi: 'gia cố, củng cố', en: 'Strengthened or supported, especially with additional material.', ex: 'The explorers wore boots with reinforced soles for the rocky terrain.', ex_vi: 'Các nhà thám hiểm đi ủng có đế được gia cố để đi trên địa hình đá.' } },
+            { front: { term: 'Colonies', ipa: '/ˈkɑː.lə.niz/' }, back: { vi: 'thuộc địa, nhóm cư dân', en: 'A group of people or organisms living together.', ex: 'Penguins live in large colonies in the cold Antarctic.', ex_vi: 'Chim cánh cụt sống thành từng nhóm cư dân lớn ở Nam Cực lạnh giá.' } },
+            { front: { term: 'Unexplored', ipa: '/ˌʌn.ɪkˈsplɔːrd/' }, back: { vi: 'chưa được khám phá', en: 'Not having been explored.', ex: 'There are still vast, unexplored regions in the deep ocean.', ex_vi: 'Vẫn còn những vùng rộng lớn, chưa được khám phá dưới đại dương sâu thẳm.' } },
+            { front: { term: 'Acclimatise', ipa: '/əˈklaɪ.mə.taɪz/' }, back: { vi: 'thích nghi (với môi trường mới)', en: 'To become accustomed to a new climate or to new conditions.', ex: 'Climbers need several days to acclimatise to the high altitude.', ex_vi: 'Những người leo núi cần vài ngày để thích nghi với độ cao lớn.' } },
+            { front: { term: 'Tropical', ipa: '/ˈtrɑː.pɪ.kəl/' }, back: { vi: 'nhiệt đới', en: 'Relating to or situated in the tropics.', ex: 'They enjoyed their vacation on a beautiful tropical island.', ex_vi: 'Họ đã tận hưởng kỳ nghỉ của mình trên một hòn đảo nhiệt đới xinh đẹp.' } },
+            { front: { term: 'Flora and fauna', ipa: '/ˌflɔːr.ə ənd ˈfɔː.nə/' }, back: { vi: 'thực vật và động vật', en: 'The plants and animals of a particular region, habitat, or geological period.', ex: 'The national park is famous for its diverse flora and fauna.', ex_vi: 'Vườn quốc gia nổi tiếng với hệ thực vật và động vật đa dạng.' } }
+        ];
+
+        let currentCardIndex = 0;
+        
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+            
+            cardFrontEl.innerHTML = `
+                <div class="p-6">
+                    <h2 class="text-3xl sm:text-4xl font-bold mb-4">${card.front.term}</h2>
+                    <p class="text-lg text-stone-500">${card.front.ipa}</p>
+                </div>
+            `;
+            
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+            
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+    </script>
+</body>
+</html>
