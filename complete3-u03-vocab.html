@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 3: A healthy life</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem; /* rounded-xl */
+        }
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+    <!-- Chosen Palette: Calm Harmony Neutrals -->
+    <!-- Application Structure Plan: A digital flashcard application. The main view is a single, flippable card. Users can navigate sequentially with 'Previous'/'Next' buttons or test themselves with a 'Random' button. A progress counter shows their position. This structure directly translates the static report into an interactive, proven learning tool, focusing on the core user goal of vocabulary memorization and recall. -->
+    <!-- Visualization & Content Choices: Report Info: Vocabulary list. Goal: Learn & Recall. Viz/Presentation: Interactive flippable card. Interaction: Click to flip, buttons to navigate/shuffle. Justification: This method is the most intuitive and effective for learning flashcard content, promoting active recall over passive reading. Library/Method: HTML/CSS for structure and flip animation, Vanilla JS for logic and content rendering. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 3: A healthy life</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'absenteeism', ipa: '/ˌæb.sənˈtiː.ɪ.zəm/' }, back: { vi: 'sự vắng mặt thường xuyên', en: 'when someone is frequently not at work or at school', ex: 'The company is concerned about the high rate of absenteeism.', ex_vi: 'Công ty lo ngại về tỷ lệ vắng mặt cao.' } },
+            { front: { term: 'behind the scenes', ipa: '/bɪˈhaɪnd ðə siːnz/' }, back: { vi: 'ở hậu trường', en: 'If something happens behind the scenes, it happens secretly, or where the public cannot see.', ex: 'A lot of work goes on behind the scenes to produce a movie.', ex_vi: 'Rất nhiều công việc diễn ra ở hậu trường để sản xuất một bộ phim.' } },
+            { front: { term: 'breakdown', ipa: '/ˈbreɪk.daʊn/' }, back: { vi: 'bảng phân tích', en: 'a way of presenting information in which things are separated into different groups', ex: 'The report provides a breakdown of the company\'s sales figures.', ex_vi: 'Báo cáo cung cấp một bảng phân tích về số liệu bán hàng của công ty.' } },
+            { front: { term: 'clinical trial', ipa: '/ˈklɪn.ɪ.kəl ˌtraɪ.əl/' }, back: { vi: 'thử nghiệm lâm sàng', en: 'a test of a new medicine in which people are given the medicine', ex: 'The new drug is currently undergoing a clinical trial.', ex_vi: 'Loại thuốc mới hiện đang được thử nghiệm lâm sàng.' } },
+            { front: { term: 'comb through something', ipa: '/koʊm θruː ˈsʌm.θɪŋ/' }, back: { vi: 'lùng sục, rà soát kỹ', en: 'to search something very carefully', ex: 'Investigators are combing through the evidence for clues.', ex_vi: 'Các điều tra viên đang rà soát kỹ lưỡng các bằng chứng để tìm manh mối.' } },
+            { front: { term: 'condition', ipa: '/kənˈdɪʃ.ən/' }, back: { vi: 'bệnh, tình trạng sức khỏe', en: 'an illness', ex: 'He suffers from a rare heart condition.', ex_vi: 'Anh ấy mắc một bệnh tim hiếm gặp.' } },
+            { front: { term: 'conversely', ipa: '/ˈkɑːn.vɝːs.li/' }, back: { vi: 'ngược lại', en: 'used to introduce something that is different from something you have just said', ex: 'Some people love exercise. Conversely, others hate it.', ex_vi: 'Một số người yêu thích tập thể dục. Ngược lại, những người khác lại ghét nó.' } },
+            { front: { term: 'cure', ipa: '/kjʊr/' }, back: { vi: 'chữa khỏi', en: 'to make someone with an illness healthy again', ex: 'Scientists are working to find a cure for cancer.', ex_vi: 'Các nhà khoa học đang nỗ lực tìm ra phương pháp chữa khỏi bệnh ung thư.' } },
+            { front: { term: 'demographics', ipa: '/ˌdem.əˈɡræf.ɪks/' }, back: { vi: 'nhân khẩu học', en: 'the quantity and characteristics of the people who live in a particular area', ex: 'The demographics of the town have changed significantly over the years.', ex_vi: 'Nhân khẩu học của thị trấn đã thay đổi đáng kể trong những năm qua.' } },
+            { front: { term: 'empathy', ipa: '/ˈem.pə.θi/' }, back: { vi: 'sự đồng cảm', en: 'the ability to imagine and understand how someone else feels in their situation', ex: 'A good doctor should have empathy for their patients.', ex_vi: 'Một bác sĩ giỏi nên có sự đồng cảm với bệnh nhân của mình.' } },
+            { front: { term: 'evaluate', ipa: '/ɪˈvæl.ju.eɪt/' }, back: { vi: 'đánh giá', en: 'to consider something carefully and decide how good or important it is', ex: 'We need to evaluate the effectiveness of the new treatment.', ex_vi: 'Chúng ta cần đánh giá hiệu quả của phương pháp điều trị mới.' } },
+            { front: { term: 'fall behind (someone)', ipa: '/fɔːl bɪˈhaɪnd/' }, back: { vi: 'tụt lại phía sau (ai đó)', en: 'to make less progress than other people who are doing the same thing', ex: 'She fell behind in her studies after being ill for a few weeks.', ex_vi: 'Cô ấy đã tụt lại trong học tập sau khi bị ốm vài tuần.' } },
+            { front: { term: 'high stakes', ipa: '/haɪ steɪks/' }, back: { vi: 'rủi ro cao', en: 'great advantages that could be gained in a situation and great disadvantages that could also be the result', ex: 'Developing new drugs is a high-stakes business.', ex_vi: 'Phát triển thuốc mới là một ngành kinh doanh có rủi ro cao.' } },
+            { front: { term: 'hinge on something', ipa: '/hɪndʒ ɑːn ˈsʌm.θɪŋ/' }, back: { vi: 'phụ thuộc vào', en: 'to depend completely on something', ex: 'The success of the project hinges on getting enough funding.', ex_vi: 'Sự thành công của dự án phụ thuộc vào việc có đủ kinh phí.' } },
+            { front: { term: 'inoculate', ipa: '/ɪˈnɑː.kjə.leɪt/' }, back: { vi: 'tiêm chủng', en: 'to give a weak form of a disease to a person or an animal, usually by injection, as a protection against that disease', ex: 'Children are inoculated against diseases like measles and mumps.', ex_vi: 'Trẻ em được tiêm chủng để phòng các bệnh như sởi và quai bị.' } },
+            { front: { term: 'joint', ipa: '/dʒɔɪnt/' }, back: { vi: 'khớp', en: 'a place in your body where two bones meet', ex: 'He has pain in his knee joint.', ex_vi: 'Anh ấy bị đau ở khớp gối.' } },
+            { front: { term: 'to make matters worse', ipa: '/tuː meɪk ˈmæt̬.ɚz wɝːs/' }, back: { vi: 'để làm cho vấn đề tồi tệ hơn', en: 'used before you describe something bad that happened, making a bad situation even worse', ex: 'The car broke down, and to make matters worse, it started to rain.', ex_vi: 'Chiếc xe bị hỏng, và để làm cho vấn đề tồi tệ hơn, trời bắt đầu mưa.' } },
+            { front: { term: 'medication', ipa: '/ˌmed.əˈkeɪ.ʃən/' }, back: { vi: 'thuốc', en: 'medicine that is used to treat an illness', ex: 'The doctor prescribed some medication for his cough.', ex_vi: 'Bác sĩ đã kê một số loại thuốc cho cơn ho của anh ấy.' } },
+            { front: { term: 'open the door to something', ipa: '/ˈoʊ.pən ðə dɔːr tuː ˈsʌm.θɪŋ/' }, back: { vi: 'mở đường cho', en: 'If one thing opens the door to another thing, it makes it possible for that second thing to happen.', ex: 'This discovery could open the door to new treatments for the disease.', ex_vi: 'Khám phá này có thể mở đường cho các phương pháp điều trị mới cho căn bệnh này.' } },
+            { front: { term: 'parallel', ipa: '/ˈper.ə.lel/' }, back: { vi: 'song song', en: 'happening in a similar way', ex: 'The two studies followed parallel paths and reached similar conclusions.', ex_vi: 'Hai nghiên cứu đã đi theo những con đường song song và đi đến những kết luận tương tự.' } },
+            { front: { term: 'pharmaceutical', ipa: '/ˌfɑːr.məˈsuː.t̬ɪ.kəl/' }, back: { vi: 'thuộc về dược phẩm', en: 'relating to the production of medicines', ex: 'He works for a large pharmaceutical company.', ex_vi: 'Anh ấy làm việc cho một công ty dược phẩm lớn.' } },
+            { front: { term: 'plaster cast', ipa: '/ˈplæs.tɚ kæst/' }, back: { vi: 'bó bột', en: 'a hard covering that is put over a broken bone in order to support and protect it while it heals', ex: 'His leg was in a plaster cast for six weeks.', ex_vi: 'Chân anh ấy đã bị bó bột trong sáu tuần.' } },
+            { front: { term: '(good/bad) posture', ipa: '/ˈpɑːs.tʃɚ/' }, back: { vi: 'tư thế (tốt/xấu)', en: 'If someone has good posture, their back and shoulders are straight when they stand and sit; if someone has bad posture, their back and shoulders are curved and not straight.', ex: 'Sitting at a desk all day can lead to bad posture.', ex_vi: 'Ngồi bàn giấy cả ngày có thể dẫn đến tư thế xấu.' } },
+            { front: { term: 'prescribe', ipa: '/prɪˈskraɪb/' }, back: { vi: 'kê đơn', en: 'to say what medical treatment someone needs', ex: 'The doctor prescribed some painkillers for my headache.', ex_vi: 'Bác sĩ đã kê một số loại thuốc giảm đau cho chứng đau đầu của tôi.' } },
+            { front: { term: 'receive physiotherapy', ipa: '/rɪˈsiːv ˌfɪz.i.oʊˈθer.ə.pi/' }, back: { vi: 'nhận vật lý trị liệu', en: 'to get treatment for an injury which involves doing special exercises and movements', ex: 'After the surgery, she had to receive physiotherapy to regain her strength.', ex_vi: 'Sau ca phẫu thuật, cô ấy đã phải nhận vật lý trị liệu để phục hồi sức mạnh.' } },
+            { front: { term: 'rehabilitation', ipa: '/ˌriː.həˌbɪl.əˈteɪ.ʃən/' }, back: { vi: 'sự phục hồi chức năng', en: 'when someone who has been ill or injured is cured and can do what they used to do before their illness or injury', ex: 'The rehabilitation process can be long and difficult.', ex_vi: 'Quá trình phục hồi chức năng có thể dài và khó khăn.' } },
+            { front: { term: 'relieve', ipa: '/rɪˈliːv/' }, back: { vi: 'làm giảm, làm dịu', en: 'to make pain or a bad feeling less severe', ex: 'This medicine will help to relieve your pain.', ex_vi: 'Loại thuốc này sẽ giúp làm giảm cơn đau của bạn.' } },
+            { front: { term: 'sedentary activities', ipa: '/ˈsed.ən.ter.i ækˈtɪv.ə.t̬iz/' }, back: { vi: 'các hoạt động ít vận động', en: 'activities which involve sitting and not being physically active', ex: 'Watching TV and playing video games are sedentary activities.', ex_vi: 'Xem TV và chơi game là những hoạt động ít vận động.' } },
+            { front: { term: 'sleep patterns', ipa: '/sliːp ˈpæt̬.ɚnz/' }, back: { vi: 'thói quen ngủ', en: 'Someone\'s sleep patterns are their sleeping habits, for example, how much they usually sleep and when they usually sleep.', ex: 'Stress can disrupt your normal sleep patterns.', ex_vi: 'Căng thẳng có thể làm gián đoạn thói quen ngủ bình thường của bạn.' } },
+            { front: { term: 'sports injury', ipa: '/spɔːrts ˈɪn.dʒər.i/' }, back: { vi: 'chấn thương thể thao', en: 'damage to your body caused by doing a sport', ex: 'He is recovering from a serious sports injury.', ex_vi: 'Anh ấy đang hồi phục sau một chấn thương thể thao nghiêm trọng.' } },
+            { front: { term: 'substantially', ipa: '/səbˈstæn.ʃəl.i/' }, back: { vi: 'một cách đáng kể', en: 'by a large amount', ex: 'The price of houses has increased substantially in recent years.', ex_vi: 'Giá nhà đã tăng một cách đáng kể trong những năm gần đây.' } },
+            { front: { term: 'symptoms', ipa: '/ˈsɪmp.təmz/' }, back: { vi: 'triệu chứng', en: 'physical feelings or problems which show that you have a particular illness', ex: 'A high fever and a cough are common symptoms of the flu.', ex_vi: 'Sốt cao và ho là những triệu chứng phổ biến của bệnh cúm.' } },
+            { front: { term: 'therapeutic', ipa: '/ˌθer.əˈpjuː.t̬ɪk/' }, back: { vi: 'có tính trị liệu', en: 'helping to cure a disease or improve your health', ex: 'Swimming can have a therapeutic effect on people with back problems.', ex_vi: 'Bơi lội có thể có tác dụng trị liệu đối với những người có vấn đề về lưng.' } },
+            { front: { term: 'therapy', ipa: '/ˈθer.ə.pi/' }, back: { vi: 'liệu pháp', en: 'a type of treatment for an illness or injury', ex: 'He is receiving therapy for his depression.', ex_vi: 'Anh ấy đang được điều trị liệu pháp cho chứng trầm cảm của mình.' } },
+            { front: { term: 'treat', ipa: '/triːt/' }, back: { vi: 'điều trị', en: 'to give medical care to someone for an illness or injury', ex: 'The doctors are doing their best to treat his injuries.', ex_vi: 'Các bác sĩ đang cố gắng hết sức để điều trị vết thương của anh ấy.' } },
+            { front: { term: 'undergo', ipa: '/ˌʌn.dɚˈɡoʊ/' }, back: { vi: 'trải qua', en: 'to experience something, for example, a medical treatment', ex: 'She had to undergo a major surgery.', ex_vi: 'Cô ấy đã phải trải qua một ca phẫu thuật lớn.' } },
+            { front: { term: 'a wave of something', ipa: '/ə weɪv əv ˈsʌm.θɪŋ/' }, back: { vi: 'một làn sóng', en: 'a period in which there is an increase in a particular type of activity', ex: 'There was a wave of enthusiasm for the new health trend.', ex_vi: 'Đã có một làn sóng nhiệt tình đối với xu hướng sức khỏe mới.' } },
+            { front: { term: 'well-being', ipa: '/ˈwelˌbiː.ɪŋ/' }, back: { vi: 'sức khỏe, hạnh phúc', en: 'A feeling or sense of well-being is a feeling of being healthy, happy and comfortable.', ex: 'Regular exercise is important for your overall well-being.', ex_vi: 'Tập thể dục thường xuyên rất quan trọng cho sức khỏe và hạnh phúc tổng thể của bạn.' } }
+        ];
+
+        let currentCardIndex = 0;
+        
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+            
+            cardFrontEl.innerHTML = `
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa}</p>
+            `;
+            
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+            
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+    </script>
+</body>
+</html>
