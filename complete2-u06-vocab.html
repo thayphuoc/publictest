@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 6: Making money, spending money</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem; /* rounded-xl */
+        }
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+    <!-- Chosen Palette: Calm Harmony Neutrals -->
+    <!-- Application Structure Plan: A digital flashcard application. The main view is a single, flippable card. Users can navigate sequentially with 'Previous'/'Next' buttons or test themselves with a 'Random' button. A progress counter shows their position. This structure directly translates the static report into an interactive, proven learning tool, focusing on the core user goal of vocabulary memorization and recall. -->
+    <!-- Visualization & Content Choices: Report Info: Vocabulary list. Goal: Learn & Recall. Viz/Presentation: Interactive flippable card. Interaction: Click to flip, buttons to navigate/shuffle. Justification: This method is the most intuitive and effective for learning flashcard content, promoting active recall over passive reading. Library/Method: HTML/CSS for structure and flip animation, Vanilla JS for logic and content rendering. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 6: Making money, spending money</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'afford', ipa: '/əˈfɔːrd/' }, back: { vi: 'có đủ tiền để mua', en: 'to have enough money to buy something', ex: 'I can\'t afford a new car right now.', ex_vi: 'Tôi không đủ tiền mua một chiếc xe mới ngay bây giờ.' } },
+            { front: { term: 'attract publicity', ipa: '/əˈtrækt pʌbˈlɪs.ə.t̬i/' }, back: { vi: 'thu hút sự chú ý của công chúng', en: 'to get attention in newspapers, on the TV, on the Internet, etc.', ex: 'The celebrity\'s scandal attracted a lot of publicity.', ex_vi: 'Vụ bê bối của người nổi tiếng đã thu hút rất nhiều sự chú ý của công chúng.' } },
+            { front: { term: 'bargain', ipa: '/ˈbɑːr.ɡən/' }, back: { vi: 'món hời', en: 'something that is sold for less than its usual price or its real value', ex: 'This dress was a real bargain at half price.', ex_vi: 'Chiếc váy này thực sự là một món hời với giá chỉ bằng một nửa.' } },
+            { front: { term: 'become common', ipa: '/bɪˈkʌm ˈkɑː.mən/' }, back: { vi: 'trở nên phổ biến', en: 'to start to happen more often', ex: 'Online shopping has become common in recent years.', ex_vi: 'Mua sắm trực tuyến đã trở nên phổ biến trong những năm gần đây.' } },
+            { front: { term: 'boost sales', ipa: '/buːst seɪlz/' }, back: { vi: 'tăng doanh số', en: 'to increase the number of things that are sold', ex: 'The company launched a new advertising campaign to boost sales.', ex_vi: 'Công ty đã tung ra một chiến dịch quảng cáo mới để tăng doanh số.' } },
+            { front: { term: 'branded product', ipa: '/ˈbræn.dɪd ˈprɑː.dʌkt/' }, back: { vi: 'sản phẩm có thương hiệu', en: 'a product that is made by a well-known company and has that company\'s name or symbol on it', ex: 'Branded products are often more expensive than generic ones.', ex_vi: 'Sản phẩm có thương hiệu thường đắt hơn các sản phẩm thông thường.' } },
+            { front: { term: 'efficient', ipa: '/ɪˈfɪʃ.ənt/' }, back: { vi: 'hiệu quả', en: 'working well and not wasting time or energy', ex: 'The new machine is very efficient and saves a lot of electricity.', ex_vi: 'Chiếc máy mới rất hiệu quả và tiết kiệm rất nhiều điện.' } },
+            { front: { term: 'end up', ipa: '/end ʌp/' }, back: { vi: 'cuối cùng thì', en: 'to finish by doing something because of a particular situation', ex: 'We got lost and ended up in a different town.', ex_vi: 'Chúng tôi bị lạc và cuối cùng thì đến một thị trấn khác.' } },
+            { front: { term: 'forecast', ipa: '/ˈfɔːr.kæst/' }, back: { vi: 'dự báo', en: 'to say what you expect to happen in the future', ex: 'They forecast a rise in profits for the next quarter.', ex_vi: 'Họ dự báo lợi nhuận sẽ tăng trong quý tới.' } },
+            { front: { term: 'go from shop to shop', ipa: '/ɡoʊ frɑːm ʃɑːp tuː ʃɑːp/' }, back: { vi: 'đi từ cửa hàng này sang cửa hàng khác', en: 'to go to several different shops', ex: 'I spent the afternoon going from shop to shop looking for the perfect gift.', ex_vi: 'Tôi đã dành cả buổi chiều đi từ cửa hàng này sang cửa hàng khác để tìm món quà hoàn hảo.' } },
+            { front: { term: 'highly profitable', ipa: '/ˈhaɪ.li ˈprɑː.fɪ.t̬ə.bəl/' }, back: { vi: 'có lợi nhuận cao', en: 'making a large profit', ex: 'Their new line of products turned out to be highly profitable.', ex_vi: 'Dòng sản phẩm mới của họ hóa ra lại có lợi nhuận rất cao.' } },
+            { front: { term: 'living standards', ipa: '/ˈlɪv.ɪŋ ˈstæn.dɚdz/' }, back: { vi: 'mức sống', en: 'how pleasant and comfortable someone\'s life is and how much money they have', ex: 'The government aims to improve the living standards of its citizens.', ex_vi: 'Chính phủ đặt mục tiêu cải thiện mức sống của người dân.' } },
+            { front: { term: 'in the medium term', ipa: '/ɪn ðə ˈmiː.di.əm tɝːm/' }, back: { vi: 'trong trung hạn', en: 'during a period of time that starts now and continues for a length of time that is not particularly short or long', ex: 'In the medium term, we expect to see steady growth.', ex_vi: 'Trong trung hạn, chúng tôi kỳ vọng sẽ thấy sự tăng trưởng ổn định.' } },
+            { front: { term: 'outweigh', ipa: '/ˌaʊtˈweɪ/' }, back: { vi: 'lớn hơn, quan trọng hơn', en: 'to be greater or more important than something else', ex: 'The benefits of the new plan outweigh the costs.', ex_vi: 'Lợi ích của kế hoạch mới lớn hơn chi phí.' } },
+            { front: { term: 'own-label product', ipa: '/ˌoʊn ˈleɪ.bəl ˈprɑː.dʌkt/' }, back: { vi: 'sản phẩm nhãn hiệu riêng', en: 'a product that a particular shop makes itself and which has the name of that shop on it', ex: 'Supermarkets often sell own-label products at a lower price.', ex_vi: 'Các siêu thị thường bán sản phẩm nhãn hiệu riêng với giá thấp hơn.' } },
+            { front: { term: 'promotion', ipa: '/prəˈmoʊ.ʃən/' }, back: { vi: 'quảng bá, khuyến mãi', en: 'activities to advertise something', ex: 'The store is having a special promotion on all summer clothes.', ex_vi: 'Cửa hàng đang có chương trình khuyến mãi đặc biệt cho tất cả quần áo mùa hè.' } },
+            { front: { term: 'purchase', ipa: '/ˈpɝː.tʃəs/' }, back: { vi: 'mua', en: 'to buy something', ex: 'You can purchase tickets online or at the box office.', ex_vi: 'Bạn có thể mua vé trực tuyến hoặc tại quầy vé.' } },
+            { front: { term: 'at a rate of', ipa: '/æt ə reɪt əv/' }, back: { vi: 'với tốc độ', en: 'used to show the number of times that something happens or how often something happens in a particular period of time', ex: 'The factory produces cars at a rate of 100 per day.', ex_vi: 'Nhà máy sản xuất ô tô với tốc độ 100 chiếc mỗi ngày.' } },
+            { front: { term: 'reckon', ipa: '/ˈrek.ən/' }, back: { vi: 'cho là, nghĩ là', en: 'to think that something is probably true', ex: 'I reckon it\'s going to rain later.', ex_vi: 'Tôi cho là lát nữa trời sẽ mưa.' } },
+            { front: { term: 'retailer', ipa: '/ˈriː.teɪ.lɚ/' }, back: { vi: 'nhà bán lẻ', en: 'a person, shop or business that sells goods to the public', ex: 'Many small retailers are struggling to compete with large supermarkets.', ex_vi: 'Nhiều nhà bán lẻ nhỏ đang gặp khó khăn để cạnh tranh với các siêu thị lớn.' } },
+            { front: { term: 'take time', ipa: '/teɪk taɪm/' }, back: { vi: 'tốn thời gian', en: 'to need a long time', ex: 'Learning a new skill can take time and patience.', ex_vi: 'Học một kỹ năng mới có thể tốn thời gian và sự kiên nhẫn.' } },
+            { front: { term: 'tempt', ipa: '/tempt/' }, back: { vi: 'cám dỗ, lôi cuốn', en: 'to make someone want to have something', ex: 'The delicious smell of the food tempted me to go inside the restaurant.', ex_vi: 'Mùi thơm ngon của thức ăn đã lôi cuốn tôi vào trong nhà hàng.' } },
+            { front: { term: 'think in terms of', ipa: '/θɪŋk ɪn tɝːmz əv/' }, back: { vi: 'suy nghĩ theo hướng', en: 'to consider something from a particular point of view', ex: 'We need to think in terms of long-term solutions, not just short-term fixes.', ex_vi: 'Chúng ta cần suy nghĩ theo hướng các giải pháp dài hạn, không chỉ là các biện pháp khắc phục ngắn hạn.' } }
+        ];
+
+        let currentCardIndex = 0;
+        
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+            
+            cardFrontEl.innerHTML = `
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa}</p>
+            `;
+            
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+            
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+    </script>
+</body>
+</html>
