@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 6: IT society</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem; /* rounded-xl */
+        }
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+    <!-- Chosen Palette: Calm Harmony Neutrals -->
+    <!-- Application Structure Plan: A digital flashcard application. The main view is a single, flippable card. Users can navigate sequentially with 'Previous'/'Next' buttons or test themselves with a 'Random' button. A progress counter shows their position. This structure directly translates the static report into an interactive, proven learning tool, focusing on the core user goal of vocabulary memorization and recall. -->
+    <!-- Visualization & Content Choices: Report Info: Vocabulary list. Goal: Learn & Recall. Viz/Presentation: Interactive flippable card. Interaction: Click to flip, buttons to navigate/shuffle. Justification: This method is the most intuitive and effective for learning flashcard content, promoting active recall over passive reading. Library/Method: HTML/CSS for structure and flip animation, Vanilla JS for logic and content rendering. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 6: IT society</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'the advent of something', ipa: '/ði ˈæd.vent əv ˈsʌm.θɪŋ/' }, back: { vi: 'sự ra đời của', en: 'the start or arrival of something new', ex: 'The advent of the internet changed the world completely.', ex_vi: 'Sự ra đời của internet đã thay đổi thế giới hoàn toàn.' } },
+            { front: { term: 'advocate of something', ipa: '/ˈæd.və.kət əv ˈsʌm.θɪŋ/' }, back: { vi: 'người ủng hộ', en: 'someone who supports a particular idea or way of doing things', ex: 'He is a strong advocate of using technology in education.', ex_vi: 'Ông là một người ủng hộ mạnh mẽ việc sử dụng công nghệ trong giáo dục.' } },
+            { front: { term: 'anything but (sophisticated)', ipa: '/ˈen.i.θɪŋ bʌt/' }, back: { vi: 'hoàn toàn không (tinh vi)', en: 'If someone or something is anything but a particular quality, they are the opposite of that quality.', ex: 'The first computer games were anything but sophisticated.', ex_vi: 'Những trò chơi máy tính đầu tiên hoàn toàn không tinh vi.' } },
+            { front: { term: 'break new ground', ipa: '/breɪk nuː ɡraʊnd/' }, back: { vi: 'đột phá, mở ra một lĩnh vực mới', en: 'to do something that is different from anything that has been done before', ex: 'Their research has broken new ground in the field of robotics.', ex_vi: 'Nghiên cứu của họ đã tạo ra một bước đột phá trong lĩnh vực robot.' } },
+            { front: { term: 'by and large', ipa: '/baɪ ənd lɑːrdʒ/' }, back: { vi: 'nhìn chung', en: 'generally', ex: 'By and large, the new software has been very successful.', ex_vi: 'Nhìn chung, phần mềm mới đã rất thành công.' } },
+            { front: { term: 'cater to someone/something', ipa: '/ˈkeɪ.t̬ɚ tuː/' }, back: { vi: 'phục vụ cho', en: 'to give people what they want, usually something that people think is wrong', ex: 'Some video games seem to cater to the most violent instincts.', ex_vi: 'Một số trò chơi điện tử dường như phục vụ cho những bản năng bạo lực nhất.' } },
+            { front: { term: 'convincing', ipa: '/kənˈvɪn.sɪŋ/' }, back: { vi: 'thuyết phục', en: 'able to make you believe that something is true or right', ex: 'The graphics in the game are so realistic and convincing.', ex_vi: 'Đồ họa trong trò chơi rất thực tế và thuyết phục.' } },
+            { front: { term: 'enamoured with someone/something', ipa: '/ɪˈnæm.ɚd wɪθ/' }, back: { vi: 'say mê, mê mẩn', en: 'liking or approving of someone or something very much', ex: 'He was completely enamoured with the new virtual reality game.', ex_vi: 'Anh ấy hoàn toàn mê mẩn trò chơi thực tế ảo mới.' } },
+            { front: { term: 'engage in something', ipa: '/ɪnˈɡeɪdʒ ɪn ˈsʌm.θɪŋ/' }, back: { vi: 'tham gia vào', en: 'to take part in something', ex: 'Players engage in complex missions and challenges.', ex_vi: 'Người chơi tham gia vào các nhiệm vụ và thử thách phức tạp.' } },
+            { front: { term: 'the extent of something', ipa: '/ði ɪkˈstent əv ˈsʌm.θɪŋ/' }, back: { vi: 'mức độ của', en: 'the level, size or importance of something', ex: 'It is difficult to measure the full extent of the internet\'s influence.', ex_vi: 'Rất khó để đo lường hết mức độ ảnh hưởng của internet.' } },
+            { front: { term: 'feature film', ipa: '/ˈfiː.tʃɚ fɪlm/' }, back: { vi: 'phim truyện', en: 'a film that is usually 90 or more minutes long', ex: 'Many video games now have storylines as complex as a feature film.', ex_vi: 'Nhiều trò chơi điện tử hiện nay có cốt truyện phức tạp như một bộ phim truyện.' } },
+            { front: { term: 'film sequence', ipa: '/fɪlm ˈsiː.kwəns/' }, back: { vi: 'phân cảnh phim', en: 'a part of a film that deals with one event', ex: 'The opening film sequence of the game was breathtaking.', ex_vi: 'Phân cảnh phim mở đầu của trò chơi thật ngoạn mục.' } },
+            { front: { term: 'generate', ipa: '/ˈdʒen.ə.reɪt/' }, back: { vi: 'tạo ra', en: 'to cause something to exist', ex: 'The new game is expected to generate a lot of excitement.', ex_vi: 'Trò chơi mới được kỳ vọng sẽ tạo ra nhiều sự phấn khích.' } },
+            { front: { term: 'get stuck', ipa: '/ɡet stʌk/' }, back: { vi: 'bị mắc kẹt', en: 'to not be able to continue doing something because there is something you cannot understand or solve', ex: 'If you get stuck on a level, you can look for hints online.', ex_vi: 'Nếu bạn bị mắc kẹt ở một cấp độ, bạn có thể tìm kiếm gợi ý trực tuyến.' } },
+            { front: { term: 'gloss over something', ipa: '/ɡlɑːs ˈoʊ.vɚ ˈsʌm.θɪŋ/' }, back: { vi: 'che đậy, lờ đi', en: 'to avoid discussing something, or to discuss something without any details in order to make it seem unimportant', ex: 'The report tends to gloss over the negative effects of gaming.', ex_vi: 'Báo cáo có xu hướng lờ đi những tác động tiêu cực của việc chơi game.' } },
+            { front: { term: 'icon', ipa: '/ˈaɪ.kɑːn/' }, back: { vi: 'biểu tượng', en: 'a person or thing that is famous because it represents a particular idea or way of life', ex: 'Mario is a famous icon in the world of video games.', ex_vi: 'Mario là một biểu tượng nổi tiếng trong thế giới trò chơi điện tử.' } },
+            { front: { term: 'identify with someone', ipa: '/aɪˈden.t̬ə.faɪ wɪθ ˈsʌm.wʌn/' }, back: { vi: 'đồng cảm với ai đó', en: 'to feel that you are similar to someone, and can understand them or their situation because of this', ex: 'Many players identify with the main character of the game.', ex_vi: 'Nhiều người chơi đồng cảm với nhân vật chính của trò chơi.' } },
+            { front: { term: 'in essence', ipa: '/ɪn ˈes.əns/' }, back: { vi: 'về bản chất', en: 'relating to the most important characteristics or ideas of something', ex: 'In essence, the game is a simple puzzle, but it is very addictive.', ex_vi: 'Về bản chất, trò chơi là một câu đố đơn giản, nhưng nó rất gây nghiện.' } },
+            { front: { term: 'in leaps and bounds', ipa: '/ɪn liːps ənd baʊndz/' }, back: { vi: 'nhanh chóng, vượt bậc', en: 'If progress or growth happens in leaps and bounds, it happens very quickly.', ex: 'The gaming industry has grown in leaps and bounds.', ex_vi: 'Ngành công nghiệp game đã phát triển vượt bậc.' } },
+            { front: { term: 'in vain', ipa: '/ɪn veɪn/' }, back: { vi: 'vô ích', en: 'without any success', ex: 'I tried for hours to beat the final boss, but all in vain.', ex_vi: 'Tôi đã cố gắng hàng giờ để đánh bại trùm cuối, nhưng tất cả đều vô ích.' } },
+            { front: { term: 'instant access', ipa: '/ˈɪn.stənt ˈæk.ses/' }, back: { vi: 'truy cập tức thì', en: 'the opportunity to use or see something immediately', ex: 'The internet provides instant access to a vast amount of information.', ex_vi: 'Internet cung cấp quyền truy cập tức thì vào một lượng lớn thông tin.' } },
+            { front: { term: 'mediocrity', ipa: '/ˌmiː.diˈɑː.krə.t̬i/' }, back: { vi: 'sự tầm thường', en: 'the quality of being not very good', ex: 'He was a writer of mediocrity, never achieving real success.', ex_vi: 'Ông là một nhà văn tầm thường, không bao giờ đạt được thành công thực sự.' } },
+            { front: { term: 'modify', ipa: '/ˈmɑː.də.faɪ/' }, back: { vi: 'sửa đổi', en: 'to change something in order to improve it', ex: 'Players can modify their characters\' appearances.', ex_vi: 'Người chơi có thể sửa đổi ngoại hình của nhân vật.' } },
+            { front: { term: 'overhaul', ipa: '/ˈoʊ.vɚ.hɔːl/' }, back: { vi: 'đại tu, cải tổ', en: 'to make important changes to a system in order to improve it', ex: 'The developers decided to overhaul the game\'s graphics engine.', ex_vi: 'Các nhà phát triển đã quyết định đại tu công cụ đồ họa của trò chơi.' } },
+            { front: { term: 'pace', ipa: '/peɪs/' }, back: { vi: 'nhịp độ', en: 'the speed at which something happens', ex: 'The pace of technological change is accelerating.', ex_vi: 'Nhịp độ thay đổi công nghệ đang tăng nhanh.' } },
+            { front: { term: 'phenomena', ipa: '/fəˈnɑː.mə.nə/' }, back: { vi: 'hiện tượng', en: 'things that exist or happen, usually things that are unusual', ex: 'Online gaming has become a global phenomena.', ex_vi: 'Chơi game trực tuyến đã trở thành một hiện tượng toàn cầu.' } },
+            { front: { term: 'pioneer', ipa: '/ˌpaɪ.əˈnɪr/' }, back: { vi: 'người tiên phong', en: 'to be one of the first people to do something', ex: 'The company pioneered the use of 3D graphics in video games.', ex_vi: 'Công ty đã tiên phong trong việc sử dụng đồ họa 3D trong trò chơi điện tử.' } },
+            { front: { term: 'prove to be something', ipa: '/pruːv tuː biː ˈsʌm.θɪŋ/' }, back: { vi: 'chứng tỏ là', en: 'to show a particular quality after a period of time', ex: 'The new game proved to be a massive success.', ex_vi: 'Trò chơi mới đã chứng tỏ là một thành công lớn.' } },
+            { front: { term: 'reach the point', ipa: '/riːtʃ ðə pɔɪnt/' }, back: { vi: 'đạt đến điểm', en: 'to get to a particular situation', ex: 'We have reached the point where computers can learn on their own.', ex_vi: 'Chúng ta đã đạt đến điểm mà máy tính có thể tự học.' } },
+            { front: { term: 'require someone to do something', ipa: '/rɪˈkwaɪr ˈsʌm.wʌn tuː duː ˈsʌm.θɪŋ/' }, back: { vi: 'yêu cầu ai đó làm gì', en: 'to need someone to do something', ex: 'The game requires players to think strategically.', ex_vi: 'Trò chơi yêu cầu người chơi phải suy nghĩ một cách chiến lược.' } },
+            { front: { term: 'rote', ipa: '/roʊt/' }, back: { vi: 'học vẹt', en: 'a way of learning something by repeating it many times, rather than understanding it', ex: 'Learning by rote is not always the most effective method.', ex_vi: 'Học vẹt không phải lúc nào cũng là phương pháp hiệu quả nhất.' } },
+            { front: { term: 'save the day', ipa: '/seɪv ðə deɪ/' }, back: { vi: 'cứu vãn tình thế', en: 'to do something that solves a serious problem', ex: 'The hero arrived just in time to save the day.', ex_vi: 'Người hùng đã đến kịp lúc để cứu vãn tình thế.' } },
+            { front: { term: 'scroll up/down/back/forward, etc.', ipa: '/skroʊl/' }, back: { vi: 'cuộn lên/xuống/lùi/tiến', en: 'to move text or an image on a computer screen so that you can look at the part that you want', ex: 'You can scroll down to read the rest of the article.', ex_vi: 'Bạn có thể cuộn xuống để đọc phần còn lại của bài viết.' } },
+            { front: { term: 'simulation', ipa: '/ˌsɪm.jəˈleɪ.ʃən/' }, back: { vi: 'sự mô phỏng', en: 'when you do or make something which behaves or looks like something real but which is not real', ex: 'Flight simulators are used to train pilots.', ex_vi: 'Các trình mô phỏng bay được sử dụng để đào tạo phi công.' } },
+            { front: { term: 'supplement', ipa: '/ˈsʌp.lə.mənt/' }, back: { vi: 'bổ sung', en: 'to add an extra amount or part to something', ex: 'Online courses can supplement traditional classroom learning.', ex_vi: 'Các khóa học trực tuyến có thể bổ sung cho việc học trên lớp truyền thống.' } },
+            { front: { term: 'tailor', ipa: '/ˈteɪ.lɚ/' }, back: { vi: 'điều chỉnh cho phù hợp', en: 'to make or change something so that it is suitable', ex: 'The software can be tailored to the user\'s specific needs.', ex_vi: 'Phần mềm có thể được điều chỉnh cho phù hợp với nhu cầu cụ thể của người dùng.' } },
+            { front: { term: 'technique', ipa: '/tekˈniːk/' }, back: { vi: 'kỹ thuật', en: 'a particular or special way of doing something', ex: 'She has developed a unique technique for digital painting.', ex_vi: 'Cô ấy đã phát triển một kỹ thuật độc đáo cho việc vẽ kỹ thuật số.' } },
+            { front: { term: 'tune out', ipa: '/tuːn aʊt/' }, back: { vi: 'lờ đi, không chú ý', en: 'to stop giving your attention to what is happening around you', ex: 'When the lecture became boring, I started to tune out.', ex_vi: 'Khi bài giảng trở nên nhàm chán, tôi bắt đầu lờ đi.' } },
+            { front: { term: 'unambiguously', ipa: '/ˌʌn.æmˈbɪɡ.ju.əs.li/' }, back: { vi: 'một cách rõ ràng', en: 'clearly having only one meaning', ex: 'The instructions were unambiguously written.', ex_vi: 'Các hướng dẫn được viết một cách rõ ràng.' } }
+        ];
+
+        let currentCardIndex = 0;
+        
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+            
+            cardFrontEl.innerHTML = `
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa}</p>
+            `;
+            
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+            
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+    </script>
+</body>
+</html>
