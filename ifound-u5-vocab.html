@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 5: Công việc & Sự nghiệp</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem; /* rounded-xl */
+        }
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+    <!-- Chosen Palette: Calm Harmony Neutrals -->
+    <!-- Application Structure Plan: A digital flashcard application. The main view is a single, flippable card. Users can navigate sequentially with 'Previous'/'Next' buttons or test themselves with a 'Random' button. A progress counter shows their position. This structure directly translates the static report into an interactive, proven learning tool, focusing on the core user goal of vocabulary memorization and recall. -->
+    <!-- Visualization & Content Choices: Report Info: Vocabulary list. Goal: Learn & Recall. Viz/Presentation: Interactive flippable card. Interaction: Click to flip, buttons to navigate/shuffle. Justification: This method is the most intuitive and effective for learning flashcard content, promoting active recall over passive reading. Library/Method: HTML/CSS for structure and flip animation, Vanilla JS for logic and content rendering. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 5: Công việc & Sự nghiệp</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'Full-time job', ipa: '/ˌfʊl.taɪm ˈdʒɑːb/' }, back: { vi: 'công việc toàn thời gian', en: 'A job that requires an employee to work a standard number of hours per week (e.g., 40 hours).', ex: 'After graduating, she found a full-time job as a graphic designer.', ex_vi: 'Sau khi tốt nghiệp, cô ấy đã tìm được một công việc toàn thời gian với vị trí thiết kế đồ họa.' } },
+            { front: { term: 'Part-time job', ipa: '/ˌpɑːrt.taɪm ˈdʒɑːb/' }, back: { vi: 'công việc bán thời gian', en: 'A job that requires an employee to work fewer hours per week than a full-time job.', ex: 'He has a part-time job at the cafe to earn extra money while studying.', ex_vi: 'Anh ấy làm công việc bán thời gian tại quán cà phê để kiếm thêm tiền trong khi đi học.' } },
+            { front: { term: 'Freelancer', ipa: '/ˈfriː.læn.sɚ/' }, back: { vi: 'người làm việc tự do', en: 'A person who is self-employed and not necessarily committed to a particular employer long-term.', ex: 'As a freelancer, she enjoys the freedom to choose her own projects and hours.', ex_vi: 'Là một người làm việc tự do, cô ấy tận hưởng sự tự do lựa chọn dự án và giờ làm việc của riêng mình.' } },
+            { front: { term: 'Job satisfaction', ipa: '/ˌdʒɑːb sæt̬.ɪsˈfæk.ʃən/' }, back: { vi: 'sự hài lòng trong công việc', en: 'The sense of fulfillment and pride felt by people who enjoy their work.', ex: 'For me, job satisfaction is more important than a high salary.', ex_vi: 'Đối với tôi, sự hài lòng trong công việc quan trọng hơn là một mức lương cao.' } },
+            { front: { term: 'Work-life balance', ipa: '/ˌwɝːk.laɪf ˈbæl.əns/' }, back: { vi: 'cân bằng công việc và cuộc sống', en: 'The state of equilibrium where a person equally prioritizes the demands of their career and personal life.', ex: 'The company promotes a healthy work-life balance for its employees.', ex_vi: 'Công ty thúc đẩy sự cân bằng lành mạnh giữa công việc và cuộc sống cho nhân viên của mình.' } },
+            { front: { term: 'Promotion', ipa: '/prəˈmoʊ.ʃən/' }, back: { vi: 'thăng chức', en: 'The action of raising someone to a higher position or rank.', ex: 'She received a promotion to Senior Manager after years of hard work.', ex_vi: 'Cô ấy đã được thăng chức lên Giám đốc cấp cao sau nhiều năm làm việc chăm chỉ.' } },
+            { front: { term: 'Salary / Wage', ipa: '/ˈsæl.ɚ.i/ /weɪdʒ/' }, back: { vi: 'tiền lương', en: 'A fixed regular payment, typically paid on a monthly basis (salary), or a fixed regular payment earned for work or services, typically paid on a daily or weekly basis (wage).', ex: 'He is negotiating his salary with the new employer.', ex_vi: 'Anh ấy đang đàm phán về mức lương của mình với nhà tuyển dụng mới.' } },
+            { front: { term: 'Career advancement', ipa: '/kəˈrɪr ədˈvæns.mənt/' }, back: { vi: 'sự thăng tiến trong sự nghiệp', en: 'The upward progression of one\'s career.', ex: 'The company offers many opportunities for career advancement.', ex_vi: 'Công ty cung cấp nhiều cơ hội để thăng tiến trong sự nghiệp.' } },
+            { front: { term: 'Job security', ipa: '/ˌdʒɑːb sɪˈkjʊr.ə.t̬i/' }, back: { vi: 'sự đảm bảo công việc', en: 'The probability that an individual will keep their job; a job with a high level of job security is such that a person is not likely to lose it.', ex: 'In times of economic uncertainty, job security becomes a top priority for many workers.', ex_vi: 'Trong thời kỳ kinh tế bất ổn, sự đảm bảo công việc trở thành ưu tiên hàng đầu của nhiều người lao động.' } },
+            { front: { term: 'Job stability', ipa: '/ˌdʒɑːb stəˈbɪl.ə.t̬i/' }, back: { vi: 'sự ổn định công việc', en: 'The condition of having a steady job that provides a reliable income.', ex: 'Working for the government often provides great job stability.', ex_vi: 'Làm việc cho chính phủ thường mang lại sự ổn định công việc tuyệt vời.' } },
+            { front: { term: 'Self-employed', ipa: '/ˌself.ɪmˈplɔɪd/' }, back: { vi: 'tự làm chủ', en: 'Working for oneself as a freelancer or the owner of a business rather than for an employer.', ex: 'He left his corporate job to become self-employed.', ex_vi: 'Anh ấy đã rời bỏ công việc ở công ty để tự làm chủ.' } },
+            { front: { term: 'Freelance work', ipa: '/ˈfriː.læns wɝːk/' }, back: { vi: 'công việc tự do', en: 'Work done by a freelancer.', ex: 'She does freelance work as a writer and editor.', ex_vi: 'Cô ấy làm công việc tự do với tư cách là một nhà văn và biên tập viên.' } },
+            { front: { term: 'Career prospects', ipa: '/kəˈrɪr ˈprɑː.spekts/' }, back: { vi: 'triển vọng nghề nghiệp', en: 'The chances of future success in a particular job or profession.', ex: 'This role offers excellent career prospects for the right candidate.', ex_vi: 'Vai trò này mang lại triển vọng nghề nghiệp tuyệt vời cho ứng viên phù hợp.' } },
+            { front: { term: 'Working environment', ipa: '/ˈwɝː.kɪŋ ɪnˈvaɪ.rən.mənt/' }, back: { vi: 'môi trường làm việc', en: 'The surrounding conditions in which an employee operates.', ex: 'A positive working environment can boost productivity and morale.', ex_vi: 'Một môi trường làm việc tích cực có thể thúc đẩy năng suất và tinh thần làm việc.' } },
+            { front: { term: 'Colleague / Co-worker', ipa: '/ˈkɑː.liːɡ/ /ˈkoʊˌwɝː.kɚ/' }, back: { vi: 'đồng nghiệp', en: 'A person with whom one works in a profession or business.', ex: 'I went out for lunch with my colleagues today.', ex_vi: 'Hôm nay tôi đã đi ăn trưa với các đồng nghiệp của mình.' } },
+            { front: { term: 'Employment opportunities', ipa: '/ɪmˈplɔɪ.mənt ˌɑː.pɚˈtuː.nə.t̬iz/' }, back: { vi: 'cơ hội việc làm', en: 'Chances to get a job.', ex: 'The new factory will create many employment opportunities in the area.', ex_vi: 'Nhà máy mới sẽ tạo ra nhiều cơ hội việc làm trong khu vực.' } },
+            { front: { term: 'Professional development', ipa: '/prəˌfeʃ.ən.əl dɪˈvel.əp.mənt/' }, back: { vi: 'phát triển chuyên môn', en: 'The process of improving and increasing capabilities of staff through access to education and training opportunities.', ex: 'My company encourages professional development by paying for courses.', ex_vi: 'Công ty của tôi khuyến khích phát triển chuyên môn bằng cách chi trả cho các khóa học.' } },
+            { front: { term: 'Entrepreneur', ipa: '/ˌɑːn.trə.prəˈnɝː/' }, back: { vi: 'doanh nhân', en: 'A person who sets up a business or businesses, taking on financial risks in the hope of profit.', ex: 'He is a successful entrepreneur who started his own tech company.', ex_vi: 'Anh ấy là một doanh nhân thành đạt, người đã thành lập công ty công nghệ của riêng mình.' } },
+            { front: { term: 'Corporate ladder', ipa: '/ˈkɔːr.pɚ.ət ˈlæd.ɚ/' }, back: { vi: 'nấc thang sự nghiệp', en: 'The hierarchy of authority in an organization.', ex: 'She is ambitious and wants to climb the corporate ladder quickly.', ex_vi: 'Cô ấy đầy tham vọng và muốn leo lên nấc thang sự nghiệp một cách nhanh chóng.' } },
+            { front: { term: 'Overtime', ipa: '/ˈoʊ.vɚ.taɪm/' }, back: { vi: 'làm thêm giờ', en: 'Time worked in addition to one\'s normal working hours.', ex: 'I had to work overtime to finish the project on time.', ex_vi: 'Tôi đã phải làm thêm giờ để hoàn thành dự án đúng hạn.' } },
+            { front: { term: 'Job hunting', ipa: '/ˈdʒɑːb ˌhʌn.t̬ɪŋ/' }, back: { vi: 'tìm việc', en: 'The activity of trying to find a job.', ex: 'Job hunting can be a long and stressful process.', ex_vi: 'Tìm việc có thể là một quá trình lâu dài và căng thẳng.' } },
+            { front: { term: 'Job interview', ipa: '/ˈdʒɑːb ˌɪn.t̬ɚ.vjuː/' }, back: { vi: 'phỏng vấn xin việc', en: 'A formal meeting in which an applicant is asked questions to determine their suitability for a particular job.', ex: 'I have a job interview for a marketing position tomorrow.', ex_vi: 'Ngày mai tôi có một cuộc phỏng vấn xin việc cho vị trí marketing.' } },
+            { front: { term: 'Perks / Benefits', ipa: '/pɝːks/ /ˈben.ə.fɪts/' }, back: { vi: 'các quyền lợi', en: 'Advantages or benefits, such as money or goods, which you are given because of your job.', ex: 'The job comes with several perks, including a company car and health insurance.', ex_vi: 'Công việc đi kèm với một số quyền lợi, bao gồm xe công ty và bảo hiểm y tế.' } },
+            { front: { term: 'Retirement', ipa: '/rɪˈtaɪr.mənt/' }, back: { vi: 'sự nghỉ hưu', en: 'The action or fact of leaving one\'s job and ceasing to work.', ex: 'He is looking forward to his retirement after 40 years of working.', ex_vi: 'Ông ấy đang mong chờ đến lúc nghỉ hưu sau 40 năm làm việc.' } },
+            { front: { term: '“Climb the corporate ladder”', ipa: '' }, back: { vi: 'thăng tiến trong sự nghiệp', en: 'To advance in one\'s career.', ex: 'She’s been working hard to climb the corporate ladder.', ex_vi: 'Cô ấy đã làm việc chăm chỉ để thăng tiến trong sự nghiệp.' } },
+            { front: { term: '“Job hopping”', ipa: '' }, back: { vi: 'nhảy việc', en: 'The practice of changing jobs frequently.', ex: 'Job hopping has become more common as employees seek better opportunities.', ex_vi: 'Nhảy việc đã trở nên phổ biến hơn khi nhân viên tìm kiếm cơ hội tốt hơn.' } },
+            { front: { term: '“A dead-end job”', ipa: '' }, back: { vi: 'công việc không có cơ hội thăng tiến', en: 'A job with no promotional opportunities.', ex: 'I feel like I’m stuck in a dead-end job.', ex_vi: 'Tôi cảm thấy như mình đang bị mắc kẹt trong một công việc không có tương lai.' } },
+            { front: { term: '“To pursue a career in”', ipa: '' }, back: { vi: 'theo đuổi sự nghiệp trong lĩnh vực', en: 'To follow a particular career path.', ex: 'He wants to pursue a career in engineering.', ex_vi: 'Anh ấy muốn theo đuổi sự nghiệp trong lĩnh vực kỹ thuật.' } },
+            { front: { term: '“To land a job”', ipa: '' }, back: { vi: 'kiếm được công việc', en: 'To succeed in getting a job.', ex: 'She finally landed a job at a prestigious law firm.', ex_vi: 'Cuối cùng cô ấy đã kiếm được một công việc tại một công ty luật danh tiếng.' } },
+            { front: { term: '“A fulfilling job”', ipa: '' }, back: { vi: 'công việc mang lại sự hài lòng', en: 'A job that makes you feel happy and satisfied.', ex: 'Teaching is a very fulfilling job for those who love working with children.', ex_vi: 'Dạy học là một công việc rất viên mãn đối với những người yêu thích làm việc với trẻ em.' } },
+            { front: { term: '“To work your way up”', ipa: '' }, back: { vi: 'làm việc chăm chỉ để thăng tiến', en: 'To advance in a company through hard work.', ex: 'She worked her way up from an entry-level position to manager.', ex_vi: 'Cô ấy đã nỗ lực đi lên từ một vị trí cấp thấp để trở thành quản lý.' } },
+            { front: { term: '“To hand in your notice”', ipa: '' }, back: { vi: 'nộp đơn xin thôi việc', en: 'To resign from your job.', ex: 'He handed in his notice after 10 years with the company.', ex_vi: 'Anh ấy đã nộp đơn xin thôi việc sau 10 năm gắn bó với công ty.' } },
+            { front: { term: '“To be your own boss”', ipa: '' }, back: { vi: 'làm chủ', en: 'To be self-employed.', ex: 'Many people dream of being their own boss and starting their own business.', ex_vi: 'Nhiều người mơ ước được làm chủ và bắt đầu kinh doanh riêng.' } },
+            { front: { term: '“Job burnout”', ipa: '' }, back: { vi: 'kiệt sức vì công việc', en: 'A state of physical or emotional exhaustion caused by overwork or stress.', ex: 'Job burnout is a common issue in high-stress professions.', ex_vi: 'Kiệt sức vì công việc là một vấn đề phổ biến trong các ngành nghề có áp lực cao.' } },
+            { front: { term: '“Work under pressure”', ipa: '' }, back: { vi: 'làm việc dưới áp lực', en: 'To work effectively in stressful situations.', ex: 'I am good at working under pressure and meeting deadlines.', ex_vi: 'Tôi giỏi làm việc dưới áp lực và đáp ứng đúng thời hạn.' } },
+            { front: { term: '“Freelancing”', ipa: '' }, back: { vi: 'làm việc tự do', en: 'The act of working as a freelancer.', ex: 'Freelancing allows me to have flexibility in my work schedule.', ex_vi: 'Làm việc tự do cho phép tôi linh hoạt trong lịch trình làm việc của mình.' } },
+            { front: { term: '“A high-powered job”', ipa: '' }, back: { vi: 'công việc quyền lực, tầm cỡ', en: 'An important or powerful job.', ex: 'She holds a high-powered job in a multinational company.', ex_vi: 'Cô ấy giữ một công việc quyền lực trong một công ty đa quốc gia.' } },
+            { front: { term: '“Career change”', ipa: '' }, back: { vi: 'thay đổi nghề nghiệp', en: 'The act of changing to a different kind of job.', ex: 'He’s considering a career change after 10 years in the same industry.', ex_vi: 'Anh ấy đang cân nhắc thay đổi nghề nghiệp sau 10 năm làm việc trong cùng một ngành.' } }
+        ];
+
+        let currentCardIndex = 0;
+        
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+            
+            cardFrontEl.innerHTML = `
+                <h2 class="text-2xl sm:text-3xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa || ''}</p>
+            `;
+            
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+            
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+    </script>
+</body>
+</html>
