@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 3: Getting from A to B</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem; /* rounded-xl */
+        }
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+    <!-- Chosen Palette: Calm Harmony Neutrals -->
+    <!-- Application Structure Plan: A digital flashcard application. The main view is a single, flippable card. Users can navigate sequentially with 'Previous'/'Next' buttons or test themselves with a 'Random' button. A progress counter shows their position. This structure directly translates the static report into an interactive, proven learning tool, focusing on the core user goal of vocabulary memorization and recall. -->
+    <!-- Visualization & Content Choices: Report Info: Vocabulary list. Goal: Learn & Recall. Viz/Presentation: Interactive flippable card. Interaction: Click to flip, buttons to navigate/shuffle. Justification: This method is the most intuitive and effective for learning flashcard content, promoting active recall over passive reading. Library/Method: HTML/CSS for structure and flip animation, Vanilla JS for logic and content rendering. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 3: Getting from A to B</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'aim to do something', ipa: '/eɪm tə du ˈsʌmθɪŋ/' }, back: { vi: 'nhắm tới, có mục đích làm gì', en: 'to try to achieve something', ex: 'The project aims to do something about the lack of clean water in the region.', ex_vi: 'Dự án nhắm tới việc giải quyết tình trạng thiếu nước sạch trong khu vực.' } },
+            { front: { term: 'alternative', ipa: '/ɔːlˈtɝː.nə.t̬ɪv/' }, back: { vi: 'thay thế, khác', en: 'An alternative plan, method, etc. is one that you can use if you do not want to use another one.', ex: 'We had to find an alternative route because the main road was closed.', ex_vi: 'Chúng tôi đã phải tìm một tuyến đường thay thế vì con đường chính đã bị đóng.' } },
+            { front: { term: 'at a reduced price', ipa: '/æt ə rɪˈduːst praɪs/' }, back: { vi: 'với giá giảm', en: 'for less money than something usually costs', ex: 'You can buy tickets at a reduced price if you book in advance.', ex_vi: 'Bạn có thể mua vé với giá giảm nếu đặt trước.' } },
+            { front: { term: 'avoid', ipa: '/əˈvɔɪd/' }, back: { vi: 'tránh, né', en: 'to not do something', ex: 'You should avoid eating fatty foods to stay healthy.', ex_vi: 'Bạn nên tránh ăn thực phẩm nhiều dầu mỡ để giữ sức khỏe.' } },
+            { front: { term: 'cancel', ipa: '/ˈkæn.səl/' }, back: { vi: 'hủy bỏ', en: 'to say that an organised event will not now happen', ex: 'The concert was cancelled due to the heavy rain.', ex_vi: 'Buổi hòa nhạc đã bị hủy bỏ do mưa lớn.' } },
+            { front: { term: 'competition', ipa: '/ˌkɑːm.pəˈtɪʃ.ən/' }, back: { vi: 'cuộc thi, sự cạnh tranh', en: 'an organised event in which people try to win a prize by being the best, fastest, etc.', ex: 'She entered a swimming competition and won first place.', ex_vi: 'Cô ấy đã tham gia một cuộc thi bơi và giành giải nhất.' } },
+            { front: { term: 'convenience', ipa: '/kənˈviːn.jəns/' }, back: { vi: 'sự tiện lợi, sự thuận tiện', en: 'when something is easy to use and suitable for what you want to do', ex: 'For convenience, I do most of my shopping online.', ex_vi: 'Để tiện lợi, tôi thực hiện hầu hết việc mua sắm của mình trực tuyến.' } },
+            { front: { term: 'convert', ipa: '/kənˈvɝːt/' }, back: { vi: 'chuyển đổi', en: 'to change the appearance, form or purpose of something into something else', ex: 'They converted the old factory into modern apartments.', ex_vi: 'Họ đã chuyển đổi nhà máy cũ thành các căn hộ hiện đại.' } },
+            { front: { term: 'data', ipa: '/ˈdeɪ.t̬ə/' }, back: { vi: 'dữ liệu', en: 'information or facts about something', ex: 'The researchers are analyzing the data from the experiment.', ex_vi: 'Các nhà nghiên cứu đang phân tích dữ liệu từ thí nghiệm.' } },
+            { front: { term: 'destination', ipa: '/ˌdes.təˈneɪ.ʃən/' }, back: { vi: 'điểm đến', en: 'the place where someone or something is going', ex: 'Our final destination is a small village in the mountains.', ex_vi: 'Điểm đến cuối cùng của chúng tôi là một ngôi làng nhỏ trên núi.' } },
+            { front: { term: 'environmentalist', ipa: '/ɪnˌvaɪ.rənˈmen.t̬əl.ɪst/' }, back: { vi: 'nhà môi trường học', en: 'someone who tries to protect the natural environment from being damaged', ex: 'As an environmentalist, she is dedicated to protecting endangered species.', ex_vi: 'Là một nhà môi trường học, cô ấy cống hiến cho việc bảo vệ các loài có nguy cơ tuyệt chủng.' } },
+            { front: { term: 'facilities', ipa: '/fəˈsɪl.ə.t̬iz/' }, back: { vi: 'cơ sở vật chất, tiện nghi', en: 'buildings, equipment or services that are provided for a particular purpose', ex: 'The hotel has excellent sports facilities, including a gym and a swimming pool.', ex_vi: 'Khách sạn có các tiện nghi thể thao tuyệt vời, bao gồm phòng tập gym và hồ bơi.' } },
+            { front: { term: 'fashion show', ipa: '/ˈfæʃ.ən ʃoʊ/' }, back: { vi: 'buổi trình diễn thời trang', en: 'a show for the public where models wear new styles of clothes', ex: 'She was invited to a fashion show in Paris.', ex_vi: 'Cô ấy đã được mời đến một buổi trình diễn thời trang ở Paris.' } },
+            { front: { term: 'forward-thinking', ipa: '/ˈfɔːr.wɚdˌθɪŋ.kɪŋ/' }, back: { vi: 'có tư duy tiến bộ, nhìn xa trông rộng', en: 'thinking about and planning for the future', ex: 'The company needs forward-thinking leaders to stay competitive.', ex_vi: 'Công ty cần những nhà lãnh đạo có tư duy tiến bộ để duy trì tính cạnh tranh.' } },
+            { front: { term: 'funding', ipa: '/ˈfʌn.dɪŋ/' }, back: { vi: 'kinh phí, quỹ tài trợ', en: 'money given by a government or organisation for an event or activity', ex: 'The project cannot proceed without sufficient funding.', ex_vi: 'Dự án không thể tiếp tục nếu không có đủ kinh phí.' } },
+            { front: { term: 'increase capacity', ipa: '/ɪnˈkriːs kəˈpæs.ə.t̬i/' }, back: { vi: 'tăng công suất, tăng sức chứa', en: 'to increase the amount or number of something that something can hold or deal with', ex: 'The new stadium will increase capacity to 50,000 spectators.', ex_vi: 'Sân vận động mới sẽ tăng sức chứa lên 50.000 khán giả.' } },
+            { front: { term: 'innovative', ipa: '/ˈɪn.ə.veɪ.t̬ɪv/' }, back: { vi: 'đổi mới, sáng tạo', en: 'using new methods or ideas', ex: 'The company is known for its innovative product designs.', ex_vi: 'Công ty được biết đến với các thiết kế sản phẩm sáng tạo.' } },
+            { front: { term: 'installation', ipa: '/ˌɪn.stəˈleɪ.ʃən/' }, back: { vi: 'sự lắp đặt', en: 'when equipment or furniture is put into position', ex: 'The installation of the new air conditioning system took two days.', ex_vi: 'Việc lắp đặt hệ thống điều hòa không khí mới mất hai ngày.' } },
+            { front: { term: 'on average', ipa: '/ɑːn ˈæv.ɚ.ɪdʒ/' }, back: { vi: 'trung bình', en: 'usually, or based on an average', ex: 'On average, a person sleeps for about eight hours a day.', ex_vi: 'Trung bình, một người ngủ khoảng tám tiếng một ngày.' } },
+            { front: { term: 'passenger', ipa: '/ˈpæs.ən.dʒɚ/' }, back: { vi: 'hành khách', en: 'someone who is travelling in a vehicle but is not controlling it', ex: 'The train was full of passengers heading to the city.', ex_vi: 'Chuyến tàu đầy ắp hành khách hướng về thành phố.' } },
+            { front: { term: 'pedestrian', ipa: '/pəˈdes.tri.ən/' }, back: { vi: 'người đi bộ', en: 'a person who is walking and not travelling in a vehicle', ex: 'The new bridge is for pedestrians only.', ex_vi: 'Cây cầu mới chỉ dành cho người đi bộ.' } },
+            { front: { term: 'privacy', ipa: '/ˈpraɪ.və.si/' }, back: { vi: 'sự riêng tư', en: 'when you are alone and people cannot see or hear what you are doing', ex: 'I value my privacy and don\'t like to share too much personal information.', ex_vi: 'Tôi coi trọng sự riêng tư của mình và không thích chia sẻ quá nhiều thông tin cá nhân.' } },
+            { front: { term: 'range', ipa: '/reɪndʒ/' }, back: { vi: 'phạm vi, loạt', en: 'a group of different things of the same general type', ex: 'The store offers a wide range of products.', ex_vi: 'Cửa hàng cung cấp một loạt các sản phẩm.' } },
+            { front: { term: 'revolutionary', ipa: '/ˌrev.əˈluː.ʃən.er.i/' }, back: { vi: 'mang tính cách mạng, đột phá', en: 'completely different from what was done before', ex: 'The invention of the internet was a revolutionary development.', ex_vi: 'Sự phát minh ra internet là một bước phát triển mang tính cách mạng.' } },
+            { front: { term: 'smog', ipa: '/smɑːɡ/' }, back: { vi: 'khói bụi, sương khói', en: 'air pollution in a city that is a mixture of smoke, gases and chemicals', ex: 'The city was covered in a thick layer of smog.', ex_vi: 'Thành phố bị bao phủ bởi một lớp khói bụi dày đặc.' } },
+            { front: { term: 'souvenir', ipa: '/ˌsuː.vəˈnɪr/' }, back: { vi: 'quà lưu niệm', en: 'something which you buy or keep to remember a special event or holiday', ex: 'I bought a small souvenir to remember my trip to Vietnam.', ex_vi: 'Tôi đã mua một món quà lưu niệm nhỏ để ghi nhớ chuyến đi đến Việt Nam.' } },
+            { front: { term: 'structure', ipa: '/ˈstrʌk.tʃɚ/' }, back: { vi: 'cấu trúc, kết cấu', en: 'the way that parts of something are arranged or put together', ex: 'The structure of the building is very complex.', ex_vi: 'Cấu trúc của tòa nhà rất phức tạp.' } },
+            { front: { term: 'system', ipa: '/ˈsɪs.təm/' }, back: { vi: 'hệ thống, phương pháp', en: 'a way or method of doing things', ex: 'The company has implemented a new computer system.', ex_vi: 'Công ty đã triển khai một hệ thống máy tính mới.' } },
+            { front: { term: 'unique feature', ipa: '/juːˈniːk ˈfiː.tʃɚ/' }, back: { vi: 'đặc điểm độc đáo', en: 'something that only happens once or does not exist anywhere else', ex: 'A unique feature of this bird is its colorful feathers.', ex_vi: 'Một đặc điểm độc đáo của loài chim này là bộ lông sặc sỡ của nó.' } },
+            { front: { term: 'unwilling', ipa: '/ʌnˈwɪl.ɪŋ/' }, back: { vi: 'không sẵn lòng, miễn cưỡng', en: 'not wanting to do something', ex: 'He was unwilling to admit his mistake.', ex_vi: 'Anh ấy không sẵn lòng thừa nhận sai lầm của mình.' } },
+            { front: { term: 'upgrade', ipa: '/ˈʌp.ɡreɪd/' }, back: { vi: 'nâng cấp', en: 'to improve something so that it is of a higher quality or a newer model', ex: 'You should upgrade your computer software to the latest version.', ex_vi: 'Bạn nên nâng cấp phần mềm máy tính của mình lên phiên bản mới nhất.' } },
+            { front: { term: 'vehicle', ipa: '/ˈviː.ə.kəl/' }, back: { vi: 'phương tiện, xe cộ', en: 'something such as a car, train or aircraft that takes people or goods from one place to another', ex: 'The road was closed to all vehicles.', ex_vi: 'Con đường đã bị đóng cửa đối với tất cả các phương tiện.' } }
+        ];
+
+        let currentCardIndex = 0;
+        
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+            
+            cardFrontEl.innerHTML = `
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa}</p>
+            `;
+            
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+            
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+    </script>
+</body>
+</html>
