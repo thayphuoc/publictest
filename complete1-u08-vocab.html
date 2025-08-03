@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 08: Tourist attractions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem; /* rounded-xl */
+        }
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+    <!-- Chosen Palette: Calm Harmony Neutrals -->
+    <!-- Application Structure Plan: A digital flashcard application. The main view is a single, flippable card. Users can navigate sequentially with 'Previous'/'Next' buttons or test themselves with a 'Random' button. A progress counter shows their position. This structure directly translates the static report into an interactive, proven learning tool, focusing on the core user goal of vocabulary memorization and recall. -->
+    <!-- Visualization & Content Choices: Report Info: Vocabulary list. Goal: Learn & Recall. Viz/Presentation: Interactive flippable card. Interaction: Click to flip, buttons to navigate/shuffle. Justification: This method is the most intuitive and effective for learning flashcard content, promoting active recall over passive reading. Library/Method: HTML/CSS for structure and flip animation, Vanilla JS for logic and content rendering. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 08: Tourist attractions</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'abroad', ipa: '/əˈbrɔːd/' }, back: { vi: 'ở nước ngoài', en: 'in or to a foreign country', ex: 'She has always wanted to study abroad.', ex_vi: 'Cô ấy luôn muốn đi du học ở nước ngoài.' } },
+            { front: { term: 'accompany', ipa: '/əˈkʌm.pə.ni/' }, back: { vi: 'đi cùng, hộ tống', en: 'to go somewhere with someone', ex: 'The children must be accompanied by an adult.', ex_vi: 'Trẻ em phải có người lớn đi cùng.' } },
+            { front: { term: 'aircraft', ipa: '/ˈer.kræft/' }, back: { vi: 'máy bay, phi cơ', en: 'a vehicle that can fly', ex: 'The aircraft is scheduled to land in 30 minutes.', ex_vi: 'Máy bay dự kiến sẽ hạ cánh trong 30 phút.' } },
+            { front: { term: 'backpacking', ipa: '/ˈbækˌpæk.ɪŋ/' }, back: { vi: 'du lịch bụi', en: 'travelling or camping with your clothes and belongings in a backpack', ex: 'They went backpacking across Europe for the summer.', ex_vi: 'Họ đã đi du lịch bụi khắp châu Âu trong mùa hè.' } },
+            { front: { term: 'breathtaking', ipa: '/ˈbreθˌteɪ.kɪŋ/' }, back: { vi: 'ngoạn mục, hấp dẫn', en: 'very beautiful or surprising', ex: 'The view from the top of the mountain was breathtaking.', ex_vi: 'Quang cảnh từ đỉnh núi thật ngoạn mục.' } },
+            { front: { term: 'capable of (doing something)', ipa: '/ˈkeɪ.pə.bəl əv (ˈduː.ɪŋ ˈsʌm.θɪŋ)/' }, back: { vi: 'có khả năng (làm gì đó)', en: 'having the ability or qualities to be able to do something', ex: 'He is capable of running a marathon.', ex_vi: 'Anh ấy có khả năng chạy marathon.' } },
+            { front: { term: 'continent', ipa: '/ˈkɑːn.t̬ən.ənt/' }, back: { vi: 'lục địa, châu lục', en: 'one of the seven main areas of land on the Earth, such as Asia, Africa or Europe', ex: 'Africa is the second-largest continent in the world.', ex_vi: 'Châu Phi là lục địa lớn thứ hai trên thế giới.' } },
+            { front: { term: 'cruise', ipa: '/kruːz/' }, back: { vi: 'chuyến du ngoạn trên biển', en: 'a holiday on a ship, sailing from place to place', ex: 'We went on a cruise to the Caribbean.', ex_vi: 'Chúng tôi đã đi một chuyến du ngoạn trên biển đến vùng Caribe.' } },
+            { front: { term: 'delay', ipa: '/dɪˈleɪ/' }, back: { vi: 'trì hoãn', en: 'to make something happen at a later time than originally planned or expected', ex: 'The flight was delayed due to bad weather.', ex_vi: 'Chuyến bay đã bị trì hoãn do thời tiết xấu.' } },
+            { front: { term: 'evidence', ipa: '/ˈev.ə.dəns/' }, back: { vi: 'bằng chứng, chứng cứ', en: 'something that makes you believe that something is true or exists', ex: 'The police found evidence at the crime scene.', ex_vi: 'Cảnh sát đã tìm thấy bằng chứng tại hiện trường vụ án.' } },
+            { front: { term: 'expand', ipa: '/ɪkˈspænd/' }, back: { vi: 'mở rộng', en: 'to increase in size or amount, or to make something increase', ex: 'The company is planning to expand its business.', ex_vi: 'Công ty đang có kế hoạch mở rộng kinh doanh.' } },
+            { front: { term: 'fashionable', ipa: '/ˈfæʃ.ən.ə.bəl/' }, back: { vi: 'hợp thời trang, thịnh hành', en: 'popular at a particular time', ex: 'She always wears fashionable clothes.', ex_vi: 'Cô ấy luôn mặc quần áo hợp thời trang.' } },
+            { front: { term: 'global warming', ipa: '/ˌgloʊ.bəl ˈwɔːr.mɪŋ/' }, back: { vi: 'sự nóng lên toàn cầu', en: 'when the air around the world becomes warmer because of pollution', ex: 'Global warming is a serious threat to our planet.', ex_vi: 'Sự nóng lên toàn cầu là một mối đe dọa nghiêm trọng đối với hành tinh của chúng ta.' } },
+            { front: { term: 'impact', ipa: '/ˈɪm.pækt/' }, back: { vi: 'tác động, ảnh hưởng', en: 'the effect that a person, event or situation has on someone or something', ex: 'The new law will have a significant impact on the economy.', ex_vi: 'Luật mới sẽ có tác động đáng kể đến nền kinh tế.' } },
+            { front: { term: 'impressive', ipa: '/ɪmˈpres.ɪv/' }, back: { vi: 'ấn tượng, gây ấn tượng', en: 'Someone or something that is impressive makes you admire and respect them.', ex: 'His performance in the play was very impressive.', ex_vi: 'Màn trình diễn của anh ấy trong vở kịch rất ấn tượng.' } },
+            { front: { term: 'leisure activity', ipa: '/ˈliː.ʒɚ ækˌtɪv.ə.t̬i/' }, back: { vi: 'hoạt động giải trí', en: 'something that you do for enjoyment when you are not working', ex: 'My favorite leisure activity is reading.', ex_vi: 'Hoạt động giải trí yêu thích của tôi là đọc sách.' } },
+            { front: { term: 'local culture', ipa: '/ˈloʊ.kəl ˈkʌl.tʃɚ/' }, back: { vi: 'văn hóa địa phương', en: 'the habits, traditions and beliefs of the area you are in', ex: 'When you travel, you should respect the local culture.', ex_vi: 'Khi bạn đi du lịch, bạn nên tôn trọng văn hóa địa phương.' } },
+            { front: { term: 'magical', ipa: '/ˈmædʒ.ɪ.kəl/' }, back: { vi: 'kỳ diệu, huyền ảo', en: 'special or exciting', ex: 'The sunset over the ocean was a magical sight.', ex_vi: 'Cảnh hoàng hôn trên đại dương là một cảnh tượng kỳ diệu.' } },
+            { front: { term: 'memorable', ipa: '/ˈmem.ər.ə.bəl/' }, back: { vi: 'đáng nhớ', en: 'If an occasion or experience is memorable, you will remember it for a long time because it is so good.', ex: 'Our trip to Paris was a truly memorable experience.', ex_vi: 'Chuyến đi của chúng tôi đến Paris là một trải nghiệm thực sự đáng nhớ.' } },
+            { front: { term: 'monument', ipa: '/ˈmɑːn.jə.mənt/' }, back: { vi: 'đài tưởng niệm, tượng đài', en: 'a building or other structure that is built to make people remember an event in history or a famous person', ex: 'The Lincoln Memorial is a famous monument in Washington, D.C.', ex_vi: 'Đài tưởng niệm Lincoln là một tượng đài nổi tiếng ở Washington, D.C.' } },
+            { front: { term: 'outdated', ipa: '/ˌaʊtˈdeɪ.t̬ɪd/' }, back: { vi: 'lỗi thời, lạc hậu', en: 'old-fashioned and therefore not as good or as fashionable as something modern', ex: 'His ideas about education are a bit outdated.', ex_vi: 'Những ý tưởng của ông về giáo dục hơi lỗi thời.' } },
+            { front: { term: 'package deal', ipa: '/ˈpæk.ɪdʒ ˌdiːl/' }, back: { vi: 'tour du lịch trọn gói', en: 'a type of holiday where you pay a fixed price and the travel, accommodation and sometimes food are arranged for you', ex: 'We got a great package deal on our trip to Hawaii.', ex_vi: 'Chúng tôi đã có một tour du lịch trọn gói tuyệt vời cho chuyến đi đến Hawaii.' } },
+            { front: { term: 'recommend someone to do something', ipa: '/ˌrek.əˈmend ˈsʌm.wʌn tə duː ˈsʌm.θɪŋ/' }, back: { vi: 'giới thiệu/khuyên ai làm gì', en: 'to tell someone that they would probably enjoy doing something', ex: 'I would recommend you to visit the new art museum.', ex_vi: 'Tôi khuyên bạn nên đến thăm bảo tàng nghệ thuật mới.' } },
+            { front: { term: 'resort', ipa: '/rɪˈzɔːrt/' }, back: { vi: 'khu nghỉ dưỡng', en: 'a place where many people go for a holiday', ex: 'They stayed at a luxury resort on the beach.', ex_vi: 'Họ đã ở tại một khu nghỉ dưỡng sang trọng trên bãi biển.' } },
+            { front: { term: 'safari', ipa: '/səˈfɑː.ri/' }, back: { vi: 'chuyến đi săn, cuộc đi săn', en: 'journey, usually to Africa, to see or hunt wild animals', ex: 'We went on a safari in Kenya and saw lions and elephants.', ex_vi: 'Chúng tôi đã đi săn ở Kenya và nhìn thấy sư tử và voi.' } },
+            { front: { term: 'sightseeing', ipa: '/ˈsaɪtˌsiː.ɪŋ/' }, back: { vi: 'tham quan, ngắm cảnh', en: 'the activity of visiting places which are interesting because they are historical, famous, etc.', ex: 'We spent the afternoon sightseeing in the old town.', ex_vi: 'Chúng tôi đã dành buổi chiều để tham quan khu phố cổ.' } },
+            { front: { term: 'stressful', ipa: '/ˈstres.fəl/' }, back: { vi: 'căng thẳng, đầy áp lực', en: 'making you feel worried and nervous', ex: 'Moving to a new house can be a very stressful experience.', ex_vi: 'Chuyển đến một ngôi nhà mới có thể là một trải nghiệm rất căng thẳng.' } },
+            { front: { term: 'survey', ipa: '/ˈsɝː.veɪ/' }, back: { vi: 'cuộc khảo sát', en: 'an examination of something to find information about it', ex: 'We conducted a survey to find out what people thought of the new product.', ex_vi: 'Chúng tôi đã tiến hành một cuộc khảo sát để tìm hiểu xem mọi người nghĩ gì về sản phẩm mới.' } },
+            { front: { term: 'tour guide', ipa: '/tʊr ɡaɪd/' }, back: { vi: 'hướng dẫn viên du lịch', en: 'someone whose job is to take tourists around interesting places and tell them about them', ex: 'Our tour guide was very knowledgeable about the history of the city.', ex_vi: 'Hướng dẫn viên du lịch của chúng tôi rất am hiểu về lịch sử của thành phố.' } },
+            { front: { term: 'urban', ipa: '/ˈɝː.bən/' }, back: { vi: 'thuộc về thành thị, đô thị', en: 'belonging or relating to a town or city', ex: 'Urban areas are often crowded and noisy.', ex_vi: 'Các khu vực đô thị thường đông đúc và ồn ào.' } },
+            { front: { term: 'within reach', ipa: '/wɪˈðɪn riːtʃ/' }, back: { vi: 'trong tầm với, có thể đến được', en: 'close enough to travel to', ex: 'The beach is within reach of the city by train.', ex_vi: 'Bãi biển có thể đến được từ thành phố bằng tàu hỏa.' } },
+            { front: { term: 'vacation', ipa: '/veɪˈkeɪ.ʃən/' }, back: { vi: 'kỳ nghỉ', en: 'a period of time when you are not at home but are staying somewhere else for enjoyment', ex: 'We\'re going on vacation to Spain next month.', ex_vi: 'Chúng tôi sẽ đi nghỉ ở Tây Ban Nha vào tháng tới.' } }
+        ];
+
+        let currentCardIndex = 0;
+        
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+            
+            cardFrontEl.innerHTML = `
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa}</p>
+            `;
+            
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+            
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+    </script>
+</body>
+</html>
