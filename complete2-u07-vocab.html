@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 7: Relationships</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem; /* rounded-xl */
+        }
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+    <!-- Chosen Palette: Calm Harmony Neutrals -->
+    <!-- Application Structure Plan: A digital flashcard application. The main view is a single, flippable card. Users can navigate sequentially with 'Previous'/'Next' buttons or test themselves with a 'Random' button. A progress counter shows their position. This structure directly translates the static report into an interactive, proven learning tool, focusing on the core user goal of vocabulary memorization and recall. -->
+    <!-- Visualization & Content Choices: Report Info: Vocabulary list. Goal: Learn & Recall. Viz/Presentation: Interactive flippable card. Interaction: Click to flip, buttons to navigate/shuffle. Justification: This method is the most intuitive and effective for learning flashcard content, promoting active recall over passive reading. Library/Method: HTML/CSS for structure and flip animation, Vanilla JS for logic and content rendering. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 7: Relationships</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'blame (for)', ipa: '/bleɪm/' }, back: { vi: 'đổ lỗi (cho)', en: 'to say or think that someone or something is responsible for something bad which has happened', ex: 'Don\'t blame me for your own mistakes.', ex_vi: 'Đừng đổ lỗi cho tôi vì những sai lầm của chính bạn.' } },
+            { front: { term: 'broadcast', ipa: '/ˈbrɔːd.kæst/' }, back: { vi: 'phát sóng', en: 'to send out a programme on television or radio', ex: 'The interview will be broadcast live tonight.', ex_vi: 'Buổi phỏng vấn sẽ được phát sóng trực tiếp tối nay.' } },
+            { front: { term: 'overview', ipa: '/ˈoʊ.vɚ.vjuː/' }, back: { vi: 'tổng quan', en: 'a short description of the most important facts about something', ex: 'The report provides a brief overview of the current situation.', ex_vi: 'Báo cáo cung cấp một cái nhìn tổng quan ngắn gọn về tình hình hiện tại.' } },
+            { front: { term: 'practical work', ipa: '/ˈpræk.tɪ.kəl wɝːk/' }, back: { vi: 'công việc thực hành', en: 'study that involves doing something or studying real situations rather than just reading and writing', ex: 'The course combines theory with practical work in the laboratory.', ex_vi: 'Khóa học kết hợp lý thuyết với công việc thực hành trong phòng thí nghiệm.' } },
+            { front: { term: 'clue', ipa: '/kluː/' }, back: { vi: 'manh mối', en: 'a sign or a piece of information that helps you to solve a problem or answer a question', ex: 'The police are searching for clues to solve the crime.', ex_vi: 'Cảnh sát đang tìm kiếm manh mối để giải quyết vụ án.' } },
+            { front: { term: 'confess', ipa: '/kənˈfes/' }, back: { vi: 'thú nhận', en: 'to admit that you have done something wrong', ex: 'He confessed to breaking the window.', ex_vi: 'Anh ta đã thú nhận đã làm vỡ cửa sổ.' } },
+            { front: { term: 'consistent', ipa: '/kənˈsɪs.tənt/' }, back: { vi: 'nhất quán', en: 'always happening in a similar way', ex: 'Her work is not very consistent; it\'s good one day and bad the next.', ex_vi: 'Công việc của cô ấy không nhất quán lắm; hôm nay tốt, hôm sau lại tệ.' } },
+            { front: { term: 'deal with', ipa: '/diːl wɪθ/' }, back: { vi: 'đối phó với, xử lý', en: 'to do what needs to be done with a particular type of person', ex: 'She has a lot of experience in dealing with difficult customers.', ex_vi: 'Cô ấy có nhiều kinh nghiệm trong việc xử lý những khách hàng khó tính.' } },
+            { front: { term: 'deception', ipa: '/dɪˈsep.ʃən/' }, back: { vi: 'sự lừa dối', en: 'the act of making someone believe something that is not true', ex: 'He was accused of deception by his business partners.', ex_vi: 'Anh ta bị các đối tác kinh doanh cáo buộc lừa dối.' } },
+            { front: { term: 'detect', ipa: '/dɪˈtekt/' }, back: { vi: 'phát hiện', en: 'to discover or notice something, especially something that is difficult to see, hear, smell, etc.', ex: 'The machine can detect even the smallest traces of the chemical.', ex_vi: 'Cái máy có thể phát hiện cả những dấu vết nhỏ nhất của hóa chất.' } },
+            { front: { term: 'display', ipa: '/dɪˈspleɪ/' }, back: { vi: 'thể hiện, biểu lộ', en: 'If a person or animal displays a particular kind of behaviour, they behave in that way.', ex: 'The monkeys displayed signs of aggression.', ex_vi: 'Những con khỉ đã biểu lộ dấu hiệu hung hăng.' } },
+            { front: { term: 'episode', ipa: '/ˈep.ə.soʊd/' }, back: { vi: 'tập, hồi', en: 'a single event', ex: 'That was a memorable episode in my life.', ex_vi: 'Đó là một hồi đáng nhớ trong cuộc đời tôi.' } },
+            { front: { term: 'globalisation', ipa: '/ˌɡloʊ.bəl.əˈzeɪ.ʃən/' }, back: { vi: 'toàn cầu hóa', en: 'the process by which businesses operate in many different countries and the culture of different countries becomes more similar', ex: 'Globalisation has led to increased trade between countries.', ex_vi: 'Toàn cầu hóa đã dẫn đến sự gia tăng thương mại giữa các quốc gia.' } },
+            { front: { term: 'gorilla', ipa: '/ɡəˈrɪl.ə/' }, back: { vi: 'khỉ đột', en: 'a big, black, hairy animal like a large monkey', ex: 'The gorilla is a powerful and intelligent animal.', ex_vi: 'Khỉ đột là một loài động vật mạnh mẽ và thông minh.' } },
+            { front: { term: 'incident', ipa: '/ˈɪn.sɪ.dənt/' }, back: { vi: 'sự cố', en: 'an event, especially one that is bad or unusual', ex: 'The police are investigating the incident at the bank.', ex_vi: 'Cảnh sát đang điều tra sự cố tại ngân hàng.' } },
+            { front: { term: 'intentional', ipa: '/ɪnˈten.ʃən.əl/' }, back: { vi: 'cố ý, có chủ đích', en: 'planned or intended', ex: 'I\'m sorry, the mistake was not intentional.', ex_vi: 'Tôi xin lỗi, sai lầm đó không phải là cố ý.' } },
+            { front: { term: 'in the wild', ipa: '/ɪn ðə waɪld/' }, back: { vi: 'trong tự nhiên', en: 'in a natural environment', ex: 'It is fascinating to observe animals in the wild.', ex_vi: 'Thật thú vị khi quan sát động vật trong tự nhiên.' } },
+            { front: { term: 'involve', ipa: '/ɪnˈvɑːlv/' }, back: { vi: 'liên quan, bao gồm', en: 'If an activity involves doing something, that thing is a necessary part of it.', ex: 'The job involves working with a lot of different people.', ex_vi: 'Công việc này bao gồm việc làm việc với rất nhiều người khác nhau.' } },
+            { front: { term: 'journal', ipa: '/ˈdʒɝː.nəl/' }, back: { vi: 'tạp chí chuyên ngành', en: 'a magazine containing articles about a particular subject', ex: 'He published his findings in a leading scientific journal.', ex_vi: 'Ông đã công bố những phát hiện của mình trên một tạp chí khoa học hàng đầu.' } },
+            { front: { term: 'laboratory', ipa: '/ˈlæb.rə.tɔːr.i/' }, back: { vi: 'phòng thí nghiệm', en: 'a room used for scientific work', ex: 'The experiments were conducted in a controlled laboratory environment.', ex_vi: 'Các thí nghiệm được tiến hành trong một môi trường phòng thí nghiệm được kiểm soát.' } },
+            { front: { term: 'linguistic skills', ipa: '/lɪŋˈɡwɪs.tɪk skɪlz/' }, back: { vi: 'kỹ năng ngôn ngữ', en: 'the ability to use language', ex: 'Working as a translator requires strong linguistic skills.', ex_vi: 'Làm phiên dịch đòi hỏi kỹ năng ngôn ngữ vững vàng.' } },
+            { front: { term: 'liar', ipa: '/ˈlaɪ.ɚ/' }, back: { vi: 'kẻ nói dối', en: 'someone who tells lies', ex: 'It is difficult to trust someone who is a known liar.', ex_vi: 'Rất khó để tin tưởng một người bị biết đến là kẻ nói dối.' } },
+            { front: { term: 'predict', ipa: '/prɪˈdɪkt/' }, back: { vi: 'dự đoán', en: 'to say what you think will happen in the future', ex: 'Experts predict that the economy will improve next year.', ex_vi: 'Các chuyên gia dự đoán rằng nền kinh tế sẽ cải thiện vào năm tới.' } },
+            { front: { term: 'psychologically', ipa: '/ˌsaɪ.kəˈlɑː.dʒɪ.kəl.i/' }, back: { vi: 'về mặt tâm lý', en: 'in a way that relates to the human mind and feelings', ex: 'The event was psychologically traumatic for the victims.', ex_vi: 'Sự kiện đó gây tổn thương về mặt tâm lý cho các nạn nhân.' } },
+            { front: { term: 'research programme', ipa: '/ˈriː.sɝːtʃ ˈproʊ.ɡræm/' }, back: { vi: 'chương trình nghiên cứu', en: 'a plan for studying something in order to find out information about it', ex: 'The university has a new research programme on artificial intelligence.', ex_vi: 'Trường đại học có một chương trình nghiên cứu mới về trí tuệ nhân tạo.' } },
+            { front: { term: 'set up', ipa: '/set ʌp/' }, back: { vi: 'thiết lập, chuẩn bị', en: 'to get all the necessary equipment ready for an activity', ex: 'We need to set up the room for the presentation.', ex_vi: 'Chúng ta cần chuẩn bị phòng cho buổi thuyết trình.' } },
+            { front: { term: 'survey', ipa: '/ˈsɝː.veɪ/' }, back: { vi: 'cuộc khảo sát', en: 'an examination of people\'s opinions or behaviour made by asking people questions', ex: 'A recent survey showed that most people are concerned about climate change.', ex_vi: 'Một cuộc khảo sát gần đây cho thấy hầu hết mọi người đều lo ngại về biến đổi khí hậu.' } },
+            { front: { term: 'tell the difference', ipa: '/tel ðə ˈdɪf.ɚ.əns/' }, back: { vi: 'phân biệt được sự khác biệt', en: 'to notice that two things are different from one another', ex: 'Can you tell the difference between these two pictures?', ex_vi: 'Bạn có thể phân biệt được sự khác biệt giữa hai bức tranh này không?' } },
+            { front: { term: 'a version of', ipa: '/ə ˈvɝː.ʒən əv/' }, back: { vi: 'một phiên bản của', en: 'a form of something that is slightly different from other forms of the same thing', ex: 'The movie is a modern version of a classic novel.', ex_vi: 'Bộ phim là một phiên bản hiện đại của một cuốn tiểu thuyết kinh điển.' } }
+        ];
+
+        let currentCardIndex = 0;
+        
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+            
+            cardFrontEl.innerHTML = `
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa}</p>
+            `;
+            
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+            
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+    </script>
+</body>
+</html>
