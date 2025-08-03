@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 1: Starting somewhere new</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem; /* rounded-xl */
+        }
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+    <!-- Chosen Palette: Calm Harmony Neutrals -->
+    <!-- Application Structure Plan: A digital flashcard application. The main view is a single, flippable card. Users can navigate sequentially with 'Previous'/'Next' buttons or test themselves with a 'Random' button. A progress counter shows their position. This structure directly translates the static report into an interactive, proven learning tool, focusing on the core user goal of vocabulary memorization and recall. -->
+    <!-- Visualization & Content Choices: Report Info: Vocabulary list. Goal: Learn & Recall. Viz/Presentation: Interactive flippable card. Interaction: Click to flip, buttons to navigate/shuffle. Justification: This method is the most intuitive and effective for learning flashcard content, promoting active recall over passive reading. Library/Method: HTML/CSS for structure and flip animation, Vanilla JS for logic and content rendering. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 1: Starting somewhere new</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'abroad', ipa: '/əˈbrɔːd/' }, back: { vi: 'ở nước ngoài', en: 'in or to a foreign country', ex: 'Many students dream of studying abroad.', ex_vi: 'Nhiều sinh viên mơ ước được đi du học ở nước ngoài.' } },
+            { front: { term: 'accustomed to', ipa: '/əˈkʌs.təmd tu/' }, back: { vi: 'quen với', en: 'If you are accustomed to something, you have experienced it often enough for it to seem normal to you.', ex: 'It takes time to become accustomed to a new culture.', ex_vi: 'Cần có thời gian để quen với một nền văn hóa mới.' } },
+            { front: { term: 'adjust', ipa: '/əˈdʒʌst/' }, back: { vi: 'điều chỉnh, thích nghi', en: 'to change the way you behave or think in order to suit a new situation', ex: 'She had to adjust to the different pace of life in the city.', ex_vi: 'Cô ấy đã phải điều chỉnh để thích nghi với nhịp sống khác ở thành phố.' } },
+            { front: { term: 'concern', ipa: '/kənˈsɜːn/' }, back: { vi: 'mối quan tâm, lo ngại', en: 'something that involves or affects you or is important to you', ex: 'Her main concern was finding a safe place to live.', ex_vi: 'Mối quan tâm chính của cô ấy là tìm một nơi an toàn để ở.' } },
+            { front: { term: 'customs', ipa: '/ˈkʌs·təmz/' }, back: { vi: 'phong tục, tập quán', en: 'things that have been done for a long time in a society and are part of that society\'s culture', ex: 'It is important to respect the local customs when you travel.', ex_vi: 'Việc tôn trọng phong tục địa phương khi bạn đi du lịch là rất quan trọng.' } },
+            { front: { term: 'define (as)', ipa: '/dɪˈfaɪn/' }, back: { vi: 'định nghĩa (như là)', en: 'to say exactly what something means', ex: 'Success can be defined as achieving your personal goals.', ex_vi: 'Thành công có thể được định nghĩa là việc đạt được các mục tiêu cá nhân của bạn.' } },
+            { front: { term: 'evidence', ipa: '/ˈev.ə.dəns/' }, back: { vi: 'bằng chứng', en: 'something that makes you believe that something is true or exists', ex: 'There was no evidence to prove he was guilty.', ex_vi: 'Không có bằng chứng nào để chứng minh anh ta có tội.' } },
+            { front: { term: 'experience', ipa: '/ɪkˈspɪr.i.əns/' }, back: { vi: 'trải nghiệm, trải qua', en: 'If you experience something, it happens to you or you are involved in it.', ex: 'When you move to a new country, you experience a different way of life.', ex_vi: 'Khi bạn chuyển đến một đất nước mới, bạn sẽ trải nghiệm một lối sống khác.' } },
+            { front: { term: 'financial matters', ipa: '/faɪˌnæn.ʃəl ˈmæt̬.ɚz/' }, back: { vi: 'các vấn đề tài chính', en: 'subjects connected with money', ex: 'Immigrants often need advice on financial matters like opening a bank account.', ex_vi: 'Người nhập cư thường cần lời khuyên về các vấn đề tài chính như mở tài khoản ngân hàng.' } },
+            { front: { term: 'give rise to', ipa: '/ɡɪv raɪz tu/' }, back: { vi: 'gây ra, dẫn đến', en: 'to cause', ex: 'The new policy could give rise to a lot of problems.', ex_vi: 'Chính sách mới có thể gây ra rất nhiều vấn đề.' } },
+            { front: { term: 'go wrong', ipa: '/ɡoʊ rɔːŋ/' }, back: { vi: 'xảy ra sự cố, trở nên tồi tệ', en: 'to develop problems', ex: 'Even with careful planning, things can sometimes go wrong.', ex_vi: 'Ngay cả khi có kế hoạch cẩn thận, mọi thứ đôi khi vẫn có thể xảy ra sự cố.' } },
+            { front: { term: 'immigrant', ipa: '/ˈɪm.ə.ɡrənt/' }, back: { vi: 'người nhập cư', en: 'someone who comes to live in a different country', ex: 'Many immigrants face challenges when they first arrive in a new country.', ex_vi: 'Nhiều người nhập cư phải đối mặt với những thách thức khi họ mới đến một đất nước mới.' } },
+            { front: { term: 'internationally recognised qualifications', ipa: '/ˌɪn.t̬ɚˈnæʃ.ən.əl.i ˈrek.əɡ.naɪzd ˌkwɑː.lɪ.fɪˈkeɪ.ʃənz/' }, back: { vi: 'bằng cấp được quốc tế công nhận', en: 'qualifications that are accepted in many different countries', ex: 'Having internationally recognised qualifications can help you find a job abroad.', ex_vi: 'Có bằng cấp được quốc tế công nhận có thể giúp bạn tìm được việc làm ở nước ngoài.' } },
+            { front: { term: 'lifestyle', ipa: '/ˈlaɪf.staɪl/' }, back: { vi: 'lối sống', en: 'the way that you live', ex: 'Moving to the countryside offers a completely different lifestyle.', ex_vi: 'Chuyển về nông thôn mang đến một lối sống hoàn toàn khác.' } },
+            { front: { term: 'make sense', ipa: '/meɪk sens/' }, back: { vi: 'hợp lý, có ý nghĩa', en: 'to have a meaning or reason that you can understand', ex: 'His explanation didn\'t make sense to me.', ex_vi: 'Lời giải thích của anh ấy không hợp lý đối với tôi.' } },
+            { front: { term: 'notice', ipa: '/ˈnoʊ.t̬ɪs/' }, back: { vi: 'nhận thấy', en: 'to see something and be aware of it', ex: 'I started to notice a change in his behavior.', ex_vi: 'Tôi bắt đầu nhận thấy một sự thay đổi trong hành vi của anh ấy.' } },
+            { front: { term: 'point of view', ipa: '/pɔɪnt əv vjuː/' }, back: { vi: 'quan điểm', en: 'an opinion', ex: 'From my point of view, the new plan is a good idea.', ex_vi: 'Theo quan điểm của tôi, kế hoạch mới là một ý tưởng hay.' } },
+            { front: { term: 'problem-solving skills', ipa: '/ˈprɑː.bləm ˌsɑːl.vɪŋ skɪlz/' }, back: { vi: 'kỹ năng giải quyết vấn đề', en: 'the ability to find solutions to problems', ex: 'Employers often look for candidates with strong problem-solving skills.', ex_vi: 'Nhà tuyển dụng thường tìm kiếm ứng viên có kỹ năng giải quyết vấn đề tốt.' } },
+            { front: { term: 'process', ipa: '/ˈprɑː.ses/' }, back: { vi: 'quá trình', en: 'a series of changes that happen and have a particular result', ex: 'Learning a new language is a long and gradual process.', ex_vi: 'Học một ngôn ngữ mới là một quá trình lâu dài và từ từ.' } },
+            { front: { term: 'resource', ipa: '/ˈriː.sɔːrs/' }, back: { vi: 'nguồn lực, tài nguyên', en: 'something that a country, person or oranisation has which they can use', ex: 'The library is an excellent resource for students.', ex_vi: 'Thư viện là một nguồn tài nguyên tuyệt vời cho sinh viên.' } },
+            { front: { term: 'seek out', ipa: '/siːk aʊt/' }, back: { vi: 'tìm kiếm', en: 'to look for something you want to have', ex: 'When you move to a new city, you should seek out opportunities to meet new people.', ex_vi: 'Khi bạn chuyển đến một thành phố mới, bạn nên tìm kiếm cơ hội để gặp gỡ những người mới.' } },
+            { front: { term: 'stage', ipa: '/steɪdʒ/' }, back: { vi: 'giai đoạn', en: 'a period of development or a particular time in a process', ex: 'Culture shock often has several different stages.', ex_vi: 'Sốc văn hóa thường có nhiều giai đoạn khác nhau.' } },
+            { front: { term: 'stand out', ipa: '/stænd aʊt/' }, back: { vi: 'nổi bật', en: 'to be very easy to see or notice', ex: 'Her unique style makes her stand out from the crowd.', ex_vi: 'Phong cách độc đáo của cô ấy khiến cô ấy nổi bật giữa đám đông.' } },
+            { front: { term: 'surroundings', ipa: '/səˈraʊn.dɪŋz/' }, back: { vi: 'môi trường xung quanh', en: 'the place where someone or something is and the things that are in that place', ex: 'It takes time to get used to new surroundings.', ex_vi: 'Cần có thời gian để làm quen với môi trường xung quanh mới.' } },
+            { front: { term: 'take action', ipa: '/teɪk ˈæk.ʃən/' }, back: { vi: 'hành động', en: 'to do something to solve a problem', ex: 'The government must take action to reduce pollution.', ex_vi: 'Chính phủ phải hành động để giảm ô nhiễm.' } },
+            { front: { term: 'take something seriously', ipa: '/teɪk ˈsʌm.θɪŋ ˈsɪr.i.əs.li/' }, back: { vi: 'coi trọng việc gì', en: 'to believe that something is important and that you should pay attention to it', ex: 'You should take your studies seriously if you want to succeed.', ex_vi: 'Bạn nên coi trọng việc học nếu muốn thành công.' } },
+            { front: { term: 'refer to sth/sb (as)', ipa: '/rɪˈfɜːr tuː/' }, back: { vi: 'ám chỉ, gọi là', en: 'to call someone or something a particular name', ex: 'This stage is often referred to as the "honeymoon" period.', ex_vi: 'Giai đoạn này thường được gọi là giai đoạn "trăng mật".' } },
+            { front: { term: 'values', ipa: '/ˈvæl.juːz/' }, back: { vi: 'giá trị', en: 'beliefs about what is morally right and wrong and what is most important in life', ex: 'When you live in a new culture, you may encounter different values.', ex_vi: 'Khi bạn sống trong một nền văn hóa mới, bạn có thể gặp phải những giá trị khác nhau.' } },
+            { front: { term: 'work sth out', ipa: '/wɝːk aʊt/' }, back: { vi: 'tìm ra, hiểu ra', en: 'to understand something or decide something after thinking very carefully', ex: 'It took me a while to work out how to use the new software.', ex_vi: 'Tôi phải mất một lúc mới tìm ra cách sử dụng phần mềm mới.' } }
+        ];
+
+        let currentCardIndex = 0;
+        
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+            
+            cardFrontEl.innerHTML = `
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa}</p>
+            `;
+            
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+            
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+    </script>
+</body>
+</html>
