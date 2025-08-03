@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 8: Across the universe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem; /* rounded-xl */
+        }
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+    <!-- Chosen Palette: Calm Harmony Neutrals -->
+    <!-- Application Structure Plan: A digital flashcard application. The main view is a single, flippable card. Users can navigate sequentially with 'Previous'/'Next' buttons or test themselves with a 'Random' button. A progress counter shows their position. This structure directly translates the static report into an interactive, proven learning tool, focusing on the core user goal of vocabulary memorization and recall. -->
+    <!-- Visualization & Content Choices: Report Info: Vocabulary list. Goal: Learn & Recall. Viz/Presentation: Interactive flippable card. Interaction: Click to flip, buttons to navigate/shuffle. Justification: This method is the most intuitive and effective for learning flashcard content, promoting active recall over passive reading. Library/Method: HTML/CSS for structure and flip animation, Vanilla JS for logic and content rendering. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 8: Across the universe</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'allocate', ipa: '/ˈæl.ə.keɪt/' }, back: { vi: 'phân bổ', en: 'to give money, time, space, etc. to be used for a particular purpose', ex: 'The government will allocate funds for space exploration.', ex_vi: 'Chính phủ sẽ phân bổ ngân sách cho việc thám hiểm không gian.' } },
+            { front: { term: 'astronomer', ipa: '/əˈstrɑː.nə.mɚ/' }, back: { vi: 'nhà thiên văn học', en: 'someone who scientifically studies stars and planets', ex: 'The astronomer discovered a new comet using the telescope.', ex_vi: 'Nhà thiên văn học đã phát hiện một sao chổi mới bằng kính thiên văn.' } },
+            { front: { term: 'astronomy', ipa: '/əˈstrɑː.nə.mi/' }, back: { vi: 'thiên văn học', en: 'the scientific study of stars and planets', ex: 'He developed a passion for astronomy after visiting the planetarium.', ex_vi: 'Anh ấy đã nảy sinh niềm đam mê với thiên văn học sau khi đến thăm nhà mô hình vũ trụ.' } },
+            { front: { term: 'build a picture of something', ipa: '' }, back: { vi: 'xây dựng một bức tranh về', en: 'to gain an understanding of something', ex: 'The data helps scientists build a picture of the early universe.', ex_vi: 'Dữ liệu giúp các nhà khoa học xây dựng một bức tranh về vũ trụ sơ khai.' } },
+            { front: { term: 'chiefly', ipa: '/ˈtʃiːf.li/' }, back: { vi: 'chủ yếu', en: 'mainly', ex: 'The planet\'s atmosphere is composed chiefly of nitrogen.', ex_vi: 'Bầu khí quyển của hành tinh này chủ yếu bao gồm nitơ.' } },
+            { front: { term: 'comet', ipa: '/ˈkɑː.mət/' }, back: { vi: 'sao chổi', en: 'an object in space that leaves a bright line behind it in the sky', ex: 'We were lucky to see the comet as it passed by Earth.', ex_vi: 'Chúng tôi đã may mắn nhìn thấy sao chổi khi nó bay qua Trái đất.' } },
+            { front: { term: 'continuity', ipa: '/ˌkɑːn.təˈnuː.ə.t̬i/' }, back: { vi: 'sự liên tục', en: 'the state of continuing for a long period of time without changing or being stopped', ex: 'The theory suggests a continuity in the laws of physics throughout the universe.', ex_vi: 'Lý thuyết cho thấy sự liên tục trong các định luật vật lý trên toàn vũ trụ.' } },
+            { front: { term: 'cult following', ipa: '/kʌlt ˈfɑː.loʊ.ɪŋ/' }, back: { vi: 'lượng người hâm mộ cuồng nhiệt', en: 'a group of people who very much like a particular thing that most people do not know about', ex: 'The old sci-fi show has a cult following among fans.', ex_vi: 'Chương trình khoa học viễn tưởng cũ có một lượng người hâm mộ cuồng nhiệt.' } },
+            { front: { term: 'distract someone from something', ipa: '/dɪˈstrækt/' }, back: { vi: 'làm ai đó xao lãng khỏi', en: 'to take someone\'s attention away from something', ex: 'Don\'t let minor details distract you from the main goal of the mission.', ex_vi: 'Đừng để những chi tiết nhỏ làm bạn xao lãng khỏi mục tiêu chính của nhiệm vụ.' } },
+            { front: { term: 'divert something from something', ipa: '/daɪˈvɝːt/' }, back: { vi: 'chuyển hướng cái gì khỏi', en: 'to take someone\'s attention away from something', ex: 'They had to divert funds from other projects to the space program.', ex_vi: 'Họ đã phải chuyển hướng kinh phí từ các dự án khác sang chương trình không gian.' } },
+            { front: { term: 'domain', ipa: '/doʊˈmeɪn/' }, back: { vi: 'lĩnh vực', en: 'a particular subject or activity that someone controls or deals with', ex: 'Quantum physics is a complex domain of science.', ex_vi: 'Vật lý lượng tử là một lĩnh vực phức tạp của khoa học.' } },
+            { front: { term: 'early/ancient/modern, etc. civilisations', ipa: '/ˌsɪv.əl.əˈzeɪ.ʃənz/' }, back: { vi: 'các nền văn minh sơ khai/cổ đại/hiện đại', en: 'the cultures and ways of life of societies at particular times', ex: 'Ancient civilisations used the stars for navigation.', ex_vi: 'Các nền văn minh cổ đại đã sử dụng các vì sao để định hướng.' } },
+            { front: { term: 'the end result', ipa: '/ði end rɪˈzʌlt/' }, back: { vi: 'kết quả cuối cùng', en: 'the result of an activity', ex: 'The end result of the mission was a wealth of new data about Mars.', ex_vi: 'Kết quả cuối cùng của nhiệm vụ là một lượng lớn dữ liệu mới về sao Hỏa.' } },
+            { front: { term: 'evolve', ipa: '/ɪˈvɑːlv/' }, back: { vi: 'tiến hóa', en: 'to develop', ex: 'Scientists study how galaxies evolve over billions of years.', ex_vi: 'Các nhà khoa học nghiên cứu cách các thiên hà tiến hóa qua hàng tỷ năm.' } },
+            { front: { term: 'for the purpose(s) of something', ipa: '' }, back: { vi: 'với mục đích', en: 'in order to do something', ex: 'The satellite was launched for the purpose of studying weather patterns.', ex_vi: 'Vệ tinh được phóng lên với mục đích nghiên cứu các kiểu thời tiết.' } },
+            { front: { term: 'found', ipa: '/faʊnd/' }, back: { vi: 'thành lập', en: 'to start an organisation, especially by providing money', ex: 'The space agency was founded in 1958.', ex_vi: 'Cơ quan không gian được thành lập vào năm 1958.' } },
+            { front: { term: 'galaxy', ipa: '/ˈɡæl.ək.si/' }, back: { vi: 'thiên hà', en: 'a very large group of stars held together in the universe', ex: 'Our solar system is just a small part of the Milky Way galaxy.', ex_vi: 'Hệ mặt trời của chúng ta chỉ là một phần nhỏ của dải ngân hà Milky Way.' } },
+            { front: { term: 'geologist', ipa: '/dʒiˈɑː.lə.dʒɪst/' }, back: { vi: 'nhà địa chất học', en: 'someone who studies rocks and soil and the physical structure of the Earth', ex: 'The geologist studied rock samples from the Moon.', ex_vi: 'Nhà địa chất học đã nghiên cứu các mẫu đá từ Mặt trăng.' } },
+            { front: { term: 'gravitational force', ipa: '/ˌɡræv.ɪˈteɪ.ʃən.əl fɔːrs/' }, back: { vi: 'lực hấp dẫn', en: 'the force that makes objects fall to the ground or that pulls objects towards a planet or other body', ex: 'The Moon\'s gravitational force causes the tides on Earth.', ex_vi: 'Lực hấp dẫn của Mặt trăng gây ra thủy triều trên Trái đất.' } },
+            { front: { term: 'in collaboration with someone', ipa: '' }, back: { vi: 'hợp tác với ai đó', en: 'working together with someone', ex: 'The project was conducted in collaboration with NASA.', ex_vi: 'Dự án được thực hiện với sự hợp tác của NASA.' } },
+            { front: { term: 'in the sense that', ipa: '' }, back: { vi: 'theo nghĩa là', en: 'in the way of thinking that', ex: 'The mission was a success in the sense that it achieved all its primary objectives.', ex_vi: 'Nhiệm vụ đã thành công theo nghĩa là nó đã đạt được tất cả các mục tiêu chính.' } },
+            { front: { term: 'in turn', ipa: '/ɪn tɝːn/' }, back: { vi: 'đến lượt nó', en: 'as a result', ex: 'The discovery of water on Mars led, in turn, to new questions about life.', ex_vi: 'Việc phát hiện ra nước trên sao Hỏa, đến lượt nó, đã dẫn đến những câu hỏi mới về sự sống.' } },
+            { front: { term: 'intrinsic merit', ipa: '/ɪnˈtrɪn.zɪk ˈmer.ɪt/' }, back: { vi: 'giá trị nội tại', en: 'If something has intrinsic merit, it has qualities itself.', ex: 'The research has intrinsic merit, regardless of its practical applications.', ex_vi: 'Nghiên cứu này có giá trị nội tại, bất kể các ứng dụng thực tế của nó.' } },
+            { front: { term: 'introspective', ipa: '/ˌɪn.troʊˈspek.tɪv/' }, back: { vi: 'nội tâm', en: 'thinking a lot about your own thoughts and feelings and not communicating these to other people', ex: 'Stargazing can be a very introspective activity.', ex_vi: 'Ngắm sao có thể là một hoạt động rất nội tâm.' } },
+            { front: { term: 'launch', ipa: '/lɔːntʃ/' }, back: { vi: 'sự phóng (tàu)', en: 'the sending of a spacecraft into the sky', ex: 'The launch of the new telescope is scheduled for next year.', ex_vi: 'Việc phóng kính thiên văn mới được lên kế hoạch vào năm tới.' } },
+            { front: { term: 'lens', ipa: '/lenz/' }, back: { vi: 'ống kính', en: 'a curved piece of glass in cameras, glasses and scientific equipment used for looking at things', ex: 'The telescope\'s powerful lens can see distant galaxies.', ex_vi: 'Ống kính mạnh mẽ của kính thiên văn có thể nhìn thấy các thiên hà xa xôi.' } },
+            { front: { term: 'magnify', ipa: '/ˈmæɡ.nə.faɪ/' }, back: { vi: 'phóng đại', en: 'to make an object look larger than it is by looking through special equipment', ex: 'The microscope can magnify objects to 1000 times their actual size.', ex_vi: 'Kính hiển vi có thể phóng đại vật thể lên 1000 lần kích thước thực của chúng.' } },
+            { front: { term: 'make a contribution to something', ipa: '' }, back: { vi: 'đóng góp vào', en: 'to do something that helps something to develop or succeed', ex: 'Her work made a significant contribution to our understanding of the universe.', ex_vi: 'Công trình của bà đã có một đóng góp đáng kể vào sự hiểu biết của chúng ta về vũ trụ.' } },
+            { front: { term: 'means', ipa: '/miːnz/' }, back: { vi: 'phương tiện', en: 'a way of doing something', ex: 'A telescope is a means of observing distant objects.', ex_vi: 'Kính thiên văn là một phương tiện để quan sát các vật thể ở xa.' } },
+            { front: { term: 'minimise', ipa: '/ˈmɪn.ə.maɪz/' }, back: { vi: 'giảm thiểu', en: 'to reduce something to the least amount or level', ex: 'They took precautions to minimise the risks of the mission.', ex_vi: 'Họ đã thực hiện các biện pháp phòng ngừa để giảm thiểu rủi ro của nhiệm vụ.' } },
+            { front: { term: 'needless to say', ipa: '/ˈniːd.ləs tuː seɪ/' }, back: { vi: 'không cần phải nói', en: 'as you would expect', ex: 'Needless to say, travelling to another planet is extremely expensive.', ex_vi: 'Không cần phải nói, việc du hành đến một hành tinh khác là vô cùng tốn kém.' } },
+            { front: { term: 'obsessed with someone/something', ipa: '/əbˈsest wɪθ/' }, back: { vi: 'ám ảnh bởi', en: 'extremely interested in something', ex: 'He is completely obsessed with the idea of finding alien life.', ex_vi: 'Anh ấy hoàn toàn bị ám ảnh bởi ý tưởng tìm kiếm sự sống ngoài hành tinh.' } },
+            { front: { term: 'physiological', ipa: '/ˌfɪz.i.əˈlɑː.dʒɪ.kəl/' }, back: { vi: 'thuộc về sinh lý', en: 'relating to how the bodies of living things work', ex: 'The study examined the physiological effects of long-term space travel.', ex_vi: 'Nghiên cứu đã xem xét các tác động sinh lý của việc du hành không gian dài hạn.' } },
+            { front: { term: 'primarily', ipa: '/praɪˈmer.əl.i/' }, back: { vi: 'chủ yếu', en: 'mainly', ex: 'The mission is primarily focused on studying the atmosphere of Venus.', ex_vi: 'Nhiệm vụ chủ yếu tập trung vào việc nghiên cứu bầu khí quyển của sao Kim.' } },
+            { front: { term: 'realise', ipa: '/ˈriː.ə.laɪz/' }, back: { vi: 'hiện thực hóa', en: 'to achieve something', ex: 'He worked hard to realise his dream of becoming an astronaut.', ex_vi: 'Anh ấy đã làm việc chăm chỉ để hiện thực hóa ước mơ trở thành một phi hành gia.' } },
+            { front: { term: 'solar eclipse', ipa: '/ˈsoʊ.lɚ ɪˌklɪps/' }, back: { vi: 'nhật thực', en: 'an occasion when the Moon passes between the Sun and the Earth, and the Moon blocks the light from the Sun', ex: 'It is dangerous to look directly at a solar eclipse without protection.', ex_vi: 'Nhìn trực tiếp vào nhật thực mà không có sự bảo vệ là rất nguy hiểm.' } },
+            { front: { term: 'the solar system', ipa: '/ðə ˈsoʊ.lɚ ˌsɪs.təm/' }, back: { vi: 'hệ mặt trời', en: 'the sun and planets that move around it', ex: 'Our solar system consists of the Sun and eight planets.', ex_vi: 'Hệ mặt trời của chúng ta bao gồm Mặt trời và tám hành tinh.' } },
+            { front: { term: 'sustain', ipa: '/səˈsteɪn/' }, back: { vi: 'duy trì', en: 'to allow something to continue', ex: 'The planet\'s atmosphere is too thin to sustain life.', ex_vi: 'Bầu khí quyển của hành tinh này quá mỏng để duy trì sự sống.' } },
+            { front: { term: 'it is not uncommon for', ipa: '' }, back: { vi: 'không phải là hiếm khi', en: 'If you say it is not uncommon for something to happen, you mean it quite often happens.', ex: 'It is not uncommon for astronomers to discover new asteroids.', ex_vi: 'Việc các nhà thiên văn học phát hiện ra các tiểu hành tinh mới không phải là hiếm.' } },
+            { front: { term: 'undertake', ipa: '/ˌʌn.dɚˈteɪk/' }, back: { vi: 'đảm nhận', en: 'to be responsible for a project or task that will take a long time or be difficult', ex: 'She is about to undertake a challenging research project.', ex_vi: 'Cô ấy sắp đảm nhận một dự án nghiên cứu đầy thách thức.' } },
+            { front: { term: 'the universe', ipa: '/ðə ˈjuː.nə.vɝːs/' }, back: { vi: 'vũ trụ', en: 'everything that exists, including stars, space, etc.', ex: 'The universe is vast and full of mysteries.', ex_vi: 'Vũ trụ rộng lớn và đầy rẫy những bí ẩn.' } },
+            { front: { term: 'want nothing more than', ipa: '' }, back: { vi: 'không muốn gì hơn là', en: 'to want most of all to do something', ex: 'He wanted nothing more than to explore the stars.', ex_vi: 'Anh ấy không muốn gì hơn là được khám phá các vì sao.' } }
+        ];
+
+        let currentCardIndex = 0;
+        
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+            
+            cardFrontEl.innerHTML = `
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa}</p>
+            `;
+            
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+            
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+    </script>
+</body>
+</html>
