@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 2: People's lives</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem; /* rounded-xl */
+        }
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+    <!-- Chosen Palette: Calm Harmony Neutrals -->
+    <!-- Application Structure Plan: A digital flashcard application. The main view is a single, flippable card. Users can navigate sequentially with 'Previous'/'Next' buttons or test themselves with a 'Random' button. A progress counter shows their position. This structure directly translates the static report into an interactive, proven learning tool, focusing on the core user goal of vocabulary memorization and recall. -->
+    <!-- Visualization & Content Choices: Report Info: Vocabulary list. Goal: Learn & Recall. Viz/Presentation: Interactive flippable card. Interaction: Click to flip, buttons to navigate/shuffle. Justification: This method is the most intuitive and effective for learning flashcard content, promoting active recall over passive reading. Library/Method: HTML/CSS for structure and flip animation, Vanilla JS for logic and content rendering. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 2: People's lives</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'account', ipa: '/əˈkaʊnt/' }, back: { vi: 'bản tường thuật, lời kể', en: 'a written or spoken description of something that has happened', ex: 'He gave a detailed account of the incident to the police.', ex_vi: 'Anh ấy đã đưa ra một bản tường thuật chi tiết về vụ việc cho cảnh sát.' } },
+            { front: { term: 'ancient', ipa: '/ˈeɪn.ʃənt/' }, back: { vi: 'cổ xưa, cổ đại', en: 'from a long time ago', ex: 'We visited the ancient ruins of a Roman temple.', ex_vi: 'Chúng tôi đã đến thăm những tàn tích cổ xưa của một ngôi đền La Mã.' } },
+            { front: { term: 'award', ipa: '/əˈwɔːrd/' }, back: { vi: 'trao giải, trao thưởng', en: 'to officially give someone something such as a prize or an amount of money', ex: 'The committee decided to award her first prize for her essay.', ex_vi: 'Ủy ban đã quyết định trao giải nhất cho cô ấy vì bài luận của mình.' } },
+            { front: { term: 'benefit', ipa: '/ˈben.ə.fɪt/' }, back: { vi: 'lợi ích, phúc lợi', en: 'something that helps you or gives you an advantage', ex: 'The new park will be a great benefit to the whole community.', ex_vi: 'Công viên mới sẽ là một lợi ích lớn cho toàn bộ cộng đồng.' } },
+            { front: { term: 'combine', ipa: '/kəmˈbaɪn/' }, back: { vi: 'kết hợp, phối hợp', en: 'to mix or join things together', ex: 'To make the sauce, combine the ingredients in a bowl.', ex_vi: 'Để làm nước sốt, hãy kết hợp các nguyên liệu trong một cái bát.' } },
+            { front: { term: 'commentary', ipa: '/ˈkɑː.mən.ter.i/' }, back: { vi: 'bài bình luận', en: 'a description or discussion of an event', ex: 'The book includes a commentary on the historical events of the period.', ex_vi: 'Cuốn sách bao gồm một bài bình luận về các sự kiện lịch sử của thời kỳ đó.' } },
+            { front: { term: 'community', ipa: '/kəˈmjuː.nə.t̬i/' }, back: { vi: 'cộng đồng', en: 'the people living in a particular area', ex: 'The local community organized a festival to raise money for the school.', ex_vi: 'Cộng đồng địa phương đã tổ chức một lễ hội để quyên tiền cho trường học.' } },
+            { front: { term: 'compass', ipa: '/ˈkʌm.pəs/' }, back: { vi: 'la bàn', en: 'a piece of equipment which shows you which direction you are going in', ex: 'The hikers used a compass to find their way back to the trail.', ex_vi: 'Những người đi bộ đường dài đã sử dụng la bàn để tìm đường trở lại con đường mòn.' } },
+            { front: { term: 'context', ipa: '/ˈkɑːn.tekst/' }, back: { vi: 'bối cảnh, ngữ cảnh', en: 'all the facts, opinions, situations, etc. relating to a particular thing or event', ex: 'You have to understand the historical context of the novel.', ex_vi: 'Bạn phải hiểu bối cảnh lịch sử của cuốn tiểu thuyết.' } },
+            { front: { term: 'definition', ipa: '/ˌdef.ɪˈnɪʃ.ən/' }, back: { vi: 'định nghĩa', en: 'an explanation of the meaning of a word or phrase', ex: 'The dictionary provides a clear definition for each word.', ex_vi: 'Từ điển cung cấp một định nghĩa rõ ràng cho mỗi từ.' } },
+            { front: { term: 'degree', ipa: '/dɪˈɡriː/' }, back: { vi: 'bằng cấp', en: 'a qualification given for completing a university course', ex: 'She earned a degree in chemistry from a top university.', ex_vi: 'Cô ấy đã lấy bằng hóa học từ một trường đại học hàng đầu.' } },
+            { front: { term: 'establish', ipa: '/ɪˈstæb.lɪʃ/' }, back: { vi: 'thành lập, thiết lập', en: 'to make something start to exist or happen', ex: 'The company was established in 1950.', ex_vi: 'Công ty được thành lập vào năm 1950.' } },
+            { front: { term: 'eventually', ipa: '/ɪˈven.tʃu.ə.li/' }, back: { vi: 'cuối cùng, rốt cuộc', en: 'in the end, especially after a long time', ex: 'After years of hard work, he eventually became a successful writer.', ex_vi: 'Sau nhiều năm làm việc chăm chỉ, cuối cùng anh ấy đã trở thành một nhà văn thành công.' } },
+            { front: { term: 'expedition', ipa: '/ˌek.spəˈdɪʃ.ən/' }, back: { vi: 'cuộc thám hiểm', en: 'an organised journey, especially a long one for a particular purpose', ex: 'They are planning an expedition to the Antarctic.', ex_vi: 'Họ đang lên kế hoạch cho một cuộc thám hiểm đến Nam Cực.' } },
+            { front: { term: 'experiment', ipa: '/ɪkˈsper.ə.mənt/' }, back: { vi: 'thí nghiệm', en: 'a test, especially a scientific one, that you do in order to learn something or discover if something is true', ex: 'The students conducted an experiment to test the effects of acid rain.', ex_vi: 'Các sinh viên đã tiến hành một thí nghiệm để kiểm tra tác động của mưa axit.' } },
+            { front: { term: 'extensive', ipa: '/ɪkˈsten.sɪv/' }, back: { vi: 'sâu rộng, bao quát', en: 'large in amount or size', ex: 'He has an extensive knowledge of art history.', ex_vi: 'Anh ấy có kiến thức sâu rộng về lịch sử nghệ thuật.' } },
+            { front: { term: 'formal education', ipa: '/ˈfɔːr.məl ˌedʒ.əˈkeɪ.ʃən/' }, back: { vi: 'giáo dục chính quy', en: 'Formal education happens in a school, college or university.', ex: 'She has little formal education, but she is a brilliant businesswoman.', ex_vi: 'Cô ấy có ít học vấn chính quy, nhưng cô ấy là một nữ doanh nhân xuất sắc.' } },
+            { front: { term: 'generation', ipa: '/ˌdʒen.əˈreɪ.ʃən/' }, back: { vi: 'thế hệ', en: 'all the people in a society or family who are approximately the same age', ex: 'The younger generation is very comfortable with new technology.', ex_vi: 'Thế hệ trẻ rất thoải mái với công nghệ mới.' } },
+            { front: { term: 'individual', ipa: '/ˌɪn.dəˈvɪdʒ.u.əl/' }, back: { vi: 'cá nhân, riêng lẻ', en: 'considered separately from other things in a group', ex: 'We should respect the rights of every individual.', ex_vi: 'Chúng ta nên tôn trọng quyền của mỗi cá nhân.' } },
+            { front: { term: 'interrupt', ipa: '/ˌɪn.təˈrʌpt/' }, back: { vi: 'làm gián đoạn, ngắt lời', en: 'to stop an action or activity, usually for a short period of time', ex: 'Please don\'t interrupt me while I\'m speaking.', ex_vi: 'Làm ơn đừng ngắt lời tôi khi tôi đang nói.' } },
+            { front: { term: 'memorise', ipa: '/ˈmem.ə.raɪz/' }, back: { vi: 'ghi nhớ, học thuộc lòng', en: 'to learn something so that you remember it exactly', ex: 'Actors have to memorise all their lines for the play.', ex_vi: 'Diễn viên phải học thuộc lòng tất cả lời thoại của họ cho vở kịch.' } },
+            { front: { term: 'preserve', ipa: '/prəˈzɜːrv/' }, back: { vi: 'bảo tồn, gìn giữ', en: 'to keep something the same or prevent it from being damaged or destroyed', ex: 'It\'s important to preserve historical buildings for future generations.', ex_vi: 'Điều quan trọng là phải bảo tồn các tòa nhà lịch sử cho các thế hệ tương lai.' } },
+            { front: { term: 'prove', ipa: '/pruːv/' }, back: { vi: 'chứng minh', en: 'to show that something is true', ex: 'You need to prove your identity before you can enter.', ex_vi: 'Bạn cần phải chứng minh danh tính của mình trước khi có thể vào.' } },
+            { front: { term: 'regard as', ipa: '/rɪˈɡɑːrd æz/' }, back: { vi: 'coi như, xem như', en: 'to think of something in a particular way', ex: 'He is widely regarded as one of the best writers of his time.', ex_vi: 'Ông được nhiều người coi là một trong những nhà văn xuất sắc nhất của thời đại mình.' } },
+            { front: { term: 'save money', ipa: '/seɪv ˈmʌn.i/' }, back: { vi: 'tiết kiệm tiền', en: 'to keep money so that you can buy something with it in the future', ex: 'I\'m trying to save money for a new car.', ex_vi: 'Tôi đang cố gắng tiết kiệm tiền để mua một chiếc ô tô mới.' } },
+            { front: { term: 'skill', ipa: '/skɪl/' }, back: { vi: 'kỹ năng', en: 'the ability to do an activity or job well, especially because you have practised it', ex: 'Communication is a very important skill in any job.', ex_vi: 'Giao tiếp là một kỹ năng rất quan trọng trong bất kỳ công việc nào.' } },
+            { front: { term: 'support', ipa: '/səˈpɔːrt/' }, back: { vi: 'ủng hộ, hỗ trợ', en: 'to help and be kind to someone when they have problems', ex: 'My family always supports me in everything I do.', ex_vi: 'Gia đình tôi luôn ủng hộ tôi trong mọi việc tôi làm.' } },
+            { front: { term: 'technique', ipa: '/tekˈniːk/' }, back: { vi: 'kỹ thuật, phương pháp', en: 'a particular or special way of doing something', ex: 'She has developed a new technique for painting with watercolors.', ex_vi: 'Cô ấy đã phát triển một kỹ thuật mới để vẽ bằng màu nước.' } },
+            { front: { term: 'traditional', ipa: '/trəˈdɪʃ.ən.əl/' }, back: { vi: 'truyền thống', en: 'following the customs or ways of behaving that have continued in a group of people or society for a long time', ex: 'We had a traditional Vietnamese meal for the holiday.', ex_vi: 'Chúng tôi đã có một bữa ăn truyền thống của Việt Nam vào ngày lễ.' } },
+            { front: { term: 'voyage', ipa: '/ˈvɔɪ.ɪdʒ/' }, back: { vi: 'chuyến đi xa (bằng đường biển)', en: 'a long journey, especially by ship', ex: 'The long voyage across the Atlantic took several weeks.', ex_vi: 'Chuyến đi dài qua Đại Tây Dương mất vài tuần.' } },
+            { front: { term: 'wave', ipa: '/weɪv/' }, back: { vi: 'sóng', en: 'a line of higher water that moves across the surface of a sea or lake', ex: 'The surfers rode the huge waves to the shore.', ex_vi: 'Những người lướt sóng đã cưỡi những con sóng khổng lồ vào bờ.' } }
+        ];
+
+        let currentCardIndex = 0;
+        
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+            
+            cardFrontEl.innerHTML = `
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa}</p>
+            `;
+            
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+            
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+    </script>
+</body>
+</html>
