@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 7: Money</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem;
+            /* rounded-xl */
+        }
+
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+
+</head>
+
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 7: Money</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn"
+                    class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn"
+                    class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn"
+                    class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'Bargain', ipa: '/ˈbɑːr.ɡən/' }, back: { vi: 'Món hời', en: 'A thing bought or offered for sale much more cheaply than is usual or expected.', synonym: 'Deal, Steal', synonym_vi: 'thỏa thuận tốt, món hời lớn', ex: 'This coat was a real bargain.', ex_vi: 'Chiếc áo khoác này đúng là một món hời.' } },
+            { front: { term: 'Coupons', ipa: '/ˈkuː.pɑːnz/' }, back: { vi: 'Phiếu giảm giá', en: 'A voucher entitling the holder to a discount for a particular product.', synonym: 'Voucher, Discount Ticket', synonym_vi: 'phiếu ưu đãi, vé giảm giá', ex: 'I used a coupon to get 20% off.', ex_vi: 'Tôi đã dùng một phiếu giảm giá để được giảm 20%.' } },
+            { front: { term: 'Discount', ipa: '/ˈdɪs.kaʊnt/' }, back: { vi: 'Giảm giá', en: 'A deduction from the usual cost of something.', synonym: 'Price Reduction, Markdown', synonym_vi: 'giảm giá, sự giảm giá', ex: 'They offer a 10% discount for students.', ex_vi: 'Họ có chương trình giảm giá 10% cho sinh viên.' } },
+            { front: { term: 'Discount code', ipa: '/ˈdɪs.kaʊnt koʊd/' }, back: { vi: 'Mã giảm giá', en: 'A code made up of letters or numbers that consumers can enter into a promotional box on a site’s shopping cart to obtain a discount.', synonym: 'Promo Code, Voucher Code', synonym_vi: 'mã khuyến mãi, mã phiếu giảm giá', ex: 'Enter the discount code at checkout.', ex_vi: 'Nhập mã giảm giá khi thanh toán.' } },
+            { front: { term: 'Price tag', ipa: '/ˈpraɪs ˌtæɡ/' }, back: { vi: 'Nhãn giá', en: 'A label on something for sale, showing its price.', synonym: 'Label, Cost Marker', synonym_vi: 'nhãn, dấu hiệu giá', ex: 'The price tag on the jacket was too high.', ex_vi: 'Nhãn giá trên chiếc áo khoác quá cao.' } },
+            { front: { term: 'Receipt', ipa: '/rɪˈsiːt/' }, back: { vi: 'Biên lai', en: 'A written or printed statement acknowledging that something has been paid for or that goods have been received.', synonym: 'Bill, Proof of Purchase', synonym_vi: 'hóa đơn, bằng chứng mua hàng', ex: 'Always keep your receipt in case you need to return something.', ex_vi: 'Luôn giữ biên lai của bạn phòng trường hợp bạn cần trả lại hàng.' } },
+            { front: { term: 'Refund', ipa: '/ˈriː.fʌnd/' }, back: { vi: 'Hoàn tiền', en: 'A repayment of a sum of money.', synonym: 'Repayment, Reimbursement', synonym_vi: 'sự trả lại tiền, hoàn trả', ex: 'You can get a full refund if you return the item within 30 days.', ex_vi: 'Bạn có thể được hoàn tiền đầy đủ nếu bạn trả lại hàng trong vòng 30 ngày.' } },
+            { front: { term: 'Sale', ipa: '/seɪl/' }, back: { vi: 'Giảm giá, khuyến mãi', en: 'A period during which a shop or dealer sells goods at reduced prices.', synonym: 'Clearance, Discount Event', synonym_vi: 'thanh lý, sự kiện giảm giá', ex: 'I bought these shoes in the winter sale.', ex_vi: 'Tôi đã mua đôi giày này trong đợt giảm giá mùa đông.' } },
+            { front: { term: 'Special offer', ipa: '/ˌspeʃ.əl ˈɑː.fɚ/' }, back: { vi: 'Ưu đãi đặc biệt', en: 'A low price or gift offered by a shop to attract customers.', synonym: 'Promotion, Deal', synonym_vi: 'khuyến mãi, thỏa thuận ưu đãi', ex: 'The supermarket has a special offer on coffee this week.', ex_vi: 'Siêu thị có ưu đãi đặc biệt cho cà phê trong tuần này.' } },
+            { front: { term: 'Butcher\'s', ipa: '/ˈbʊtʃ.ɚz/' }, back: { vi: 'Cửa hàng thịt', en: 'A shop where butchers sell meat.', synonym: 'Meat Shop, Slaughterhouse', synonym_vi: 'cửa hàng thịt, lò mổ', ex: 'I bought some fresh sausages from the butcher\'s.', ex_vi: 'Tôi đã mua một ít xúc xích tươi từ cửa hàng thịt.' } },
+            { front: { term: 'Charity shop', ipa: '/ˈtʃer.ə.t̬i ʃɑːp/' }, back: { vi: 'Cửa hàng từ thiện', en: 'A shop selling secondhand goods on behalf of a charity.', synonym: 'Thrift Store, Donation Store', synonym_vi: 'cửa hàng đồ cũ, cửa hàng quyên góp', ex: 'You can find some great bargains in a charity shop.', ex_vi: 'Bạn có thể tìm thấy một số món hời tuyệt vời trong một cửa hàng từ thiện.' } },
+            { front: { term: 'Chemist\'s', ipa: '/ˈkem.ɪsts/' }, back: { vi: 'Hiệu thuốc', en: 'A shop where medicinal drugs are dispensed and sold.', synonym: 'Pharmacy, Drugstore', synonym_vi: 'nhà thuốc, tiệm thuốc', ex: 'I need to go to the chemist\'s to pick up my prescription.', ex_vi: 'Tôi cần đến hiệu thuốc để lấy thuốc theo toa.' } },
+            { front: { term: 'Clothes shop', ipa: '/kloʊðz ʃɑːp/' }, back: { vi: 'Cửa hàng quần áo', en: 'A shop that sells clothes.', synonym: 'Boutique, Apparel Store', synonym_vi: 'cửa hàng thời trang, cửa hàng quần áo', ex: 'There\'s a new clothes shop opening in the mall.', ex_vi: 'Có một cửa hàng quần áo mới sắp mở trong trung tâm thương mại.' } },
+            { front: { term: 'Cosmetics store', ipa: '/kɑːzˈmet̬.ɪks stɔːr/' }, back: { vi: 'Cửa hàng mỹ phẩm', en: 'A shop that sells cosmetics.', synonym: 'Beauty Store, Makeup Shop', synonym_vi: 'cửa hàng làm đẹp, tiệm trang điểm', ex: 'She works at a cosmetics store in the city center.', ex_vi: 'Cô ấy làm việc tại một cửa hàng mỹ phẩm ở trung tâm thành phố.' } },
+            { front: { term: 'Deli (delicatessen)', ipa: '/ˈdel.i/' }, back: { vi: 'Cửa hàng đồ ăn sẵn', en: 'A shop selling cooked meats, cheeses, and unusual or foreign foods.', synonym: 'Delicatessen, Gourmet Shop', synonym_vi: 'tiệm đồ ăn nhanh, cửa hàng đồ ăn ngon', ex: 'I bought a delicious sandwich from the deli.', ex_vi: 'Tôi đã mua một chiếc bánh sandwich ngon từ cửa hàng đồ ăn sẵn.' } },
+            { front: { term: 'DIY store', ipa: '/ˌdiː.aɪˈwaɪ stɔːr/' }, back: { vi: 'Cửa hàng tự làm (DIY)', en: 'A store that sells materials and equipment for do-it-yourself home improvement.', synonym: 'Hardware Store, Home Improvement Store', synonym_vi: 'cửa hàng đồ gia dụng, cửa hàng cải thiện nhà cửa', ex: 'We need to go to the DIY store to buy some paint.', ex_vi: 'Chúng tôi cần đến cửa hàng DIY để mua một ít sơn.' } },
+            { front: { term: 'Estate agent\'s', ipa: '/ɪˈsteɪt ˌeɪ.dʒənts/' }, back: { vi: 'Văn phòng bất động sản', en: 'An office that helps people buy, sell, or rent property.', synonym: 'Real Estate Office, Property Agent', synonym_vi: 'văn phòng môi giới nhà đất, người môi giới bất động sản', ex: 'We are meeting the estate agent\'s to view a house.', ex_vi: 'Chúng tôi sẽ gặp văn phòng bất động sản để xem một ngôi nhà.' } },
+            { front: { term: 'Florist\'s', ipa: '/ˈflɔːr.ɪsts/' }, back: { vi: 'Cửa hàng hoa', en: 'A shop that sells flowers and plants.', synonym: 'Flower Shop, Floral Boutique', synonym_vi: 'tiệm hoa, tiệm bán hoa', ex: 'He bought a beautiful bouquet from the florist\'s.', ex_vi: 'Anh ấy đã mua một bó hoa đẹp từ cửa hàng hoa.' } },
+            { front: { term: 'Launderette', ipa: '/ˌlɔːn.drˈet/' }, back: { vi: 'Tiệm giặt là', en: 'A place where you can wash and dry your clothes in machines that you operate by putting in coins.', synonym: 'Laundry, Coin Laundry', synonym_vi: 'tiệm giặt, tiệm giặt bằng xu', ex: 'I need to take my clothes to the launderette.', ex_vi: 'Tôi cần mang quần áo của mình đến tiệm giặt là.' } },
+            { front: { term: 'Takeaway', ipa: '/ˈteɪk.ə.weɪ/' }, back: { vi: 'Quán ăn mang về', en: 'A restaurant or shop selling cooked food to be eaten elsewhere.', synonym: 'Takeout, Fast Food', synonym_vi: 'mang đi, đồ ăn nhanh', ex: 'Let\'s get a Chinese takeaway tonight.', ex_vi: 'Tối nay chúng ta hãy mua đồ ăn Trung Quốc mang về nhé.' } }
+        ];
+
+        let currentCardIndex = 0;
+
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+
+            cardFrontEl.innerHTML = `
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa || ''}</p>
+            `;
+
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Synonyms:</strong> <span class="text-stone-600">${card.back.synonym} ("${card.back.synonym_vi}")</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+        document.addEventListener("keydown", function (e) {
+
+            if (
+                e.key === "F12" ||
+                (e.ctrlKey && e.shiftKey && e.key === "I") ||
+                (e.ctrlKey && e.shiftKey && e.key === "J") ||
+                (e.ctrlKey && e.shiftKey && e.key === "C") ||
+                (e.ctrlKey && e.key === "u") ||
+                (e.ctrlKey && e.key === "p") ||
+                (e.ctrlKey && e.key === "s")
+
+            ) {
+                e.preventDefault();
+
+                return false;
+            }
+        });
+
+
+        document.addEventListener("contextmenu", function (e) {
+            e.preventDefault();
+            return false;
+        });
+
+    </script>
+</body>
+
+</html>

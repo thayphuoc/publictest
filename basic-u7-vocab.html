@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 7: Digital world</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem;
+            /* rounded-xl */
+        }
+
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+
+</head>
+
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 7: Digital world</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn"
+                    class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn"
+                    class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn"
+                    class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'Computer', ipa: '/kəmˈpjuː.t̬ɚ/' }, back: { vi: 'máy tính', en: 'An electronic device for storing and processing data.', synonym: 'PC', synonym_vi: 'máy tính cá nhân', ex: 'I use my computer for work and entertainment.', ex_vi: 'Tôi sử dụng máy tính cho công việc và giải trí.' } },
+            { front: { term: 'Internet', ipa: '/ˈɪn.t̬ɚ.net/' }, back: { vi: 'Internet', en: 'A global computer network providing a variety of information and communication facilities.', synonym: 'web', synonym_vi: 'mạng lưới toàn cầu', ex: 'The internet has changed the way we live and work.', ex_vi: 'Internet đã thay đổi cách chúng ta sống và làm việc.' } },
+            { front: { term: 'Website', ipa: '/ˈweb.saɪt/' }, back: { vi: 'trang web', en: 'A set of related web pages located under a single domain name.', synonym: 'site', synonym_vi: 'nền tảng trực tuyến', ex: 'The company has just launched its new website.', ex_vi: 'Công ty vừa ra mắt trang web mới của mình.' } },
+            { front: { term: 'Email', ipa: '/ˈiː.meɪl/' }, back: { vi: 'email', en: 'Messages distributed by electronic means from one computer user to one or more recipients via a network.', synonym: 'electronic mail', synonym_vi: 'thư điện tử', ex: 'Please send me the report by email.', ex_vi: 'Vui lòng gửi cho tôi báo cáo qua email.' } },
+            { front: { term: 'Social media', ipa: '/ˈsoʊ.ʃəl ˈmiː.di.ə/' }, back: { vi: 'mạng xã hội', en: 'Websites and applications that enable users to create and share content or to participate in social networking.', synonym: 'social networks', synonym_vi: 'mạng lưới xã hội', ex: 'Many people use social media to stay in touch with friends.', ex_vi: 'Nhiều người sử dụng mạng xã hội để giữ liên lạc với bạn bè.' } },
+            { front: { term: 'Smartphone', ipa: '/ˈsmɑːrt.foʊn/' }, back: { vi: 'điện thoại thông minh', en: 'A mobile phone that performs many of the functions of a computer.', synonym: 'mobile phone', synonym_vi: 'điện thoại di động', ex: 'You can do almost anything on a smartphone these days.', ex_vi: 'Ngày nay bạn có thể làm hầu hết mọi thứ trên điện thoại thông minh.' } },
+            { front: { term: 'Tablet', ipa: '/ˈtæb.lət/' }, back: { vi: 'máy tính bảng', en: 'A portable computer with a touchscreen display.', synonym: 'touch screen device', synonym_vi: 'thiết bị màn hình cảm ứng', ex: 'A tablet is great for watching movies on the go.', ex_vi: 'Máy tính bảng rất tuyệt để xem phim khi di chuyển.' } },
+            { front: { term: 'App', ipa: '/æp/' }, back: { vi: 'ứng dụng', en: 'A self-contained program or piece of software designed to fulfill a particular purpose.', synonym: 'application', synonym_vi: 'phần mềm', ex: 'There\'s an app for almost everything now.', ex_vi: 'Bây giờ có một ứng dụng cho hầu hết mọi thứ.' } },
+            { front: { term: 'Software', ipa: '/ˈsɑːft.wer/' }, back: { vi: 'phần mềm', en: 'The programs and other operating information used by a computer.', synonym: 'program', synonym_vi: 'chương trình', ex: 'You need to install the latest software update.', ex_vi: 'Bạn cần cài đặt bản cập nhật phần mềm mới nhất.' } },
+            { front: { term: 'Hardware', ipa: '/ˈhɑːrd.wer/' }, back: { vi: 'phần cứng', en: 'The physical parts of a computer system.', synonym: 'physical components', synonym_vi: 'các thành phần vật lý', ex: 'If the hardware is too old, the new software may not run properly.', ex_vi: 'Nếu phần cứng quá cũ, phần mềm mới có thể không chạy đúng cách.' } },
+            { front: { term: 'Cloud storage', ipa: '/klaʊd ˈstɔːr.ɪdʒ/' }, back: { vi: 'lưu trữ đám mây', en: 'A model of computer data storage in which the digital data is stored in logical pools.', synonym: 'online storage', synonym_vi: 'lưu trữ trực tuyến', ex: 'I use cloud storage to back up all my important files.', ex_vi: 'Tôi sử dụng lưu trữ đám mây để sao lưu tất cả các tệp quan trọng của mình.' } },
+            { front: { term: 'Digital camera', ipa: '/ˈdɪdʒ.ə.t̬əl ˈkæm.rə/' }, back: { vi: 'máy ảnh kỹ thuật số', en: 'A camera that captures photographs in digital memory.', synonym: 'DSLR', synonym_vi: 'máy ảnh kỹ thuật số', ex: 'A digital camera allows you to see the photo right after you take it.', ex_vi: 'Máy ảnh kỹ thuật số cho phép bạn xem ảnh ngay sau khi chụp.' } },
+            { front: { term: 'Wi-Fi', ipa: '/ˈwaɪ.faɪ/' }, back: { vi: 'Wi-Fi', en: 'A facility allowing computers, smartphones, or other devices to connect to the Internet or communicate with one another wirelessly.', synonym: 'wireless internet', synonym_vi: 'Internet không dây', ex: 'Is there free Wi-Fi in this cafe?', ex_vi: 'Quán cà phê này có Wi-Fi miễn phí không?' } },
+            { front: { term: 'Password', ipa: '/ˈpæs.wɝːd/' }, back: { vi: 'mật khẩu', en: 'A secret word or phrase that must be used to gain admission to something.', synonym: 'passcode', synonym_vi: 'mã truy cập', ex: 'You should choose a strong password for your online accounts.', ex_vi: 'Bạn nên chọn một mật khẩu mạnh cho các tài khoản trực tuyến của mình.' } },
+            { front: { term: 'Encryption', ipa: '/ɪnˈkrɪp.ʃən/' }, back: { vi: 'mã hóa', en: 'The process of converting information or data into a code to prevent unauthorized access.', synonym: 'data protection', synonym_vi: 'bảo vệ dữ liệu', ex: 'Encryption is important for protecting sensitive information.', ex_vi: 'Mã hóa rất quan trọng để bảo vệ thông tin nhạy cảm.' } },
+            { front: { term: 'Virtual reality', ipa: '/ˌvɝː.tʃu.əl riˈæl.ə.t̬i/' }, back: { vi: 'thực tế ảo', en: 'The computer-generated simulation of a three-dimensional image or environment that can be interacted with in a seemingly real or physical way.', synonym: 'VR', synonym_vi: 'thực tế ảo', ex: 'Virtual reality games are becoming more and more realistic.', ex_vi: 'Các trò chơi thực tế ảo ngày càng trở nên chân thực hơn.' } },
+            { front: { term: 'Augmented reality', ipa: '/ɔːɡˌmen.t̬ɪd riˈæl.ə.t̬i/' }, back: { vi: 'thực tế tăng cường', en: 'A technology that superimposes a computer-generated image on a user\'s view of the real world.', synonym: 'AR', synonym_vi: 'thực tế tăng cường', ex: 'Augmented reality apps can help you visualize furniture in your room.', ex_vi: 'Các ứng dụng thực tế tăng cường có thể giúp bạn hình dung đồ nội thất trong phòng của mình.' } },
+            { front: { term: 'Streaming', ipa: '/ˈstriː.mɪŋ/' }, back: { vi: 'phát trực tuyến', en: 'A method of transmitting or receiving data (especially video and audio material) over a computer network as a steady, continuous flow.', synonym: 'live broadcasting', synonym_vi: 'phát sóng trực tiếp', ex: 'I enjoy streaming movies on the weekend.', ex_vi: 'Tôi thích xem phim trực tuyến vào cuối tuần.' } },
+            { front: { term: 'Cybersecurity', ipa: '/ˈsaɪ.bɚ.səˌkjʊr.ə.t̬i/' }, back: { vi: 'an ninh mạng', en: 'The state of being protected against the criminal or unauthorized use of electronic data.', synonym: 'IT security', synonym_vi: 'bảo mật công nghệ thông tin', ex: 'Cybersecurity is a major concern for all online businesses.', ex_vi: 'An ninh mạng là một mối quan tâm lớn đối với tất cả các doanh nghiệp trực tuyến.' } },
+            { front: { term: 'E-commerce', ipa: '/ˈiːˌkɑː.mɝːs/' }, back: { vi: 'thương mại điện tử', en: 'Commercial transactions conducted electronically on the Internet.', synonym: 'online shopping', synonym_vi: 'mua sắm trực tuyến', ex: 'E-commerce has made it possible to buy almost anything online.', ex_vi: 'Thương mại điện tử đã giúp bạn có thể mua hầu hết mọi thứ trực tuyến.' } }
+        ];
+
+        let currentCardIndex = 0;
+
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+
+            cardFrontEl.innerHTML = `
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa || ''}</p>
+            `;
+
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Synonym:</strong> <span class="text-stone-600">${card.back.synonym} ("${card.back.synonym_vi}")</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+
+        document.addEventListener("keydown", function (e) {
+
+            if (
+                e.key === "F12" ||
+                (e.ctrlKey && e.shiftKey && e.key === "I") ||
+                (e.ctrlKey && e.shiftKey && e.key === "J") ||
+                (e.ctrlKey && e.shiftKey && e.key === "C") ||
+                (e.ctrlKey && e.key === "u") ||
+                (e.ctrlKey && e.key === "p") ||
+                (e.ctrlKey && e.key === "s")
+
+            ) {
+                e.preventDefault();
+
+                return false;
+            }
+        });
+
+
+        document.addEventListener("contextmenu", function (e) {
+            e.preventDefault();
+            return false;
+        });
+
+    </script>
+</body>
+
+</html>

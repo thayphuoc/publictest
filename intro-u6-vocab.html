@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 6: Tourism</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem;
+            /* rounded-xl */
+        }
+
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+
+</head>
+
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 6: Tourism</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn"
+                    class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn"
+                    class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn"
+                    class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'Aquarium', ipa: '/əˈkwer.i.əm/' }, back: { vi: 'Thủy cung', en: 'A transparent tank of water in which fish and other water creatures are kept.', synonym: 'Marine Exhibit, Fish Tank', synonym_vi: 'triển lãm sinh vật biển, bể cá', ex: 'The children loved watching the sharks at the aquarium.', ex_vi: 'Bọn trẻ thích xem cá mập ở thủy cung.' } },
+            { front: { term: 'Botanical gardens', ipa: '/bəˌtæn.ɪ.kəl ˈɡɑːr.dənz/' }, back: { vi: 'Vườn bách thảo', en: 'A place where plants, trees, and flowers are grown for scientific study and for people to look at.', synonym: 'Arboretum, Conservatory', synonym_vi: 'vườn cây, nhà kính trồng cây', ex: 'We spent the afternoon walking through the beautiful botanical gardens.', ex_vi: 'Chúng tôi đã dành buổi chiều đi dạo qua khu vườn bách thảo xinh đẹp.' } },
+            { front: { term: 'Castle', ipa: '/ˈkæs.əl/' }, back: { vi: 'Lâu đài', en: 'A large strong building, built in the past to protect the people inside from attack.', synonym: 'Fortress, Citadel', synonym_vi: 'pháo đài, thành trì', ex: 'The old castle stands on a hill overlooking the town.', ex_vi: 'Lâu đài cổ đứng trên một ngọn đồi nhìn ra thị trấn.' } },
+            { front: { term: 'Cathedral', ipa: '/kəˈθiː.drəl/' }, back: { vi: 'Nhà thờ lớn', en: 'The main church of a district, under the care of a bishop.', synonym: 'Temple, Church', synonym_vi: 'đền thờ, nhà thờ', ex: 'The cathedral is famous for its stunning stained-glass windows.', ex_vi: 'Nhà thờ lớn nổi tiếng với những cửa sổ kính màu tuyệt đẹp.' } },
+            { front: { term: 'Fountain', ipa: '/ˈfaʊn.tən/' }, back: { vi: 'Đài phun nước', en: 'A structure that sends a stream of water into the air.', synonym: 'Water Feature, Spring', synonym_vi: 'tác phẩm nước, suối', ex: 'People were making wishes at the fountain.', ex_vi: 'Mọi người đang ước nguyện tại đài phun nước.' } },
+            { front: { term: 'Harbour', ipa: '/ˈhɑːr.bɚ/' }, back: { vi: 'Bến cảng', en: 'An area of water next to the coast where ships and boats can shelter.', synonym: 'Port, Dock', synonym_vi: 'cảng, bến tàu', ex: 'The harbour was full of fishing boats.', ex_vi: 'Bến cảng đầy những chiếc thuyền đánh cá.' } },
+            { front: { term: 'Museum', ipa: '/mjuːˈziː.əm/' }, back: { vi: 'Bảo tàng', en: 'A building where important objects connected with art, history, or science are kept and shown.', synonym: 'Gallery, Exhibit Hall', synonym_vi: 'phòng trưng bày, phòng triển lãm', ex: 'We learned a lot about ancient history at the museum.', ex_vi: 'Chúng tôi đã học được rất nhiều về lịch sử cổ đại tại bảo tàng.' } },
+            { front: { term: 'National park', ipa: '/ˌnæʃ.ən.əl ˈpɑːrk/' }, back: { vi: 'Công viên quốc gia', en: 'A large area of countryside protected by the government because of its natural beauty or importance.', synonym: 'Nature Reserve', synonym_vi: 'khu bảo tồn thiên nhiên', ex: 'We went hiking in the national park.', ex_vi: 'Chúng tôi đã đi bộ đường dài trong công viên quốc gia.' } },
+            { front: { term: 'Ruins', ipa: '/ˈruː.ɪnz/' }, back: { vi: 'Di tích đổ nát', en: 'The parts of a building that remain after it has been destroyed.', synonym: 'Remains, Wreckage', synonym_vi: 'tàn tích, đống đổ nát', ex: 'They explored the ancient ruins of a Roman city.', ex_vi: 'Họ đã khám phá những di tích đổ nát cổ xưa của một thành phố La Mã.' } },
+            { front: { term: 'Statue', ipa: '/ˈstætʃ.uː/' }, back: { vi: 'Tượng', en: 'A figure of a person or animal made of stone, metal, etc.', synonym: 'Sculpture, Monument', synonym_vi: 'tác phẩm điêu khắc, đài tưởng niệm', ex: 'There is a large statue of the city\'s founder in the main square.', ex_vi: 'Có một bức tượng lớn của người sáng lập thành phố ở quảng trường chính.' } },
+            { front: { term: 'Temple', ipa: '/ˈtem.pəl/' }, back: { vi: 'Đền thờ', en: 'A building used for the worship of a god or gods.', synonym: 'Shrine, Sanctuary', synonym_vi: 'miếu thờ, nơi thờ tự', ex: 'The ancient temple is a popular tourist attraction.', ex_vi: 'Ngôi đền cổ là một điểm thu hút khách du lịch nổi tiếng.' } },
+            { front: { term: 'Theme park', ipa: '/ˈθiːm ˌpɑːrk/' }, back: { vi: 'Công viên giải trí', en: 'A large park with rides, shows, and other entertainment.', synonym: 'Amusement Park, Funfair', synonym_vi: 'công viên trò chơi, hội chợ giải trí', ex: 'The kids had a great time at the theme park.', ex_vi: 'Bọn trẻ đã có một khoảng thời gian tuyệt vời tại công viên giải trí.' } },
+            { front: { term: 'Tower', ipa: '/ˈtaʊ.ɚ/' }, back: { vi: 'Tháp', en: 'A tall, narrow building, either free-standing or forming part of a building.', synonym: 'Spire, Pillar', synonym_vi: 'ngọn tháp, cột', ex: 'You can get a great view of the city from the top of the tower.', ex_vi: 'Bạn có thể có một cái nhìn tuyệt vời về thành phố từ đỉnh tháp.' } },
+            { front: { term: 'Atmospheric', ipa: '/ˌæt.məsˈfer.ɪk/' }, back: { vi: 'Có bầu không khí', en: 'Creating a special mood, such as a feeling of romance or mystery.', synonym: 'Enchanting, Mysterious', synonym_vi: 'mê hoặc, bí ẩn', ex: 'The old castle had a very atmospheric feel.', ex_vi: 'Lâu đài cổ có một bầu không khí rất đặc biệt.' } },
+            { front: { term: 'Beautiful', ipa: '/ˈbjuː.t̬ə.fəl/' }, back: { vi: 'Đẹp', en: 'Pleasing the senses or mind aesthetically.', synonym: 'Gorgeous, Stunning', synonym_vi: 'tuyệt đẹp, lộng lẫy', ex: 'The view from the hotel room was beautiful.', ex_vi: 'Quang cảnh từ phòng khách sạn thật đẹp.' } },
+            { front: { term: 'Boring', ipa: '/ˈbɔːr.ɪŋ/' }, back: { vi: 'Buồn chán', en: 'Not interesting or exciting.', synonym: 'Dull, Uninteresting', synonym_vi: 'tẻ nhạt, không thú vị', ex: 'I found the museum rather boring.', ex_vi: 'Tôi thấy bảo tàng khá buồn chán.' } },
+            { front: { term: 'Busy', ipa: '/ˈbɪz.i/' }, back: { vi: 'Bận rộn', en: 'Full of activity or people.', synonym: 'Hectic, Lively', synonym_vi: 'náo nhiệt, sôi động', ex: 'The market was very busy on Saturday.', ex_vi: 'Khu chợ rất bận rộn vào thứ Bảy.' } },
+            { front: { term: 'Cheap', ipa: '/tʃiːp/' }, back: { vi: 'Rẻ', en: 'Costing little money or less than is usual.', synonym: 'Inexpensive, Affordable', synonym_vi: 'giá phải chăng, hợp túi tiền', ex: 'We found a cheap restaurant near the harbour.', ex_vi: 'Chúng tôi đã tìm thấy một nhà hàng rẻ gần bến cảng.' } },
+            { front: { term: 'Crowded', ipa: '/ˈkraʊ.dɪd/' }, back: { vi: 'Đông đúc', en: 'Full of people, leaving little room for movement.', synonym: 'Packed, Congested', synonym_vi: 'chật cứng, chật chội', ex: 'The beach was too crowded, so we went somewhere else.', ex_vi: 'Bãi biển quá đông đúc, vì vậy chúng tôi đã đi nơi khác.' } },
+            { front: { term: 'Disappointing', ipa: '/ˌdɪs.əˈpɔɪn.t̬ɪŋ/' }, back: { vi: 'Gây thất vọng', en: 'Not as good as you had hoped or expected.', synonym: 'Unsatisfactory, Underwhelming', synonym_vi: 'không hài lòng, không như kỳ vọng', ex: 'The ending of the movie was very disappointing.', ex_vi: 'Cái kết của bộ phim rất đáng thất vọng.' } }
+        ];
+
+        let currentCardIndex = 0;
+
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+
+            cardFrontEl.innerHTML = `
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa || ''}</p>
+            `;
+
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Synonyms:</strong> <span class="text-stone-600">${card.back.synonym} ("${card.back.synonym_vi}")</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+        document.addEventListener("keydown", function (e) {
+
+            if (
+                e.key === "F12" ||
+                (e.ctrlKey && e.shiftKey && e.key === "I") ||
+                (e.ctrlKey && e.shiftKey && e.key === "J") ||
+                (e.ctrlKey && e.shiftKey && e.key === "C") ||
+                (e.ctrlKey && e.key === "u") ||
+                (e.ctrlKey && e.key === "p") ||
+                (e.ctrlKey && e.key === "s")
+
+            ) {
+                e.preventDefault();
+
+                return false;
+            }
+        });
+
+
+        document.addEventListener("contextmenu", function (e) {
+            e.preventDefault();
+            return false;
+        });
+
+    </script>
+</body>
+
+</html>

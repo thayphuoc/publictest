@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,9 +13,11 @@
         body {
             font-family: 'Be Vietnam Pro', sans-serif;
         }
+
         .flashcard-scene {
             perspective: 1000px;
         }
+
         .flashcard {
             width: 100%;
             height: 100%;
@@ -22,17 +25,21 @@
             transform-style: preserve-3d;
             transition: transform 0.6s;
         }
+
         .flashcard.is-flipped {
             transform: rotateY(180deg);
         }
+
         .flashcard-face {
             position: absolute;
             width: 100%;
             height: 100%;
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
-            border-radius: 0.75rem; /* rounded-xl */
+            border-radius: 0.75rem;
+            /* rounded-xl */
         }
+
         #card-front {
             background-color: #ffffff;
             display: flex;
@@ -42,14 +49,16 @@
             text-align: center;
             padding: 1.5rem;
         }
+
         #card-back {
             background-color: #f0fdfa;
             overflow-y: auto;
             transform: rotateY(180deg);
         }
     </style>
-    
+
 </head>
+
 <body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
 
     <div class="w-full max-w-2xl mx-auto text-center">
@@ -71,14 +80,17 @@
             <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
 
             <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
-                <button id="prev-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                <button id="prev-btn"
+                    class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
                     <span class="hidden sm:inline">Trước</span>
                     <span class="sm:hidden">←</span>
                 </button>
-                <button id="random-btn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                <button id="random-btn"
+                    class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
                     Ngẫu nhiên
                 </button>
-                <button id="next-btn" class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                <button id="next-btn"
+                    class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
                     <span class="hidden sm:inline">Sau</span>
                     <span class="sm:hidden">→</span>
                 </button>
@@ -126,7 +138,7 @@
         ];
 
         let currentCardIndex = 0;
-        
+
         const flashcardEl = document.getElementById('flashcard');
         const cardFrontEl = document.getElementById('card-front');
         const cardBackEl = document.getElementById('card-back');
@@ -137,12 +149,12 @@
 
         function renderCard(index) {
             const card = flashcards[index];
-            
+
             cardFrontEl.innerHTML = `
                 <h2 class="text-3xl sm:text-4xl font-bold mb-4">${card.front.term}</h2>
                 <p class="text-lg text-stone-500">${card.front.ipa}</p>
             `;
-            
+
             cardBackEl.innerHTML = `
                 <div class="text-left w-full p-6">
                     <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
@@ -153,7 +165,7 @@
                     </div>
                 </div>
             `;
-            
+
             progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
             flashcardEl.classList.remove('is-flipped');
         }
@@ -201,6 +213,31 @@
         });
 
         renderCard(currentCardIndex);
+        document.addEventListener("keydown", function (e) {
+
+            if (
+                e.key === "F12" ||
+                (e.ctrlKey && e.shiftKey && e.key === "I") ||
+                (e.ctrlKey && e.shiftKey && e.key === "J") ||
+                (e.ctrlKey && e.shiftKey && e.key === "C") ||
+                (e.ctrlKey && e.key === "u") ||
+                (e.ctrlKey && e.key === "p") ||
+                (e.ctrlKey && e.key === "s")
+
+            ) {
+                e.preventDefault();
+
+                return false;
+            }
+        });
+
+        document.addEventListener("contextmenu", function (e) {
+            e.preventDefault();
+            return false;
+        });
+
+
     </script>
 </body>
+
 </html>

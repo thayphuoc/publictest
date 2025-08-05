@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,46 +9,53 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Chosen Palette: Warm Neutrals -->
-    <!-- Application Structure Plan: The application uses a filterable card-based dashboard structure. A main navigation bar allows users to filter by primary skill (Speaking/Writing) and sub-skill (Task 1/2, Part 1/2/3). This structure was chosen over a static table to allow users to perform "horizontal slicing" of the curriculum, e.g., viewing all Speaking Part 2 tasks across all units. This facilitates targeted study and provides a clearer overview of skill progression than a linear table. The user flow is: see all -> filter by skill -> filter by sub-skill, with content dynamically and smoothly updating in the card grid below. -->
-    <!-- Visualization & Content Choices: Report Info: English curriculum skills. Goal: Organize & Compare. Viz/Presentation Method: Interactive cards with show/hide sections. Interaction: Filter buttons that toggle visibility of content within cards. Justification: This method directly addresses the user need to compare specific task types across different units, which is difficult with a static view. It turns a simple list into a dynamic study tool. Library/Method: Vanilla JS for DOM manipulation and event handling, Tailwind CSS for layout and styling. -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
     <style>
         body {
             font-family: 'Inter', sans-serif;
             background-color: #FDFBF7;
             color: #4A4A4A;
         }
+
         .filter-btn {
             transition: all 0.3s ease;
         }
+
         .filter-btn.active {
-            background-color: #D97706; /* amber-600 */
+            background-color: #D97706;
+            /* amber-600 */
             color: #FFFFFF;
             font-weight: 600;
         }
+
         .filter-btn.sub-active {
-            background-color: #FBBF24; /* amber-400 */
+            background-color: #FBBF24;
+            /* amber-400 */
             color: #4A4A4A;
             font-weight: 500;
         }
+
         .card-content {
             transition: opacity 0.4s ease-in-out, max-height 0.5s ease-in-out, transform 0.3s ease-in-out;
             transform-origin: top;
         }
+
         .hidden-content {
             opacity: 0;
             max-height: 0;
             overflow: hidden;
             transform: scaleY(0.9);
         }
+
         .visible-content {
             opacity: 1;
-            max-height: 500px; /* Adjust as needed */
+            max-height: 500px;
+            /* Adjust as needed */
             transform: scaleY(1);
         }
     </style>
 </head>
+
 <body class="antialiased">
 
     <div class="container mx-auto px-4 py-8 md:py-12">
@@ -60,24 +68,34 @@
             <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-4 border-b pb-4">
                 <h3 class="text-lg font-semibold text-gray-700">Filter by Skill:</h3>
                 <div class="flex flex-wrap justify-center gap-2">
-                    <button data-filter="all" class="filter-btn active px-4 py-2 rounded-lg bg-gray-200 text-gray-800">All Skills</button>
-                    <button data-filter="writing" class="filter-btn px-4 py-2 rounded-lg bg-gray-200 text-gray-800">✍️ Writing</button>
-                    <button data-filter="speaking" class="filter-btn px-4 py-2 rounded-lg bg-gray-200 text-gray-800">🗣️ Speaking</button>
+                    <button data-filter="all"
+                        class="filter-btn active px-4 py-2 rounded-lg bg-gray-200 text-gray-800">All Skills</button>
+                    <button data-filter="writing" class="filter-btn px-4 py-2 rounded-lg bg-gray-200 text-gray-800">✍️
+                        Writing</button>
+                    <button data-filter="speaking" class="filter-btn px-4 py-2 rounded-lg bg-gray-200 text-gray-800">🗣️
+                        Speaking</button>
                 </div>
             </div>
             <div id="sub-filters" class="flex flex-col sm:flex-row items-center justify-center gap-4">
-                 <h3 class="text-lg font-semibold text-gray-700">Filter by Task:</h3>
-                 <div id="writing-sub-filters" class="hidden flex-wrap justify-center gap-2">
-                    <button data-sub-filter="all-writing" class="filter-btn sub-active px-3 py-1.5 rounded-lg text-sm">All Writing</button>
-                    <button data-sub-filter="task-1" class="filter-btn px-3 py-1.5 rounded-lg text-sm bg-gray-100">Task 1</button>
-                    <button data-sub-filter="task-2" class="filter-btn px-3 py-1.5 rounded-lg text-sm bg-gray-100">Task 2</button>
-                 </div>
-                 <div id="speaking-sub-filters" class="hidden flex-wrap justify-center gap-2">
-                    <button data-sub-filter="all-speaking" class="filter-btn sub-active px-3 py-1.5 rounded-lg text-sm">All Speaking</button>
-                    <button data-sub-filter="part-1" class="filter-btn px-3 py-1.5 rounded-lg text-sm bg-gray-100">Part 1</button>
-                    <button data-sub-filter="part-2" class="filter-btn px-3 py-1.5 rounded-lg text-sm bg-gray-100">Part 2</button>
-                    <button data-sub-filter="part-3" class="filter-btn px-3 py-1.5 rounded-lg text-sm bg-gray-100">Part 3</button>
-                 </div>
+                <h3 class="text-lg font-semibold text-gray-700">Filter by Task:</h3>
+                <div id="writing-sub-filters" class="hidden flex-wrap justify-center gap-2">
+                    <button data-sub-filter="all-writing"
+                        class="filter-btn sub-active px-3 py-1.5 rounded-lg text-sm">All Writing</button>
+                    <button data-sub-filter="task-1" class="filter-btn px-3 py-1.5 rounded-lg text-sm bg-gray-100">Task
+                        1</button>
+                    <button data-sub-filter="task-2" class="filter-btn px-3 py-1.5 rounded-lg text-sm bg-gray-100">Task
+                        2</button>
+                </div>
+                <div id="speaking-sub-filters" class="hidden flex-wrap justify-center gap-2">
+                    <button data-sub-filter="all-speaking"
+                        class="filter-btn sub-active px-3 py-1.5 rounded-lg text-sm">All Speaking</button>
+                    <button data-sub-filter="part-1" class="filter-btn px-3 py-1.5 rounded-lg text-sm bg-gray-100">Part
+                        1</button>
+                    <button data-sub-filter="part-2" class="filter-btn px-3 py-1.5 rounded-lg text-sm bg-gray-100">Part
+                        2</button>
+                    <button data-sub-filter="part-3" class="filter-btn px-3 py-1.5 rounded-lg text-sm bg-gray-100">Part
+                        3</button>
+                </div>
             </div>
         </nav>
 
@@ -85,241 +103,241 @@
         </main>
     </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const curriculumData = [
-        {
-            unit: 1,
-            title: "Studying overseas",
-            writing: {
-                type: 'task-1',
-                content: [
-                    "Data relating to higher education.",
-                    "Understanding visual information.",
-                    "The opening paragraph."
-                ]
-            },
-            speaking: {
-                type: 'part-1-2',
-                content: [
-                    "<strong>Part 1:</strong> Expanding answers, giving reasons and examples.",
-                    "<strong>Part 2:</strong> Describing a school subject."
-                ]
-            }
-        },
-        {
-            unit: 2,
-            title: "Earth today",
-            writing: {
-                type: 'task-2',
-                content: [
-                    "Climate change.",
-                    "Introductions and conclusions.",
-                    "Topic sentences.",
-                    "Editing."
-                ]
-            },
-            speaking: {
-                type: 'part-3',
-                content: [
-                    "Discussing alternative energy, traffic congestion and recycling."
-                ]
-            }
-        },
-        {
-            unit: 3,
-            title: "All around the world",
-            writing: {
-                type: 'task-1',
-                content: [
-                    "Data describing tourism in different countries.",
-                    "Selecting and reporting the main features.",
-                    "Describing trends and changes over time.",
-                    "Adding specific details to general statements."
-                ]
-            },
-            speaking: {
-                type: 'part-2',
-                content: [
-                    "<strong>Part 2:</strong> Describing a tourist destination.",
-                    "Making notes.",
-                    "Presentation."
-                ]
-            }
-        },
-        {
-            unit: 4,
-            title: "Crime and punishment",
-            writing: {
-                type: 'task-2',
-                content: [
-                    "Prisons/discipline in schools.",
-                    "Key stages: Understanding the question, generating main ideas, adding supporting information, making a plan, writing your answer, checking your answer."
-                ]
-            },
-            speaking: {
-                type: 'none',
-                content: ["No specific content listed."]
-            }
-        },
-        {
-            unit: 5,
-            title: "A career or a job?",
-            writing: {
-                type: 'task-1',
-                content: [
-                    "Unemployment/workforce composition and earnings.",
-                    "Using linkers.",
-                    "Comparing and contrasting data."
-                ]
-            },
-            speaking: {
-                type: 'part-2',
-                content: [
-                    "<strong>Part 2:</strong> Describing something you would like to do."
-                ]
-            }
-        },
-        {
-            unit: 6,
-            title: "Globalization",
-            writing: {
-                type: 'task-1',
-                content: [
-                    "Milk production/Sugar beet production.",
-                    "Describing a process.",
-                    "Sequencers."
-                ]
-            },
-            speaking: {
-                type: 'none',
-                content: ["No specific content listed."]
-            }
-        },
-        {
-            unit: 7,
-            title: "Gadgets and gizmos",
-            writing: {
-                type: 'task-1',
-                content: [
-                    "Describing how a hot air balloon/a fire extinguisher works.",
-                    "Organizing your answer.",
-                    "Expressing purpose."
-                ]
-            },
-            speaking: {
-                type: 'part-2-3',
-                content: [
-                    "<strong>Part 2:</strong> Describing an item of technology.",
-                    "<strong>Part 3:</strong> Discussing modern technology."
-                ]
-            }
-        },
-        {
-            unit: 8,
-            title: "Health and medicine",
-            writing: {
-                type: 'task-2',
-                content: [
-                    "Alternative medicine.",
-                    "Key phrases to express impersonal views.",
-                    "Preparing to write, using an appropriate writing style, using adverbs."
-                ]
-            },
-            speaking: {
-                type: 'part-3',
-                content: [
-                    "<strong>Part 3:</strong> Discussing health and healthcare."
-                ]
-            }
-        },
-        {
-            unit: 9,
-            title: "All in the mind",
-            writing: {
-                type: 'task-2',
-                content: [
-                    "Academic achievement as a measure of intelligence.",
-                    "Organization and coherence: paragraphing."
-                ]
-            },
-            speaking: {
-                type: 'part-2-3',
-                content: [
-                    "<strong>Part 2:</strong> Describing a time when you learned something new.",
-                    "<strong>Part 3:</strong> Discussing learning environments and kinds of intelligence."
-                ]
-            }
-        },
-        {
-            unit: 10,
-            title: "Leisure time",
-            writing: {
-                type: 'task-2',
-                content: [
-                    "Causes of cyberbullying and solutions.",
-                    "Describing problems and solutions."
-                ]
-            },
-            speaking: {
-                type: 'part-2-3',
-                content: [
-                    "<strong>Part 2:</strong> Describing leisure activities.",
-                    "<strong>Part 3:</strong> Discussing changes in leisure activities over time."
-                ]
-            }
-        },
-        {
-            unit: 11,
-            title: "The art of advertising",
-            writing: {
-                type: 'task-2',
-                content: [
-                    "Methods used in advertising.",
-                    "Arguments for and against a viewpoint."
-                ]
-            },
-            speaking: {
-                type: 'part-2-3',
-                content: [
-                    "<strong>Part 2:</strong> Describing a memorable advertisement.",
-                    "<strong>Part 3:</strong> Discussing effective advertisements and global brands."
-                ]
-            }
-        },
-        {
-            unit: 12,
-            title: "Success and achievement",
-            writing: {
-                type: 'task-1-2',
-                content: [
-                    "<strong>Task 1:</strong> Data relating to the Olympic Games; Summarizing information.",
-                    "<strong>Task 2:</strong> Success; Giving opinions and examples."
-                ]
-            },
-            speaking: {
-                type: 'part-1-2-3',
-                content: [
-                    "<strong>Part 1:</strong> Talking about familiar topics.",
-                    "<strong>Part 2:</strong> Describing a successful situation.",
-                    "<strong>Part 3:</strong> Talking about success."
-                ]
-            }
-        }
-    ];
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const curriculumData = [
+                {
+                    unit: 1,
+                    title: "Studying overseas",
+                    writing: {
+                        type: 'task-1',
+                        content: [
+                            "Data relating to higher education.",
+                            "Understanding visual information.",
+                            "The opening paragraph."
+                        ]
+                    },
+                    speaking: {
+                        type: 'part-1-2',
+                        content: [
+                            "<strong>Part 1:</strong> Expanding answers, giving reasons and examples.",
+                            "<strong>Part 2:</strong> Describing a school subject."
+                        ]
+                    }
+                },
+                {
+                    unit: 2,
+                    title: "Earth today",
+                    writing: {
+                        type: 'task-2',
+                        content: [
+                            "Climate change.",
+                            "Introductions and conclusions.",
+                            "Topic sentences.",
+                            "Editing."
+                        ]
+                    },
+                    speaking: {
+                        type: 'part-3',
+                        content: [
+                            "Discussing alternative energy, traffic congestion and recycling."
+                        ]
+                    }
+                },
+                {
+                    unit: 3,
+                    title: "All around the world",
+                    writing: {
+                        type: 'task-1',
+                        content: [
+                            "Data describing tourism in different countries.",
+                            "Selecting and reporting the main features.",
+                            "Describing trends and changes over time.",
+                            "Adding specific details to general statements."
+                        ]
+                    },
+                    speaking: {
+                        type: 'part-2',
+                        content: [
+                            "<strong>Part 2:</strong> Describing a tourist destination.",
+                            "Making notes.",
+                            "Presentation."
+                        ]
+                    }
+                },
+                {
+                    unit: 4,
+                    title: "Crime and punishment",
+                    writing: {
+                        type: 'task-2',
+                        content: [
+                            "Prisons/discipline in schools.",
+                            "Key stages: Understanding the question, generating main ideas, adding supporting information, making a plan, writing your answer, checking your answer."
+                        ]
+                    },
+                    speaking: {
+                        type: 'none',
+                        content: ["No specific content listed."]
+                    }
+                },
+                {
+                    unit: 5,
+                    title: "A career or a job?",
+                    writing: {
+                        type: 'task-1',
+                        content: [
+                            "Unemployment/workforce composition and earnings.",
+                            "Using linkers.",
+                            "Comparing and contrasting data."
+                        ]
+                    },
+                    speaking: {
+                        type: 'part-2',
+                        content: [
+                            "<strong>Part 2:</strong> Describing something you would like to do."
+                        ]
+                    }
+                },
+                {
+                    unit: 6,
+                    title: "Globalization",
+                    writing: {
+                        type: 'task-1',
+                        content: [
+                            "Milk production/Sugar beet production.",
+                            "Describing a process.",
+                            "Sequencers."
+                        ]
+                    },
+                    speaking: {
+                        type: 'none',
+                        content: ["No specific content listed."]
+                    }
+                },
+                {
+                    unit: 7,
+                    title: "Gadgets and gizmos",
+                    writing: {
+                        type: 'task-1',
+                        content: [
+                            "Describing how a hot air balloon/a fire extinguisher works.",
+                            "Organizing your answer.",
+                            "Expressing purpose."
+                        ]
+                    },
+                    speaking: {
+                        type: 'part-2-3',
+                        content: [
+                            "<strong>Part 2:</strong> Describing an item of technology.",
+                            "<strong>Part 3:</strong> Discussing modern technology."
+                        ]
+                    }
+                },
+                {
+                    unit: 8,
+                    title: "Health and medicine",
+                    writing: {
+                        type: 'task-2',
+                        content: [
+                            "Alternative medicine.",
+                            "Key phrases to express impersonal views.",
+                            "Preparing to write, using an appropriate writing style, using adverbs."
+                        ]
+                    },
+                    speaking: {
+                        type: 'part-3',
+                        content: [
+                            "<strong>Part 3:</strong> Discussing health and healthcare."
+                        ]
+                    }
+                },
+                {
+                    unit: 9,
+                    title: "All in the mind",
+                    writing: {
+                        type: 'task-2',
+                        content: [
+                            "Academic achievement as a measure of intelligence.",
+                            "Organization and coherence: paragraphing."
+                        ]
+                    },
+                    speaking: {
+                        type: 'part-2-3',
+                        content: [
+                            "<strong>Part 2:</strong> Describing a time when you learned something new.",
+                            "<strong>Part 3:</strong> Discussing learning environments and kinds of intelligence."
+                        ]
+                    }
+                },
+                {
+                    unit: 10,
+                    title: "Leisure time",
+                    writing: {
+                        type: 'task-2',
+                        content: [
+                            "Causes of cyberbullying and solutions.",
+                            "Describing problems and solutions."
+                        ]
+                    },
+                    speaking: {
+                        type: 'part-2-3',
+                        content: [
+                            "<strong>Part 2:</strong> Describing leisure activities.",
+                            "<strong>Part 3:</strong> Discussing changes in leisure activities over time."
+                        ]
+                    }
+                },
+                {
+                    unit: 11,
+                    title: "The art of advertising",
+                    writing: {
+                        type: 'task-2',
+                        content: [
+                            "Methods used in advertising.",
+                            "Arguments for and against a viewpoint."
+                        ]
+                    },
+                    speaking: {
+                        type: 'part-2-3',
+                        content: [
+                            "<strong>Part 2:</strong> Describing a memorable advertisement.",
+                            "<strong>Part 3:</strong> Discussing effective advertisements and global brands."
+                        ]
+                    }
+                },
+                {
+                    unit: 12,
+                    title: "Success and achievement",
+                    writing: {
+                        type: 'task-1-2',
+                        content: [
+                            "<strong>Task 1:</strong> Data relating to the Olympic Games; Summarizing information.",
+                            "<strong>Task 2:</strong> Success; Giving opinions and examples."
+                        ]
+                    },
+                    speaking: {
+                        type: 'part-1-2-3',
+                        content: [
+                            "<strong>Part 1:</strong> Talking about familiar topics.",
+                            "<strong>Part 2:</strong> Describing a successful situation.",
+                            "<strong>Part 3:</strong> Talking about success."
+                        ]
+                    }
+                }
+            ];
 
-    const grid = document.getElementById('curriculum-grid');
-    const mainFilters = document.querySelectorAll('[data-filter]');
-    const writingSubFiltersContainer = document.getElementById('writing-sub-filters');
-    const speakingSubFiltersContainer = document.getElementById('speaking-sub-filters');
-    const allSubFilterButtons = document.querySelectorAll('[data-sub-filter]');
+            const grid = document.getElementById('curriculum-grid');
+            const mainFilters = document.querySelectorAll('[data-filter]');
+            const writingSubFiltersContainer = document.getElementById('writing-sub-filters');
+            const speakingSubFiltersContainer = document.getElementById('speaking-sub-filters');
+            const allSubFilterButtons = document.querySelectorAll('[data-sub-filter]');
 
-    function renderCards() {
-        grid.innerHTML = '';
-        curriculumData.forEach(item => {
-            const card = document.createElement('div');
-            card.className = 'bg-white rounded-xl shadow-lg overflow-hidden flex flex-col';
-            card.innerHTML = `
+            function renderCards() {
+                grid.innerHTML = '';
+                curriculumData.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-white rounded-xl shadow-lg overflow-hidden flex flex-col';
+                    card.innerHTML = `
                 <div class="p-5 bg-amber-100">
                     <h3 class="text-xl font-bold text-amber-900">Unit ${item.unit}: ${item.title}</h3>
                 </div>
@@ -338,93 +356,137 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>
             `;
-            grid.appendChild(card);
-        });
-    }
-    
-    function applyFilters(mainFilter, subFilter = 'all') {
-        const writingSection = document.querySelectorAll('.writing-section');
-        const speakingSection = document.querySelectorAll('.speaking-section');
+                    grid.appendChild(card);
+                });
+            }
 
-        writingSection.forEach(section => {
-            const isVisible = mainFilter === 'all' || mainFilter === 'writing';
-            section.classList.toggle('hidden-content', !isVisible);
-            section.classList.toggle('visible-content', isVisible);
-            
-            const listItems = section.querySelectorAll('li');
-            listItems.forEach(li => {
-                const type = li.dataset.taskType;
-                let show = true;
-                if (mainFilter === 'writing') {
-                    if (subFilter === 'task-1') show = type.includes('task-1');
-                    if (subFilter === 'task-2') show = type.includes('task-2');
+            function applyFilters(mainFilter, subFilter = 'all') {
+                const writingSection = document.querySelectorAll('.writing-section');
+                const speakingSection = document.querySelectorAll('.speaking-section');
+
+                writingSection.forEach(section => {
+                    const isVisible = mainFilter === 'all' || mainFilter === 'writing';
+                    section.classList.toggle('hidden-content', !isVisible);
+                    section.classList.toggle('visible-content', isVisible);
+
+                    const listItems = section.querySelectorAll('li');
+                    listItems.forEach(li => {
+                        const type = li.dataset.taskType;
+                        let show = true;
+                        if (mainFilter === 'writing') {
+                            if (subFilter === 'task-1') show = type.includes('task-1');
+                            if (subFilter === 'task-2') show = type.includes('task-2');
+                        }
+                        li.style.display = show ? '' : 'none';
+                    });
+                });
+
+                speakingSection.forEach(section => {
+                    const isVisible = mainFilter === 'all' || mainFilter === 'speaking';
+                    section.classList.toggle('hidden-content', !isVisible);
+                    section.classList.toggle('visible-content', isVisible);
+
+                    const listItems = section.querySelectorAll('li');
+                    listItems.forEach(li => {
+                        const type = li.dataset.taskType;
+                        let show = true;
+                        if (mainFilter === 'speaking') {
+                            if (subFilter === 'part-1') show = type.includes('part-1');
+                            if (subFilter === 'part-2') show = type.includes('part-2');
+                            if (subFilter === 'part-3') show = type.includes('part-3');
+                        }
+                        li.style.display = show ? '' : 'none';
+                    });
+                });
+            }
+
+            function handleMainFilterClick(e) {
+                const clickedFilter = e.target.dataset.filter;
+                if (!clickedFilter) return;
+
+                mainFilters.forEach(btn => btn.classList.remove('active'));
+                e.target.classList.add('active');
+
+                writingSubFiltersContainer.classList.toggle('hidden', clickedFilter !== 'writing');
+                speakingSubFiltersContainer.classList.toggle('hidden', clickedFilter !== 'speaking');
+
+                resetSubFilters();
+                applyFilters(clickedFilter);
+            }
+
+            function handleSubFilterClick(e) {
+                const clickedSubFilter = e.target.dataset.subFilter;
+                if (!clickedSubFilter) return;
+
+                const parentContainer = e.target.closest('div');
+                parentContainer.querySelectorAll('button').forEach(btn => btn.classList.remove('sub-active'));
+                e.target.classList.add('sub-active');
+
+                const mainFilter = document.querySelector('[data-filter].active').dataset.filter;
+                applyFilters(mainFilter, clickedSubFilter);
+            }
+
+            function resetSubFilters() {
+                allSubFilterButtons.forEach(btn => btn.classList.remove('sub-active'));
+                document.querySelector('[data-sub-filter="all-writing"]')?.classList.add('sub-active');
+                document.querySelector('[data-sub-filter="all-speaking"]')?.classList.add('sub-active');
+            }
+
+            document.getElementById('filters').addEventListener('click', (e) => {
+                if (e.target.matches('[data-filter]')) {
+                    handleMainFilterClick(e);
+                } else if (e.target.matches('[data-sub-filter]')) {
+                    handleSubFilterClick(e);
                 }
-                li.style.display = show ? '' : 'none';
             });
+
+            renderCards();
+        });
+        document.addEventListener("keydown", function (e) {
+
+            if (
+                e.key === "F12" ||
+                (e.ctrlKey && e.shiftKey && e.key === "I") ||
+                (e.ctrlKey && e.shiftKey && e.key === "J") ||
+                (e.ctrlKey && e.shiftKey && e.key === "C") ||
+                (e.ctrlKey && e.key === "u") ||
+                (e.ctrlKey && e.key === "p") ||
+                (e.ctrlKey && e.key === "s")
+
+            ) {
+                e.preventDefault();
+
+                return false;
+            }
         });
 
-        speakingSection.forEach(section => {
-            const isVisible = mainFilter === 'all' || mainFilter === 'speaking';
-            section.classList.toggle('hidden-content', !isVisible);
-            section.classList.toggle('visible-content', isVisible);
 
-            const listItems = section.querySelectorAll('li');
-            listItems.forEach(li => {
-                const type = li.dataset.taskType;
-                let show = true;
-                if (mainFilter === 'speaking') {
-                    if (subFilter === 'part-1') show = type.includes('part-1');
-                    if (subFilter === 'part-2') show = type.includes('part-2');
-                    if (subFilter === 'part-3') show = type.includes('part-3');
-                }
-                li.style.display = show ? '' : 'none';
-            });
+        document.addEventListener("keydown", function (e) {
+
+            if (
+                e.key === "F12" ||
+                (e.ctrlKey && e.shiftKey && e.key === "I") ||
+                (e.ctrlKey && e.shiftKey && e.key === "J") ||
+                (e.ctrlKey && e.shiftKey && e.key === "C") ||
+                (e.ctrlKey && e.key === "u") ||
+                (e.ctrlKey && e.key === "p") ||
+                (e.ctrlKey && e.key === "s")
+
+            ) {
+                e.preventDefault();
+
+                return false;
+            }
         });
-    }
 
-    function handleMainFilterClick(e) {
-        const clickedFilter = e.target.dataset.filter;
-        if (!clickedFilter) return;
 
-        mainFilters.forEach(btn => btn.classList.remove('active'));
-        e.target.classList.add('active');
+        document.addEventListener("contextmenu", function (e) {
+            e.preventDefault();
+            return false;
+        });
 
-        writingSubFiltersContainer.classList.toggle('hidden', clickedFilter !== 'writing');
-        speakingSubFiltersContainer.classList.toggle('hidden', clickedFilter !== 'speaking');
-
-        resetSubFilters();
-        applyFilters(clickedFilter);
-    }
-
-    function handleSubFilterClick(e) {
-        const clickedSubFilter = e.target.dataset.subFilter;
-        if (!clickedSubFilter) return;
-
-        const parentContainer = e.target.closest('div');
-        parentContainer.querySelectorAll('button').forEach(btn => btn.classList.remove('sub-active'));
-        e.target.classList.add('sub-active');
-
-        const mainFilter = document.querySelector('[data-filter].active').dataset.filter;
-        applyFilters(mainFilter, clickedSubFilter);
-    }
-
-    function resetSubFilters() {
-        allSubFilterButtons.forEach(btn => btn.classList.remove('sub-active'));
-        document.querySelector('[data-sub-filter="all-writing"]')?.classList.add('sub-active');
-        document.querySelector('[data-sub-filter="all-speaking"]')?.classList.add('sub-active');
-    }
-
-    document.getElementById('filters').addEventListener('click', (e) => {
-        if (e.target.matches('[data-filter]')) {
-            handleMainFilterClick(e);
-        } else if (e.target.matches('[data-sub-filter]')) {
-            handleSubFilterClick(e);
-        }
-    });
-
-    renderCards();
-});
-</script>
+    </script>
 
 </body>
+
 </html>

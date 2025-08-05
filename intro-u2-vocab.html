@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 2: Adventure</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem;
+            /* rounded-xl */
+        }
+
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+
+</head>
+
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 2: Adventure</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn"
+                    class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn"
+                    class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn"
+                    class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'Adventure', ipa: '/ədˈven.tʃɚ/' }, back: { vi: 'Cuộc phiêu lưu', en: 'An unusual and exciting or daring experience.', synonym: 'Journey, Quest', synonym_vi: 'chuyến đi, hành trình', ex: 'Life is a great adventure.', ex_vi: 'Cuộc sống là một cuộc phiêu lưu tuyệt vời.' } },
+            { front: { term: 'Explore', ipa: '/ɪkˈsplɔːr/' }, back: { vi: 'Khám phá', en: 'To travel through an unfamiliar area in order to learn about it.', synonym: 'Discover, Investigate', synonym_vi: 'phát hiện, điều tra', ex: 'They decided to explore the ancient ruins.', ex_vi: 'Họ quyết định khám phá những tàn tích cổ xưa.' } },
+            { front: { term: 'Risk', ipa: '/rɪsk/' }, back: { vi: 'Rủi ro', en: 'A situation involving exposure to danger.', synonym: 'Danger, Hazard', synonym_vi: 'nguy hiểm, nguy cơ', ex: 'Mountain climbing involves a lot of risk.', ex_vi: 'Leo núi bao hàm rất nhiều rủi ro.' } },
+            { front: { term: 'Expedition', ipa: '/ˌek.spəˈdɪʃ.ən/' }, back: { vi: 'Cuộc thám hiểm', en: 'A journey undertaken by a group of people with a particular purpose, especially that of exploration or research.', synonym: 'Voyage, Trek', synonym_vi: 'chuyến đi xa, cuộc hành trình dài', ex: 'He went on an expedition to the North Pole.', ex_vi: 'Anh ấy đã tham gia một cuộc thám hiểm đến Bắc Cực.' } },
+            { front: { term: 'Courage', ipa: '/ˈkɝː.ɪdʒ/' }, back: { vi: 'Lòng dũng cảm', en: 'The ability to do something that frightens one; bravery.', synonym: 'Bravery, Valor', synonym_vi: 'sự can đảm, lòng quả cảm', ex: 'It takes courage to stand up for what you believe in.', ex_vi: 'Cần có lòng dũng cảm để đứng lên bảo vệ những gì bạn tin tưởng.' } },
+            { front: { term: 'Survival', ipa: '/sɚˈvaɪ.vəl/' }, back: { vi: 'Sự sinh tồn', en: 'The state or fact of continuing to live or exist, typically in spite of an accident, ordeal, or difficult circumstances.', synonym: 'Endurance, Persistence', synonym_vi: 'sự bền bỉ, sự kiên trì', ex: 'Survival in the desert depends on finding water.', ex_vi: 'Sự sinh tồn trên sa mạc phụ thuộc vào việc tìm thấy nước.' } },
+            { front: { term: 'Challenge', ipa: '/ˈtʃæl.ɪndʒ/' }, back: { vi: 'Thử thách', en: 'A task or situation that tests someone\'s abilities.', synonym: 'Test, Obstacle', synonym_vi: 'bài kiểm tra, chướng ngại vật', ex: 'Climbing the mountain was a huge challenge.', ex_vi: 'Leo lên ngọn núi là một thử thách lớn.' } },
+            { front: { term: 'Excitement', ipa: '/ɪkˈsaɪt.mənt/' }, back: { vi: 'Sự phấn khích', en: 'A feeling of great enthusiasm and eagerness.', synonym: 'Thrill, Enthusiasm', synonym_vi: 'cảm giác mạnh, nhiệt tình', ex: 'The children were full of excitement on Christmas morning.', ex_vi: 'Bọn trẻ tràn đầy sự phấn khích vào sáng Giáng sinh.' } },
+            { front: { term: 'Uncharted', ipa: '/ʌnˈtʃɑːr.t̬ɪd/' }, back: { vi: 'Chưa được khám phá', en: '(of an area of land or sea) not mapped or surveyed.', synonym: 'Unknown, Unexplored', synonym_vi: 'chưa biết, chưa được thám hiểm', ex: 'The explorers sailed into uncharted waters.', ex_vi: 'Các nhà thám hiểm đã đi thuyền vào vùng biển chưa được khám phá.' } },
+            { front: { term: 'Dangerous', ipa: '/ˈdeɪn.dʒɚ.əs/' }, back: { vi: 'Nguy hiểm', en: 'Able or likely to cause harm or injury.', synonym: 'Risky, Perilous', synonym_vi: 'mạo hiểm, hiểm nguy', ex: 'It is dangerous to swim in that river.', ex_vi: 'Bơi ở con sông đó rất nguy hiểm.' } },
+            { front: { term: 'Escape (verb)', ipa: '/ɪˈskeɪp/' }, back: { vi: 'Trốn thoát', en: 'To break free from confinement or control.', synonym: 'Flee, Evade', synonym_vi: 'chạy trốn, tránh né', ex: 'The prisoner tried to escape from jail.', ex_vi: 'Tên tù nhân đã cố gắng trốn thoát khỏi nhà tù.' } },
+            { front: { term: 'Excursion', ipa: '/ɪkˈskɝː.ʒən/' }, back: { vi: 'Chuyến đi ngắn', en: 'A short journey or trip, especially one engaged in as a leisure activity.', synonym: 'Outing, Trip', synonym_vi: 'chuyến đi chơi, chuyến đi', ex: 'We went on an excursion to the countryside.', ex_vi: 'Chúng tôi đã có một chuyến đi ngắn đến vùng nông thôn.' } },
+            { front: { term: 'Expansive', ipa: '/ɪkˈspæn.sɪv/' }, back: { vi: 'Rộng lớn', en: 'Covering a wide area in terms of space or scope; extensive.', synonym: 'Vast, Immense', synonym_vi: 'bao la, mênh mông', ex: 'The Sahara is an expansive desert.', ex_vi: 'Sahara là một sa mạc rộng lớn.' } },
+            { front: { term: 'Wander', ipa: '/ˈwɑːn.dɚ/' }, back: { vi: 'Đi lang thang', en: 'To walk or move in a leisurely, casual, or aimless way.', synonym: 'Roam, Meander', synonym_vi: 'rong ruổi, đi loanh quanh', ex: 'We decided to wander through the old streets of the city.', ex_vi: 'Chúng tôi quyết định đi lang thang qua những con phố cổ của thành phố.' } },
+            { front: { term: 'Discover', ipa: '/dɪˈskʌv.ɚ/' }, back: { vi: 'Phát hiện', en: 'To find something or someone unexpectedly or in the course of a search.', synonym: 'Uncover, Find', synonym_vi: 'khám phá, tìm thấy', ex: 'Columbus did not discover America.', ex_vi: 'Columbus không phải là người phát hiện ra châu Mỹ.' } },
+            { front: { term: 'Brave', ipa: '/breɪv/' }, back: { vi: 'Dũng cảm', en: 'Ready to face and endure danger or pain; showing courage.', synonym: 'Fearless, Heroic', synonym_vi: 'không sợ hãi, anh hùng', ex: 'The brave firefighter rescued the cat from the tree.', ex_vi: 'Người lính cứu hỏa dũng cảm đã cứu con mèo khỏi cái cây.' } },
+            { front: { term: 'Escape (noun)', ipa: '/ɪˈskeɪp/' }, back: { vi: 'Sự trốn thoát', en: 'An act of breaking free from confinement or control.', synonym: 'Breakout, Getaway', synonym_vi: 'vượt ngục, thoát thân', ex: 'The prisoners planned a daring escape.', ex_vi: 'Các tù nhân đã lên kế hoạch cho một cuộc trốn thoát táo bạo.' } },
+            { front: { term: 'Journey', ipa: '/ˈdʒɝː.ni/' }, back: { vi: 'Hành trình', en: 'An act of traveling from one place to another.', synonym: 'Voyage, Trip', synonym_vi: 'hành trình biển, chuyến đi', ex: 'The journey to the mountain top took five hours.', ex_vi: 'Hành trình lên đỉnh núi mất năm giờ.' } },
+            { front: { term: 'Danger', ipa: '/ˈdeɪn.dʒɚ/' }, back: { vi: 'Nguy hiểm', en: 'The possibility of suffering harm or injury.', synonym: 'Threat, Peril', synonym_vi: 'mối đe dọa, sự nguy hiểm', ex: 'There is a danger of falling rocks.', ex_vi: 'Có nguy cơ đá rơi.' } },
+            { front: { term: 'Thrill', ipa: '/θrɪl/' }, back: { vi: 'Sự hồi hộp', en: 'A sudden feeling of excitement and pleasure.', synonym: 'Excitement, Sensation', synonym_vi: 'sự phấn khích, cảm giác mạnh', ex: 'She gets a thrill out of riding roller coasters.', ex_vi: 'Cô ấy cảm thấy hồi hộp khi đi tàu lượn siêu tốc.' } }
+        ];
+
+        let currentCardIndex = 0;
+
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+
+            cardFrontEl.innerHTML = `
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa || ''}</p>
+            `;
+
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Synonyms:</strong> <span class="text-stone-600">${card.back.synonym} ("${card.back.synonym_vi}")</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+        document.addEventListener("keydown", function (e) {
+
+            if (
+                e.key === "F12" ||
+                (e.ctrlKey && e.shiftKey && e.key === "I") ||
+                (e.ctrlKey && e.shiftKey && e.key === "J") ||
+                (e.ctrlKey && e.shiftKey && e.key === "C") ||
+                (e.ctrlKey && e.key === "u") ||
+                (e.ctrlKey && e.key === "p") ||
+                (e.ctrlKey && e.key === "s")
+
+            ) {
+                e.preventDefault();
+
+                return false;
+            }
+        });
+
+
+        document.addEventListener("contextmenu", function (e) {
+            e.preventDefault();
+            return false;
+        });
+
+    </script>
+</body>
+
+</html>

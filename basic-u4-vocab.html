@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 4: Food</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem;
+            /* rounded-xl */
+        }
+
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+
+</head>
+
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 4: Food</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn"
+                    class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn"
+                    class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn"
+                    class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'Bread', ipa: '/bred/' }, back: { vi: 'bánh mì', en: 'A food made of flour, water, and yeast mixed together and baked.', synonym: 'loaf', synonym_vi: 'bánh mì nguyên ổ', ex: 'I like to eat fresh bread with butter in the morning.', ex_vi: 'Tôi thích ăn bánh mì tươi với bơ vào buổi sáng.' } },
+            { front: { term: 'Butter', ipa: '/ˈbʌt̬.ɚ/' }, back: { vi: 'bơ', en: 'A pale yellow solid food containing a lot of fat that is made from cream.', synonym: 'margarine', synonym_vi: 'bơ thực vật', ex: 'Can you pass the butter, please?', ex_vi: 'Bạn có thể đưa cho tôi lọ bơ được không?' } },
+            { front: { term: 'Cheese', ipa: '/tʃiːz/' }, back: { vi: 'pho mát', en: 'A food made from the pressed curds of milk.', synonym: 'dairy product', synonym_vi: 'sản phẩm từ sữa', ex: 'Pizza is not complete without a lot of cheese.', ex_vi: 'Pizza sẽ không hoàn hảo nếu không có nhiều pho mát.' } },
+            { front: { term: 'Milk', ipa: '/mɪlk/' }, back: { vi: 'sữa', en: 'A white liquid produced by female mammals as food for their young.', synonym: 'dairy drink', synonym_vi: 'đồ uống từ sữa', ex: 'Children should drink milk every day.', ex_vi: 'Trẻ em nên uống sữa mỗi ngày.' } },
+            { front: { term: 'Fruit', ipa: '/fruːt/' }, back: { vi: 'trái cây', en: 'The sweet, fleshy product of a tree or other plant that contains seed and can be eaten as food.', synonym: 'produce', synonym_vi: 'nông sản', ex: 'You should eat five servings of fruit and vegetables a day.', ex_vi: 'Bạn nên ăn năm khẩu phần trái cây và rau củ mỗi ngày.' } },
+            { front: { term: 'Vegetables', ipa: '/ˈvedʒ.tə.bəlz/' }, back: { vi: 'rau củ', en: 'A plant or part of a plant used as food.', synonym: 'greens', synonym_vi: 'rau xanh', ex: 'Eating a variety of vegetables is good for your health.', ex_vi: 'Ăn nhiều loại rau củ rất tốt cho sức khỏe của bạn.' } },
+            { front: { term: 'Rice', ipa: '/raɪs/' }, back: { vi: 'gạo', en: 'A swamp grass which is widely cultivated as a source of food, especially in Asia.', synonym: 'staple food', synonym_vi: 'thực phẩm cơ bản', ex: 'Rice is a staple food for more than half of the world\'s population.', ex_vi: 'Gạo là thực phẩm cơ bản của hơn một nửa dân số thế giới.' } },
+            { front: { term: 'Chicken', ipa: '/ˈtʃɪk.ɪn/' }, back: { vi: 'gà', en: 'A domestic fowl kept for its eggs or meat.', synonym: 'poultry', synonym_vi: 'gia cầm', ex: 'We are having roasted chicken for dinner.', ex_vi: 'Chúng tôi sẽ ăn gà quay cho bữa tối.' } },
+            { front: { term: 'Beef', ipa: '/biːf/' }, back: { vi: 'thịt bò', en: 'The flesh of a cow, bull, or ox, used as food.', synonym: 'steak', synonym_vi: 'bít tết', ex: 'He ordered a beef steak with mashed potatoes.', ex_vi: 'Anh ấy đã gọi một phần bít tết bò với khoai tây nghiền.' } },
+            { front: { term: 'Fish', ipa: '/fɪʃ/' }, back: { vi: 'cá', en: 'A limbless cold-blooded vertebrate animal with gills and fins living wholly in water.', synonym: 'seafood', synonym_vi: 'hải sản', ex: 'Eating fish is a good source of omega-3 fatty acids.', ex_vi: 'Ăn cá là một nguồn axit béo omega-3 tốt.' } },
+            { front: { term: 'Eggs', ipa: '/eɡz/' }, back: { vi: 'trứng', en: 'An oval or round object laid by female birds, reptiles, amphibians, etc., containing the germ of a new animal.', synonym: 'omelet', synonym_vi: 'trứng ốp la', ex: 'I like to have fried eggs for breakfast.', ex_vi: 'Tôi thích ăn trứng chiên cho bữa sáng.' } },
+            { front: { term: 'Soup', ipa: '/suːp/' }, back: { vi: 'súp', en: 'A liquid dish, typically made by boiling ingredients in stock or water.', synonym: 'broth', synonym_vi: 'nước dùng', ex: 'Chicken soup is good for you when you have a cold.', ex_vi: 'Súp gà rất tốt cho bạn khi bạn bị cảm lạnh.' } },
+            { front: { term: 'Salad', ipa: '/ˈsæl.əd/' }, back: { vi: 'món salad', en: 'A cold dish of various mixtures of raw or cooked vegetables, usually seasoned with oil, vinegar, or other dressing.', synonym: 'mixed greens', synonym_vi: 'rau trộn', ex: 'I had a fresh green salad for lunch.', ex_vi: 'Tôi đã ăn một đĩa salad rau xanh tươi cho bữa trưa.' } },
+            { front: { term: 'Pasta', ipa: '/ˈpɑː.stə/' }, back: { vi: 'mì ống', en: 'A dish originally from Italy consisting of dough made from durum wheat and water, extruded or stamped into various shapes.', synonym: 'noodles', synonym_vi: 'mì', ex: 'My favorite Italian dish is pasta with tomato sauce.', ex_vi: 'Món ăn Ý yêu thích của tôi là mì ống với sốt cà chua.' } },
+            { front: { term: 'Pizza', ipa: '/ˈpiːt.sə/' }, back: { vi: 'pizza', en: 'A dish of Italian origin consisting of a usually round, flat base of leavened wheat-based dough topped with tomatoes, cheese, and often various other ingredients.', synonym: 'flatbread', synonym_vi: 'bánh mì phẳng', ex: 'Let\'s order a pizza for the party.', ex_vi: 'Hãy đặt một chiếc pizza cho bữa tiệc nào.' } },
+            { front: { term: 'Dessert', ipa: '/dɪˈzɝːt/' }, back: { vi: 'món tráng miệng', en: 'The sweet course eaten at the end of a meal.', synonym: 'sweet', synonym_vi: 'đồ ngọt', ex: 'What would you like for dessert?', ex_vi: 'Bạn muốn dùng món gì cho tráng miệng?' } },
+            { front: { term: 'Cake', ipa: '/keɪk/' }, back: { vi: 'bánh ngọt', en: 'A sweet baked food made from a mixture of flour, sugar, eggs, fat, etc.', synonym: 'pastry', synonym_vi: 'bánh ngọt', ex: 'We had a delicious chocolate cake for her birthday.', ex_vi: 'Chúng tôi đã có một chiếc bánh sô cô la ngon tuyệt cho sinh nhật của cô ấy.' } },
+            { front: { term: 'Juice', ipa: '/dʒuːs/' }, back: { vi: 'nước trái cây', en: 'The liquid obtained from or present in fruit or vegetables.', synonym: 'fruit drink', synonym_vi: 'đồ uống trái cây', ex: 'A glass of fresh orange juice is a great way to start the day.', ex_vi: 'Một ly nước cam tươi là một cách tuyệt vời để bắt đầu ngày mới.' } },
+            { front: { term: 'Tea', ipa: '/tiː/' }, back: { vi: 'trà', en: 'A hot drink made by infusing the dried crushed leaves of the tea plant in boiling water.', synonym: 'herbal tea', synonym_vi: 'trà thảo mộc', ex: 'Would you like a cup of tea?', ex_vi: 'Bạn có muốn một tách trà không?' } },
+            { front: { term: 'Coffee', ipa: '/ˈkɑː.fi/' }, back: { vi: 'cà phê', en: 'A hot drink made from the roasted and ground seeds of a tropical shrub.', synonym: 'espresso', synonym_vi: 'cà phê espresso', ex: 'I need a strong coffee to wake me up in the morning.', ex_vi: 'Tôi cần một ly cà phê đậm để tỉnh táo vào buổi sáng.' } }
+        ];
+
+        let currentCardIndex = 0;
+
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+
+            cardFrontEl.innerHTML = `
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa || ''}</p>
+            `;
+
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Synonym:</strong> <span class="text-stone-600">${card.back.synonym} ("${card.back.synonym_vi}")</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+
+        document.addEventListener("keydown", function (e) {
+
+            if (
+                e.key === "F12" ||
+                (e.ctrlKey && e.shiftKey && e.key === "I") ||
+                (e.ctrlKey && e.shiftKey && e.key === "J") ||
+                (e.ctrlKey && e.shiftKey && e.key === "C") ||
+                (e.ctrlKey && e.key === "u") ||
+                (e.ctrlKey && e.key === "p") ||
+                (e.ctrlKey && e.key === "s")
+
+            ) {
+                e.preventDefault();
+
+                return false;
+            }
+        });
+
+
+        document.addEventListener("contextmenu", function (e) {
+            e.preventDefault();
+            return false;
+        });
+
+    </script>
+</body>
+
+</html>

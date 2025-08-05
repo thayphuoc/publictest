@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 8: Sports and hobbies</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem;
+            /* rounded-xl */
+        }
+
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+
+</head>
+
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 8: Sports and hobbies</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn"
+                    class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn"
+                    class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn"
+                    class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'Football', ipa: '/ˈfʊt.bɔːl/' }, back: { vi: 'bóng đá', en: 'A game played by two teams of eleven players with a round ball that may not be touched with the hands or arms.', synonym: 'soccer', synonym_vi: 'bóng đá', ex: 'He plays football for his school team.', ex_vi: 'Anh ấy chơi bóng đá cho đội tuyển của trường.' } },
+            { front: { term: 'Basketball', ipa: '/ˈbæs.kɪt.bɔːl/' }, back: { vi: 'bóng rổ', en: 'A game played between two teams of five players in which goals are scored by throwing a ball through a netted hoop.', synonym: 'hoops', synonym_vi: 'bóng rổ', ex: 'She is very tall, so she is good at basketball.', ex_vi: 'Cô ấy rất cao nên chơi bóng rổ rất giỏi.' } },
+            { front: { term: 'Tennis', ipa: '/ˈten.ɪs/' }, back: { vi: 'quần vợt', en: 'A game in which two or four players strike a ball with rackets over a net stretched across a court.', synonym: 'lawn tennis', synonym_vi: 'quần vợt sân cỏ', ex: 'Let\'s play a game of tennis this weekend.', ex_vi: 'Hãy chơi một trận quần vợt vào cuối tuần này.' } },
+            { front: { term: 'Swimming', ipa: '/ˈswɪm.ɪŋ/' }, back: { vi: 'bơi lội', en: 'The sport or activity of propelling oneself through water using the limbs.', synonym: 'aquatic exercise', synonym_vi: 'bài tập dưới nước', ex: 'Swimming is a great way to exercise.', ex_vi: 'Bơi lội là một cách tuyệt vời để tập thể dục.' } },
+            { front: { term: 'Cycling', ipa: '/ˈsaɪ.klɪŋ/' }, back: { vi: 'đạp xe', en: 'The sport or activity of riding a bicycle.', synonym: 'biking', synonym_vi: 'đi xe đạp', ex: 'We went cycling in the countryside.', ex_vi: 'Chúng tôi đã đi đạp xe ở vùng nông thôn.' } },
+            { front: { term: 'Running', ipa: '/ˈrʌn.ɪŋ/' }, back: { vi: 'chạy bộ', en: 'The action or movement of a runner.', synonym: 'jogging', synonym_vi: 'chạy chậm', ex: 'I go running in the park every morning.', ex_vi: 'Tôi chạy bộ trong công viên mỗi sáng.' } },
+            { front: { term: 'Yoga', ipa: '/ˈjoʊ.ɡə/' }, back: { vi: 'yoga', en: 'A Hindu spiritual and ascetic discipline which includes breath control, simple meditation, and the adoption of specific bodily postures.', synonym: 'stretching exercise', synonym_vi: 'bài tập giãn cơ', ex: 'Yoga is good for both the body and the mind.', ex_vi: 'Yoga tốt cho cả thể chất và tinh thần.' } },
+            { front: { term: 'Gymnastics', ipa: '/dʒɪmˈnæs.tɪks/' }, back: { vi: 'thể dục dụng cụ', en: 'Exercises developing or displaying physical agility and coordination.', synonym: 'acrobatics', synonym_vi: 'môn thể dục', ex: 'She has been doing gymnastics since she was five.', ex_vi: 'Cô ấy đã tập thể dục dụng cụ từ khi mới năm tuổi.' } },
+            { front: { term: 'Hiking', ipa: '/ˈhaɪ.kɪŋ/' }, back: { vi: 'leo núi', en: 'The activity of going for long walks, especially in the country or mountains.', synonym: 'trekking', synonym_vi: 'đi bộ đường dài', ex: 'They enjoy hiking in the mountains during their vacation.', ex_vi: 'Họ thích đi bộ đường dài trên núi trong kỳ nghỉ của mình.' } },
+            { front: { term: 'Fishing', ipa: '/ˈfɪʃ.ɪŋ/' }, back: { vi: 'câu cá', en: 'The activity of catching fish, either for food or as a sport.', synonym: 'angling', synonym_vi: 'đánh cá', ex: 'My grandfather loves to go fishing at the lake.', ex_vi: 'Ông tôi rất thích đi câu cá ở hồ.' } },
+            { front: { term: 'Painting', ipa: '/ˈpeɪn.t̬ɪŋ/' }, back: { vi: 'vẽ tranh', en: 'The process or art of using paint, in a picture, as a protective coating, or as decoration.', synonym: 'drawing', synonym_vi: 'vẽ', ex: 'Painting is a very relaxing hobby.', ex_vi: 'Vẽ tranh là một sở thích rất thư giãn.' } },
+            { front: { term: 'Photography', ipa: '/fəˈtɑː.ɡrə.fi/' }, back: { vi: 'nhiếp ảnh', en: 'The art or process of taking photographs.', synonym: 'taking pictures', synonym_vi: 'chụp ảnh', ex: 'He is studying photography at college.', ex_vi: 'Anh ấy đang học nhiếp ảnh ở trường cao đẳng.' } },
+            { front: { term: 'Gardening', ipa: '/ˈɡɑːr.dən.ɪŋ/' }, back: { vi: 'làm vườn', en: 'The activity of tending and cultivating a garden.', synonym: 'horticulture', synonym_vi: 'nghiên cứu và trồng cây', ex: 'Gardening can be a very rewarding hobby.', ex_vi: 'Làm vườn có thể là một sở thích rất bổ ích.' } },
+            { front: { term: 'Reading', ipa: '/ˈriː.dɪŋ/' }, back: { vi: 'đọc sách', en: 'The activity or skill of reading.', synonym: 'literature', synonym_vi: 'văn học', ex: 'Reading is a great way to expand your vocabulary.', ex_vi: 'Đọc sách là một cách tuyệt vời để mở rộng vốn từ vựng của bạn.' } },
+            { front: { term: 'Cooking', ipa: '/ˈkʊk.ɪŋ/' }, back: { vi: 'nấu ăn', en: 'The practice or skill of preparing food by combining, mixing, and heating ingredients.', synonym: 'culinary arts', synonym_vi: 'nghệ thuật ẩm thực', ex: 'She took a cooking class to learn how to make Italian food.', ex_vi: 'Cô ấy đã tham gia một lớp học nấu ăn để học cách làm món ăn Ý.' } },
+            { front: { term: 'Playing instruments', ipa: '/ˈpleɪ.ɪŋ ˈɪn.strə.mənts/' }, back: { vi: 'chơi nhạc cụ', en: 'The activity of making music with a musical instrument.', synonym: 'music performance', synonym_vi: 'biểu diễn âm nhạc', ex: 'Playing instruments can improve your creativity.', ex_vi: 'Chơi nhạc cụ có thể cải thiện khả năng sáng tạo của bạn.' } },
+            { front: { term: 'Dancing', ipa: '/ˈdæn.sɪŋ/' }, back: { vi: 'nhảy múa', en: 'Moving rhythmically to music, typically following a set sequence of steps.', synonym: 'choreography', synonym_vi: 'biên đạo múa', ex: 'Dancing is a fun way to stay active.', ex_vi: 'Nhảy múa là một cách thú vị để duy trì sự năng động.' } },
+            { front: { term: 'Crafting', ipa: '/ˈkræf.tɪŋ/' }, back: { vi: 'làm đồ thủ công', en: 'The activity of making decorative objects with your hands.', synonym: 'DIY (do it yourself)', synonym_vi: 'tự làm', ex: 'She enjoys crafting in her spare time.', ex_vi: 'Cô ấy thích làm đồ thủ công trong thời gian rảnh.' } },
+            { front: { term: 'Camping', ipa: '/ˈkæm.pɪŋ/' }, back: { vi: 'cắm trại', en: 'The activity of spending a vacation living in a camp, tent, or camper.', synonym: 'outdoor living', synonym_vi: 'sống ngoài trời', ex: 'We are going camping in the mountains this weekend.', ex_vi: 'Chúng tôi sẽ đi cắm trại trên núi vào cuối tuần này.' } },
+            { front: { term: 'Traveling', ipa: '/ˈtræv.əl.ɪŋ/' }, back: { vi: 'du lịch', en: 'Going from one place to another, typically over a distance of some length.', synonym: 'exploring', synonym_vi: 'khám phá', ex: 'Traveling allows you to experience different cultures.', ex_vi: 'Du lịch cho phép bạn trải nghiệm các nền văn hóa khác nhau.' } }
+        ];
+
+        let currentCardIndex = 0;
+
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+
+            cardFrontEl.innerHTML = `
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa || ''}</p>
+            `;
+
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Synonym:</strong> <span class="text-stone-600">${card.back.synonym} ("${card.back.synonym_vi}")</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+
+        document.addEventListener("keydown", function (e) {
+
+            if (
+                e.key === "F12" ||
+                (e.ctrlKey && e.shiftKey && e.key === "I") ||
+                (e.ctrlKey && e.shiftKey && e.key === "J") ||
+                (e.ctrlKey && e.shiftKey && e.key === "C") ||
+                (e.ctrlKey && e.key === "u") ||
+                (e.ctrlKey && e.key === "p") ||
+                (e.ctrlKey && e.key === "s")
+
+            ) {
+                e.preventDefault();
+
+                return false;
+            }
+        });
+
+
+        document.addEventListener("contextmenu", function (e) {
+            e.preventDefault();
+            return false;
+        });
+
+
+    </script>
+</body>
+
+</html>

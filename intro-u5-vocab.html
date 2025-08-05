@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 5: Ambition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem;
+            /* rounded-xl */
+        }
+
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+
+</head>
+
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 5: Ambition</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn"
+                    class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn"
+                    class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn"
+                    class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'Architect', ipa: '/ˈɑːr.kə.tekt/' }, back: { vi: 'Kiến trúc sư', en: 'A person who designs buildings.', synonym: 'Designer, Planner', synonym_vi: 'nhà thiết kế, người lập kế hoạch', ex: 'The architect is designing a new skyscraper.', ex_vi: 'Kiến trúc sư đang thiết kế một tòa nhà chọc trời mới.' } },
+            { front: { term: 'Cleaner', ipa: '/ˈkliː.nɚ/' }, back: { vi: 'Nhân viên dọn dẹp', en: 'A person employed to clean the interior of a building.', synonym: 'Janitor, Housekeeper', synonym_vi: 'người lao công, quản gia', ex: 'The cleaner makes sure the office is tidy every morning.', ex_vi: 'Nhân viên dọn dẹp đảm bảo văn phòng gọn gàng mỗi sáng.' } },
+            { front: { term: 'Dentist', ipa: '/ˈden.t̬ɪst/' }, back: { vi: 'Nha sĩ', en: 'A person qualified to treat the diseases and conditions that affect the teeth and gums.', synonym: 'Dental Surgeon', synonym_vi: 'bác sĩ phẫu thuật nha khoa', ex: 'You should visit the dentist for a check-up twice a year.', ex_vi: 'Bạn nên đến nha sĩ kiểm tra hai lần một năm.' } },
+            { front: { term: 'Engineer', ipa: '/ˌen.dʒɪˈnɪr/' }, back: { vi: 'Kỹ sư', en: 'A person who designs, builds, or maintains engines, machines, or public works.', synonym: 'Technician, Developer', synonym_vi: 'kỹ thuật viên, người phát triển', ex: 'An engineer is working on the bridge\'s design.', ex_vi: 'Một kỹ sư đang làm việc trên thiết kế của cây cầu.' } },
+            { front: { term: 'Farm Worker', ipa: '/fɑːrm ˈwɝː.kɚ/' }, back: { vi: 'Công nhân nông trại', en: 'A person who works on a farm.', synonym: 'Farmer, Agricultural Laborer', synonym_vi: 'nông dân, lao động nông nghiệp', ex: 'Farm workers have to get up very early.', ex_vi: 'Công nhân nông trại phải dậy rất sớm.' } },
+            { front: { term: 'Hairdresser', ipa: '/ˈherˌdres.ɚ/' }, back: { vi: 'Thợ làm tóc', en: 'A person who cuts and styles hair as an occupation.', synonym: 'Stylist, Barber', synonym_vi: 'nhà tạo mẫu, thợ cắt tóc', ex: 'I\'m going to the hairdresser for a new haircut.', ex_vi: 'Tôi sẽ đến tiệm làm tóc để cắt một kiểu tóc mới.' } },
+            { front: { term: 'Paramedic', ipa: '/ˌper.əˈmed.ɪk/' }, back: { vi: 'Nhân viên y tế khẩn cấp', en: 'A person trained to give emergency medical care to people who are seriously ill.', synonym: 'EMT, Emergency Responder', synonym_vi: 'nhân viên cấp cứu, người ứng phó khẩn cấp', ex: 'The paramedic arrived at the scene of the accident quickly.', ex_vi: 'Nhân viên y tế khẩn cấp đã đến hiện trường vụ tai nạn một cách nhanh chóng.' } },
+            { front: { term: 'Pilot', ipa: '/ˈpaɪ.lət/' }, back: { vi: 'Phi công', en: 'A person who operates the flying controls of an aircraft.', synonym: 'Aviator, Captain', synonym_vi: 'người lái máy bay, cơ trưởng', ex: 'The pilot announced that we would be landing soon.', ex_vi: 'Phi công thông báo rằng chúng tôi sẽ sớm hạ cánh.' } },
+            { front: { term: 'Programmer', ipa: '/ˈproʊ.ɡræm.ɚ/' }, back: { vi: 'Lập trình viên', en: 'A person who writes computer software.', synonym: 'Coder, Developer', synonym_vi: 'người viết mã, nhà phát triển', ex: 'A programmer needs to be good at problem-solving.', ex_vi: 'Một lập trình viên cần phải giỏi giải quyết vấn đề.' } },
+            { front: { term: 'Receptionist', ipa: '/rɪˈsep.ʃən.ɪst/' }, back: { vi: 'Nhân viên lễ tân', en: 'A person employed in an office or other establishment to answer the telephone, deal with clients, and greet visitors.', synonym: 'Front Desk Officer, Greeter', synonym_vi: 'nhân viên quầy tiếp tân, người tiếp đón', ex: 'The receptionist will help you with your check-in.', ex_vi: 'Nhân viên lễ tân sẽ giúp bạn làm thủ tục nhận phòng.' } },
+            { front: { term: 'Sales Assistant', ipa: '/ˈseɪlz əˌsɪs.tənt/' }, back: { vi: 'Nhân viên bán hàng', en: 'A person who sells goods to members of the public.', synonym: 'Salesperson, Retail Associate', synonym_vi: 'người bán hàng, nhân viên bán lẻ', ex: 'The sales assistant was very helpful.', ex_vi: 'Nhân viên bán hàng rất nhiệt tình.' } },
+            { front: { term: 'Solicitor', ipa: '/səˈlɪs.ə.t̬ɚ/' }, back: { vi: 'Luật sư tư vấn', en: 'A member of the legal profession qualified to deal with conveyancing, the drawing up of wills, and other legal matters.', synonym: 'Lawyer, Legal Advisor', synonym_vi: 'luật sư, cố vấn pháp luật', ex: 'You should consult a solicitor before signing the contract.', ex_vi: 'Bạn nên tham khảo ý kiến luật sư tư vấn trước khi ký hợp đồng.' } },
+            { front: { term: 'Sports Coach', ipa: '/spɔːrts koʊtʃ/' }, back: { vi: 'Huấn luyện viên thể thao', en: 'A person who trains athletes or a sports team.', synonym: 'Trainer, Mentor', synonym_vi: 'huấn luyện viên, người hướng dẫn', ex: 'The sports coach motivated the team to win.', ex_vi: 'Huấn luyện viên thể thao đã động viên đội giành chiến thắng.' } },
+            { front: { term: 'Travel Agent', ipa: '/ˈtræv.əl ˌeɪ.dʒənt/' }, back: { vi: 'Nhân viên đại lý du lịch', en: 'A person whose job it is to arrange travel for end clients.', synonym: 'Travel Consultant, Trip Planner', synonym_vi: 'tư vấn du lịch, người lên kế hoạch du lịch', ex: 'A travel agent can help you find the best deals on flights and hotels.', ex_vi: 'Một nhân viên đại lý du lịch có thể giúp bạn tìm được những ưu đãi tốt nhất về chuyến bay và khách sạn.' } },
+            { front: { term: 'Waiter', ipa: '/ˈweɪ.t̬ɚ/' }, back: { vi: 'Bồi bàn (nam)', en: 'A man whose job is to serve customers at their tables in a restaurant.', synonym: 'Server, Steward', synonym_vi: 'người phục vụ, người bồi bàn', ex: 'The waiter took our order promptly.', ex_vi: 'Người bồi bàn đã nhận đơn đặt hàng của chúng tôi một cách nhanh chóng.' } },
+            { front: { term: 'Answer the phone', ipa: '' }, back: { vi: 'Trả lời điện thoại', en: 'To respond to a telephone call.', synonym: '', synonym_vi: '', ex: 'A receptionist has to answer the phone all day.', ex_vi: 'Một nhân viên lễ tân phải trả lời điện thoại cả ngày.' } },
+            { front: { term: 'Be on your feet', ipa: '' }, back: { vi: 'Đứng lâu', en: 'To be standing for long periods.', synonym: '', synonym_vi: '', ex: 'Hairdressers are on their feet most of the day.', ex_vi: 'Thợ làm tóc phải đứng gần như cả ngày.' } },
+            { front: { term: 'Be part of a team', ipa: '' }, back: { vi: 'Làm việc nhóm', en: 'To work together with other people.', synonym: '', synonym_vi: '', ex: 'Most engineers are part of a team on a project.', ex_vi: 'Hầu hết các kỹ sư đều là một phần của một đội trong một dự án.' } },
+            { front: { term: 'Deal with the public', ipa: '' }, back: { vi: 'Giao tiếp với công chúng', en: 'To interact with customers or clients.', synonym: '', synonym_vi: '', ex: 'Sales assistants have to deal with the public every day.', ex_vi: 'Nhân viên bán hàng phải giao tiếp với công chúng mỗi ngày.' } },
+            { front: { term: 'Earn a lot (of money)', ipa: '' }, back: { vi: 'Kiếm được nhiều tiền', en: 'To receive a large salary.', synonym: '', synonym_vi: '', ex: 'Pilots and dentists often earn a lot of money.', ex_vi: 'Phi công và nha sĩ thường kiếm được rất nhiều tiền.' } },
+            { front: { term: 'Make phone calls', ipa: '' }, back: { vi: 'Gọi điện thoại', en: 'To use a telephone to talk to someone.', synonym: '', synonym_vi: '', ex: 'A travel agent needs to make a lot of phone calls.', ex_vi: 'Một nhân viên đại lý du lịch cần phải thực hiện rất nhiều cuộc gọi điện thoại.' } },
+            { front: { term: 'Serve customers', ipa: '' }, back: { vi: 'Phục vụ khách hàng', en: 'To help or provide a service to customers.', synonym: '', synonym_vi: '', ex: 'A waiter\'s main job is to serve customers.', ex_vi: 'Công việc chính của một người bồi bàn là phục vụ khách hàng.' } },
+            { front: { term: 'Travel a lot', ipa: '' }, back: { vi: 'Đi lại nhiều', en: 'To go to many different places as part of your job.', synonym: '', synonym_vi: '', ex: 'Pilots have to travel a lot for their work.', ex_vi: 'Phi công phải đi lại rất nhiều cho công việc của họ.' } },
+            { front: { term: 'Use a computer', ipa: '' }, back: { vi: 'Sử dụng máy tính', en: 'To operate a computer.', synonym: '', synonym_vi: '', ex: 'Programmers use a computer all day long.', ex_vi: 'Các lập trình viên sử dụng máy tính cả ngày.' } },
+            { front: { term: 'Wear a uniform', ipa: '' }, back: { vi: 'Mặc đồng phục', en: 'To wear a special set of clothes for work.', synonym: '', synonym_vi: '', ex: 'Paramedics and pilots have to wear a uniform.', ex_vi: 'Nhân viên y tế khẩn cấp và phi công phải mặc đồng phục.' } },
+            { front: { term: 'Work alone', ipa: '' }, back: { vi: 'Làm việc một mình', en: 'To do your job without other people.', synonym: '', synonym_vi: '', ex: 'Some programmers prefer to work alone.', ex_vi: 'Một số lập trình viên thích làm việc một mình hơn.' } },
+            { front: { term: 'Work indoors / outdoors', ipa: '' }, back: { vi: 'Làm việc trong nhà / ngoài trời', en: 'To do your job inside a building or outside.', synonym: '', synonym_vi: '', ex: 'A farm worker has to work outdoors in all weather.', ex_vi: 'Một công nhân nông trại phải làm việc ngoài trời trong mọi điều kiện thời tiết.' } },
+            { front: { term: 'Work with children', ipa: '' }, back: { vi: 'Làm việc với trẻ em', en: 'To have a job that involves children.', synonym: '', synonym_vi: '', ex: 'A sports coach often gets to work with children.', ex_vi: 'Một huấn luyện viên thể thao thường được làm việc với trẻ em.' } },
+            { front: { term: 'Work long hours / nine-to-five', ipa: '' }, back: { vi: 'Làm việc nhiều giờ / giờ hành chính', en: 'To work for many hours or for standard office hours.', synonym: '', synonym_vi: '', ex: 'Solicitors often have to work long hours.', ex_vi: 'Luật sư tư vấn thường phải làm việc nhiều giờ.' } }
+        ];
+
+        let currentCardIndex = 0;
+
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+
+            cardFrontEl.innerHTML = `
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa || ''}</p>
+            `;
+
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    ${card.back.synonym ? `<p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Synonyms:</strong> <span class="text-stone-600">${card.back.synonym} ("${card.back.synonym_vi}")</span></p>` : ''}
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+        document.addEventListener("keydown", function (e) {
+
+            if (
+                e.key === "F12" ||
+                (e.ctrlKey && e.shiftKey && e.key === "I") ||
+                (e.ctrlKey && e.shiftKey && e.key === "J") ||
+                (e.ctrlKey && e.shiftKey && e.key === "C") ||
+                (e.ctrlKey && e.key === "u") ||
+                (e.ctrlKey && e.key === "p") ||
+                (e.ctrlKey && e.key === "s")
+
+            ) {
+                e.preventDefault();
+
+                return false;
+            }
+        });
+
+
+        document.addEventListener("contextmenu", function (e) {
+            e.preventDefault();
+            return false;
+        });
+
+    </script>
+</body>
+
+</html>

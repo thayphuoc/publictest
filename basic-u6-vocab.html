@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 6: Wild animals</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem;
+            /* rounded-xl */
+        }
+
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+
+</head>
+
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 6: Wild animals</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn"
+                    class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn"
+                    class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn"
+                    class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'Lion', ipa: '/ˈlaɪ.ən/' }, back: { vi: 'sư tử', en: 'A large carnivorous feline mammal of Africa and India.', synonym: 'king of the jungle', synonym_vi: 'vị vua của rừng', ex: 'The lion is often called the king of the jungle.', ex_vi: 'Sư tử thường được gọi là vua của rừng xanh.' } },
+            { front: { term: 'Tiger', ipa: '/ˈtaɪ.ɡɚ/' }, back: { vi: 'hổ', en: 'A very large solitary cat with a yellow-brown coat of fur with dark stripes.', synonym: 'big cat', synonym_vi: 'mèo lớn', ex: 'The tiger is the largest cat species.', ex_vi: 'Hổ là loài mèo lớn nhất.' } },
+            { front: { term: 'Elephant', ipa: '/ˈel.ə.fənt/' }, back: { vi: 'voi', en: 'A very large plant-eating mammal with a prehensile trunk, long curved ivory tusks, and large ears.', synonym: 'pachyderm', synonym_vi: 'động vật có da dày', ex: 'An elephant can drink up to 200 liters of water a day.', ex_vi: 'Một con voi có thể uống tới 200 lít nước mỗi ngày.' } },
+            { front: { term: 'Giraffe', ipa: '/dʒəˈræf/' }, back: { vi: 'hươu cao cổ', en: 'A large African mammal with a very long neck and forelegs.', synonym: 'long-necked animal', synonym_vi: 'động vật có cổ dài', ex: 'The giraffe is the tallest mammal in the world.', ex_vi: 'Hươu cao cổ là loài động vật có vú cao nhất thế giới.' } },
+            { front: { term: 'Zebra', ipa: '/ˈziː.brə/' }, back: { vi: 'ngựa vằn', en: 'An African wild horse with black-and-white stripes.', synonym: 'striped horse', synonym_vi: 'ngựa có vằn', ex: 'Every zebra has a unique pattern of stripes.', ex_vi: 'Mỗi con ngựa vằn đều có một kiểu sọc độc đáo.' } },
+            { front: { term: 'Bear', ipa: '/ber/' }, back: { vi: 'gấu', en: 'A large, heavy mammal that walks on the soles of its feet, with thick fur and a very short tail.', synonym: 'large carnivore', synonym_vi: 'động vật ăn thịt lớn', ex: 'Bears hibernate during the winter.', ex_vi: 'Gấu ngủ đông trong suốt mùa đông.' } },
+            { front: { term: 'Wolf', ipa: '/wʊlf/' }, back: { vi: 'sói', en: 'A wild carnivorous mammal which is the largest member of the dog family.', synonym: 'wild dog', synonym_vi: 'chó hoang', ex: 'Wolves hunt in packs.', ex_vi: 'Sói săn mồi theo bầy đàn.' } },
+            { front: { term: 'Fox', ipa: '/fɑːks/' }, back: { vi: 'cáo', en: 'A carnivorous mammal of the dog family with a pointed muzzle and a bushy tail.', synonym: 'cunning animal', synonym_vi: 'động vật xảo quyệt', ex: 'The quick brown fox jumps over the lazy dog.', ex_vi: 'Con cáo nâu nhanh nhẹn nhảy qua con chó lười biếng.' } },
+            { front: { term: 'Deer', ipa: '/dɪr/' }, back: { vi: 'hươu', en: 'A hoofed grazing or browsing animal, with branched bony antlers that are shed annually.', synonym: 'stag', synonym_vi: 'hươu đực', ex: 'We saw a deer in the forest.', ex_vi: 'Chúng tôi đã nhìn thấy một con hươu trong rừng.' } },
+            { front: { term: 'Kangaroo', ipa: '/ˌkæŋ.ɡəˈruː/' }, back: { vi: 'chuột túi', en: 'A large plant-eating marsupial with a long powerful tail and strongly developed hindlimbs that enable it to travel by leaping.', synonym: 'marsupial', synonym_vi: 'động vật có túi', ex: 'The kangaroo is a symbol of Australia.', ex_vi: 'Chuột túi là một biểu tượng của nước Úc.' } },
+            { front: { term: 'Panda', ipa: '/ˈpæn.də/' }, back: { vi: 'gấu trúc', en: 'A large bear-like mammal with characteristic black-and-white markings, native to certain mountain forests in China.', synonym: 'bamboo bear', synonym_vi: 'gấu ăn tre', ex: 'The giant panda\'s diet is almost exclusively bamboo.', ex_vi: 'Chế độ ăn của gấu trúc khổng lồ gần như chỉ có tre.' } },
+            { front: { term: 'Penguin', ipa: '/ˈpeŋ.ɡwɪn/' }, back: { vi: 'chim cánh cụt', en: 'A large flightless seabird of the southern hemisphere.', synonym: 'flightless bird', synonym_vi: 'chim không biết bay', ex: 'Penguins are excellent swimmers.', ex_vi: 'Chim cánh cụt là những vận động viên bơi lội xuất sắc.' } },
+            { front: { term: 'Hippopotamus', ipa: '/ˌhɪp.əˈpɑː.t̬ə.məs/' }, back: { vi: 'hà mã', en: 'A large thick-skinned semiaquatic African mammal, with massive jaws and large tusks.', synonym: 'river horse', synonym_vi: 'ngựa sông', ex: 'The hippopotamus spends most of its day in water.', ex_vi: 'Hà mã dành phần lớn thời gian trong ngày ở dưới nước.' } },
+            { front: { term: 'Rhinoceros', ipa: '/raɪˈnɑː.sɚ.əs/' }, back: { vi: 'tê giác', en: 'A large, heavily built plant-eating mammal with one or two horns on the nose and thick folded skin.', synonym: 'horned mammal', synonym_vi: 'động vật có sừng', ex: 'The rhinoceros is an endangered species.', ex_vi: 'Tê giác là một loài có nguy cơ tuyệt chủng.' } },
+            { front: { term: 'Jaguar', ipa: '/ˈdʒæɡ.wɑːr/' }, back: { vi: 'báo đốm', en: 'A large cat, chiefly found in the forests of Central and South America.', synonym: 'large cat', synonym_vi: 'mèo lớn', ex: 'The jaguar is known for its powerful bite.', ex_vi: 'Báo đốm được biết đến với cú cắn mạnh mẽ của nó.' } },
+            { front: { term: 'Cheetah', ipa: '/ˈtʃiː.t̬ə/' }, back: { vi: 'báo gêpa', en: 'A large cat of the cat family, found in Africa and parts of Asia, that can run faster than any other land animal.', synonym: 'fastest land animal', synonym_vi: 'động vật nhanh nhất trên cạn', ex: 'A cheetah can reach speeds of up to 120 km/h.', ex_vi: 'Một con báo gêpa có thể đạt tốc độ lên tới 120 km/h.' } },
+            { front: { term: 'Ostrich', ipa: '/ˈɑː.strɪtʃ/' }, back: { vi: 'đà điểu', en: 'A large swift-running flightless bird from Africa.', synonym: 'large flightless bird', synonym_vi: 'chim lớn không bay được', ex: 'The ostrich lays the largest eggs of any living bird.', ex_vi: 'Đà điểu đẻ những quả trứng lớn nhất trong số các loài chim còn sống.' } },
+            { front: { term: 'Sloth', ipa: '/slɑːθ/' }, back: { vi: 'con lười', en: 'A slow-moving tropical American mammal that hangs upside down from the branches of trees.', synonym: 'slow-moving mammal', synonym_vi: 'động vật di chuyển chậm', ex: 'A sloth moves so slowly that algae grows on its fur.', ex_vi: 'Con lười di chuyển chậm đến nỗi tảo mọc trên lông của nó.' } },
+            { front: { term: 'Monkey', ipa: '/ˈmʌŋ.ki/' }, back: { vi: 'khỉ', en: 'A small to medium-sized primate that typically has a long tail, most kinds of which live in trees in tropical countries.', synonym: 'primate', synonym_vi: 'động vật linh trưởng', ex: 'Monkeys are known for their intelligence and playful behavior.', ex_vi: 'Khỉ được biết đến với trí thông minh và hành vi tinh nghịch.' } }
+        ];
+
+        let currentCardIndex = 0;
+
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+
+            cardFrontEl.innerHTML = `
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa || ''}</p>
+            `;
+
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Synonym:</strong> <span class="text-stone-600">${card.back.synonym} ("${card.back.synonym_vi}")</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+
+        document.addEventListener("keydown", function (e) {
+
+            if (
+                e.key === "F12" ||
+                (e.ctrlKey && e.shiftKey && e.key === "I") ||
+                (e.ctrlKey && e.shiftKey && e.key === "J") ||
+                (e.ctrlKey && e.shiftKey && e.key === "C") ||
+                (e.ctrlKey && e.key === "u") ||
+                (e.ctrlKey && e.key === "p") ||
+                (e.ctrlKey && e.key === "s")
+
+            ) {
+                e.preventDefault();
+
+                return false;
+            }
+        });
+
+
+        document.addEventListener("contextmenu", function (e) {
+            e.preventDefault();
+            return false;
+        });
+
+    </script>
+</body>
+
+</html>

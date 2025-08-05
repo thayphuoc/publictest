@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 3: On screen</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem;
+            /* rounded-xl */
+        }
+
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+
+</head>
+
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 3: On screen</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn"
+                    class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn"
+                    class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn"
+                    class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'Film', ipa: '/fɪlm/' }, back: { vi: 'Phim', en: 'A story or event recorded by a camera as a set of moving images.', synonym: 'Movie, Feature', synonym_vi: 'bộ phim, phim điện ảnh', ex: 'What\'s your favorite film?', ex_vi: 'Bộ phim yêu thích của bạn là gì?' } },
+            { front: { term: 'TV Show', ipa: '/ˌtiːˈviː ʃoʊ/' }, back: { vi: 'Chương trình truyền hình', en: 'A program broadcast on television.', synonym: 'Television Program, Broadcast', synonym_vi: 'chương trình TV, chương trình phát sóng', ex: 'There\'s a new TV show I want to watch tonight.', ex_vi: 'Tối nay có một chương trình truyền hình mới mà tôi muốn xem.' } },
+            { front: { term: 'Series', ipa: '/ˈsɪr.iːz/' }, back: { vi: 'Bộ phim truyền hình', en: 'A set of television or radio broadcasts on the same subject or using the same characters.', synonym: 'Show, Serial', synonym_vi: 'chương trình, phim nhiều tập', ex: 'I\'m currently watching a great series on Netflix.', ex_vi: 'Tôi đang xem một bộ phim truyền hình tuyệt vời trên Netflix.' } },
+            { front: { term: 'Episode', ipa: '/ˈep.ə.soʊd/' }, back: { vi: 'Tập phim', en: 'A single program of a series.', synonym: 'Installment, Segment', synonym_vi: 'kỳ, phần', ex: 'The last episode of the season was very exciting.', ex_vi: 'Tập cuối của mùa phim rất thú vị.' } },
+            { front: { term: 'Documentary', ipa: '/ˌdɑː.kjəˈmen.t̬ɚ.i/' }, back: { vi: 'Phim tài liệu', en: 'A film that gives facts and information about a subject.', synonym: 'Docudrama, Non-fiction Film', synonym_vi: 'phim tài liệu, phim không hư cấu', ex: 'We watched a documentary about wildlife in Africa.', ex_vi: 'Chúng tôi đã xem một bộ phim tài liệu về động vật hoang dã ở châu Phi.' } },
+            { front: { term: 'Drama', ipa: '/ˈdrɑː.mə/' }, back: { vi: 'Kịch', en: 'A play in a theater or on television or radio.', synonym: 'Play, Soap Opera', synonym_vi: 'vở kịch, phim truyền hình dài tập', ex: 'She enjoys watching historical dramas.', ex_vi: 'Cô ấy thích xem các bộ phim kịch lịch sử.' } },
+            { front: { term: 'Comedy', ipa: '/ˈkɑː.mə.di/' }, back: { vi: 'Hài kịch', en: 'A type of entertainment intended to make an audience laugh.', synonym: 'Sitcom, Farce', synonym_vi: 'hài tình huống, hài kịch', ex: 'I need to watch a comedy to cheer myself up.', ex_vi: 'Tôi cần xem một bộ phim hài để vui lên.' } },
+            { front: { term: 'Action', ipa: '/ˈæk.ʃən/' }, back: { vi: 'Phim hành động', en: 'A film genre with events that typically include violence, extended fighting, and frantic chases.', synonym: 'Thriller, Adventure', synonym_vi: 'phim hồi hộp, phiêu lưu', ex: 'He loves watching action movies with lots of explosions.', ex_vi: 'Anh ấy thích xem phim hành động có nhiều cảnh cháy nổ.' } },
+            { front: { term: 'Romance', ipa: '/ˈroʊ.mæns/' }, back: { vi: 'Phim tình cảm', en: 'A film genre which focuses on passion, emotion, and the romantic involvement of the main characters.', synonym: 'Love Story, Romantic Film', synonym_vi: 'câu chuyện tình yêu, phim lãng mạn', ex: 'It was a classic romance film with a happy ending.', ex_vi: 'Đó là một bộ phim tình cảm kinh điển có hậu.' } },
+            { front: { term: 'Horror', ipa: '/ˈhɔːr.ɚ/' }, back: { vi: 'Phim kinh dị', en: 'A film genre that seeks to elicit fear or disgust in its audience.', synonym: 'Thriller, Scary Movie', synonym_vi: 'phim hồi hộp, phim đáng sợ', ex: 'I can\'t watch horror movies alone.', ex_vi: 'Tôi không thể xem phim kinh dị một mình.' } },
+            { front: { term: 'Science Fiction', ipa: '/ˌsaɪəns ˈfɪk.ʃən/' }, back: { vi: 'Khoa học viễn tưởng', en: 'Fiction based on imagined future scientific or technological advances.', synonym: 'Sci-Fi, Futuristic Film', synonym_vi: 'viễn tưởng, phim tương lai', ex: 'Star Wars is a famous science fiction film.', ex_vi: 'Star Wars là một bộ phim khoa học viễn tưởng nổi tiếng.' } },
+            { front: { term: 'Fantasy', ipa: '/ˈfæn.tə.si/' }, back: { vi: 'Phim giả tưởng', en: 'A genre of speculative fiction set in a fictional universe, often inspired by myth and folklore.', synonym: 'Fantasy Film, Mythical', synonym_vi: 'phim huyền bí, huyền thoại', ex: 'The Lord of the Rings is a classic fantasy series.', ex_vi: 'Chúa tể của những chiếc nhẫn là một bộ phim giả tưởng kinh điển.' } },
+            { front: { term: 'Actor', ipa: '/ˈæk.tɚ/' }, back: { vi: 'Diễn viên', en: 'A person whose profession is acting on the stage, in movies, or on television.', synonym: 'Performer, Artist', synonym_vi: 'người biểu diễn, nghệ sĩ', ex: 'He is a very talented actor.', ex_vi: 'Anh ấy là một diễn viên rất tài năng.' } },
+            { front: { term: 'Director', ipa: '/daɪˈrek.tɚ/' }, back: { vi: 'Đạo diễn', en: 'A person who supervises the actors and other staff for a movie.', synonym: 'Filmmaker, Producer', synonym_vi: 'nhà làm phim, nhà sản xuất', ex: 'The director won an award for his latest film.', ex_vi: 'Đạo diễn đã giành được một giải thưởng cho bộ phim mới nhất của mình.' } },
+            { front: { term: 'Script', ipa: '/skrɪpt/' }, back: { vi: 'Kịch bản', en: 'The written text of a play, movie, or broadcast.', synonym: 'Screenplay, Manuscript', synonym_vi: 'kịch bản điện ảnh, bản thảo', ex: 'The actors are rehearsing their lines from the script.', ex_vi: 'Các diễn viên đang tập lời thoại từ kịch bản.' } },
+            { front: { term: 'Scene', ipa: '/siːn/' }, back: { vi: 'Cảnh', en: 'A sequence of continuous action in a play, movie, or book.', synonym: 'Shot, Sequence', synonym_vi: 'cảnh quay, chuỗi cảnh', ex: 'My favorite scene in the movie is the final battle.', ex_vi: 'Cảnh yêu thích của tôi trong phim là trận chiến cuối cùng.' } },
+            { front: { term: 'Soundtrack', ipa: '/ˈsaʊnd.træk/' }, back: { vi: 'Nhạc phim', en: 'The music used in a movie.', synonym: 'Score, Music', synonym_vi: 'nhạc nền, âm nhạc', ex: 'The soundtrack of this film is amazing.', ex_vi: 'Nhạc phim của bộ phim này thật tuyệt vời.' } },
+            { front: { term: 'Genre', ipa: '/ˈʒɑːn.rə/' }, back: { vi: 'Thể loại', en: 'A style or category of art, music, or literature.', synonym: 'Category, Type', synonym_vi: 'hạng mục, loại', ex: 'What is your favorite movie genre?', ex_vi: 'Thể loại phim yêu thích của bạn là gì?' } },
+            { front: { term: 'Cast', ipa: '/kæst/' }, back: { vi: 'Dàn diễn viên', en: 'The actors in a play, movie, or broadcast.', synonym: 'Ensemble, Actors', synonym_vi: 'nhóm diễn viên, diễn viên', ex: 'The film has an all-star cast.', ex_vi: 'Bộ phim có một dàn diễn viên toàn sao.' } },
+            { front: { term: 'Plot', ipa: '/plɑːt/' }, back: { vi: 'Cốt truyện', en: 'The main events of a play, novel, movie, or similar work.', synonym: 'Storyline, Narrative', synonym_vi: 'dòng chảy câu chuyện, tường thuật', ex: 'The plot of the movie was very complicated.', ex_vi: 'Cốt truyện của bộ phim rất phức tạp.' } }
+        ];
+
+        let currentCardIndex = 0;
+
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+
+            cardFrontEl.innerHTML = `
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa || ''}</p>
+            `;
+
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Synonyms:</strong> <span class="text-stone-600">${card.back.synonym} ("${card.back.synonym_vi}")</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+
+        document.addEventListener("keydown", function (e) {
+
+            if (
+                e.key === "F12" ||
+                (e.ctrlKey && e.shiftKey && e.key === "I") ||
+                (e.ctrlKey && e.shiftKey && e.key === "J") ||
+                (e.ctrlKey && e.shiftKey && e.key === "C") ||
+                (e.ctrlKey && e.key === "u") ||
+                (e.ctrlKey && e.key === "p") ||
+                (e.ctrlKey && e.key === "s")
+
+            ) {
+                e.preventDefault();
+
+                return false;
+            }
+        });
+
+
+        document.addEventListener("contextmenu", function (e) {
+            e.preventDefault();
+            return false;
+        });
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 1: Family</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem;
+            /* rounded-xl */
+        }
+
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+
+</head>
+
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 1: Family</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn"
+                    class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn"
+                    class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn"
+                    class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'Step-mother', ipa: '/ˈstepˌmʌð.ɚ/' }, back: { vi: 'mẹ kế', en: 'The woman who is married to one\'s father after the death or divorce of one\'s mother.', synonym: 'second mother', synonym_vi: 'mẹ thứ hai', ex: 'Cinderella had a wicked step-mother.', ex_vi: 'Lọ Lem có một bà mẹ kế độc ác.' } },
+            { front: { term: 'Mother-in-law', ipa: '/ˈmʌð.ɚ.ɪn.lɑː/' }, back: { vi: 'mẹ chồng/mẹ vợ', en: 'The mother of one\'s spouse.', synonym: 'spouse\'s mother', synonym_vi: 'mẹ của vợ/chồng', ex: 'My mother-in-law is a great cook.', ex_vi: 'Mẹ vợ tôi là một đầu bếp tuyệt vời.' } },
+            { front: { term: 'Family', ipa: '/ˈfæm.əl.i/' }, back: { vi: 'gia đình', en: 'A group consisting of parents and children living together in a household.', synonym: 'relatives', synonym_vi: 'người thân', ex: 'I love spending time with my family.', ex_vi: 'Tôi thích dành thời gian cho gia đình.' } },
+            { front: { term: 'Brother', ipa: '/ˈbrʌð.ɚ/' }, back: { vi: 'anh, em trai', en: 'A man or boy with one or both parents in common with another person.', synonym: 'sibling', synonym_vi: 'anh chị em', ex: 'My brother is two years older than me.', ex_vi: 'Anh trai tôi hơn tôi hai tuổi.' } },
+            { front: { term: 'Sister', ipa: '/ˈsɪs.tɚ/' }, back: { vi: 'chị, em gái', en: 'A woman or girl with one or both parents in common with another person.', synonym: 'sibling', synonym_vi: 'anh chị em', ex: 'My sister and I look very much alike.', ex_vi: 'Chị gái và tôi trông rất giống nhau.' } },
+            { front: { term: 'Grandfather', ipa: '/ˈɡræn.fɑː.ðɚ/' }, back: { vi: 'ông', en: 'The father of one\'s father or mother.', synonym: 'granddad', synonym_vi: 'ông nội/ngoại', ex: 'My grandfather tells the best stories.', ex_vi: 'Ông tôi kể những câu chuyện hay nhất.' } },
+            { front: { term: 'Grandmother', ipa: '/ˈɡræn.mʌð.ɚ/' }, back: { vi: 'bà', en: 'The mother of one\'s father or mother.', synonym: 'grandma', synonym_vi: 'bà nội/ngoại', ex: 'My grandmother bakes delicious cookies.', ex_vi: 'Bà tôi nướng những chiếc bánh quy thơm ngon.' } },
+            { front: { term: 'Uncle', ipa: '/ˈʌŋ.kəl/' }, back: { vi: 'chú, bác, cậu', en: 'The brother of one\'s father or mother.', synonym: 'relative', synonym_vi: 'người thân', ex: 'My uncle lives in Australia.', ex_vi: 'Chú tôi sống ở Úc.' } },
+            { front: { term: 'Aunt', ipa: '/ænt/' }, back: { vi: 'cô, dì, thím', en: 'The sister of one\'s father or mother.', synonym: 'relative', synonym_vi: 'người thân', ex: 'My aunt is a doctor.', ex_vi: 'Dì tôi là một bác sĩ.' } },
+            { front: { term: 'Cousin', ipa: '/ˈkʌz.ən/' }, back: { vi: 'anh/chị/em họ', en: 'A child of one\'s uncle or aunt.', synonym: 'relative', synonym_vi: 'người thân', ex: 'I have many cousins, and we often play together.', ex_vi: 'Tôi có nhiều anh chị em họ, và chúng tôi thường chơi cùng nhau.' } },
+            { front: { term: 'Parents', ipa: '/ˈper.ənts/' }, back: { vi: 'cha mẹ', en: 'A father and mother.', synonym: 'guardians', synonym_vi: 'người giám hộ', ex: 'My parents are very supportive of my dreams.', ex_vi: 'Cha mẹ tôi rất ủng hộ những ước mơ của tôi.' } },
+            { front: { term: 'Son', ipa: '/sʌn/' }, back: { vi: 'con trai', en: 'A boy or man in relation to either of his parents.', synonym: 'boy', synonym_vi: 'cậu bé', ex: 'Their son is a talented musician.', ex_vi: 'Con trai của họ là một nhạc sĩ tài năng.' } },
+            { front: { term: 'Daughter', ipa: '/ˈdɔː.t̬ɚ/' }, back: { vi: 'con gái', en: 'A girl or woman in relation to either of her parents.', synonym: 'girl', synonym_vi: 'cô bé', ex: 'His daughter is studying to be a lawyer.', ex_vi: 'Con gái ông ấy đang học để trở thành luật sư.' } },
+            { front: { term: 'Child', ipa: '/tʃaɪld/' }, back: { vi: 'con', en: 'A young human being below the age of puberty.', synonym: 'kid', synonym_vi: 'đứa trẻ', ex: 'Every child deserves a happy home.', ex_vi: 'Mỗi đứa trẻ đều xứng đáng có một mái ấm hạnh phúc.' } },
+            { front: { term: 'Baby', ipa: '/ˈbeɪ.bi/' }, back: { vi: 'em bé', en: 'A very young child, especially one newly born or in infancy.', synonym: 'infant', synonym_vi: 'trẻ sơ sinh', ex: 'The baby is sleeping peacefully in the crib.', ex_vi: 'Em bé đang ngủ yên bình trong nôi.' } },
+            { front: { term: 'Husband', ipa: '/ˈhʌz.bənd/' }, back: { vi: 'chồng', en: 'A married man considered in relation to his spouse.', synonym: 'spouse', synonym_vi: 'bạn đời', ex: 'Her husband works as an engineer.', ex_vi: 'Chồng cô ấy làm kỹ sư.' } },
+            { front: { term: 'Wife', ipa: '/waɪf/' }, back: { vi: 'vợ', en: 'A married woman considered in relation to her spouse.', synonym: 'spouse', synonym_vi: 'bạn đời', ex: 'He bought a beautiful gift for his wife.', ex_vi: 'Anh ấy đã mua một món quà đẹp cho vợ mình.' } },
+            { front: { term: 'Nephew', ipa: '/ˈnef.juː/' }, back: { vi: 'cháu trai (con của anh chị em)', en: 'A son of one\'s brother or sister.', synonym: 'male relative', synonym_vi: 'người thân nam', ex: 'I am taking my nephew to the zoo this weekend.', ex_vi: 'Tôi sẽ đưa cháu trai đi sở thú vào cuối tuần này.' } },
+            { front: { term: 'Niece', ipa: '/niːs/' }, back: { vi: 'cháu gái (con của anh chị em)', en: 'A daughter of one\'s brother or sister.', synonym: 'female relative', synonym_vi: 'người thân nữ', ex: 'My niece is very good at drawing.', ex_vi: 'Cháu gái tôi vẽ rất đẹp.' } },
+            { front: { term: 'Siblings', ipa: '/ˈsɪb.lɪŋz/' }, back: { vi: 'anh chị em', en: 'Two or more children having one or both parents in common.', synonym: 'brothers and sisters', synonym_vi: 'anh em ruột', ex: 'Do you have any siblings?', ex_vi: 'Bạn có anh chị em nào không?' } }
+        ];
+
+        let currentCardIndex = 0;
+
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+
+            cardFrontEl.innerHTML = `
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa || ''}</p>
+            `;
+
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Synonym:</strong> <span class="text-stone-600">${card.back.synonym} ("${card.back.synonym_vi}")</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+
+        document.addEventListener("keydown", function (e) {
+
+            if (
+                e.key === "F12" ||
+                (e.ctrlKey && e.shiftKey && e.key === "I") ||
+                (e.ctrlKey && e.shiftKey && e.key === "J") ||
+                (e.ctrlKey && e.shiftKey && e.key === "C") ||
+                (e.ctrlKey && e.key === "u") ||
+                (e.ctrlKey && e.key === "p") ||
+                (e.ctrlKey && e.key === "s")
+
+            ) {
+                e.preventDefault();
+
+                return false;
+            }
+        });
+
+
+        document.addEventListener("contextmenu", function (e) {
+            e.preventDefault();
+            return false;
+        });
+
+    </script>
+</body>
+
+</html>

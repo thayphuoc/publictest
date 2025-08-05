@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 4: Planet</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem;
+            /* rounded-xl */
+        }
+
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+
+
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 4: Planet</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn"
+                    class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn"
+                    class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn"
+                    class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'Weather', ipa: '/ˈweð.ɚ/' }, back: { vi: 'Thời tiết', en: 'The state of the atmosphere at a place and time as regards heat, dryness, sunshine, wind, rain, etc.', synonym: 'Climate, Conditions', synonym_vi: 'khí hậu, điều kiện', ex: 'The weather is very unpredictable in the mountains.', ex_vi: 'Thời tiết ở vùng núi rất khó lường.' } },
+            { front: { term: 'Sunny', ipa: '/ˈsʌn.i/' }, back: { vi: 'Nắng', en: 'Bright with sunlight.', synonym: 'Clear, Bright', synonym_vi: 'quang đãng, sáng', ex: 'It was a beautiful sunny day.', ex_vi: 'Đó là một ngày nắng đẹp.' } },
+            { front: { term: 'Cloudy', ipa: '/ˈklaʊ.di/' }, back: { vi: 'Có mây', en: 'Covered with clouds; overcast.', synonym: 'Overcast, Gloomy', synonym_vi: 'che phủ, u ám', ex: 'The sky was cloudy and it looked like it might rain.', ex_vi: 'Bầu trời đầy mây và có vẻ như sắp mưa.' } },
+            { front: { term: 'Rainy', ipa: '/ˈreɪ.ni/' }, back: { vi: 'Mưa', en: 'Having a great deal of rain.', synonym: 'Wet, Drizzly', synonym_vi: 'ẩm ướt, mưa phùn', ex: 'April is often a rainy month.', ex_vi: 'Tháng Tư thường là một tháng mưa nhiều.' } },
+            { front: { term: 'Stormy', ipa: '/ˈstɔːr.mi/' }, back: { vi: 'Bão tố', en: 'Characterized by strong winds and usually rain, thunder, lightning, or snow.', synonym: 'Chaotic', synonym_vi: 'hỗn loạn', ex: 'The sea was too stormy for the boat to sail.', ex_vi: 'Biển quá bão tố để thuyền ra khơi.' } },
+            { front: { term: 'Snowy', ipa: '/ˈsnoʊ.i/' }, back: { vi: 'Tuyết rơi', en: 'Characterized by snowfall.', synonym: 'Icy, Wintry', synonym_vi: 'băng giá, mùa đông', ex: 'We woke up to a snowy landscape.', ex_vi: 'Chúng tôi thức dậy với một khung cảnh tuyết rơi.' } },
+            { front: { term: 'Windy', ipa: '/ˈwɪn.di/' }, back: { vi: 'Gió mạnh', en: 'Marked by or exposed to strong winds.', synonym: 'Breezy, Blustery', synonym_vi: 'có gió nhẹ, gió mạnh', ex: 'It was a windy day, perfect for flying a kite.', ex_vi: 'Đó là một ngày nhiều gió, hoàn hảo để thả diều.' } },
+            { front: { term: 'Foggy', ipa: '/ˈfɑː.ɡi/' }, back: { vi: 'Sương mù', en: 'Full of or characterized by fog.', synonym: 'Hazy, Misty', synonym_vi: 'mờ sương, sương mù nhẹ', ex: 'It was too foggy to see the road clearly.', ex_vi: 'Trời quá sương mù để nhìn rõ đường.' } },
+            { front: { term: 'Hot', ipa: '/hɑːt/' }, back: { vi: 'Nóng', en: 'Having a high degree of heat or a high temperature.', synonym: 'Warm, Sweltering', synonym_vi: 'ấm, nóng bức', ex: 'It gets very hot in the desert during the day.', ex_vi: 'Trời trở nên rất nóng ở sa mạc vào ban ngày.' } },
+            { front: { term: 'Cold', ipa: '/koʊld/' }, back: { vi: 'Lạnh', en: 'Of or at a low or relatively low temperature.', synonym: 'Chilly, Frigid', synonym_vi: 'lạnh lẽo, rất lạnh', ex: 'Don\'t forget your coat, it\'s cold outside.', ex_vi: 'Đừng quên áo khoác, bên ngoài trời lạnh đấy.' } },
+            { front: { term: 'Humid', ipa: '/ˈhjuː.mɪd/' }, back: { vi: 'Độ ẩm cao', en: 'Marked by a high level of water vapor in the atmosphere.', synonym: 'Damp, Muggy', synonym_vi: 'ẩm ướt, nóng ẩm', ex: 'The weather was hot and humid.', ex_vi: 'Thời tiết nóng và ẩm.' } },
+            { front: { term: 'Dry', ipa: '/draɪ/' }, back: { vi: 'Khô', en: 'Free from moisture or liquid.', synonym: 'Arid, Dehydrated', synonym_vi: 'khô cằn, khô ráo', ex: 'The desert has a very dry climate.', ex_vi: 'Sa mạc có khí hậu rất khô.' } },
+            { front: { term: 'Temperate', ipa: '/ˈtem.pɚ.ət/' }, back: { vi: 'Ôn hòa', en: 'Relating to or denoting a region or climate characterized by mild temperatures.', synonym: 'Mild, Moderate', synonym_vi: 'ôn hòa, vừa phải', ex: 'This region has a temperate climate.', ex_vi: 'Vùng này có khí hậu ôn hòa.' } },
+            { front: { term: 'Drought', ipa: '/draʊt/' }, back: { vi: 'Hạn hán', en: 'A prolonged period of abnormally low rainfall, leading to a shortage of water.', synonym: 'Dry Spell, Aridity', synonym_vi: 'thời kỳ khô hạn, sự khô cằn', ex: 'The drought has caused severe damage to the crops.', ex_vi: 'Hạn hán đã gây thiệt hại nghiêm trọng cho mùa màng.' } },
+            { front: { term: 'Flood', ipa: '/flʌd/' }, back: { vi: 'Lũ lụt', en: 'An overflowing of a large amount of water beyond its normal confines.', synonym: 'Deluge, Inundation', synonym_vi: 'ngập lụt, lũ lụt', ex: 'The heavy rain caused a flood in the town.', ex_vi: 'Cơn mưa lớn đã gây ra một trận lụt trong thị trấn.' } },
+            { front: { term: 'Hurricane', ipa: '/ˈhɝː.ɪ.keɪn/' }, back: { vi: 'Bão nhiệt đới', en: 'A storm with a violent wind, in particular a tropical cyclone in the Caribbean.', synonym: 'Cyclone, Typhoon', synonym_vi: 'bão xoáy, bão lớn', ex: 'The hurricane caused widespread destruction.', ex_vi: 'Cơn bão đã gây ra sự tàn phá trên diện rộng.' } },
+            { front: { term: 'Thunderstorm', ipa: '/ˈθʌn.dɚ.stɔːrm/' }, back: { vi: 'Bão có sấm', en: 'A storm with thunder and lightning and typically also heavy rain or hail.', synonym: 'Storm, Lightning Storm', synonym_vi: 'cơn bão, bão sấm chớp', ex: 'We were caught in a heavy thunderstorm.', ex_vi: 'Chúng tôi bị mắc kẹt trong một trận bão có sấm lớn.' } },
+            { front: { term: 'Forecast', ipa: '/ˈfɔːr.kæst/' }, back: { vi: 'Dự báo thời tiết', en: 'A prediction or estimate of future events, especially coming weather.', synonym: 'Prediction', synonym_vi: 'dự đoán', ex: 'What is the weather forecast for tomorrow?', ex_vi: 'Dự báo thời tiết ngày mai thế nào?' } },
+            { front: { term: 'Barometer', ipa: '/bəˈrɑː.mɪ.t̬ɚ/' }, back: { vi: 'Áp kế', en: 'An instrument measuring atmospheric pressure, used especially in forecasting the weather.', synonym: 'Pressure Gauge, Measuring Instrument', synonym_vi: 'đồng hồ đo áp suất, dụng cụ đo lường', ex: 'The barometer is falling, which means a storm is coming.', ex_vi: 'Áp kế đang giảm, điều đó có nghĩa là một cơn bão đang đến.' } },
+            { front: { term: 'Temperature', ipa: '/ˈtem.pɚ.ə.tʃɚ/' }, back: { vi: 'Nhiệt độ', en: 'The degree or intensity of heat present in a substance or object.', synonym: 'Heat, Thermometer Reading', synonym_vi: 'nhiệt, đọc nhiệt độ', ex: 'The temperature dropped to below freezing last night.', ex_vi: 'Nhiệt độ đã giảm xuống dưới mức đóng băng vào đêm qua.' } }
+        ];
+
+        let currentCardIndex = 0;
+
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+
+            cardFrontEl.innerHTML = `
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa || ''}</p>
+            `;
+
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Synonyms:</strong> <span class="text-stone-600">${card.back.synonym} ("${card.back.synonym_vi}")</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+
+        document.addEventListener("keydown", function (e) {
+
+            if (
+                e.key === "F12" ||
+                (e.ctrlKey && e.shiftKey && e.key === "I") ||
+                (e.ctrlKey && e.shiftKey && e.key === "J") ||
+                (e.ctrlKey && e.shiftKey && e.key === "C") ||
+                (e.ctrlKey && e.key === "u") ||
+                (e.ctrlKey && e.key === "p") ||
+                (e.ctrlKey && e.key === "s")
+
+            ) {
+                e.preventDefault();
+
+                return false;
+            }
+        });
+
+
+        document.addEventListener("contextmenu", function (e) {
+            e.preventDefault();
+            return false;
+        });
+
+    </script>
+</body>
+
+</html>

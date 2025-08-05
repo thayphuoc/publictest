@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,22 +8,26 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-   
+
     <style>
         body {
             font-family: 'Inter', sans-serif;
         }
+
         .flashcard-container {
             perspective: 1000px;
         }
+
         .flashcard {
             position: relative;
             transform-style: preserve-3d;
             transition: transform 0.6s;
         }
+
         .flashcard.is-flipped {
             transform: rotateY(180deg);
         }
+
         .flashcard-face {
             position: absolute;
             width: 100%;
@@ -34,9 +39,11 @@
             justify-content: center;
             align-items: center;
         }
+
         .flashcard-back {
             transform: rotateY(180deg);
         }
+
         .chart-container {
             position: relative;
             margin-left: auto;
@@ -46,22 +53,29 @@
             width: 100%;
             max-width: 250px;
         }
-         .nav-button, .filter-button, .quiz-btn {
+
+        .nav-button,
+        .filter-button,
+        .quiz-btn {
             transition: all 0.2s ease-in-out;
         }
+
         .nav-button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
+
         .filter-button:hover {
-             background-color: #3b82f6;
-             color: #ffffff;
+            background-color: #3b82f6;
+            color: #ffffff;
         }
+
         .filter-button.active {
             background-color: #1d4ed8;
             color: #ffffff;
             font-weight: 600;
         }
+
         .audio-btn {
             background: none;
             border: none;
@@ -72,17 +86,23 @@
             align-items: center;
             justify-content: center;
             transition: color 0.2s;
-            color: #64748b; /* slate-500 */
+            color: #64748b;
+            /* slate-500 */
         }
+
         .audio-btn:hover {
-            color: #3b82f6; /* blue-500 */
+            color: #3b82f6;
+            /* blue-500 */
         }
+
         .audio-btn:disabled .loader {
             display: inline-block;
         }
+
         .audio-btn:disabled .icon {
             display: none;
         }
+
         .loader {
             display: none;
             width: 1em;
@@ -92,24 +112,35 @@
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
+
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
+
         .quiz-answer-btn {
             text-align: left;
         }
+
         .quiz-answer-btn.correct {
-            background-color: #22c55e; /* green-500 */
+            background-color: #22c55e;
+            /* green-500 */
             color: white;
-            border-color: #16a34a; /* green-600 */
+            border-color: #16a34a;
+            /* green-600 */
         }
+
         .quiz-answer-btn.wrong {
-            background-color: #ef4444; /* red-500 */
+            background-color: #ef4444;
+            /* red-500 */
             color: white;
-            border-color: #dc2626; /* red-600 */
+            border-color: #dc2626;
+            /* red-600 */
         }
     </style>
 </head>
+
 <body class="bg-slate-50 text-slate-800">
 
     <div class="container mx-auto p-4 sm:p-6 md:p-8 max-w-5xl">
@@ -126,7 +157,7 @@
                     <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
                         <h2 class="text-lg font-semibold mb-3 text-slate-800">Categories</h2>
                         <div id="theme-filters" class="flex flex-wrap gap-2"></div>
-                         <div class="mt-6">
+                        <div class="mt-6">
                             <h3 class="text-lg font-semibold mb-3 text-slate-800">Category Overview</h3>
                             <div class="chart-container">
                                 <canvas id="themeChart"></canvas>
@@ -137,11 +168,13 @@
 
                 <div class="flex-1">
                     <div class="mb-6">
-                         <input type="text" id="search-bar" placeholder="🔎 Search for a word..." class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition shadow-sm">
+                        <input type="text" id="search-bar" placeholder="🔎 Search for a word..."
+                            class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition shadow-sm">
                     </div>
 
                     <div id="flashcard-container" class="flashcard-container h-96 w-full mb-6">
-                        <div id="flashcard" class="flashcard h-full w-full cursor-pointer rounded-xl shadow-lg border border-slate-200">
+                        <div id="flashcard"
+                            class="flashcard h-full w-full cursor-pointer rounded-xl shadow-lg border border-slate-200">
                             <div id="card-front" class="flashcard-face bg-white rounded-xl p-6">
                             </div>
                             <div id="card-back" class="flashcard-face flashcard-back bg-blue-50 rounded-xl p-6">
@@ -150,22 +183,28 @@
                     </div>
 
                     <div class="flex justify-between items-center">
-                        <button id="prev-btn" class="nav-button bg-white px-6 py-3 rounded-lg shadow-md font-semibold text-slate-700 border border-slate-300 hover:bg-slate-100">← Previous</button>
+                        <button id="prev-btn"
+                            class="nav-button bg-white px-6 py-3 rounded-lg shadow-md font-semibold text-slate-700 border border-slate-300 hover:bg-slate-100">←
+                            Previous</button>
                         <p id="card-counter" class="text-slate-600 font-medium"></p>
-                        <button id="next-btn" class="nav-button bg-white px-6 py-3 rounded-lg shadow-md font-semibold text-slate-700 border border-slate-300 hover:bg-slate-100">Next →</button>
+                        <button id="next-btn"
+                            class="nav-button bg-white px-6 py-3 rounded-lg shadow-md font-semibold text-slate-700 border border-slate-300 hover:bg-slate-100">Next
+                            →</button>
                     </div>
                 </div>
             </div>
         </main>
-        
+
         <section id="quiz-section" class="mt-12">
             <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                 <div id="quiz-start-container" class="text-center">
                     <h2 class="text-2xl font-bold text-slate-800 mb-4">Vocabulary Quiz</h2>
                     <p class="text-slate-600 mb-6">Test your knowledge of the vocabulary words.</p>
-                    <button id="start-quiz-btn" class="quiz-btn bg-blue-600 text-white font-semibold px-8 py-3 rounded-lg hover:bg-blue-700 shadow-md">Start Quiz</button>
+                    <button id="start-quiz-btn"
+                        class="quiz-btn bg-blue-600 text-white font-semibold px-8 py-3 rounded-lg hover:bg-blue-700 shadow-md">Start
+                        Quiz</button>
                 </div>
-                
+
                 <div id="quiz-container" class="hidden">
                     <div id="question-container" class="mb-6 text-center">
                         <p id="question-progress" class="text-sm font-semibold text-slate-500 mb-2"></p>
@@ -173,14 +212,18 @@
                     </div>
                     <div id="answer-buttons" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
                     <div class="mt-6 text-center">
-                        <button id="next-quiz-btn" class="quiz-btn hidden bg-blue-600 text-white font-semibold px-8 py-3 rounded-lg hover:bg-blue-700 shadow-md">Next Question</button>
+                        <button id="next-quiz-btn"
+                            class="quiz-btn hidden bg-blue-600 text-white font-semibold px-8 py-3 rounded-lg hover:bg-blue-700 shadow-md">Next
+                            Question</button>
                     </div>
                 </div>
 
                 <div id="quiz-results-container" class="hidden text-center">
                     <h2 class="text-2xl font-bold text-slate-800 mb-4">Quiz Complete!</h2>
                     <p id="score-text" class="text-lg text-slate-600 mb-6"></p>
-                    <button id="restart-quiz-btn" class="quiz-btn bg-blue-600 text-white font-semibold px-8 py-3 rounded-lg hover:bg-blue-700 shadow-md">Restart Quiz</button>
+                    <button id="restart-quiz-btn"
+                        class="quiz-btn bg-blue-600 text-white font-semibold px-8 py-3 rounded-lg hover:bg-blue-700 shadow-md">Restart
+                        Quiz</button>
                 </div>
             </div>
         </section>
@@ -248,7 +291,7 @@
         const cardCounter = document.getElementById('card-counter');
         const themeFiltersContainer = document.getElementById('theme-filters');
         const searchBar = document.getElementById('search-bar');
-        
+
         // --- Quiz Logic ---
         const quizStartContainer = document.getElementById('quiz-start-container');
         const quizContainer = document.getElementById('quiz-container');
@@ -274,7 +317,7 @@
             }
             return bytes.buffer;
         }
-        
+
         function pcmToWav(pcmData, sampleRate) {
             const numChannels = 1;
             const bitsPerSample = 16;
@@ -284,13 +327,13 @@
             const waveHeaderSize = 44;
             const buffer = new ArrayBuffer(waveHeaderSize + dataSize);
             const view = new DataView(buffer);
-        
+
             function writeString(view, offset, string) {
                 for (let i = 0; i < string.length; i++) {
                     view.setUint8(offset + i, string.charCodeAt(i));
                 }
             }
-        
+
             writeString(view, 0, 'RIFF');
             view.setUint32(4, 36 + dataSize, true);
             writeString(view, 8, 'WAVE');
@@ -304,22 +347,22 @@
             view.setUint16(34, bitsPerSample, true);
             writeString(view, 36, 'data');
             view.setUint32(40, dataSize, true);
-        
+
             const pcmAsInt16 = new Int16Array(pcmData);
             const wavBytes = new Int16Array(buffer, waveHeaderSize);
             wavBytes.set(pcmAsInt16);
-        
+
             return new Blob([view], { type: 'audio/wav' });
         }
-        
+
         async function playAudio(text, buttonEl) {
             if (buttonEl.disabled) return;
-        
+
             buttonEl.disabled = true;
             try {
                 const apiKey = "";
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
-                
+
                 const payload = {
                     contents: [{ parts: [{ text: text }] }],
                     generationConfig: {
@@ -336,7 +379,7 @@
                 const maxAttempts = 5;
                 const initialDelay = 1000;
 
-                while(attempts < maxAttempts) {
+                while (attempts < maxAttempts) {
                     try {
                         response = await fetch(apiUrl, {
                             method: 'POST',
@@ -345,13 +388,13 @@
                         });
 
                         if (response.ok) break;
-                        
+
                         if (response.status === 429 || response.status >= 500) {
-                           attempts++;
-                           const delay = initialDelay * Math.pow(2, attempts);
-                           await new Promise(resolve => setTimeout(resolve, delay));
+                            attempts++;
+                            const delay = initialDelay * Math.pow(2, attempts);
+                            await new Promise(resolve => setTimeout(resolve, delay));
                         } else {
-                           throw new Error(`HTTP error! status: ${response.status}`);
+                            throw new Error(`HTTP error! status: ${response.status}`);
                         }
 
                     } catch (error) {
@@ -361,16 +404,16 @@
                         await new Promise(resolve => setTimeout(resolve, delay));
                     }
                 }
-        
+
                 if (!response.ok) {
                     throw new Error(`Failed to fetch audio after ${maxAttempts} attempts.`);
                 }
-        
+
                 const result = await response.json();
                 const part = result?.candidates?.[0]?.content?.parts?.[0];
                 const audioData = part?.inlineData?.data;
                 const mimeType = part?.inlineData?.mimeType;
-        
+
                 if (audioData && mimeType && mimeType.startsWith("audio/")) {
                     const sampleRateMatch = mimeType.match(/rate=(\d+)/);
                     if (!sampleRateMatch) throw new Error("Sample rate not found in MIME type");
@@ -382,7 +425,7 @@
                     audio.play();
                     audio.onended = () => URL.revokeObjectURL(audioUrl);
                 } else {
-                   console.error("Audio data not found in response:", result);
+                    console.error("Audio data not found in response:", result);
                 }
             } catch (error) {
                 console.error('Error generating or playing audio:', error);
@@ -419,10 +462,10 @@
                     <div class="mt-4"><span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-blue-600 bg-blue-200">${item.theme}</span></div>
                 </div>
             `;
-            
+
             cardBack.querySelectorAll('.audio-btn').forEach(button => {
                 button.addEventListener('click', (e) => {
-                    e.stopPropagation(); 
+                    e.stopPropagation();
                     playAudio(button.dataset.text, button);
                 });
             });
@@ -443,7 +486,7 @@
             themeFiltersContainer.innerHTML = themes.map(theme => `
                 <button class="filter-button text-sm font-medium px-3 py-1.5 rounded-full border border-slate-300 bg-white text-slate-700" data-theme="${theme}">${theme}</button>
             `).join('');
-            
+
             document.querySelectorAll('.filter-button').forEach(button => {
                 button.addEventListener('click', () => {
                     const selectedTheme = button.dataset.theme;
@@ -454,7 +497,7 @@
             });
             document.querySelector('.filter-button[data-theme="All"]').classList.add('active');
         }
-        
+
         function filterByTheme(theme) {
             if (theme === 'All') {
                 currentData = [...vocabularyData];
@@ -470,7 +513,7 @@
         function filterBySearch() {
             const searchTerm = searchBar.value.toLowerCase();
             const activeTheme = document.querySelector('.filter-button.active').dataset.theme;
-            
+
             let baseData = vocabularyData;
             if (activeTheme !== 'All') {
                 baseData = vocabularyData.filter(item => item.theme === activeTheme);
@@ -505,12 +548,12 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { position: 'bottom', labels: { font: { size: 10 }, boxWidth: 15, padding: 10 }}
+                        legend: { position: 'bottom', labels: { font: { size: 10 }, boxWidth: 15, padding: 10 } }
                     }
                 }
             });
         }
-        
+
         // --- Quiz Functions ---
         function startQuiz() {
             quizStartContainer.classList.add('hidden');
@@ -542,7 +585,7 @@
                 answerButtonsContainer.appendChild(button);
             });
         }
-        
+
         function resetState() {
             nextQuizBtn.classList.add('hidden');
             while (answerButtonsContainer.firstChild) {
@@ -575,12 +618,12 @@
                 element.classList.add('wrong');
             }
         }
-        
+
         function clearStatusClass(element) {
             element.classList.remove('correct');
             element.classList.remove('wrong');
         }
-        
+
         function showResults() {
             quizContainer.classList.add('hidden');
             quizResultsContainer.classList.remove('hidden');
@@ -590,7 +633,7 @@
         // --- Event Listeners ---
         flashcard.addEventListener('click', (e) => {
             if (e.target.closest('.audio-btn')) return;
-            if(currentData.length > 0) flashcard.classList.toggle('is-flipped');
+            if (currentData.length > 0) flashcard.classList.toggle('is-flipped');
         });
 
         prevBtn.addEventListener('click', () => {
@@ -608,9 +651,9 @@
                 updateButtons();
             }
         });
-        
+
         searchBar.addEventListener('keyup', filterBySearch);
-        
+
         startQuizBtn.addEventListener('click', startQuiz);
         nextQuizBtn.addEventListener('click', () => {
             currentQuestionIndex++;
@@ -625,6 +668,31 @@
             setupChart();
         });
 
+        document.addEventListener("keydown", function (e) {
+
+            if (
+                e.key === "F12" ||
+                (e.ctrlKey && e.shiftKey && e.key === "I") ||
+                (e.ctrlKey && e.shiftKey && e.key === "J") ||
+                (e.ctrlKey && e.shiftKey && e.key === "C") ||
+                (e.ctrlKey && e.key === "u") ||
+                (e.ctrlKey && e.key === "p") ||
+                (e.ctrlKey && e.key === "s")
+
+            ) {
+                e.preventDefault();
+
+                return false;
+            }
+        });
+
+
+        document.addEventListener("contextmenu", function (e) {
+            e.preventDefault();
+            return false;
+        });
+
     </script>
 </body>
+
 </html>

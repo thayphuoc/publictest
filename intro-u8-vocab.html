@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 8: Crime</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem;
+            /* rounded-xl */
+        }
+
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+
+</head>
+
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 8: Crime</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn"
+                    class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn"
+                    class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn"
+                    class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'Arsonist', ipa: '/ˈɑːr.sə.nɪst/' }, back: { vi: 'Kẻ phóng hỏa', en: 'A person who intentionally sets fire to property.', synonym: 'Firestarter, Incendiary', synonym_vi: 'kẻ đốt lửa, kẻ gây cháy', ex: 'The police are looking for the arsonist who burned down the warehouse.', ex_vi: 'Cảnh sát đang tìm kiếm kẻ phóng hỏa đã đốt cháy nhà kho.' } },
+            { front: { term: 'Burglar', ipa: '/ˈbɝː.ɡlɚ/' }, back: { vi: 'Kẻ trộm đột nhập', en: 'A person who illegally enters a building and steals things.', synonym: 'Housebreaker, Thief', synonym_vi: 'kẻ đột nhập, kẻ trộm', ex: 'A burglar broke into our house last night.', ex_vi: 'Một kẻ trộm đã đột nhập vào nhà chúng tôi đêm qua.' } },
+            { front: { term: 'Burglary', ipa: '/ˈbɝː.ɡlə.ri/' }, back: { vi: 'Vụ trộm đột nhập', en: 'The crime of illegally entering a building and stealing things.', synonym: 'Break-in, Housebreaking', synonym_vi: 'đột nhập, sự đột nhập', ex: 'There has been a series of burglaries in the neighborhood.', ex_vi: 'Đã có một loạt các vụ trộm đột nhập trong khu phố.' } },
+            { front: { term: 'Mugging', ipa: '/ˈmʌɡ.ɪŋ/' }, back: { vi: 'Vụ cướp (tấn công người đi đường)', en: 'An act of attacking and robbing someone in a public place.', synonym: 'Assault, Street Robbery', synonym_vi: 'tấn công, cướp đường phố', ex: 'He was a victim of a violent mugging.', ex_vi: 'Anh ấy là nạn nhân của một vụ cướp bạo lực.' } },
+            { front: { term: 'Mugger', ipa: '/ˈmʌɡ.ɚ/' }, back: { vi: 'Kẻ cướp (người đi đường)', en: 'A person who attacks and robs people in a public place.', synonym: 'Attacker, Robber', synonym_vi: 'kẻ tấn công, kẻ cướp', ex: 'The mugger stole her purse and ran away.', ex_vi: 'Kẻ cướp đã lấy trộm ví của cô ấy và bỏ chạy.' } },
+            { front: { term: 'Murder', ipa: '/ˈmɝː.dɚ/' }, back: { vi: 'Vụ giết người', en: 'The unlawful premeditated killing of one human being by another.', synonym: 'Homicide, Killing', synonym_vi: 'vụ sát hại, giết người', ex: 'He was found guilty of murder.', ex_vi: 'Anh ta bị kết tội giết người.' } },
+            { front: { term: 'Murderer', ipa: '/ˈmɝː.dɚ.ɚ/' }, back: { vi: 'Kẻ giết người', en: 'A person who commits murder.', synonym: 'Killer, Assassin', synonym_vi: 'kẻ giết người, sát thủ', ex: 'The murderer was sentenced to life in prison.', ex_vi: 'Kẻ giết người đã bị kết án tù chung thân.' } },
+            { front: { term: 'Theft', ipa: '/θeft/' }, back: { vi: 'Vụ trộm cắp', en: 'The action or crime of stealing.', synonym: 'Larceny, Stealing', synonym_vi: 'trộm cắp, sự ăn cắp', ex: 'Car theft is a common crime in this city.', ex_vi: 'Trộm cắp ô tô là một tội phạm phổ biến ở thành phố này.' } },
+            { front: { term: 'Thief', ipa: '/θiːf/' }, back: { vi: 'Kẻ trộm', en: 'A person who steals another person\'s property.', synonym: 'Robber, Crook', synonym_vi: 'kẻ cướp, kẻ gian', ex: 'The thief was caught on camera.', ex_vi: 'Kẻ trộm đã bị camera ghi lại.' } },
+            { front: { term: 'Break', ipa: '/breɪk/' }, back: { vi: 'Phá vỡ, đột nhập', en: 'To separate into pieces as a result of a blow, shock, or strain.', synonym: 'Shatter, Smash', synonym_vi: 'làm vỡ, đập phá', ex: 'The burglar tried to break the window to get in.', ex_vi: 'Kẻ trộm đã cố gắng phá vỡ cửa sổ để vào trong.' } },
+            { front: { term: 'Damage', ipa: '/ˈdæm.ɪdʒ/' }, back: { vi: 'Gây thiệt hại', en: 'To inflict physical harm on something so as to impair its value, usefulness, or normal function.', synonym: 'Harm, Ruin', synonym_vi: 'làm hại, phá hủy', ex: 'The fire caused a lot of damage to the building.', ex_vi: 'Vụ cháy đã gây ra nhiều thiệt hại cho tòa nhà.' } },
+            { front: { term: 'Kill', ipa: '/kɪl/' }, back: { vi: 'Giết', en: 'To cause the death of a person, animal, or other living thing.', synonym: 'Slay, Execute', synonym_vi: 'hạ gục, hành hình', ex: 'It is illegal to kill endangered animals.', ex_vi: 'Giết động vật có nguy cơ tuyệt chủng là bất hợp pháp.' } },
+            { front: { term: 'Sell', ipa: '/sel/' }, back: { vi: 'Bán', en: 'To give or hand over something in exchange for money.', synonym: 'Trade, Deal', synonym_vi: 'buôn bán, giao dịch', ex: 'The thief tried to sell the stolen jewelry.', ex_vi: 'Kẻ trộm đã cố gắng bán số trang sức bị đánh cắp.' } },
+            { front: { term: 'Steal', ipa: '/stiːl/' }, back: { vi: 'Trộm cắp', en: 'To take another person\'s property without permission or legal right and without intending to return it.', synonym: 'Rob, Swipe', synonym_vi: 'cướp, cuỗm', ex: 'Someone stole my wallet from my bag.', ex_vi: 'Ai đó đã lấy trộm ví của tôi từ trong túi.' } },
+            { front: { term: 'Identify', ipa: '/aɪˈden.t̬ə.faɪ/' }, back: { vi: 'Nhận dạng, xác định', en: 'To establish or indicate who or what someone or something is.', synonym: 'Recognize, Pinpoint', synonym_vi: 'nhận biết, xác định chính xác', ex: 'The witness was able to identify the suspect.', ex_vi: 'Nhân chứng đã có thể nhận dạng được nghi phạm.' } },
+            { front: { term: 'Interview', ipa: '/ˈɪn.t̬ɚ.vjuː/' }, back: { vi: 'Phỏng vấn, thẩm vấn', en: 'To ask someone questions in a formal situation.', synonym: 'Question, Interrogate', synonym_vi: 'hỏi, thẩm vấn', ex: 'The police will interview everyone who was at the scene.', ex_vi: 'Cảnh sát sẽ thẩm vấn tất cả những người có mặt tại hiện trường.' } },
+            { front: { term: 'Launch', ipa: '/lɔːntʃ/' }, back: { vi: 'Khởi động, bắt đầu', en: 'To start or set in motion an activity or enterprise.', synonym: 'Initiate, Commence', synonym_vi: 'khởi xướng, bắt đầu', ex: 'The police have launched an investigation into the robbery.', ex_vi: 'Cảnh sát đã khởi động một cuộc điều tra về vụ cướp.' } },
+            { front: { term: 'Patrol', ipa: '/pəˈtroʊl/' }, back: { vi: 'Tuần tra', en: 'To keep watch over an area by regularly walking or traveling around it.', synonym: 'Monitor, Guard', synonym_vi: 'giám sát, canh gác', ex: 'Police officers patrol the streets to prevent crime.', ex_vi: 'Các sĩ quan cảnh sát tuần tra trên đường phố để phòng chống tội phạm.' } },
+            { front: { term: 'Search', ipa: '/sɝːtʃ/' }, back: { vi: 'Tìm kiếm', en: 'To try to find something by looking or otherwise seeking carefully and thoroughly.', synonym: 'Hunt, Seek', synonym_vi: 'săn lùng, tìm kiếm', ex: 'The police conducted a search of the suspect\'s house.', ex_vi: 'Cảnh sát đã tiến hành khám xét nhà của nghi phạm.' } },
+            { front: { term: 'Study', ipa: '/ˈstʌd.i/' }, back: { vi: 'Nghiên cứu, xem xét kỹ', en: 'To devote time and attention to acquiring knowledge on an academic subject.', synonym: 'Analyze, Examine', synonym_vi: 'phân tích, kiểm tra', ex: 'Detectives are studying the evidence carefully.', ex_vi: 'Các thám tử đang nghiên cứu kỹ lưỡng các bằng chứng.' } }
+        ];
+
+        let currentCardIndex = 0;
+
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+
+            cardFrontEl.innerHTML = `
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa || ''}</p>
+            `;
+
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Synonyms:</strong> <span class="text-stone-600">${card.back.synonym} ("${card.back.synonym_vi}")</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+        document.addEventListener("keydown", function (e) {
+
+            if (
+                e.key === "F12" ||
+                (e.ctrlKey && e.shiftKey && e.key === "I") ||
+                (e.ctrlKey && e.shiftKey && e.key === "J") ||
+                (e.ctrlKey && e.shiftKey && e.key === "C") ||
+                (e.ctrlKey && e.key === "u") ||
+                (e.ctrlKey && e.key === "p") ||
+                (e.ctrlKey && e.key === "s")
+
+            ) {
+                e.preventDefault();
+
+                return false;
+            }
+        });
+
+
+        document.addEventListener("contextmenu", function (e) {
+            e.preventDefault();
+            return false;
+        });
+
+    </script>
+</body>
+
+</html>

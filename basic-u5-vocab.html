@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 5: Places</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem;
+            /* rounded-xl */
+        }
+
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+
+</head>
+
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 5: Places</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn"
+                    class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn"
+                    class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn"
+                    class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'Park', ipa: '/pɑːrk/' }, back: { vi: 'công viên', en: 'A large public garden or area of land used for recreation.', synonym: 'green space', synonym_vi: 'khu vực xanh', ex: 'Let\'s go for a walk in the park.', ex_vi: 'Chúng ta hãy đi dạo trong công viên.' } },
+            { front: { term: 'Library', ipa: '/ˈlaɪ.brer.i/' }, back: { vi: 'thư viện', en: 'A building or room containing collections of books, periodicals, and sometimes films and recorded music for people to read, borrow, or refer to.', synonym: 'book repository', synonym_vi: 'nơi lưu trữ sách', ex: 'I need to return these books to the library.', ex_vi: 'Tôi cần trả những cuốn sách này lại cho thư viện.' } },
+            { front: { term: 'Museum', ipa: '/mjuːˈziː.əm/' }, back: { vi: 'bảo tàng', en: 'A building in which objects of historical, scientific, artistic, or cultural interest are stored and exhibited.', synonym: 'exhibition hall', synonym_vi: 'sảnh triển lãm', ex: 'We visited the history museum last weekend.', ex_vi: 'Chúng tôi đã đến thăm bảo tàng lịch sử vào cuối tuần trước.' } },
+            { front: { term: 'Hospital', ipa: '/ˈhɑː.spɪ.t̬əl/' }, back: { vi: 'bệnh viện', en: 'An institution providing medical and surgical treatment and nursing care for sick or injured people.', synonym: 'medical center', synonym_vi: 'trung tâm y tế', ex: 'He was taken to the hospital after the accident.', ex_vi: 'Anh ấy đã được đưa đến bệnh viện sau vụ tai nạn.' } },
+            { front: { term: 'School', ipa: '/skuːl/' }, back: { vi: 'trường học', en: 'An institution for educating children.', synonym: 'educational institution', synonym_vi: 'cơ sở giáo dục', ex: 'My children go to the local school.', ex_vi: 'Các con tôi học ở trường địa phương.' } },
+            { front: { term: 'Restaurant', ipa: '/ˈres.tə.rɑːnt/' }, back: { vi: 'nhà hàng', en: 'A place where people pay to sit and eat meals that are cooked and served on the premises.', synonym: 'eatery', synonym_vi: 'quán ăn', ex: 'We\'re going to a new Italian restaurant tonight.', ex_vi: 'Tối nay chúng tôi sẽ đến một nhà hàng Ý mới.' } },
+            { front: { term: 'Cafe', ipa: '/kæˈfeɪ/' }, back: { vi: 'quán cà phê', en: 'A small restaurant selling light meals and drinks.', synonym: 'coffee shop', synonym_vi: 'tiệm cà phê', ex: 'Let\'s meet at the cafe for a coffee.', ex_vi: 'Hãy gặp nhau ở quán cà phê để uống cà phê nhé.' } },
+            { front: { term: 'Mall', ipa: '/mɔːl/' }, back: { vi: 'trung tâm thương mại', en: 'A large indoor shopping center.', synonym: 'shopping center', synonym_vi: 'trung tâm mua sắm', ex: 'The new mall has over 200 stores.', ex_vi: 'Trung tâm thương mại mới có hơn 200 cửa hàng.' } },
+            { front: { term: 'Theater', ipa: '/ˈθiː.ə.t̬ɚ/' }, back: { vi: 'rạp hát', en: 'A building or outdoor area in which plays, movies, and other dramatic performances are given.', synonym: 'cinema', synonym_vi: 'rạp chiếu phim', ex: 'We\'re going to the theater to see a movie.', ex_vi: 'Chúng tôi sẽ đến rạp hát để xem phim.' } },
+            { front: { term: 'Post office', ipa: '/ˈpoʊst ˌɔː.fɪs/' }, back: { vi: 'bưu điện', en: 'The public department or corporation responsible for postal services.', synonym: 'mail service', synonym_vi: 'dịch vụ gửi thư', ex: 'I need to go to the post office to mail a package.', ex_vi: 'Tôi cần đến bưu điện để gửi một gói hàng.' } },
+            { front: { term: 'Bank', ipa: '/bæŋk/' }, back: { vi: 'ngân hàng', en: 'A financial establishment that invests money deposited by customers, pays it out when required, makes loans at interest, and exchanges currency.', synonym: 'financial institution', synonym_vi: 'tổ chức tài chính', ex: 'I need to deposit this check at the bank.', ex_vi: 'Tôi cần gửi tấm séc này vào ngân hàng.' } },
+            { front: { term: 'Gym', ipa: '/dʒɪm/' }, back: { vi: 'phòng tập thể dục', en: 'A place with equipment for doing physical exercise.', synonym: 'fitness center', synonym_vi: 'trung tâm thể dục', ex: 'I go to the gym three times a week.', ex_vi: 'Tôi đến phòng tập thể dục ba lần một tuần.' } },
+            { front: { term: 'Bus station', ipa: '/ˈbʌs ˌsteɪ.ʃən/' }, back: { vi: 'bến xe buýt', en: 'A place where buses start and end their routes.', synonym: 'transit hub', synonym_vi: 'trung tâm giao thông', ex: 'The bus station is located in the city center.', ex_vi: 'Bến xe buýt nằm ở trung tâm thành phố.' } },
+            { front: { term: 'Train station', ipa: '/ˈtreɪn ˌsteɪ.ʃən/' }, back: { vi: 'ga xe lửa', en: 'A place where trains stop for passengers to get on and off.', synonym: 'railway station', synonym_vi: 'nhà ga', ex: 'I\'ll meet you at the train station at 5 PM.', ex_vi: 'Tôi sẽ gặp bạn ở ga xe lửa lúc 5 giờ chiều.' } },
+            { front: { term: 'Hotel', ipa: '/hoʊˈtel/' }, back: { vi: 'khách sạn', en: 'An establishment providing accommodation, meals, and other services for travelers and tourists.', synonym: 'accommodation', synonym_vi: 'nơi lưu trú', ex: 'We stayed in a nice hotel near the beach.', ex_vi: 'Chúng tôi đã ở trong một khách sạn đẹp gần bãi biển.' } },
+            { front: { term: 'City hall', ipa: '/ˌsɪt̬.i ˈhɔːl/' }, back: { vi: 'tòa thị chính', en: 'The building containing the local government offices of a city.', synonym: 'municipal building', synonym_vi: 'tòa nhà chính quyền', ex: 'You can get a marriage license at the city hall.', ex_vi: 'Bạn có thể lấy giấy đăng ký kết hôn tại tòa thị chính.' } },
+            { front: { term: 'Supermarket', ipa: '/ˈsuː.pɚˌmɑːr.kɪt/' }, back: { vi: 'siêu thị', en: 'A large self-service store selling foods and household goods.', synonym: 'grocery store', synonym_vi: 'cửa hàng tạp hóa', ex: 'I need to go to the supermarket to buy some groceries.', ex_vi: 'Tôi cần đi siêu thị để mua một ít hàng tạp hóa.' } },
+            { front: { term: 'Pharmacy', ipa: '/ˈfɑːr.mə.si/' }, back: { vi: 'hiệu thuốc', en: 'A shop where medicinal drugs are dispensed and sold.', synonym: 'drugstore', synonym_vi: 'cửa hàng dược phẩm', ex: 'I have to pick up a prescription from the pharmacy.', ex_vi: 'Tôi phải lấy thuốc theo toa từ hiệu thuốc.' } },
+            { front: { term: 'Swimming pool', ipa: '/ˈswɪm.ɪŋ ˌpuːl/' }, back: { vi: 'hồ bơi', en: 'An artificial pool for swimming in.', synonym: 'pool', synonym_vi: 'bể bơi', ex: 'The hotel has a large outdoor swimming pool.', ex_vi: 'Khách sạn có một hồ bơi ngoài trời lớn.' } },
+            { front: { term: 'Zoo', ipa: '/zuː/' }, back: { vi: 'sở thú', en: 'An establishment which maintains a collection of wild animals, typically in a park or gardens, for study, conservation, or display to the public.', synonym: 'animal park', synonym_vi: 'công viên động vật', ex: 'The children love going to the zoo to see the animals.', ex_vi: 'Trẻ em thích đến sở thú để xem các loài động vật.' } }
+        ];
+
+        let currentCardIndex = 0;
+
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+
+            cardFrontEl.innerHTML = `
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa || ''}</p>
+            `;
+
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Synonym:</strong> <span class="text-stone-600">${card.back.synonym} ("${card.back.synonym_vi}")</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+        document.addEventListener("keydown", function (e) {
+
+            if (
+                e.key === "F12" ||
+                (e.ctrlKey && e.shiftKey && e.key === "I") ||
+                (e.ctrlKey && e.shiftKey && e.key === "J") ||
+                (e.ctrlKey && e.shiftKey && e.key === "C") ||
+                (e.ctrlKey && e.key === "u") ||
+                (e.ctrlKey && e.key === "p") ||
+                (e.ctrlKey && e.key === "s")
+
+            ) {
+                e.preventDefault();
+
+                return false;
+            }
+        });
+
+
+        document.addEventListener("contextmenu", function (e) {
+            e.preventDefault();
+            return false;
+        });
+
+    </script>
+</body>
+
+</html>

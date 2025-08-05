@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 2: Daily routines</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem;
+            /* rounded-xl */
+        }
+
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+
+</head>
+
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 2: Daily routines</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn"
+                    class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn"
+                    class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn"
+                    class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'Wake up', ipa: '/weɪk ʌp/' }, back: { vi: 'thức dậy', en: 'To stop sleeping.', synonym: 'get up', synonym_vi: 'ra khỏi giường', ex: 'I usually wake up at 6 AM every morning.', ex_vi: 'Tôi thường thức dậy lúc 6 giờ sáng mỗi ngày.' } },
+            { front: { term: 'Brush teeth', ipa: '/brʌʃ tiːθ/' }, back: { vi: 'đánh răng', en: 'To clean your teeth with a toothbrush.', synonym: 'clean teeth', synonym_vi: 'chải răng', ex: 'Don\'t forget to brush your teeth before bed.', ex_vi: 'Đừng quên đánh răng trước khi đi ngủ.' } },
+            { front: { term: 'Wash face', ipa: '/wɑːʃ feɪs/' }, back: { vi: 'rửa mặt', en: 'To clean your face, typically with water and soap.', synonym: 'cleanse face', synonym_vi: 'làm sạch mặt', ex: 'I wash my face to feel refreshed in the morning.', ex_vi: 'Tôi rửa mặt để cảm thấy sảng khoái vào buổi sáng.' } },
+            { front: { term: 'Get dressed', ipa: '/ɡet drest/' }, back: { vi: 'mặc quần áo', en: 'To put on clothes.', synonym: 'put on clothes', synonym_vi: 'mặc đồ', ex: 'He needs to get dressed quickly for school.', ex_vi: 'Cậu bé cần mặc quần áo nhanh để đi học.' } },
+            { front: { term: 'Have breakfast', ipa: '/hæv ˈbrek.fəst/' }, back: { vi: 'ăn sáng', en: 'To eat the first meal of the day.', synonym: 'eat breakfast', synonym_vi: 'ăn bữa sáng', ex: 'We always have breakfast together as a family.', ex_vi: 'Chúng tôi luôn ăn sáng cùng nhau như một gia đình.' } },
+            { front: { term: 'Go to school', ipa: '/ɡoʊ tuː skuːl/' }, back: { vi: 'đi học', en: 'To travel to school.', synonym: 'attend school', synonym_vi: 'đến trường', ex: 'The children go to school by bus.', ex_vi: 'Bọn trẻ đi học bằng xe buýt.' } },
+            { front: { term: 'Start classes', ipa: '/stɑːrt ˈklæsɪz/' }, back: { vi: 'bắt đầu giờ học', en: 'To begin lessons at school.', synonym: 'begin lessons', synonym_vi: 'bắt đầu tiết học', ex: 'My classes start at 8 o\'clock.', ex_vi: 'Lớp học của tôi bắt đầu lúc 8 giờ.' } },
+            { front: { term: 'Take a break', ipa: '/teɪk ə breɪk/' }, back: { vi: 'nghỉ giải lao', en: 'To stop working for a short time.', synonym: 'have a break', synonym_vi: 'nghỉ ngơi', ex: 'Let\'s take a break and have some coffee.', ex_vi: 'Hãy nghỉ giải lao và uống một chút cà phê.' } },
+            { front: { term: 'Do homework', ipa: '/duː ˈhoʊm.wɝːk/' }, back: { vi: 'làm bài tập về nhà', en: 'To do school work at home.', synonym: 'complete assignments', synonym_vi: 'hoàn thành bài tập', ex: 'I have to do my homework after school.', ex_vi: 'Tôi phải làm bài tập về nhà sau giờ học.' } },
+            { front: { term: 'Have lunch', ipa: '/hæv lʌntʃ/' }, back: { vi: 'ăn trưa', en: 'To eat the meal in the middle of the day.', synonym: 'eat lunch', synonym_vi: 'ăn bữa trưa', ex: 'I usually have lunch at the school cafeteria.', ex_vi: 'Tôi thường ăn trưa ở căng tin của trường.' } },
+            { front: { term: 'Play sports', ipa: '/pleɪ spɔːrts/' }, back: { vi: 'chơi thể thao', en: 'To participate in physical games.', synonym: 'do sports', synonym_vi: 'tập thể thao', ex: 'He loves to play sports with his friends.', ex_vi: 'Anh ấy thích chơi thể thao với bạn bè.' } },
+            { front: { term: 'Go home', ipa: '/ɡoʊ hoʊm/' }, back: { vi: 'về nhà', en: 'To return to where you live.', synonym: 'return home', synonym_vi: 'trở về nhà', ex: 'I go home right after my classes finish.', ex_vi: 'Tôi về nhà ngay sau khi tan học.' } },
+            { front: { term: 'Have dinner', ipa: '/hæv ˈdɪn.ɚ/' }, back: { vi: 'ăn tối', en: 'To eat the main meal of the evening.', synonym: 'eat dinner', synonym_vi: 'ăn bữa tối', ex: 'What time do you usually have dinner?', ex_vi: 'Bạn thường ăn tối lúc mấy giờ?' } },
+            { front: { term: 'Watch TV', ipa: '/wɑːtʃ ˌtiːˈviː/' }, back: { vi: 'xem TV', en: 'To look at programs on a television.', synonym: 'watch television', synonym_vi: 'xem truyền hình', ex: 'We like to watch TV in the evening.', ex_vi: 'Chúng tôi thích xem TV vào buổi tối.' } },
+            { front: { term: 'Read a book', ipa: '/riːd ə bʊk/' }, back: { vi: 'đọc sách', en: 'To look at and understand words in a book.', synonym: 'read a novel', synonym_vi: 'đọc tiểu thuyết', ex: 'I like to read a book before I sleep.', ex_vi: 'Tôi thích đọc sách trước khi ngủ.' } },
+            { front: { term: 'Do the dishes', ipa: '/duː ðə ˈdɪʃ.ɪz/' }, back: { vi: 'rửa chén', en: 'To wash plates, cups, etc. after a meal.', synonym: 'wash the dishes', synonym_vi: 'làm sạch chén đĩa', ex: 'It\'s your turn to do the dishes tonight.', ex_vi: 'Tối nay đến lượt bạn rửa chén.' } },
+            { front: { term: 'Take a shower', ipa: '/teɪk ə ˈʃaʊ.ɚ/' }, back: { vi: 'tắm', en: 'To wash your body under a shower.', synonym: 'have a shower', synonym_vi: 'đi tắm', ex: 'I always take a shower after exercising.', ex_vi: 'Tôi luôn tắm sau khi tập thể dục.' } },
+            { front: { term: 'Go to bed', ipa: '/ɡoʊ tuː bed/' }, back: { vi: 'đi ngủ', en: 'To go to your bed to sleep.', synonym: 'sleep', synonym_vi: 'ngủ', ex: 'I try to go to bed before 11 PM.', ex_vi: 'Tôi cố gắng đi ngủ trước 11 giờ tối.' } },
+            { front: { term: 'Set the alarm', ipa: '/set ði əˈlɑːrm/' }, back: { vi: 'đặt báo thức', en: 'To set a clock to wake you up.', synonym: 'turn on the alarm', synonym_vi: 'bật báo thức', ex: 'I need to set the alarm for 5 AM tomorrow.', ex_vi: 'Tôi cần đặt báo thức lúc 5 giờ sáng mai.' } },
+            { front: { term: 'Pack school bag', ipa: '/pæk skuːl bæɡ/' }, back: { vi: 'chuẩn bị cặp sách', en: 'To put things into your school bag.', synonym: 'prepare school bag', synonym_vi: 'chuẩn bị đồ dùng học tập', ex: 'I always pack my school bag the night before.', ex_vi: 'Tôi luôn chuẩn bị cặp sách vào tối hôm trước.' } }
+        ];
+
+        let currentCardIndex = 0;
+
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+
+            cardFrontEl.innerHTML = `
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa || ''}</p>
+            `;
+
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Synonym:</strong> <span class="text-stone-600">${card.back.synonym} ("${card.back.synonym_vi}")</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+
+        document.addEventListener("keydown", function (e) {
+
+            if (
+                e.key === "F12" ||
+                (e.ctrlKey && e.shiftKey && e.key === "I") ||
+                (e.ctrlKey && e.shiftKey && e.key === "J") ||
+                (e.ctrlKey && e.shiftKey && e.key === "C") ||
+                (e.ctrlKey && e.key === "u") ||
+                (e.ctrlKey && e.key === "p") ||
+                (e.ctrlKey && e.key === "s")
+
+            ) {
+                e.preventDefault();
+
+                return false;
+            }
+        });
+
+
+        document.addEventListener("contextmenu", function (e) {
+            e.preventDefault();
+            return false;
+        });
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 3: Clothes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem;
+            /* rounded-xl */
+        }
+
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+
+</head>
+
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 3: Clothes</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn"
+                    class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn"
+                    class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn"
+                    class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'T-shirt', ipa: '/ˈtiː.ʃɝːt/' }, back: { vi: 'áo thun', en: 'A short-sleeved casual top.', synonym: 'tee', synonym_vi: 'áo phông', ex: 'He wore a simple white T-shirt.', ex_vi: 'Anh ấy mặc một chiếc áo thun trắng đơn giản.' } },
+            { front: { term: 'Jeans', ipa: '/dʒiːnz/' }, back: { vi: 'quần jeans', en: 'Trousers made of denim.', synonym: 'denim pants', synonym_vi: 'quần bò', ex: 'Jeans are a popular choice for casual wear.', ex_vi: 'Quần jeans là một lựa chọn phổ biến cho trang phục thường ngày.' } },
+            { front: { term: 'Dress', ipa: '/dres/' }, back: { vi: 'váy đầm', en: 'A one-piece garment for a woman or girl.', synonym: 'gown', synonym_vi: 'váy dài', ex: 'She bought a beautiful new dress for the party.', ex_vi: 'Cô ấy đã mua một chiếc váy đầm mới xinh đẹp cho bữa tiệc.' } },
+            { front: { term: 'Skirt', ipa: '/skɝːt/' }, back: { vi: 'váy ngắn', en: 'A woman\'s outer garment hanging from the waist.', synonym: 'mini skirt', synonym_vi: 'váy ngắn hơn', ex: 'She paired the blouse with a long skirt.', ex_vi: 'Cô ấy đã kết hợp chiếc áo sơ mi nữ với một chiếc váy dài.' } },
+            { front: { term: 'Jacket', ipa: '/ˈdʒæk.ɪt/' }, back: { vi: 'áo khoác', en: 'A short coat.', synonym: 'coat', synonym_vi: 'áo choàng', ex: 'It\'s getting cold, you should wear a jacket.', ex_vi: 'Trời đang lạnh dần, bạn nên mặc áo khoác vào.' } },
+            { front: { term: 'Sweater', ipa: '/ˈswet̬.ɚ/' }, back: { vi: 'áo len', en: 'A knitted garment worn on the upper part of the body.', synonym: 'pullover', synonym_vi: 'áo chui đầu', ex: 'He wore a warm sweater on the chilly evening.', ex_vi: 'Anh ấy mặc một chiếc áo len ấm vào buổi tối se lạnh.' } },
+            { front: { term: 'Shoes', ipa: '/ʃuːz/' }, back: { vi: 'giày', en: 'Covering for the feet, typically made of leather.', synonym: 'footwear', synonym_vi: 'giày dép', ex: 'Don\'t forget to tie your shoes.', ex_vi: 'Đừng quên buộc dây giày của bạn.' } },
+            { front: { term: 'Sneakers', ipa: '/ˈsniː.kɚz/' }, back: { vi: 'giày thể thao', en: 'Soft shoes worn for sports or casual occasions.', synonym: 'trainers', synonym_vi: 'giày tập', ex: 'I need a new pair of sneakers for the gym.', ex_vi: 'Tôi cần một đôi giày thể thao mới để đi tập gym.' } },
+            { front: { term: 'Hat', ipa: '/hæt/' }, back: { vi: 'mũ', en: 'A covering for the head.', synonym: 'cap', synonym_vi: 'mũ lưỡi trai', ex: 'He wore a hat to protect his face from the sun.', ex_vi: 'Anh ấy đội mũ để bảo vệ mặt khỏi nắng.' } },
+            { front: { term: 'Scarf', ipa: '/skɑːrf/' }, back: { vi: 'khăn quàng cổ', en: 'A length or square of fabric worn around the neck or head.', synonym: 'muffler', synonym_vi: 'khăn choàng', ex: 'She wrapped a warm scarf around her neck.', ex_vi: 'Cô ấy quàng một chiếc khăn ấm quanh cổ.' } },
+            { front: { term: 'Gloves', ipa: '/ɡlʌvz/' }, back: { vi: 'găng tay', en: 'A covering for the hand with separate parts for each finger.', synonym: 'mittens', synonym_vi: 'găng tay hở ngón', ex: 'You should wear gloves when it\'s cold outside.', ex_vi: 'Bạn nên đeo găng tay khi trời lạnh bên ngoài.' } },
+            { front: { term: 'Belt', ipa: '/belt/' }, back: { vi: 'thắt lưng', en: 'A strip of leather or other material worn around the waist.', synonym: 'waistband', synonym_vi: 'dây nịt', ex: 'His trousers were too loose, so he wore a belt.', ex_vi: 'Quần của anh ấy quá rộng, nên anh ấy đã đeo thắt lưng.' } },
+            { front: { term: 'Socks', ipa: '/sɑːks/' }, back: { vi: 'tất/vớ', en: 'A garment for the foot and lower part of the leg.', synonym: 'stockings', synonym_vi: 'tất dài', ex: 'It\'s important to wear clean socks every day.', ex_vi: 'Việc mang tất sạch mỗi ngày là rất quan trọng.' } },
+            { front: { term: 'Shorts', ipa: '/ʃɔːrts/' }, back: { vi: 'quần đùi', en: 'Trousers that end at or above the knee.', synonym: 'short pants', synonym_vi: 'quần ngắn', ex: 'He wore shorts and a T-shirt to the beach.', ex_vi: 'Anh ấy mặc quần đùi và áo thun ra biển.' } },
+            { front: { term: 'Suit', ipa: '/suːt/' }, back: { vi: 'bộ đồ vest', en: 'A set of outer clothes made of the same fabric, consisting of a jacket and trousers or a skirt.', synonym: 'formal wear', synonym_vi: 'trang phục trang trọng', ex: 'He wore a dark suit to the business meeting.', ex_vi: 'Anh ấy mặc một bộ vest tối màu đến cuộc họp kinh doanh.' } },
+            { front: { term: 'Blouse', ipa: '/blaʊs/' }, back: { vi: 'áo sơ mi nữ', en: 'A shirt for women.', synonym: 'top', synonym_vi: 'áo nữ', ex: 'She wore a white silk blouse.', ex_vi: 'Cô ấy mặc một chiếc áo sơ mi lụa màu trắng.' } },
+            { front: { term: 'Trousers', ipa: '/ˈtraʊ.zɚz/' }, back: { vi: 'quần dài', en: 'An outer garment covering the body from the waist to the ankles, with a separate part for each leg.', synonym: 'pants', synonym_vi: 'quần', ex: 'He needs to buy a new pair of trousers for work.', ex_vi: 'Anh ấy cần mua một chiếc quần dài mới để đi làm.' } },
+            { front: { term: 'Sandals', ipa: '/ˈsæn.dəlz/' }, back: { vi: 'dép xăng đan', en: 'Light footwear consisting of a sole held to the wearer\'s foot by straps.', synonym: 'open-toe shoes', synonym_vi: 'dép hở ngón', ex: 'Sandals are perfect for hot summer days.', ex_vi: 'Dép xăng đan rất hoàn hảo cho những ngày hè nóng nực.' } },
+            { front: { term: 'Tie', ipa: '/taɪ/' }, back: { vi: 'cà vạt', en: 'A strip of material worn around the collar of a shirt.', synonym: 'necktie', synonym_vi: 'cà vạt', ex: 'He had to wear a shirt and tie to the interview.', ex_vi: 'Anh ấy phải mặc áo sơ mi và đeo cà vạt đến buổi phỏng vấn.' } },
+            { front: { term: 'High heels', ipa: '/ˌhaɪ ˈhiːlz/' }, back: { vi: 'giày cao gót', en: 'Women\'s shoes in which the heel is raised high off the ground.', synonym: 'heels', synonym_vi: 'giày gót cao', ex: 'She finds it difficult to walk in high heels.', ex_vi: 'Cô ấy thấy khó đi bằng giày cao gót.' } }
+        ];
+
+        let currentCardIndex = 0;
+
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+
+            cardFrontEl.innerHTML = `
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa || ''}</p>
+            `;
+
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Synonym:</strong> <span class="text-stone-600">${card.back.synonym} ("${card.back.synonym_vi}")</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+
+        document.addEventListener("keydown", function (e) {
+
+            if (
+                e.key === "F12" ||
+                (e.ctrlKey && e.shiftKey && e.key === "I") ||
+                (e.ctrlKey && e.shiftKey && e.key === "J") ||
+                (e.ctrlKey && e.shiftKey && e.key === "C") ||
+                (e.ctrlKey && e.key === "u") ||
+                (e.ctrlKey && e.key === "p") ||
+                (e.ctrlKey && e.key === "s")
+
+            ) {
+                e.preventDefault();
+
+                return false;
+            }
+        });
+
+
+        document.addEventListener("contextmenu", function (e) {
+            e.preventDefault();
+            return false;
+        });
+
+    </script>
+</body>
+
+</html>

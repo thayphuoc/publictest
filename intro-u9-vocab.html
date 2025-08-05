@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 9: Science</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+
+        .flashcard-scene {
+            perspective: 1000px;
+        }
+
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem;
+            /* rounded-xl */
+        }
+
+        #card-front {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        #card-back {
+            background-color: #f0fdfa;
+            overflow-y: auto;
+            transform: rotateY(180deg);
+        }
+    </style>
+
+</head>
+
+<body class="bg-stone-100 text-stone-800 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="w-full max-w-2xl mx-auto text-center">
+        <header class="mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">Unit 9: Science</h1>
+            <p class="text-stone-600 mt-2">Nhấp vào thẻ để lật. Sử dụng các nút để điều hướng.</p>
+        </header>
+
+        <main class="w-full">
+            <div id="flashcard-container" class="flashcard-scene w-full h-80 sm:h-96">
+                <div id="flashcard" class="flashcard cursor-pointer shadow-lg rounded-xl">
+                    <div id="card-front" class="flashcard-face">
+                    </div>
+                    <div id="card-back" class="flashcard-face">
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="my-4 text-center text-stone-500 font-medium"></div>
+
+            <nav class="flex justify-center items-center space-x-3 sm:space-x-4 mt-4">
+                <button id="prev-btn"
+                    class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Trước</span>
+                    <span class="sm:hidden">←</span>
+                </button>
+                <button id="random-btn"
+                    class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Ngẫu nhiên
+                </button>
+                <button id="next-btn"
+                    class="bg-white hover:bg-teal-100 text-teal-800 font-bold py-3 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <span class="hidden sm:inline">Sau</span>
+                    <span class="sm:hidden">→</span>
+                </button>
+            </nav>
+        </main>
+
+        <footer class="mt-8 text-center text-stone-400 text-sm">
+            <p>Encoded by Dinh Phuoc</p>
+        </footer>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: { term: 'Aluminium', ipa: '/əˈluː.mə.nəm/' }, back: { vi: 'Nhôm', en: 'A light, silvery-white metal.', synonym: 'Aluminum, Metal', synonym_vi: 'nhôm, kim loại', ex: 'Soda cans are often made of aluminium.', ex_vi: 'Lon nước ngọt thường được làm bằng nhôm.' } },
+            { front: { term: 'Cardboard', ipa: '/ˈkɑːrd.bɔːrd/' }, back: { vi: 'Bìa cứng', en: 'A stiff material like very thick paper, often used for making boxes.', synonym: 'Paperboard, Carton', synonym_vi: 'giấy bồi, hộp giấy', ex: 'We packed our books in a large cardboard box.', ex_vi: 'Chúng tôi đã đóng gói sách vào một hộp bìa cứng lớn.' } },
+            { front: { term: 'Ceramic', ipa: '/səˈræm.ɪk/' }, back: { vi: 'Gốm sứ', en: 'A hard material made by heating clay.', synonym: 'Porcelain, Earthenware', synonym_vi: 'đồ sứ, đất nung', ex: 'She collects beautiful ceramic vases.', ex_vi: 'Cô ấy sưu tập những chiếc bình gốm sứ đẹp.' } },
+            { front: { term: 'Concrete', ipa: '/ˈkɑːn.kriːt/' }, back: { vi: 'Bê tông', en: 'A hard, strong building material made by mixing sand, gravel, cement, and water.', synonym: 'Cement, Mortar', synonym_vi: 'xi măng, vữa', ex: 'The foundations of the house are made of concrete.', ex_vi: 'Nền móng của ngôi nhà được làm bằng bê tông.' } },
+            { front: { term: 'Copper', ipa: '/ˈkɑː.pɚ/' }, back: { vi: 'Đồng', en: 'A reddish-brown metal, used for making wire and coins.', synonym: 'Bronze, Brass', synonym_vi: 'đồng thiếc, đồng thau', ex: 'Electrical wires are usually made of copper.', ex_vi: 'Dây điện thường được làm bằng đồng.' } },
+            { front: { term: 'Glass', ipa: '/ɡlæs/' }, back: { vi: 'Thủy tinh', en: 'A hard, transparent substance, used to make windows, bottles, and other objects.', synonym: 'Crystal, Vitreous material', synonym_vi: 'pha lê, vật liệu thủy tinh', ex: 'Be careful not to break the glass.', ex_vi: 'Hãy cẩn thận đừng làm vỡ kính.' } },
+            { front: { term: 'Gold', ipa: '/ɡoʊld/' }, back: { vi: 'Vàng', en: 'A yellow precious metal, used in jewelry and decoration.', synonym: 'Aurum, Gilding', synonym_vi: 'vàng nguyên chất, mạ vàng', ex: 'Her wedding ring is made of pure gold.', ex_vi: 'Nhẫn cưới của cô ấy được làm bằng vàng nguyên chất.' } },
+            { front: { term: 'Iron', ipa: '/ˈaɪ.ɚn/' }, back: { vi: 'Sắt', en: 'A strong, hard magnetic silvery-gray metal.', synonym: 'Steel, Cast iron', synonym_vi: 'thép, gang', ex: 'The gate is made of cast iron.', ex_vi: 'Cánh cổng được làm bằng gang.' } },
+            { front: { term: 'Leather', ipa: '/ˈleð.ɚ/' }, back: { vi: 'Da thuộc', en: 'A material made from the tanned skin of an animal.', synonym: 'Hide, Skin', synonym_vi: 'da sống, da', ex: 'He bought a new leather jacket.', ex_vi: 'Anh ấy đã mua một chiếc áo khoác da mới.' } },
+            { front: { term: 'Nylon', ipa: '/ˈnaɪ.lɑːn/' }, back: { vi: 'Ni lông', en: 'A tough, lightweight, elastic synthetic polymer.', synonym: 'Polyamide, Synthetic fiber', synonym_vi: 'polyamit, sợi tổng hợp', ex: 'Nylon is used to make ropes and clothing.', ex_vi: 'Ni lông được sử dụng để làm dây thừng và quần áo.' } },
+            { front: { term: 'Paper', ipa: '/ˈpeɪ.pɚ/' }, back: { vi: 'Giấy', en: 'Material manufactured in thin sheets from the pulp of wood or other fibrous substances.', synonym: 'Parchment, Cardstock', synonym_vi: 'giấy da, giấy bìa', ex: 'Please write your name on a piece of paper.', ex_vi: 'Vui lòng viết tên của bạn vào một tờ giấy.' } },
+            { front: { term: 'Plastic', ipa: '/ˈplæs.tɪk/' }, back: { vi: 'Nhựa', en: 'A synthetic material made from a wide range of organic polymers.', synonym: 'Polymer, Resin', synonym_vi: 'polyme, nhựa cây', ex: 'We should reduce our use of single-use plastic bags.', ex_vi: 'Chúng ta nên giảm việc sử dụng túi nhựa dùng một lần.' } },
+            { front: { term: 'Rubber', ipa: '/ˈrʌb.ɚ/' }, back: { vi: 'Cao su', en: 'A tough elastic polymeric substance.', synonym: 'Latex, Elastomer', synonym_vi: 'mủ cao su, chất đàn hồi', ex: 'Car tires are made of rubber.', ex_vi: 'Lốp xe ô tô được làm bằng cao su.' } },
+            { front: { term: 'Steel', ipa: '/stiːl/' }, back: { vi: 'Thép', en: 'A hard, strong gray or bluish-gray alloy of iron with carbon.', synonym: 'Alloy, Iron', synonym_vi: 'hợp kim, sắt', ex: 'The building has a steel frame.', ex_vi: 'Tòa nhà có một khung thép.' } },
+            { front: { term: 'Stone', ipa: '/stoʊn/' }, back: { vi: 'Đá', en: 'Hard solid non-metallic mineral matter of which rock is made.', synonym: 'Rock, Pebble', synonym_vi: 'đá tảng, đá cuội', ex: 'The ancient temple was built of stone.', ex_vi: 'Ngôi đền cổ được xây bằng đá.' } },
+            { front: { term: 'Wood', ipa: '/wʊd/' }, back: { vi: 'Gỗ', en: 'The hard fibrous material that forms the main substance of a tree.', synonym: 'Timber, Lumber', synonym_vi: 'gỗ xây dựng, gỗ xẻ', ex: 'The table is made of solid wood.', ex_vi: 'Cái bàn được làm bằng gỗ nguyên khối.' } },
+            { front: { term: 'Build', ipa: '/bɪld/' }, back: { vi: 'Xây dựng', en: 'To construct something by putting parts or material together.', synonym: 'Construct', synonym_vi: 'thiết lập', ex: 'They plan to build a new school in the area.', ex_vi: 'Họ dự định xây một ngôi trường mới trong khu vực.' } },
+            { front: { term: 'Infrastructure', ipa: '/ˈɪn.frəˌstrʌk.tʃɚ/' }, back: { vi: 'Cơ sở hạ tầng', en: 'The basic physical and organizational structures and facilities needed for the operation of a society.', synonym: 'Framework, Foundation', synonym_vi: 'khung, nền tảng', ex: 'The country needs to invest more in its infrastructure.', ex_vi: 'Đất nước cần đầu tư nhiều hơn vào cơ sở hạ tầng.' } },
+            { front: { term: 'Gadget', ipa: '/ˈɡædʒ.ɪt/' }, back: { vi: 'Thiết bị nhỏ', en: 'A small mechanical or electronic device or tool.', synonym: 'Device', synonym_vi: 'thiết bị', ex: 'He loves buying the latest kitchen gadgets.', ex_vi: 'Anh ấy thích mua những thiết bị nhà bếp mới nhất.' } },
+            { front: { term: 'Invention', ipa: '/ɪnˈven.ʃən/' }, back: { vi: 'Phát minh', en: 'The action of inventing something, typically a process or device.', synonym: 'Creation, Innovation', synonym_vi: 'sáng chế, sự đổi mới', ex: 'The invention of the telephone revolutionized communication.', ex_vi: 'Phát minh ra điện thoại đã cách mạng hóa ngành truyền thông.' } }
+        ];
+
+        let currentCardIndex = 0;
+
+        const flashcardEl = document.getElementById('flashcard');
+        const cardFrontEl = document.getElementById('card-front');
+        const cardBackEl = document.getElementById('card-back');
+        const progressIndicatorEl = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        function renderCard(index) {
+            const card = flashcards[index];
+
+            cardFrontEl.innerHTML = `
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">${card.front.term}</h2>
+                <p class="text-lg text-stone-500">${card.front.ipa || ''}</p>
+            `;
+
+            cardBackEl.innerHTML = `
+                <div class="text-left w-full p-6">
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Nghĩa tiếng Việt:</strong> ${card.back.vi}</p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">English meaning:</strong> <span class="text-stone-600">${card.back.en}</span></p>
+                    <p class="mb-3 sm:mb-4"><strong class="font-semibold text-teal-700">Synonyms:</strong> <span class="text-stone-600">${card.back.synonym} ("${card.back.synonym_vi}")</span></p>
+                    <div class="bg-white p-3 rounded-lg border border-stone-200">
+                        <p class="mb-2"><strong class="font-semibold text-teal-700">Ví dụ:</strong> <span class="text-stone-600 italic">${card.back.ex}</span></p>
+                        <p><strong class="font-semibold text-teal-700">Dịch nghĩa:</strong> <span class="text-stone-600 italic">${card.back.ex_vi}</span></p>
+                    </div>
+                </div>
+            `;
+
+            progressIndicatorEl.textContent = `Thẻ ${index + 1} / ${flashcards.length}`;
+            flashcardEl.classList.remove('is-flipped');
+        }
+
+        function showNextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showPrevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            renderCard(currentCardIndex);
+        }
+
+        function showRandomCard() {
+            let newIndex;
+            if (flashcards.length <= 1) {
+                newIndex = 0;
+            } else {
+                do {
+                    newIndex = Math.floor(Math.random() * flashcards.length);
+                } while (newIndex === currentCardIndex);
+            }
+            currentCardIndex = newIndex;
+            renderCard(currentCardIndex);
+        }
+
+        flashcardEl.addEventListener('click', () => {
+            flashcardEl.classList.toggle('is-flipped');
+        });
+
+        nextBtn.addEventListener('click', showNextCard);
+        prevBtn.addEventListener('click', showPrevCard);
+        randomBtn.addEventListener('click', showRandomCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showNextCard();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                flashcardEl.classList.toggle('is-flipped');
+            }
+        });
+
+        renderCard(currentCardIndex);
+        document.addEventListener("keydown", function (e) {
+
+            if (
+                e.key === "F12" ||
+                (e.ctrlKey && e.shiftKey && e.key === "I") ||
+                (e.ctrlKey && e.shiftKey && e.key === "J") ||
+                (e.ctrlKey && e.shiftKey && e.key === "C") ||
+                (e.ctrlKey && e.key === "u") ||
+                (e.ctrlKey && e.key === "p") ||
+                (e.ctrlKey && e.key === "s")
+
+            ) {
+                e.preventDefault();
+
+                return false;
+            }
+        });
+
+
+        document.addEventListener("contextmenu", function (e) {
+            e.preventDefault();
+            return false;
+        });
+
+    </script>
+</body>
+
+</html>
