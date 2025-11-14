@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Excursions</title>
+    <style>
+        /* --- Basic Setup & Typography --- */
+        :root {
+            --primary-bg: #f0f2f5;
+            --secondary-bg: #ffffff;
+            --text-color: #1c1e21;
+            --accent-color: #0866ff;
+            --border-color: #dddfe2;
+            --highlight-bg: #fffb8f;
+            --correct-color: #28a745;
+            --incorrect-color: #dc3545;
+            --footer-bg: #ffffff;
+            --shadow-light: 0 1px 2px rgba(0, 0, 0, 0.1);
+            --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--text-color);
+            overflow: hidden;
+            /* Prevent body scroll */
+        }
+
+        /* --- Main Layout --- */
+        .main-container {
+            display: flex;
+            height: calc(100vh - 50px);
+            /* Full height minus footer */
+        }
+
+        .panel {
+            flex: 1;
+            overflow-y: auto;
+            padding: 25px;
+            box-sizing: border-box;
+            background-color: var(--secondary-bg);
+            margin: 10px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-light);
+        }
+
+        .panel-left {
+            margin-right: 5px;
+        }
+
+        .panel-right {
+            margin-left: 5px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- Content Styling --- */
+        .question-section {
+            margin-bottom: 25px;
+        }
+
+        .instructions {
+            font-style: italic;
+            background-color: #f7f7f7;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .excursion-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: var(--accent-color);
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+
+        .question-list {
+            list-style-type: none;
+            padding-left: 0;
+            line-height: 2.2;
+        }
+
+        .question-list li {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .question-list li::before {
+            content: '●';
+            position: absolute;
+            left: 0;
+            color: var(--accent-color);
+        }
+
+        .answer-input {
+            border: none;
+            border-bottom: 1px solid var(--border-color);
+            background-color: transparent;
+            font-size: 1em;
+            font-family: inherit;
+            margin: 0 5px;
+            padding: 2px 5px;
+            width: 180px;
+            text-align: center;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-bottom: 2px solid var(--accent-color);
+        }
+
+        .correct-answer-span {
+            font-weight: bold;
+            color: var(--correct-color);
+            margin-left: 10px;
+        }
+
+        audio {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        /* --- Right Panel: Notes & Transcript --- */
+        #notes-area {
+            width: 100%;
+            height: 30%;
+            /* 1/3 of the right panel */
+            min-height: 150px;
+            box-sizing: border-box;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 1em;
+            font-family: inherit;
+            margin-bottom: 20px;
+            resize: vertical;
+        }
+
+        #transcript-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            line-height: 1.7;
+            display: none;
+            /* Initially hidden */
+        }
+
+        #transcript-container p {
+            margin-bottom: 1em;
+        }
+
+        /* --- Footer --- */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background-color: var(--footer-bg);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            /* Align items to ends */
+            padding: 0 20px;
+            box-sizing: border-box;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.05);
+            z-index: 1000;
+        }
+
+        .footer-group {
+            display: flex;
+            align-items: center;
+        }
+
+        .footer-btn,
+        .nav-btn {
+            border: none;
+            padding: 8px 15px;
+            margin: 0 4px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+
+        .footer-btn:hover,
+        .nav-btn:hover {
+            opacity: 0.85;
+            transform: translateY(-1px);
+        }
+
+        #submit-btn {
+            background-color: #28a745;
+            color: white;
+        }
+
+        #answers-btn {
+            background-color: #ffc107;
+            color: var(--text-color);
+        }
+
+        #redo-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        #transcript-btn {
+            background-color: #17a2b8;
+            color: white;
+        }
+
+        .nav-btn {
+            background-color: #e4e6eb;
+            color: var(--text-color);
+            min-width: 35px;
+            height: 35px;
+            padding: 0 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .encoded-by {
+            font-size: 14px;
+            color: #606770;
+            font-weight: 500;
+        }
+
+        /* --- Modals (Password & Results) --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: none;
+            /* Hidden by default */
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            transition: opacity 0.3s;
+        }
+
+        .modal-content {
+            background: var(--secondary-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-medium);
+            text-align: center;
+            width: 320px;
+        }
+
+        .modal-content p {
+            margin-top: 0;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        #results-text {
+            font-size: 1.5em !important;
+            font-weight: 700 !important;
+            color: var(--accent-color);
+            margin: 20px 0;
+        }
+
+        #password-input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        .modal-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 0 5px;
+        }
+
+        #modal-submit-btn,
+        #results-close-btn {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        #modal-cancel-btn {
+            background-color: #e4e6eb;
+        }
+
+        /* --- Custom Context Menu & Highlighting --- */
+        #contextMenu {
+            display: none;
+            position: absolute;
+            z-index: 3000;
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-medium);
+            border-radius: 8px;
+            padding: 5px 0;
+            min-width: 160px;
+        }
+
+        #contextMenu div {
+            padding: 10px 15px;
+            cursor: pointer;
+        }
+
+        #contextMenu div:hover {
+            background-color: var(--primary-bg);
+        }
+
+        .highlight {
+            background-color: var(--highlight-bg);
+            border-radius: 3px;
+            padding: 1px 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="main-container">
+        <!-- Left Panel: Questions -->
+        <div class="panel panel-left">
+            <audio controls>
+                <source src="./practice-test-1-cam12-test5-section1-audio.mp3" type="audio/mpeg">
+                Your browser does not support the audio element.
+            </audio>
+
+            <div class="question-section">
+                <div class="instructions">
+                    <b>SECTION 1</b><br>
+                    Complete the notes below.<br>
+                    Write <b>ONE WORD AND/OR A NUMBER</b> for each answer.
+                </div>
+
+                <h3 class="excursion-title">Cruise on a lake</h3>
+                <ul class="question-list">
+                    <li>Travel on an old steamship</li>
+                    <li data-question-id="1">Can take photos of the <input type="text" class="answer-input"
+                            data-question-id="1"> that surround the lake</li>
+                </ul>
+
+                <h3 class="excursion-title">Farm visit</h3>
+                <ul class="question-list">
+                    <li>Children can help feed the sheep</li>
+                    <li data-question-id="2">Visit can include a 40-minute ride on a <input type="text"
+                            class="answer-input" data-question-id="2"></li>
+                    <li data-question-id="3">Visitors can walk in the farm’s <input type="text" class="answer-input"
+                            data-question-id="3"> by the lake</li>
+                    <li data-question-id="4"><input type="text" class="answer-input" data-question-id="4"> is available
+                        at extra cost</li>
+                </ul>
+
+                <h3 class="excursion-title">Cycling trips</h3>
+                <ul class="question-list">
+                    <li>Cyclists explore the Back Road</li>
+                    <li data-question-id="5">A <input type="text" class="answer-input" data-question-id="5"> is provided
+                    </li>
+                    <li data-question-id="6">Only suitable for cyclists who have some <input type="text"
+                            class="answer-input" data-question-id="6"></li>
+                    <li data-question-id="7">Bikes can be hired from <input type="text" class="answer-input"
+                            data-question-id="7"> (near the Cruise Ship Terminal)</li>
+                    <li>Cyclists need:
+                        <ul style="padding-left: 25px; margin-top: 8px;">
+                            <li>a repair kit</li>
+                            <li>food and drink</li>
+                            <li data-question-id="8">a <input type="text" class="answer-input" data-question-id="8">
+                                (can be hired)</li>
+                        </ul>
+                    </li>
+                    <li data-question-id="9">There are no <input type="text" class="answer-input" data-question-id="9">
+                        or accommodation in the area</li>
+                </ul>
+
+                <h3 class="excursion-title">Cost</h3>
+                <ul class="question-list">
+                    <li data-question-id="10">Total cost for whole family of cruise and farm visit: $<input type="text"
+                            class="answer-input" data-question-id="10"></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Right Panel: Notes and Transcript -->
+        <div class="panel panel-right">
+            <textarea id="notes-area" placeholder="Take your notes here..."></textarea>
+            <div id="transcript-container">
+                <h3>Transcript</h3>
+                <p><strong>TC EMPLOYEE:</strong> Hi. Can I help you?</p>
+                <p><strong>VISITOR:</strong> I’d like to find out if you have any excursions suitable for families.</p>
+                <p><strong>TC EMPLOYEE:</strong> Sure. How about taking your family for a cruise? We have a steamship
+                    that takes passengers out several times a day – it’s over 100 years old.</p>
+                <p><strong>VISITOR:</strong> That sounds interesting. How long is the trip?</p>
+                <p><strong>TC EMPLOYEE:</strong> About an hour and a half. And don’t forget to take pictures of the
+                    mountains. They’re all around you when you’re on the boat and they look fantastic.</p>
+                <p><strong>VISITOR:</strong> OK. And I assume there’s a café or something on board?</p>
+                <p><strong>TC EMPLOYEE:</strong> Sure. How old are your children?</p>
+                <p><strong>VISITOR:</strong> Er, my daughter’s fifteen and my son’s seven.</p>
+                <p><strong>TC EMPLOYEE:</strong> Right. Well there are various things you can do once you’ve crossed the
+                    lake, to make a day of it. One thing that’s very popular is a visit to the Country Farm. You’re met
+                    off the boat by the farmer and he’ll take you to the holding pens, where the sheep are kept.
+                    Children love feeling them!</p>
+                <p><strong>VISITOR:</strong> My son would love that. He really likes animals.</p>
+                <p><strong>TC EMPLOYEE:</strong> Well, there’s also a 40-minute trek round the farm on a horse, if he
+                    wants.</p>
+                <p><strong>VISITOR:</strong> Do you think he’d manage it? He hasn’t done that before.</p>
+                <p><strong>TC EMPLOYEE:</strong> Sure. It’s suitable for complete beginners.</p>
+                <p><strong>VISITOR:</strong> Ah, good.</p>
+                <p><strong>TC EMPLOYEE:</strong> And again, visitors are welcome to explore the farm on their own, as
+                    long as they take care to close gates and so on. There are some very beautiful gardens along the
+                    side of the lake which also belong to the farm – they’ll be just at their best now. You could easily
+                    spend an hour or two there.</p>
+                <p><strong>VISITOR:</strong> OK. Well that all sounds good. And can we get lunch there?</p>
+                <p><strong>TC EMPLOYEE:</strong> You can, and it’s very good, though it’s not included in the basic
+                    cost. You pay when you get there.</p>
+                <p><strong>VISITOR:</strong> Right.</p>
+                <p><strong>VISITOR:</strong> So is there anything else to do over on that side of the lake?</p>
+                <p><strong>TC EMPLOYEE:</strong> Well, what you can do is take a bike over on the ship and then go on a
+                    cycling trip. There’s a trail there called the Back Road – you could easily spend three or four
+                    hours exploring it, and the scenery’s wonderful. They’ll give you a map when you get your ticket for
+                    the cruise – there’s no extra charge.</p>
+                <p><strong>VISITOR:</strong> What’s the trail like in terms of difficulty?</p>
+                <p><strong>TC EMPLOYEE:</strong> Quite challenging in places. It wouldn’t be suitable for your
+                    seven-year-old. It needs someone who’s got a bit more experience.</p>
+                <p><strong>VISITOR:</strong> Hmm. Well, my daughter loves cycling and so do I, so maybe the two of us
+                    could go, and my wife and son could stay on the farm. That might work out quite well. But we don’t
+                    have bikes here… is there somewhere we could rent them?</p>
+                <p><strong>TC EMPLOYEE:</strong> Yes, there’s a place here in the city. It’s called Ratchesons.</p>
+                <p><strong>VISITOR:</strong> I’ll just make a note of that – er, how do you spell it?</p>
+                <p><strong>TC EMPLOYEE:</strong> R-A-T-C-H-E-S-O-N-S. It’s just by the cruise ship terminal.</p>
+                <p><strong>VISITOR:</strong> OK.</p>
+                <p><strong>TC EMPLOYEE:</strong> You’d also need to pick up a repair kit for the bike from there to take
+                    along with you, and you’d need to take along a snack and some water – it’d be best to get those in
+                    the city.</p>
+                <p><strong>VISITOR:</strong> Fine. That shouldn’t be a problem. And I assume I can rent a helmet from
+                    the bike place?</p>
+                <p><strong>TC EMPLOYEE:</strong> Sure, you should definitely get that. It’s a great ride, but you want
+                    to be well prepared because it’s very remote – you won’t see any shops round there, or anywhere to
+                    stay, so you need to get back in time for the last boat.</p>
+                <p><strong>VISITOR:</strong> Yeah. So what sort of prices are we looking at here?</p>
+                <p><strong>TC EMPLOYEE:</strong> Let’s see, that’d be one adult and one child for the cruise with farm
+                    tour, that’s $117, and an adult and a child for the cruise only so that’s $214 dollars altogether.
+                    Oh, wait a minute, how old did you say your daughter was?</p>
+                <p><strong>VISITOR:</strong> Fifteen.</p>
+                <p><strong>TC EMPLOYEE:</strong> Then I’m afraid it’s $267 because she has to pay the adult fare, which
+                    is $75 instead of the child fare which is $22 – sorry about that.</p>
+                <p><strong>VISITOR:</strong> That’s OK. Er, so how do …</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <!-- Left Group -->
+        <div class="footer-group">
+            <span class="encoded-by">Encoded by Dinh Phuoc</span>
+        </div>
+        <!-- Center Group (Nav Buttons) -->
+        <div class="footer-group" id="nav-buttons">
+            <!-- Navigation buttons will be generated here by JS -->
+        </div>
+        <!-- Right Group (Action Buttons) -->
+        <div class="footer-group">
+            <button id="submit-btn" class="footer-btn">Submit</button>
+            <button id="answers-btn" class="footer-btn">Answers</button>
+            <button id="redo-btn" class="footer-btn">Redo</button>
+            <button id="transcript-btn" class="footer-btn">Transcript</button>
+        </div>
+    </footer>
+
+    <!-- Password Modal -->
+    <div id="password-modal" class="modal-overlay">
+        <div class="modal-content">
+            <p id="modal-title">Enter Password</p>
+            <input type="password" id="password-input">
+            <button id="modal-submit-btn" class="modal-btn">Confirm</button>
+            <button id="modal-cancel-btn" class="modal-btn">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Results Modal -->
+    <div id="results-modal" class="modal-overlay">
+        <div class="modal-content">
+            <p>Your Score</p>
+            <p id="results-text"></p>
+            <button id="results-close-btn" class="modal-btn">Close</button>
+        </div>
+    </div>
+
+    <!-- Custom Context Menu -->
+    <div id="contextMenu">
+        <div onclick="highlightText()">Highlight</div>
+        <div onclick="removeHighlightsInRange()">Remove Highlight</div>
+    </div>
+
+
+    <script>
+        // --- CONFIGURATION --- //
+        const CORRECT_PASSWORD = "1231"; // Change password here
+        const answers = {
+            '1': ["mountains"],
+            '2': ["horse"],
+            '3': ["gardens"],
+            '4': ["lunch"],
+            '5': ["map"],
+            '6': ["experience"],
+            '7': ["ratchesons"],
+            '8': ["helmet"],
+            '9': ["shops"],
+            '10': ["267"]
+        };
+
+        // --- DOM ELEMENT REFERENCES --- //
+        const allInputs = document.querySelectorAll('.answer-input');
+        const submitBtn = document.getElementById('submit-btn');
+        const answersBtn = document.getElementById('answers-btn');
+        const redoBtn = document.getElementById('redo-btn');
+        const transcriptBtn = document.getElementById('transcript-btn');
+        const transcriptContainer = document.getElementById('transcript-container');
+        const navButtonsContainer = document.getElementById('nav-buttons');
+
+        // Password Modal
+        const passwordModal = document.getElementById('password-modal');
+        const passwordInput = document.getElementById('password-input');
+        const modalSubmitBtn = document.getElementById('modal-submit-btn');
+        const modalCancelBtn = document.getElementById('modal-cancel-btn');
+        const modalTitle = document.getElementById('modal-title');
+
+        // Results Modal
+        const resultsModal = document.getElementById('results-modal');
+        const resultsText = document.getElementById('results-text');
+        const resultsCloseBtn = document.getElementById('results-close-btn');
+
+        let passwordCallback = null;
+
+        // --- INITIALIZATION --- //
+        window.onload = function () {
+            // Clear input fields on load
+            allInputs.forEach(element => {
+                element.autocomplete = "off";
+                element.value = "";
+            });
+
+            // Generate navigation buttons
+            const questionIds = Object.keys(answers).sort((a, b) => a - b);
+            questionIds.forEach(id => {
+                const btn = document.createElement('button');
+                btn.className = 'nav-btn';
+                btn.textContent = id;
+                btn.onclick = () => {
+                    const element = document.querySelector(`[data-question-id='${id}']`);
+                    if (element) {
+                        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        // If it's a list item, focus the input inside it
+                        const input = element.querySelector('input') || element;
+                        if (input) input.focus();
+                    }
+                };
+                navButtonsContainer.appendChild(btn);
+            });
+        };
+
+        // --- SECURITY & ANTI-CHEAT --- //
+        document.addEventListener("keydown", function (e) {
+            if (e.key === "F12" ||
+                (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) ||
+                (e.ctrlKey && (e.key === "U" || e.key === "P" || e.key === "S"))) {
+                e.preventDefault();
+            }
+        });
+
+        // --- HIGHLIGHTING LOGIC --- //
+        let selectedRange = null;
+
+        document.addEventListener("contextmenu", (e) => {
+            e.preventDefault();
+            const selection = window.getSelection();
+            if (selection.toString().trim()) {
+                selectedRange = selection.getRangeAt(0);
+                showContextMenu(e.clientX, e.clientY);
+            }
+        });
+
+        document.addEventListener("click", () => {
+            hideContextMenu();
+        });
+
+        function showContextMenu(x, y) {
+            const menu = document.getElementById("contextMenu");
+            menu.style.display = "block";
+            menu.style.left = x + window.scrollX + "px";
+            menu.style.top = y + window.scrollY + "px";
+        }
+
+        function hideContextMenu() {
+            document.getElementById("contextMenu").style.display = "none";
+        }
+
+        function highlightText() {
+            if (selectedRange) {
+                const span = document.createElement("span");
+                span.className = "highlight";
+                try {
+                    selectedRange.surroundContents(span);
+                } catch (e) {
+                    console.error("Cannot highlight partial nodes.", e);
+                }
+                hideContextMenu();
+            }
+        }
+
+        function removeHighlightsInRange() {
+            if (!selectedRange) return;
+            const range = selectedRange.cloneRange();
+            let commonAncestor = range.commonAncestorContainer;
+            if (commonAncestor.nodeType === Node.TEXT_NODE) {
+                commonAncestor = commonAncestor.parentNode;
+            }
+            const highlights = commonAncestor.querySelectorAll(".highlight");
+            highlights.forEach(function (span) {
+                if (range.intersectsNode(span)) {
+                    while (span.firstChild) {
+                        span.parentNode.insertBefore(span.firstChild, span);
+                    }
+                    span.parentNode.removeChild(span);
+                }
+            });
+            window.getSelection().removeAllRanges();
+            hideContextMenu();
+        }
+
+
+        // --- CORE FUNCTIONALITY --- //
+        function clearResults() {
+            allInputs.forEach(input => {
+                input.style.borderColor = "";
+                input.style.borderBottom = "1px solid var(--border-color)";
+                const nextEl = input.nextElementSibling;
+                if (nextEl && nextEl.classList.contains('correct-answer-span')) {
+                    nextEl.remove();
+                }
+            });
+        }
+
+        submitBtn.addEventListener('click', () => {
+            clearResults();
+            let correctCount = 0;
+
+            allInputs.forEach(input => {
+                const questionId = input.dataset.questionId;
+                const userValue = input.value.trim().toLowerCase();
+                const correctValues = answers[questionId].map(v => v.toLowerCase());
+
+                if (correctValues.includes(userValue)) {
+                    input.style.borderBottom = "2px solid var(--correct-color)";
+                    correctCount++;
+                } else {
+                    input.style.borderBottom = "2px solid var(--incorrect-color)";
+                }
+            });
+
+            resultsText.textContent = `${correctCount} / ${allInputs.length}`;
+            resultsModal.style.display = 'flex';
+        });
+
+        redoBtn.addEventListener('click', () => {
+            clearResults();
+            allInputs.forEach(input => {
+                input.value = "";
+            });
+            document.getElementById('notes-area').value = "";
+        });
+
+        function showAnswers() {
+            clearResults();
+            allInputs.forEach(input => {
+                const questionId = input.dataset.questionId;
+                const correctAnswer = answers[questionId][0];
+                input.value = correctAnswer;
+                input.style.borderBottom = "2px solid var(--correct-color)";
+            });
+        }
+
+        // --- MODAL LOGIC --- //
+        function askForPassword(purpose, callback) {
+            modalTitle.textContent = `Enter Password to ${purpose}`;
+            passwordModal.style.display = 'flex';
+            passwordInput.focus();
+            passwordCallback = callback;
+        }
+
+        function closeModal(modal) {
+            modal.style.display = 'none';
+        }
+
+        // Password Modal Listeners
+        answersBtn.addEventListener('click', () => {
+            askForPassword("Show Answers", showAnswers);
+        });
+
+        transcriptBtn.addEventListener('click', () => {
+            if (transcriptContainer.style.display === 'block') {
+                transcriptContainer.style.display = 'none';
+                transcriptBtn.textContent = 'Show Transcript';
+            } else {
+                askForPassword("Show Transcript", () => {
+                    transcriptContainer.style.display = 'block';
+                    transcriptBtn.textContent = 'Hide Transcript';
+                });
+            }
+        });
+
+        modalSubmitBtn.addEventListener('click', handlePasswordSubmit);
+        passwordInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                handlePasswordSubmit();
+            }
+        });
+
+        function handlePasswordSubmit() {
+            if (passwordInput.value === CORRECT_PASSWORD) {
+                if (typeof passwordCallback === 'function') {
+                    passwordCallback();
+                }
+                closeModal(passwordModal);
+                passwordInput.value = '';
+                passwordCallback = null;
+            } else {
+                alert('Incorrect Password!');
+                passwordInput.value = '';
+                passwordInput.focus();
+            }
+        }
+
+        modalCancelBtn.addEventListener('click', () => {
+            closeModal(passwordModal);
+            passwordInput.value = '';
+            passwordCallback = null;
+        });
+
+        // Results Modal Listeners
+        resultsCloseBtn.addEventListener('click', () => closeModal(resultsModal));
+
+        // Close modal if clicking outside of the content
+        window.addEventListener('click', (e) => {
+            if (e.target === passwordModal) closeModal(passwordModal);
+            if (e.target === resultsModal) closeModal(resultsModal);
+        });
+
+    </script>
+</body>
+
+</html>
