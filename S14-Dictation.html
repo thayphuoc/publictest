@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài Tập Điền Từ Tương Tác</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* CSS cho tính năng highlight */
+        .highlight {
+            background-color: #fef08a; /* Màu vàng nhạt */
+            cursor: pointer;
+        }
+
+        /* CSS cho đáp án đúng */
+        .correct {
+            border-color: #16a34a !important; /* Màu xanh lá cây đậm */
+            color: #15803d;
+            background-color: #f0fdf4;
+        }
+        
+        /* CSS cho đáp án sai */
+        .incorrect {
+            border-color: #dc2626 !important; /* Màu đỏ đậm */
+            color: #b91c1c;
+            background-color: #fef2f2;
+        }
+
+        /* Ẩn giải thích (đã bị loại bỏ khỏi JS) */
+        .explanation {
+            display: none;
+        }
+
+        /* CSS cho ô điền từ */
+        .dictation-input {
+            width: 120px; /* Độ rộng cố định cho các ô input */
+            padding: 4px 8px;
+            border: 1px solid #d1d5db; /* border-gray-300 */
+            border-radius: 6px; /* rounded-md */
+            font-size: 1em;
+            margin: 0 4px;
+            transition: all 0.2s ease-in-out;
+        }
+        .dictation-input:focus {
+            outline: none;
+            border-color: #3b82f6; /* ring-blue-500 */
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+        }
+
+        /* Container cho mỗi câu hỏi (input) */
+        .question-item {
+            display: inline-block; /* Hiển thị trên cùng một dòng */
+            margin-bottom: 10px; /* Khoảng cách khi xuống dòng */
+            vertical-align: baseline; /* Căn chỉnh theo dòng chữ */
+        }
+        
+        .dictation-text {
+            font-size: 1.2rem; /* Cỡ chữ to hơn */
+            line-height: 2.5; /* Giãn dòng để chứa input */
+            color: #1f2937; /* text-gray-800 */
+        }
+        
+        .question-number {
+            font-weight: bold;
+            color: #1d4ed8; /* text-blue-700 */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans leading-relaxed">
+
+    <div class="container mx-auto max-w-4xl p-6 md:p-10 bg-white rounded-lg shadow-xl my-10">
+        
+        <h1 class="text-3xl font-bold text-center text-blue-700 mb-8">DICTATION</h1>
+
+        <!-- BÀI TẬP ĐIỀN TỪ -->
+        <section class="mb-10">
+            <form id="dictation-form">
+                <p class="dictation-text">
+                    <!-- Câu 1 -->
+                    <span class="question-item">
+                        <span class="question-number">(1)</span>
+                        <input type="text" id="q1" data-answer="First of all" class="dictation-input">
+                    </span>
+                    take your new 
+                    <!-- Câu 2 -->
+                    <span class="question-item">
+                        <span class="question-number">(2)</span>
+                        <input type="text" id="q2" data-answer="computer" class="dictation-input">
+                    </span>
+                    out of the box and remove all the paper and plastic 
+                    <!-- Câu 3 -->
+                    <span class="question-item">
+                        <span class="question-number">(3)</span>
+                        <input type="text" id="q3" data-answer="packaging" class="dictation-input">
+                    </span>. 
+                    <!-- Câu 4 -->
+                    <span class="question-item">
+                        <span class="question-number">(4)</span>
+                        <input type="text" id="q4" data-answer="Secondly" class="dictation-input">
+                    </span>, before you 
+                    <!-- Câu 5 -->
+                    <span class="question-item">
+                        <span class="question-number">(5)</span>
+                        <input type="text" id="q5" data-answer="plug in" class="dictation-input">
+                    </span>
+                    the computer, read the 
+                    <!-- Câu 6 -->
+                    <span class="question-item">
+                        <span class="question-number">(6)</span>
+                        <input type="text" id="q6" data-answer="installation" class="dictation-input">
+                    </span>
+                    and safety information. 
+                    <!-- Câu 7 -->
+                    <span class="question-item">
+                        <span class="question-number">(7)</span>
+                        <input type="text" id="q7" data-answer="Thirdly" class="dictation-input">
+                    </span>
+                    , use the 
+                    <!-- Câu 8 -->
+                    <span class="question-item">
+                        <span class="question-number">(8)</span>
+                        <input type="text" id="q8" data-answer="power" class="dictation-input">
+                    </span>
+                    cable to 
+                    <!-- Câu 9 -->
+                    <span class="question-item">
+                        <span class="question-number">(9)</span>
+                        <input type="text" id="q9" data-answer="connect" class="dictation-input">
+                    </span>
+                    the computer to a power source. 
+                    <!-- Câu 10 -->
+                    <span class="question-item">
+                        <span class="question-number">(10)</span>
+                        <input type="text" id="q10" data-answer="Then" class="dictation-input">
+                    </span>
+                    , press the power buttons on the 
+                    <!-- Câu 11 -->
+                    <span class="question-item">
+                        <span class="question-number">(11)</span>
+                        <input type="text" id="q11" data-answer="wireless" class="dictation-input">
+                    </span>
+                    keyboard and 
+                    <!-- Câu 12 -->
+                    <span class="question-item">
+                        <span class="question-number">(12)</span>
+                        <input type="text" id="q12" data-answer="mouse" class="dictation-input">
+                    </span>
+                    . Wait until the lights on the keyboard and mouse stop 
+                    <!-- Câu 13 -->
+                    <span class="question-item">
+                        <span class="question-number">(13)</span>
+                        <input type="text" id="q13" data-answer="flashing" class="dictation-input">
+                    </span>
+                    . 
+                    <!-- Câu 14 -->
+                    <span class="question-item">
+                        <span class="question-number">(14)</span>
+                        <input type="text" id="q14" data-answer="Next" class="dictation-input">
+                    </span>
+                    , 
+                    <!-- Câu 15 -->
+                    <span class="question-item">
+                        <span class="question-number">(15)</span>
+                        <input type="text" id="q15" data-answer="turn on" class="dictation-input">
+                    </span>
+                    the computer by pressing the power button.
+                    <!-- Câu 16 -->
+                    <span class="question-item">
+                        <span class="question-number">(16)</span>
+                        <input type="text" id="q16" data-answer="After that" class="dictation-input">
+                    </span>
+                    , connect your computer to your 
+                    <!-- Câu 17 -->
+                    <span class="question-item">
+                        <span class="question-number">(17)</span>
+                        <input type="text" id="q17" data-answer="wireless" class="dictation-input">
+                    </span>
+                    network and follow the 
+                    <!-- Câu 18 -->
+                    <span class="question-item">
+                        <span class="question-number">(18)</span>
+                        <input type="text" id="q18" data-answer="on-screen" class="dictation-input">
+                    </span>
+                    instructions to 
+                    <!-- Câu 19 -->
+                    <span class="question-item">
+                        <span class="question-number">(19)</span>
+                        <input type="text" id="q19" data-answer="set up" class="dictation-input">
+                    </span>
+                    your new computer, for example 
+                    <!-- Câu 20 -->
+                    <span class="question-item">
+                        <span class="question-number">(20)</span>
+                        <input type="text" id="q20" data-answer="language" class="dictation-input">
+                    </span>
+                    selection or 
+                    <!-- Câu 21 -->
+                    <span class="question-item">
+                        <span class="question-number">(21)</span>
+                        <input type="text" id="q21" data-answer="password" class="dictation-input">
+                    </span>
+                    creation. 
+                    <!-- Câu 22 -->
+                    <span class="question-item">
+                        <span class="question-number">(22)</span>
+                        <input type="text" id="q22" data-answer="Finally" class="dictation-input">
+                    </span>
+                    , run the 
+                    <!-- Câu 23 -->
+                    <span class="question-item">
+                        <span class="question-number">(23)</span>
+                        <input type="text" id="q23" data-answer="software" class="dictation-input">
+                    </span>
+                    update so that you have the newest versions of all the 
+                    <!-- Câu 24 -->
+                    <span class="question-item">
+                        <span class="question-number">(24)</span>
+                        <input type="text" id="q24" data-answer="software" class="dictation-input">
+                    </span>
+                    on your computer.
+                </p>
+            </form>
+        </section>
+
+        <!-- HIỂN THỊ ĐIỂM SỐ -->
+        <div id="score-display" class="text-center text-3xl font-bold mt-8 mb-4 text-blue-700" style="display:none;">
+            <!-- Điểm số sẽ được chèn vào đây bởi JavaScript -->
+        </div>
+
+        <!-- NÚT KIỂM TRA -->
+        <div class="text-center mt-10">
+            <button id="check-button" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg text-lg hover:bg-blue-700 transition duration-300 shadow-lg">
+                Kiểm Tra Đáp Án
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // --- TÍNH NĂNG 1: HIGHLIGHT BẰNG CHUỘT PHẢI ---
+            document.body.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                let target = e.target;
+                
+                // Điều kiện để highlight
+                if (target.matches('p, label, li, h1, h2, h3, h4, span, div') && !target.closest('button, input, select')) {
+                    target.classList.toggle('highlight');
+                } else if (target.parentElement.matches('p, label, li')) {
+                    target.parentElement.classList.toggle('highlight');
+                }
+            });
+
+            // --- TÍNH NĂNG 2: KIỂM TRA ĐÁP ÁN ---
+            const checkButton = document.getElementById('check-button');
+            
+            checkButton.addEventListener('click', function() {
+                checkDictation();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            // Hàm kiểm tra Bài điền từ (ĐÃ CẬP NHẬT)
+            function checkDictation() {
+                const questions = document.querySelectorAll('#dictation-form .question-item');
+                let correctCount = 0;
+                const totalQuestions = questions.length;
+                
+                questions.forEach(question => {
+                    const input = question.querySelector('input[type="text"]');
+                    const correctAnswer = input.getAttribute('data-answer');
+                    const userAnswer = input.value.trim();
+
+                    // Xóa các lớp cũ
+                    input.classList.remove('correct', 'incorrect');
+                    
+                    // So sánh không phân biệt chữ hoa/thường
+                    if (userAnswer.toLowerCase() === correctAnswer.toLowerCase()) {
+                        input.classList.add('correct');
+                        correctCount++; // Tăng bộ đếm nếu đúng
+                    } else {
+                        input.classList.add('incorrect');
+                    }
+                });
+
+                // Hiển thị tổng điểm
+                const scoreDisplay = document.getElementById('score-display');
+                scoreDisplay.textContent = `Tổng số câu đúng: ${correctCount} / ${totalQuestions}`;
+                scoreDisplay.style.display = 'block';
+            }
+        });
+    </script>
+
+</body>
+</html>
