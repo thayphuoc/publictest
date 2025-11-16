@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C13T4S4</title>
+    <style>
+        /* --- Basic Setup & Typography --- */
+        :root {
+            --primary-bg: #f0f2f5;
+            --secondary-bg: #ffffff;
+            --text-color: #1c1e21;
+            --accent-color: #0866ff;
+            --border-color: #dddfe2;
+            --highlight-bg: #fffb8f;
+            --correct-color: #28a745;
+            --incorrect-color: #dc3545;
+            --footer-bg: #ffffff;
+            --shadow-light: 0 1px 2px rgba(0, 0, 0, 0.1);
+            --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--text-color);
+            overflow: hidden;
+            /* Prevent body scroll */
+        }
+
+        /* --- Main Layout --- */
+        .main-container {
+            display: flex;
+            height: calc(100vh - 50px);
+            /* Full height minus footer */
+        }
+
+        .panel {
+            flex: 1;
+            overflow-y: auto;
+            padding: 25px;
+            box-sizing: border-box;
+            background-color: var(--secondary-bg);
+            margin: 10px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-light);
+        }
+
+        .panel-left {
+            margin-right: 5px;
+        }
+
+        .panel-right {
+            margin-left: 5px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- Content Styling --- */
+        .question-section {
+            margin-bottom: 25px;
+        }
+
+        .instructions {
+            font-style: italic;
+            background-color: #f7f7f7;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .excursion-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: var(--accent-color);
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+
+        .question-list {
+            list-style-type: none;
+            padding-left: 0;
+            line-height: 2.2;
+        }
+
+        .question-list li {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .question-list li::before {
+            content: '●';
+            position: absolute;
+            left: 0;
+            color: var(--accent-color);
+        }
+
+        .answer-input {
+            border: none;
+            border-bottom: 1px solid var(--border-color);
+            background-color: transparent;
+            font-size: 1em;
+            font-family: inherit;
+            margin: 0 5px;
+            padding: 2px 5px;
+            width: 180px;
+            text-align: center;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-bottom: 2px solid var(--accent-color);
+        }
+
+        .correct-answer-span {
+            font-weight: bold;
+            color: var(--correct-color);
+            margin-left: 10px;
+        }
+
+        .example-text {
+            color: #555;
+            font-style: italic;
+        }
+
+        audio {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .section-heading {
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        /* --- Right Panel: Notes & Transcript --- */
+        #notes-area {
+            width: 100%;
+            height: 30%;
+            /* 1/3 of the right panel */
+            min-height: 150px;
+            box-sizing: border-box;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 1em;
+            font-family: inherit;
+            margin-bottom: 20px;
+            resize: vertical;
+        }
+
+        #transcript-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            line-height: 1.7;
+            display: none;
+            /* Initially hidden */
+        }
+
+        #transcript-container p {
+            margin-bottom: 1em;
+        }
+
+        /* --- Footer --- */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background-color: var(--footer-bg);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            /* Align items to ends */
+            padding: 0 20px;
+            box-sizing: border-box;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.05);
+            z-index: 1000;
+        }
+
+        .footer-group {
+            display: flex;
+            align-items: center;
+        }
+
+        .footer-btn,
+        .nav-btn {
+            border: none;
+            padding: 8px 15px;
+            margin: 0 4px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+
+        .footer-btn:hover,
+        .nav-btn:hover {
+            opacity: 0.85;
+            transform: translateY(-1px);
+        }
+
+        #submit-btn {
+            background-color: #28a745;
+            color: white;
+        }
+
+        #answers-btn {
+            background-color: #ffc107;
+            color: var(--text-color);
+        }
+
+        #redo-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        #transcript-btn {
+            background-color: #17a2b8;
+            color: white;
+        }
+
+        .nav-btn {
+            background-color: #e4e6eb;
+            color: var(--text-color);
+            min-width: 35px;
+            height: 35px;
+            padding: 0 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .encoded-by {
+            font-size: 14px;
+            color: #606770;
+            font-weight: 500;
+        }
+
+        /* --- Modals (Password & Results) --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: none;
+            /* Hidden by default */
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            transition: opacity 0.3s;
+        }
+
+        .modal-content {
+            background: var(--secondary-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-medium);
+            text-align: center;
+            width: 320px;
+        }
+
+        .modal-content p {
+            margin-top: 0;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        #results-text {
+            font-size: 1.5em !important;
+            font-weight: 700 !important;
+            color: var(--accent-color);
+            margin: 20px 0;
+        }
+
+        #password-input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        .modal-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 0 5px;
+        }
+
+        #modal-submit-btn,
+        #results-close-btn {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        #modal-cancel-btn {
+            background-color: #e4e6eb;
+        }
+
+        /* --- Custom Context Menu & Highlighting --- */
+        #contextMenu {
+            display: none;
+            position: absolute;
+            z-index: 3000;
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-medium);
+            border-radius: 8px;
+            padding: 5px 0;
+            min-width: 160px;
+        }
+
+        #contextMenu div {
+            padding: 10px 15px;
+            cursor: pointer;
+        }
+
+        #contextMenu div:hover {
+            background-color: var(--primary-bg);
+        }
+
+        .highlight {
+            background-color: var(--highlight-bg);
+            border-radius: 3px;
+            padding: 1px 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="main-container">
+        <!-- Left Panel: Questions -->
+        <div class="panel panel-left">
+            <audio controls>
+                <source src="./c13t4p4.mp3" type="audio/mpeg">
+                Your browser does not support the audio element.
+            </audio>
+
+            <div class="question-section">
+                <div class="instructions">
+                    <b>SECTION 4</b><br>
+                    Complete the notes below.<br>
+                    Write <b>ONE WORD ONLY</b> for each answer.
+                </div>
+
+                <h3 class="excursion-title">The history of coffee</h3>
+
+                <div class="section-heading">Coffee in the Arab world</div>
+                <ul class="question-list">
+                    <li>There was small-scale trade in wild coffee from Ethiopia.</li>
+                    <li>1522: Coffee was approved in the Ottoman court as a type of medicine.</li>
+                    <li data-question-id="31">1623: In Constantinople, the ruler ordered the <input type="text"
+                            class="answer-input" data-question-id="31"> of every coffee house.</li>
+                </ul>
+
+                <div class="section-heading">Coffee arrives in Europe (17th century)</div>
+                <ul class="question-list">
+                    <li data-question-id="32">Coffee shops were compared to <input type="text" class="answer-input"
+                            data-question-id="32">.</li>
+                    <li data-question-id="33">They played an important part in social and <input type="text"
+                            class="answer-input" data-question-id="33"> changes.</li>
+                </ul>
+
+                <div class="section-heading">Coffee and European colonization</div>
+                <ul class="question-list">
+                    <li>European powers established coffee plantations in their colonies.</li>
+                    <li data-question-id="34">Types of coffee were often named according to the <input type="text"
+                            class="answer-input" data-question-id="34"> they came from.</li>
+                    <li data-question-id="35">In Brazil and the Caribbean, most cultivation depended on <input type="text"
+                            class="answer-input" data-question-id="35">.</li>
+                    <li data-question-id="36">In Java, coffee was used as a form of <input type="text"
+                            class="answer-input" data-question-id="36">.</li>
+                    <li data-question-id="37">Coffee became almost as important as <input type="text" class="answer-input"
+                            data-question-id="37">.</li>
+                    <li data-question-id="38">The move towards the consumption of <input type="text" class="answer-input"
+                            data-question-id="38"> in Britain did not also take place in the USA.</li>
+                </ul>
+
+                <div class="section-heading">Coffee in the 19th century</div>
+                <ul class="question-list">
+                    <li data-question-id="39">Prices dropped because of improvements in <input type="text"
+                            class="answer-input" data-question-id="39">.</li>
+                    <li data-question-id="40">Industrial workers found coffee helped them to work at <input type="text"
+                            class="answer-input" data-question-id="40">.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Right Panel: Notes and Transcript -->
+        <div class="panel panel-right">
+            <textarea id="notes-area" placeholder="Take your notes here..."></textarea>
+            <div id="transcript-container">
+                <h3>Transcript</h3>
+                <p>In my presentation, I’m going to talk about coffee, and its importance both in economic and social
+                    terms. We think it was first drunk in the Arab world, but there’s hardly any documentary evidence of
+                    it before the 1500s, although of course that doesn’t mean that people didn’t know about it before
+                    then.</p>
+                <p>However, there is evidence that coffee was originally gathered from bushes growing wild in Ethiopia, in
+                    the northeast of Africa. In the early sixteenth century, it was being bought by traders, and gradually
+                    its use as a drink spread throughout the Middle East. It’s also known that in 1522, in the Turkish
+                    city of Constantinople, which was the centre of the Ottoman Empire, the court physician approved its
+                    use as a medicine.</p>
+                <p>By the mid-1500s, coffee bushes were being cultivated in the Yemen and for the next hundred years this
+                    region produced most of the coffee drunk in Africa and the Arab world. What’s particularly
+                    interesting about coffee is its effect on social life. It was rarely drunk at home, but instead
+                    people went to coffee houses to drink it. These people, usually men, would meet to drink coffee and
+                    chat about issues of the day. But at the time, this chance to share ideas and opinions was seen as
+                    something that was potentially dangerous, and in 1623 the ruler of Constantinople demanded the
+                    destruction (Q31) of all the coffee houses in the city, although after his death many new ones
+                    opened, and coffee consumption continued. In the seventeenth century, coffee drinking spread to
+                    Europe, and here too coffee shops became places where ordinary people, nearly always men, could meet
+                    to exchange ideas. Because of this, some people said that these places performed a similar function
+                    to universities (Q32). The opportunity they provided for people to meet together outside their own
+                    homes and to discuss the topics of the day had an enormous impact on social life, and many social
+                    movements and political (Q33) developments had their origins in coffee house discussions.</p>
+                <p>In the late 1600s, the Yemeni monopoly on coffee production broke down and coffee production started to
+                    spread around the world, helped by European colonization. Europeans set up coffee plantations in
+                    Indonesia and the Caribbean and production of coffee in the colonies skyrocketed. Different types of
+                    coffee were produced in different areas, and it’s interesting that the names given to these different
+                    types, like Mocha or Java coffee, were often taken from the port (Q34) they were shipped to Europe
+                    from. But if you look at the labour system in the different colonies, there were some significant
+                    differences.</p>
+                <p>In Brazil and the various Caribbean colonies, coffee was grown in huge plantations and the workers
+                    there were almost all slaves (Q35). But this wasn’t the same in all colonies; for example, in Java,
+                    which had been colonized by the Dutch, the peasants grew coffee and passed a proportion of this on to
+                    the Dutch, so it was used as a means of taxation (Q36). But whatever system was used, under the
+                    European powers of the eighteenth century, coffee production was very closely linked to colonisation.
+                    Coffee was grown in ever-increasing quantities to satisfy the growing demand from Europe, and it
+                    became nearly as important as sugar (Q37) production, which was grown under very similar conditions.
+                    However, coffee prices were not yet low enough for people to drink it regularly at home, so most
+                    coffee consumption still took place in public coffee houses and it still remained something of a
+                    luxury item. In Britain, however, a new drink was introduced from China, and started to become
+                    popular, gradually taking over from coffee, although at first it was so expensive that only the upper
+                    classes could afford it. This was tea (Q38), and by the late 1700s it was being widely drunk.
+                    However, when the USA gained independence from Britain in 1766, they identified this drink with
+                    Britain, and coffee remained the preferred drink in the USA, as it still is today.</p>
+                <p>So, by the early nineteenth century, coffee was already being widely produced and consumed. But during
+                    this century, production boomed and coffee prices started to fall. This was partly because new types
+                    of transportation (Q39) had been developed which were cheaper and more efficient. So now, working
+                    people could afford to buy coffee – it wasn’t just a drink for the middle classes. And this was at a
+                    time when large parts of Europe were starting to work in industries. And sometimes this meant their
+                    work didn’t stop when it got dark; they might have to continue throughout the night (Q40). So, the use
+                    of coffee as a stimulant became important – it wasn’t just a drink people drank in the morning, for
+                    breakfast.</p>
+                <p>There were also changes in cultivation …</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <!-- Left Group -->
+        <div class="footer-group">
+            <span class="encoded-by">Encoded by Dinh Phuoc</span>
+        </div>
+        <!-- Center Group (Nav Buttons) -->
+        <div class="footer-group" id="nav-buttons">
+            <!-- Navigation buttons will be generated here by JS -->
+        </div>
+        <!-- Right Group (Action Buttons) -->
+        <div class="footer-group">
+            <button id="submit-btn" class="footer-btn">Submit</button>
+            <button id="answers-btn" class="footer-btn">Answers</button>
+            <button id="redo-btn" class="footer-btn">Redo</button>
+            <button id="transcript-btn" class="footer-btn">Transcript</button>
+        </div>
+    </footer>
+
+    <!-- Password Modal -->
+    <div id="password-modal" class="modal-overlay">
+        <div class="modal-content">
+            <p id="modal-title">Enter Password</p>
+            <input type="password" id="password-input">
+            <button id="modal-submit-btn" class="modal-btn">Confirm</button>
+            <button id="modal-cancel-btn" class="modal-btn">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Results Modal -->
+    <div id="results-modal" class="modal-overlay">
+        <div class="modal-content">
+            <p>Your Score</p>
+            <p id="results-text"></p>
+            <button id="results-close-btn" class="modal-btn">Close</button>
+        </div>
+    </div>
+
+    <!-- Custom Context Menu -->
+    <div id="contextMenu">
+        <div onclick="highlightText()">Highlight</div>
+        <div onclick="removeHighlightsInRange()">Remove Highlight</div>
+    </div>
+
+
+    <script>
+        // --- CONFIGURATION --- //
+        const CORRECT_PASSWORD = "1231"; // Change password here
+        const answers = {
+            '31': ["destruction"],
+            '32': ["universities"],
+            '33': ["political"],
+            '34': ["port"],
+            '35': ["slaves"],
+            '36': ["taxation"],
+            '37': ["sugar"],
+            '38': ["tea"],
+            '39': ["transportation"],
+            '40': ["night"]
+        };
+
+        // --- DOM ELEMENT REFERENCES --- //
+        const allInputs = document.querySelectorAll('.answer-input');
+        const submitBtn = document.getElementById('submit-btn');
+        const answersBtn = document.getElementById('answers-btn');
+        const redoBtn = document.getElementById('redo-btn');
+        const transcriptBtn = document.getElementById('transcript-btn');
+        const transcriptContainer = document.getElementById('transcript-container');
+        const navButtonsContainer = document.getElementById('nav-buttons');
+
+        // Password Modal
+        const passwordModal = document.getElementById('password-modal');
+        const passwordInput = document.getElementById('password-input');
+        const modalSubmitBtn = document.getElementById('modal-submit-btn');
+        const modalCancelBtn = document.getElementById('modal-cancel-btn');
+        const modalTitle = document.getElementById('modal-title');
+
+        // Results Modal
+        const resultsModal = document.getElementById('results-modal');
+        const resultsText = document.getElementById('results-text');
+        const resultsCloseBtn = document.getElementById('results-close-btn');
+
+        let passwordCallback = null;
+
+        // --- INITIALIZATION --- //
+        window.onload = function () {
+            // Clear input fields on load
+            allInputs.forEach(element => {
+                element.autocomplete = "off";
+                element.value = "";
+            });
+
+            // Generate navigation buttons
+            const questionIds = Object.keys(answers).sort((a, b) => parseInt(a) - parseInt(b));
+            questionIds.forEach(id => {
+                const btn = document.createElement('button');
+                btn.className = 'nav-btn';
+                btn.textContent = id;
+                btn.onclick = () => {
+                    const element = document.querySelector(`[data-question-id='${id}']`);
+                    if (element) {
+                        // Find the parent <li> to scroll to
+                        const scrollTarget = element.closest('li');
+                        if (scrollTarget) {
+                            scrollTarget.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                        // If it's a list item, focus the input inside it
+                        const input = element.querySelector('input') || element;
+                        if (input) input.focus();
+                    }
+                };
+                navButtonsContainer.appendChild(btn);
+            });
+        };
+
+        // --- SECURITY & ANTI-CHEAT --- //
+        document.addEventListener("keydown", function (e) {
+            if (e.key === "F12" ||
+                (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) ||
+                (e.ctrlKey && (e.key === "U" || e.key === "P" || e.key === "S"))) {
+                e.preventDefault();
+            }
+        });
+
+        // --- HIGHLIGHTING LOGIC --- //
+        let selectedRange = null;
+
+        document.addEventListener("contextmenu", (e) => {
+            e.preventDefault();
+            const selection = window.getSelection();
+            if (selection.toString().trim()) {
+                selectedRange = selection.getRangeAt(0);
+                showContextMenu(e.clientX, e.clientY);
+            }
+        });
+
+        document.addEventListener("click", () => {
+            hideContextMenu();
+        });
+
+        function showContextMenu(x, y) {
+            const menu = document.getElementById("contextMenu");
+            menu.style.display = "block";
+            menu.style.left = x + window.scrollX + "px";
+            menu.style.top = y + window.scrollY + "px";
+        }
+
+        function hideContextMenu() {
+            document.getElementById("contextMenu").style.display = "none";
+        }
+
+        function highlightText() {
+            if (selectedRange) {
+                const span = document.createElement("span");
+                span.className = "highlight";
+                try {
+                    selectedRange.surroundContents(span);
+                } catch (e) {
+                    console.error("Cannot highlight partial nodes.", e);
+                }
+                hideContextMenu();
+            }
+        }
+
+        function removeHighlightsInRange() {
+            if (!selectedRange) return;
+            const range = selectedRange.cloneRange();
+            let commonAncestor = range.commonAncestorContainer;
+            if (commonAncestor.nodeType === Node.TEXT_NODE) {
+                commonAncestor = commonAncestor.parentNode;
+            }
+            const highlights = commonAncestor.querySelectorAll(".highlight");
+            highlights.forEach(function (span) {
+                if (range.intersectsNode(span)) {
+                    while (span.firstChild) {
+                        span.parentNode.insertBefore(span.firstChild, span);
+                    }
+                    span.parentNode.removeChild(span);
+                }
+            });
+            window.getSelection().removeAllRanges();
+            hideContextMenu();
+        }
+
+
+        // --- CORE FUNCTIONALITY --- //
+        function clearResults() {
+            allInputs.forEach(input => {
+                input.style.borderColor = "";
+                input.style.borderBottom = "1px solid var(--border-color)";
+                const nextEl = input.nextElementSibling;
+                if (nextEl && nextEl.classList.contains('correct-answer-span')) {
+                    nextEl.remove();
+                }
+            });
+        }
+
+        submitBtn.addEventListener('click', () => {
+            clearResults();
+            let correctCount = 0;
+
+            allInputs.forEach(input => {
+                const questionId = input.dataset.questionId;
+                const userValue = input.value.trim().toLowerCase();
+                const correctValues = answers[questionId].map(v => v.toLowerCase());
+
+                if (correctValues.includes(userValue)) {
+                    input.style.borderBottom = "2px solid var(--correct-color)";
+                    correctCount++;
+                } else {
+                    input.style.borderBottom = "2px solid var(--incorrect-color)";
+                }
+            });
+
+            resultsText.textContent = `${correctCount} / ${allInputs.length}`;
+            resultsModal.style.display = 'flex';
+        });
+
+        redoBtn.addEventListener('click', () => {
+            clearResults();
+            allInputs.forEach(input => {
+                input.value = "";
+            });
+            document.getElementById('notes-area').value = "";
+        });
+
+        function showAnswers() {
+            clearResults();
+            allInputs.forEach(input => {
+                const questionId = input.dataset.questionId;
+                const correctAnswer = answers[questionId][0];
+                input.value = correctAnswer;
+                input.style.borderBottom = "2px solid var(--correct-color)";
+            });
+        }
+
+        // --- MODAL LOGIC --- //
+        function askForPassword(purpose, callback) {
+            modalTitle.textContent = `Enter Password to ${purpose}`;
+            passwordModal.style.display = 'flex';
+            passwordInput.focus();
+            passwordCallback = callback;
+        }
+
+        function closeModal(modal) {
+            modal.style.display = 'none';
+        }
+
+        // Password Modal Listeners
+        answersBtn.addEventListener('click', () => {
+            askForPassword("Show Answers", showAnswers);
+        });
+
+        transcriptBtn.addEventListener('click', () => {
+            if (transcriptContainer.style.display === 'block') {
+                transcriptContainer.style.display = 'none';
+                transcriptBtn.textContent = 'Show Transcript';
+            } else {
+                askForPassword("Show Transcript", () => {
+                    transcriptContainer.style.display = 'block';
+                    transcriptBtn.textContent = 'Hide Transcript';
+                });
+            }
+        });
+
+        modalSubmitBtn.addEventListener('click', handlePasswordSubmit);
+        passwordInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                handlePasswordSubmit();
+            }
+        });
+
+        function handlePasswordSubmit() {
+            if (passwordInput.value === CORRECT_PASSWORD) {
+                if (typeof passwordCallback === 'function') {
+                    passwordCallback();
+                }
+                closeModal(passwordModal);
+                passwordInput.value = '';
+                passwordCallback = null;
+            } else {
+                alert('Incorrect Password!');
+                passwordInput.value = '';
+                passwordInput.focus();
+            }
+        }
+
+        modalCancelBtn.addEventListener('click', () => {
+            closeModal(passwordModal);
+            passwordInput.value = '';
+            passwordCallback = null;
+        });
+
+        // Results Modal Listeners
+        resultsCloseBtn.addEventListener('click', () => closeModal(resultsModal));
+
+        // Close modal if clicking outside of the content
+        window.addEventListener('click', (e) => {
+            if (e.target === passwordModal) closeModal(passwordModal);
+            if (e.target === resultsModal) closeModal(resultsModal);
+        });
+
+    </script>
+</body>
+
+</html>
