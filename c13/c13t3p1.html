@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C13T3P1</title>
+    <style>
+        /* --- Basic Setup & Typography --- */
+        :root {
+            --primary-bg: #f0f2f5;
+            --secondary-bg: #ffffff;
+            --text-color: #1c1e21;
+            --accent-color: #0866ff;
+            --border-color: #dddfe2;
+            --highlight-bg: #fffb8f;
+            --correct-color: #28a745;
+            --incorrect-color: #dc3545;
+            --footer-bg: #ffffff;
+            --shadow-light: 0 1px 2px rgba(0, 0, 0, 0.1);
+            --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--text-color);
+            overflow: hidden;
+            /* Prevent body scroll */
+        }
+
+        /* --- Main Layout --- */
+        .main-container {
+            display: flex;
+            height: calc(100vh - 50px);
+            /* Full height minus footer */
+        }
+
+        .panel {
+            flex: 1;
+            overflow-y: auto;
+            padding: 25px;
+            box-sizing: border-box;
+            background-color: var(--secondary-bg);
+            margin: 10px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-light);
+        }
+
+        .panel-left {
+            margin-right: 5px;
+        }
+
+        .panel-right {
+            margin-left: 5px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- Content Styling --- */
+        .question-section {
+            margin-bottom: 25px;
+        }
+
+        .instructions {
+            font-style: italic;
+            background-color: #f7f7ff;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .excursion-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: var(--accent-color);
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+
+        .question-list {
+            list-style-type: none;
+            padding-left: 0;
+            line-height: 2.2;
+        }
+
+        .question-list li {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .question-list li::before {
+            content: '●';
+            position: absolute;
+            left: 0;
+            color: var(--accent-color);
+        }
+
+        .answer-input {
+            border: none;
+            border-bottom: 1px solid var(--border-color);
+            background-color: transparent;
+            font-size: 1em;
+            font-family: inherit;
+            margin: 0 5px;
+            padding: 2px 5px;
+            width: 180px;
+            text-align: center;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-bottom: 2px solid var(--accent-color);
+        }
+
+        .correct-answer-span {
+            font-weight: bold;
+            color: var(--correct-color);
+            margin-left: 10px;
+        }
+
+        .example-text {
+            color: #555;
+            font-style: italic;
+        }
+
+        audio {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .section-heading {
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        /* --- Right Panel: Notes & Transcript --- */
+        #notes-area {
+            width: 100%;
+            height: 30%;
+            /* 1/3 of the right panel */
+            min-height: 150px;
+            box-sizing: border-box;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 1em;
+            font-family: inherit;
+            margin-bottom: 20px;
+            resize: vertical;
+        }
+
+        #transcript-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            line-height: 1.7;
+            display: none;
+            /* Initially hidden */
+        }
+
+        #transcript-container p {
+            margin-bottom: 1em;
+        }
+
+        /* --- Footer --- */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background-color: var(--footer-bg);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            /* Align items to ends */
+            padding: 0 20px;
+            box-sizing: border-box;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.05);
+            z-index: 1000;
+        }
+
+        .footer-group {
+            display: flex;
+            align-items: center;
+        }
+
+        .footer-btn,
+        .nav-btn {
+            border: none;
+            padding: 8px 15px;
+            margin: 0 4px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+
+        .footer-btn:hover,
+        .nav-btn:hover {
+            opacity: 0.85;
+            transform: translateY(-1px);
+        }
+
+        #submit-btn {
+            background-color: #28a745;
+            color: white;
+        }
+
+        #answers-btn {
+            background-color: #ffc107;
+            color: var(--text-color);
+        }
+
+        #redo-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        #transcript-btn {
+            background-color: #17a2b8;
+            color: white;
+        }
+
+        .nav-btn {
+            background-color: #e4e6eb;
+            color: var(--text-color);
+            min-width: 35px;
+            height: 35px;
+            padding: 0 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .encoded-by {
+            font-size: 14px;
+            color: #606770;
+            font-weight: 500;
+        }
+
+        /* --- Modals (Password & Results) --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: none;
+            /* Hidden by default */
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            transition: opacity 0.3s;
+        }
+
+        .modal-content {
+            background: var(--secondary-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-medium);
+            text-align: center;
+            width: 320px;
+        }
+
+        .modal-content p {
+            margin-top: 0;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        #results-text {
+            font-size: 1.5em !important;
+            font-weight: 700 !important;
+            color: var(--accent-color);
+            margin: 20px 0;
+        }
+
+        #password-input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        .modal-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 0 5px;
+        }
+
+        #modal-submit-btn,
+        #results-close-btn {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        #modal-cancel-btn {
+            background-color: #e4e6eb;
+        }
+
+        /* --- Custom Context Menu & Highlighting --- */
+        #contextMenu {
+            display: none;
+            position: absolute;
+            z-index: 3000;
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-medium);
+            border-radius: 8px;
+            padding: 5px 0;
+            min-width: 160px;
+        }
+
+        #contextMenu div {
+            padding: 10px 15px;
+            cursor: pointer;
+        }
+
+        #contextMenu div:hover {
+            background-color: var(--primary-bg);
+        }
+
+        .highlight {
+            background-color: var(--highlight-bg);
+            border-radius: 3px;
+            padding: 1px 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="main-container">
+        <!-- Left Panel: Questions -->
+        <div class="panel panel-left">
+            <audio controls>
+                <source src="./c13t3p1.mp3" type="audio/mpeg">
+                Your browser does not support the audio element.
+            </audio>
+
+            <div class="question-section">
+                <div class="instructions">
+                    <b>SECTION 1</b><br>
+                    Complete the notes below.<br>
+                    Write <b>ONE WORD AND/OR A NUMBER</b> for each answer.
+                </div>
+
+                <h3 class="excursion-title">Moving to Banford City</h3>
+
+                <ul class="question-list">
+                    <li>Example: Linda recommends living in suburb of: <span class="example-text">Dalton</span></li>
+                </ul>
+
+                <div class="section-heading">Accommodation</div>
+                <ul class="question-list">
+                    <li data-question-id="1">Average rent: £<input type="text" class="answer-input" data-question-id="1"
+                            style="width: 100px;"> a month</li>
+                </ul>
+
+                <div class="section-heading">Transport</div>
+                <ul class="question-list">
+                    <li data-question-id="2">Linda travels to work by <input type="text" class="answer-input"
+                            data-question-id="2"></li>
+                    <li data-question-id="3">Limited <input type="text" class="answer-input" data-question-id="3"> in
+                        city centre</li>
+                    <li data-question-id="4">Trains to London every <input type="text" class="answer-input"
+                            data-question-id="4" style="width: 100px;"> minutes</li>
+                    <li data-question-id="5">Poor train service at <input type="text" class="answer-input"
+                            data-question-id="5"></li>
+                </ul>
+
+                <div class="section-heading">Advantages of living in Banford</div>
+                <ul class="question-list">
+                    <li data-question-id="6">New <input type="text" class="answer-input" data-question-id="6"> opened
+                        recently</li>
+                    <li data-question-id="7"><input type="text" class="answer-input" data-question-id="7"> has excellent
+                        reputation</li>
+                    <li data-question-id="8">Good <input type="text" class="answer-input" data-question-id="8"> on
+                        Bridge Street</li>
+                </ul>
+
+                <div class="section-heading">Meet Linda</div>
+                <ul class="question-list">
+                    <li data-question-id="9">Meet Linda on <input type="text" class="answer-input" data-question-id="9">
+                        after 5.30 pm</li>
+                    <li data-question-id="10">In the <input type="text" class="answer-input" data-question-id="10">
+                        opposite the station</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Right Panel: Notes and Transcript -->
+        <div class="panel panel-right">
+            <textarea id="notes-area" placeholder="Take your notes here..."></textarea>
+            <div id="transcript-container">
+                <h3>Transcript</h3>
+                <p><strong>LINDA:</strong> Hello, Linda speaking.</p>
+                <p><strong>MATT:</strong> Oh hi, Linda. This is Matt Brooks. Alex White gave me your number. He said
+                    you’d be able to give me some advice about moving to Banford.</p>
+                <p><strong>LINDA:</strong> Yes, Alex did mention you. How can I help?</p>
+                <p><strong>MATT:</strong> Well, first of all – which area to live in?</p>
+                <p><strong>LINDA:</strong> Well, I live in Dalton (Example), which is a really nice suburb – not too
+                    expensive, and there’s a nice park.</p>
+                <p><strong>MATT:</strong> Sounds good. Do you know how much it would be to rent a two bedroom flat there?
+                </p>
+                <p><strong>LINDA:</strong> Yeah, you should be able to get something reasonable for 850 (Q1) pounds per
+                    month. That’s what people typically pay. You certainly wouldn’t want to pay more than 900 pounds.
+                    That doesn’t include bills or anything.</p>
+                <p><strong>MATT:</strong> No. That sound alright. I’ll definitely have a look there. Are the transport
+                    links easy from where you live?</p>
+                <p><strong>LINDA:</strong> Well, I’m very lucky. I work in the city centre so I don’t have to use public
+                    transport. I go by bike. (Q2)</p>
+                <p><strong>MATT:</strong> Oh, I wish I could do that. Is it safe to cycle around the city?</p>
+                <p><strong>LINDA:</strong> Yes, it’s fine. And it keeps me fit. Anyway, driving to work in the city
+                    centre would be a nightmare because there’s hardly any parking (Q3). And the traffic during the rush
+                    hour can be bad.</p>
+                <p><strong>MATT:</strong> I’d be working from home but I’d have to go to London one or two days a week.
+                </p>
+                <p><strong>LINDA:</strong> Oh, that’s perfect. Getting to London is no problem. There’s a fast train
+                    every 30 minutes (Q4) which only takes 45 minutes.</p>
+                <p><strong>MATT:</strong> That’s good.</p>
+                <p><strong>LINDA:</strong> Yeah, the train service isn’t bad during the week. And they run quite late at
+                    night. It’s weekends that are a problem (Q5). They’re always doing engineering work and you have to
+                    take a bus to Hadham and pick up the train there, which is really slow. But other than that,
+                    Banford’s a great place to live. I’ve never been happier.</p>
+                <p><strong>LINDA:</strong> There are some nice restaurants in the city centre and a brand new cinema which
+                    has only been open a couple of months (Q6). There’s a good arts centre too.</p>
+                <p><strong>MATT:</strong> Sounds like Banford’s got it all.</p>
+                <p><strong>LINDA:</strong> Yes! We’re really lucky. There are lots of really good aspects to living here.
+                    The schools are good and the hospital here is one of the best in the country (Q7). Everyone I know
+                    who’s been there’s had a positive experience. Oh, I can give you the name of my dentist too in Bridge
+                    Street (Q8), if you’re interested. I’ve been going to him for years and I’ve never had any problems.
+                </p>
+                <p><strong>MATT:</strong> Oh, OK. Thanks!</p>
+                <p><strong>LINDA:</strong> I’ll find his number and send it to you.</p>
+                <p><strong>MATT:</strong> Thanks, that would be really helpful.</p>
+                <p><strong>LINDA:</strong> Are you planning to visit Banford soon?</p>
+                <p><strong>MATT:</strong> Yes. My wife and I are both coming next week. We want to make some appointments
+                    with estate agents.</p>
+                <p><strong>LINDA:</strong> I could meet you if you like and show you around.</p>
+                <p><strong>MATT:</strong> Are you sure? We’d really appreciate that.</p>
+                <p><strong>LINDA:</strong> Either a Tuesday or Thursday is good for me, after 5.30. (Q9)</p>
+                <p><strong>MATT:</strong> Thursday’s preferable – Tuesday I need to get home before 6 pm.</p>
+                <p><strong>LINDA:</strong> Okay great. Let me know which train your catching and I’ll meet you in the cafe
+                    outside. You can’t miss it. It’s opposite the station and next to the museum. (Q10)</p>
+                <p><strong>MATT:</strong> Brilliant. I’ll text you next week then. Thanks so much for all the advice.</p>
+                <p><strong>LINDA:</strong> No problem. I’ll see you next week.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <!-- Left Group -->
+        <div class="footer-group">
+            <span class="encoded-by">Encoded by Dinh Phuoc</span>
+        </div>
+        <!-- Center Group (Nav Buttons) -->
+        <div class="footer-group" id="nav-buttons">
+            <!-- Navigation buttons will be generated here by JS -->
+        </div>
+        <!-- Right Group (Action Buttons) -->
+        <div class="footer-group">
+            <button id="submit-btn" class="footer-btn">Submit</button>
+            <button id="answers-btn" class="footer-btn">Answers</button>
+            <button id="redo-btn" class="footer-btn">Redo</button>
+            <button id="transcript-btn" class="footer-btn">Transcript</button>
+        </div>
+    </footer>
+
+    <!-- Password Modal -->
+    <div id="password-modal" class="modal-overlay">
+        <div class="modal-content">
+            <p id="modal-title">Enter Password</p>
+            <input type="password" id="password-input">
+            <button id="modal-submit-btn" class="modal-btn">Confirm</button>
+            <button id="modal-cancel-btn" class="modal-btn">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Results Modal -->
+    <div id="results-modal" class="modal-overlay">
+        <div class="modal-content">
+            <p>Your Score</p>
+            <p id="results-text"></p>
+            <button id="results-close-btn" class="modal-btn">Close</button>
+        </div>
+    </div>
+
+    <!-- Custom Context Menu -->
+    <div id="contextMenu">
+        <div onclick="highlightText()">Highlight</div>
+        <div onclick="removeHighlightsInRange()">Remove Highlight</div>
+    </div>
+
+
+    <script>
+        // --- CONFIGURATION --- //
+        const CORRECT_PASSWORD = "1231"; // Change password here
+        const answers = {
+            '1': ["850"],
+            '2': ["bike"],
+            '3': ["parking"],
+            '4': ["30", "thirty"],
+            '5': ["weekends"],
+            '6': ["cinema"],
+            '7': ["hospital"],
+            '8': ["dentist"],
+            '9': ["thursday"],
+            '10': ["cafe"]
+        };
+
+        // --- DOM ELEMENT REFERENCES --- //
+        const allInputs = document.querySelectorAll('.answer-input');
+        const submitBtn = document.getElementById('submit-btn');
+        const answersBtn = document.getElementById('answers-btn');
+        const redoBtn = document.getElementById('redo-btn');
+        const transcriptBtn = document.getElementById('transcript-btn');
+        const transcriptContainer = document.getElementById('transcript-container');
+        const navButtonsContainer = document.getElementById('nav-buttons');
+
+        // Password Modal
+        const passwordModal = document.getElementById('password-modal');
+        const passwordInput = document.getElementById('password-input');
+        const modalSubmitBtn = document.getElementById('modal-submit-btn');
+        const modalCancelBtn = document.getElementById('modal-cancel-btn');
+        const modalTitle = document.getElementById('modal-title');
+
+        // Results Modal
+        const resultsModal = document.getElementById('results-modal');
+        const resultsText = document.getElementById('results-text');
+        const resultsCloseBtn = document.getElementById('results-close-btn');
+
+        let passwordCallback = null;
+
+        // --- INITIALIZATION --- //
+        window.onload = function () {
+            // Clear input fields on load
+            allInputs.forEach(element => {
+                element.autocomplete = "off";
+                element.value = "";
+            });
+
+            // Generate navigation buttons
+            const questionIds = Object.keys(answers).sort((a, b) => parseInt(a) - parseInt(b));
+            questionIds.forEach(id => {
+                const btn = document.createElement('button');
+                btn.className = 'nav-btn';
+                btn.textContent = id;
+                btn.onclick = () => {
+                    const element = document.querySelector(`[data-question-id='${id}']`);
+                    if (element) {
+                        // Find parent <li> to scroll to
+                        const scrollTarget = element.closest('li');
+                        if (scrollTarget) {
+                            scrollTarget.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'center'
+                            });
+                        }
+                        // Focus the input inside the list item
+                        const input = element.querySelector('input') || element;
+                        if (input) input.focus();
+                    }
+                };
+                navButtonsContainer.appendChild(btn);
+            });
+        };
+
+        // --- SECURITY & ANTI-CHEAT --- //
+        document.addEventListener("keydown", function (e) {
+            if (e.key === "F12" ||
+                (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) ||
+                (e.ctrlKey && (e.key === "U" || e.key === "P" || e.key === "S"))) {
+                e.preventDefault();
+            }
+        });
+
+        // --- HIGHLIGHTING LOGIC --- //
+        let selectedRange = null;
+
+        document.addEventListener("contextmenu", (e) => {
+            e.preventDefault();
+            const selection = window.getSelection();
+            if (selection.toString().trim()) {
+                selectedRange = selection.getRangeAt(0);
+                showContextMenu(e.clientX, e.clientY);
+            }
+        });
+
+
+
+        document.addEventListener("click", () => {
+            hideContextMenu();
+        });
+
+        function showContextMenu(x, y) {
+            const menu = document.getElementById("contextMenu");
+            menu.style.display = "block";
+            menu.style.left = x + window.scrollX + "px";
+            menu.style.top = y + window.scrollY + "px";
+        }
+
+        function hideContextMenu() {
+            document.getElementById("contextMenu").style.display = "none";
+        }
+
+        function highlightText() {
+            if (selectedRange) {
+                const span = document.createElement("span");
+                span.className = "highlight";
+                try {
+                    selectedRange.surroundContents(span);
+                } catch (e) {
+                    console.error("Cannot highlight partial nodes.", e);
+                }
+                hideContextMenu();
+            }
+        }
+
+        function removeHighlightsInRange() {
+            if (!selectedRange) return;
+            const range = selectedRange.cloneRange();
+            let commonAncestor = range.commonAncestorContainer;
+            if (commonAncestor.nodeType === Node.TEXT_NODE) {
+                commonAncestor = commonAncestor.parentNode;
+            }
+            const highlights = commonAncestor.querySelectorAll(".highlight");
+            highlights.forEach(function (span) {
+                if (range.intersectsNode(span)) {
+                    while (span.firstChild) {
+                        span.parentNode.insertBefore(span.firstChild, span);
+                    }
+                    span.parentNode.removeChild(span);
+                }
+            });
+            window.getSelection().removeAllRanges();
+            hideContextMenu();
+        }
+
+
+        // --- CORE FUNCTIONALITY --- //
+        function clearResults() {
+            allInputs.forEach(input => {
+                input.style.borderColor = "";
+                input.style.borderBottom = "1px solid var(--border-color)";
+                const nextEl = input.nextElementSibling;
+                if (nextEl && nextEl.classList.contains('correct-answer-span')) {
+                    nextEl.remove();
+                }
+            });
+        }
+
+        submitBtn.addEventListener('click', () => {
+            clearResults();
+            let correctCount = 0;
+
+            allInputs.forEach(input => {
+                const questionId = input.dataset.questionId;
+                const userValue = input.value.trim().toLowerCase();
+                const correctValues = answers[questionId].map(v => v.toLowerCase());
+
+                if (correctValues.includes(userValue)) {
+                    input.style.borderBottom = "2px solid var(--correct-color)";
+                    correctCount++;
+                } else {
+                    input.style.borderBottom = "2px solid var(--incorrect-color)";
+                }
+            });
+
+            resultsText.textContent = `${correctCount} / ${allInputs.length}`;
+            resultsModal.style.display = 'flex';
+        });
+
+        redoBtn.addEventListener('click', () => {
+            clearResults();
+            allInputs.forEach(input => {
+                input.value = "";
+            });
+            document.getElementById('notes-area').value = "";
+        });
+
+        function showAnswers() {
+            clearResults();
+            allInputs.forEach(input => {
+                const questionId = input.dataset.questionId;
+                const correctAnswer = answers[questionId][0];
+                input.value = correctAnswer;
+                input.style.borderBottom = "2px solid var(--correct-color)";
+            });
+        }
+
+        // --- MODAL LOGIC --- //
+        function askForPassword(purpose, callback) {
+            modalTitle.textContent = `Enter Password to ${purpose}`;
+            passwordModal.style.display = 'flex';
+            passwordInput.focus();
+            passwordCallback = callback;
+        }
+
+        function closeModal(modal) {
+            modal.style.display = 'none';
+        }
+
+        // Password Modal Listeners
+        answersBtn.addEventListener('click', () => {
+            askForPassword("Show Answers", showAnswers);
+        });
+
+        transcriptBtn.addEventListener('click', () => {
+            if (transcriptContainer.style.display === 'block') {
+                transcriptContainer.style.display = 'none';
+                transcriptBtn.textContent = 'Show Transcript';
+            } else {
+                askForPassword("Show Transcript", () => {
+                    transcriptContainer.style.display = 'block';
+                    transcriptBtn.textContent = 'Hide Transcript';
+                });
+            }
+        });
+
+        modalSubmitBtn.addEventListener('click', handlePasswordSubmit);
+        passwordInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                handlePasswordSubmit();
+            }
+        });
+
+        function handlePasswordSubmit() {
+            if (passwordInput.value === CORRECT_PASSWORD) {
+                if (typeof passwordCallback === 'function') {
+                    passwordCallback();
+                }
+                closeModal(passwordModal);
+                passwordInput.value = '';
+                passwordCallback = null;
+            } else {
+                alert('Incorrect Password!');
+                passwordInput.value = '';
+                passwordInput.focus();
+            }
+        }
+
+        modalCancelBtn.addEventListener('click', () => {
+            closeModal(passwordModal);
+            passwordInput.value = '';
+            passwordCallback = null;
+        });
+
+        // Results Modal Listeners
+        resultsCloseBtn.addEventListener('click', () => closeModal(resultsModal));
+
+        // Close modal if clicking outside of the content
+        window.addEventListener('click', (e) => {
+            if (e.target === passwordModal) closeModal(passwordModal);
+            if (e.target === resultsModal) closeModal(resultsModal);
+        });
+
+    </script>
+</body>
+
+</html>
