@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IELTS Reading: Ancient Storytelling</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .highlight-yellow {
+            background-color: #fef08a;
+            border-bottom: 2px solid #eab308;
+            cursor: pointer;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+
+        .context-menu {
+            display: none;
+            position: absolute;
+            z-index: 1000;
+            width: 180px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+        }
+
+        .context-menu-item {
+            padding: 10px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #374151;
+            font-size: 0.9rem;
+            transition: background-color 0.2s;
+        }
+
+        .context-menu-item:hover {
+            background-color: #f3f4f6;
+            color: #111827;
+        }
+
+        .explanation-box {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Cải thiện độ tương phản cho đáp án được chọn --- */
+        .option-radio:checked + label {
+            border-color: #1d4ed8; /* Blue-700 */
+            background-color: #dbeafe; /* Blue-100 */
+            color: #1e40af; /* Blue-800 */
+            font-weight: 600;
+            box-shadow: 0 0 0 1px #1d4ed8;
+        }
+
+        /* Review Mode Styles */
+        .review-mode .correct-option {
+            background-color: #dcfce7 !important; /* Green-100 */
+            border-color: #15803d !important; /* Green-700 */
+            color: #14532d !important;
+            font-weight: 600;
+        }
+        
+        .review-mode .wrong-option {
+            background-color: #fee2e2 !important; /* Red-100 */
+            border-color: #b91c1c !important; /* Red-700 */
+            color: #7f1d1d !important;
+            font-weight: 600;
+        }
+
+        .paragraph-label {
+            float: left;
+            font-weight: bold;
+            color: #2563eb;
+            margin-right: 8px;
+            font-size: 1.1em;
+            background: #eff6ff;
+            padding: 2px 8px;
+            border-radius: 4px;
+            border: 1px solid #bfdbfe;
+        }
+
+        .question-block {
+            transition: all 0.2s;
+        }
+        .question-block:hover {
+            transform: translateY(-1px);
+        }
+
+        /* Grid layout for Matching Paragraph options to save space */
+        .grid-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-6 shadow-sm z-10 shrink-0">
+        <div class="flex items-center gap-3">
+            <div class="bg-blue-600 text-white p-2 rounded-lg">
+                <i class="fa-solid fa-scroll"></i>
+            </div>
+            <h1 class="text-xl font-bold text-gray-800">IELTS Reading: Ancient Storytelling</h1>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="text-sm text-gray-500 hidden md:block">
+                <i class="fa-regular fa-clock mr-1"></i> Thời gian: Không giới hạn
+            </div>
+            <div id="score-display" class="hidden bg-green-100 text-green-800 px-4 py-1 rounded-full font-bold border border-green-200 shadow-sm">
+                Điểm: <span id="score-value">0/0</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <div class="flex-1 flex overflow-hidden relative" id="main-container">
+        
+        <!-- Left Panel: Reading Text -->
+        <div class="w-1/2 bg-white border-r border-gray-200 overflow-y-auto relative custom-scrollbar" id="reading-panel">
+            <div class="p-8 max-w-3xl mx-auto">
+                <div class="mb-4">
+                    <span class="bg-purple-100 text-purple-800 text-xs font-semibold px-2.5 py-0.5 rounded uppercase tracking-wide">History & Culture</span>
+                </div>
+                <!-- ID reading-title is CRITICAL for JS to work -->
+                <h2 class="text-3xl font-bold text-gray-900 mb-6 leading-tight" id="reading-title">Ancient Storytelling</h2>
+                
+                <!-- Reading Content -->
+                <div class="prose prose-blue text-gray-700 leading-loose text-lg text-justify" id="reading-content">
+                    <!-- Content injected via JS -->
+                </div>
+
+                <!-- Vocabulary Table -->
+                <div class="mt-12 pt-8 border-t-2 border-dashed border-gray-200">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fa-solid fa-spell-check text-yellow-500 mr-2"></i> Từ vựng quan trọng (B2+)
+                    </h3>
+                    <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/3">Từ / Cụm từ</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nghĩa / Ngữ cảnh</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200" id="vocab-body">
+                                <!-- Vocab injected via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="text-sm text-gray-400 mt-2 italic">* Mẹo: Chuột phải vào văn bản để tô màu (Highlight).</p>
+                </div>
+                <div class="h-20"></div> <!-- Spacer -->
+            </div>
+        </div>
+
+        <!-- Right Panel: Questions -->
+        <div class="w-1/2 bg-gray-50 overflow-y-auto custom-scrollbar" id="questions-panel">
+            <div class="p-8 max-w-3xl mx-auto">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-bold text-gray-800">Câu hỏi</h2>
+                    <span class="text-sm text-gray-500 bg-white px-3 py-1 rounded border border-gray-200 shadow-sm" id="question-count"></span>
+                </div>
+
+                <!-- Submission Notification Hint (Hidden by default) -->
+                <div id="review-hint" class="hidden bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-lg mb-6 flex items-start">
+                    <i class="fa-solid fa-circle-info mt-1 mr-3 text-blue-500"></i>
+                    <div>
+                        <span class="font-bold">Đã nộp bài!</span><br>
+                        Nhấn vào từng câu hỏi bên dưới để xem đáp án đúng và giải thích chi tiết.
+                    </div>
+                </div>
+
+                <div id="questions-container" class="space-y-6">
+                    <!-- Questions injected via JS -->
+                </div>
+                
+                <div class="h-20"></div> <!-- Spacer -->
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <footer class="bg-white border-t border-gray-200 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-20 shrink-0">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            
+            <!-- Pagination (Hidden for single page test but kept for structure) -->
+            <div class="flex gap-2" id="pagination-controls" style="visibility: hidden;">
+                <!-- Injected via JS -->
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex gap-3 ml-auto">
+                <button id="btn-submit" onclick="submitTest()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition shadow-md flex items-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i> Nộp Bài
+                </button>
+                <button id="btn-reset" onclick="resetTest()" class="hidden bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-6 rounded-lg transition flex items-center gap-2">
+                    <i class="fa-solid fa-rotate-right"></i> Làm Lại
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Context Menu -->
+    <div id="context-menu" class="context-menu">
+        <div class="context-menu-item" id="btn-highlight">
+            <i class="fa-solid fa-highlighter text-yellow-500"></i> Tô sáng (Highlight)
+        </div>
+        <div class="context-menu-item" id="btn-remove-highlight">
+            <i class="fa-solid fa-eraser text-red-500"></i> Xóa tô sáng
+        </div>
+    </div>
+
+    <!-- Notification Modal -->
+    <div id="notification" class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-opacity opacity-0 pointer-events-none">
+        Thông báo
+    </div>
+
+    <script>
+        // --- Dữ liệu bài đọc Ancient Storytelling ---
+        const storyData = {
+            id: 1,
+            title: "Ancient Storytelling",
+            tag: "History & Culture",
+            content: `
+                <p class="mb-4"><span class="paragraph-label">A</span> The first stories were probably narrated to people crouching around a bonfire. These included tales of mighty adventures, like near-death encounters, hunting excursions, or an escape from mortal peril, or perhaps a mystery or divine anecdotes. However, irrespective of the subject, there was one principal objective behind all these tales: to keep the listener intrigued and engaged, to make them overlook their worries or fatigue, and only one query must prevail in their mind — what happens next?</p>
+                <p class="mb-4"><span class="paragraph-label">B</span> Finding the initial stories ever told in human history is like herding cats, as these were preserved in the minds of the storytellers. This kind of storage or memorisation, however, shall not be deemed as ineffective. Several documented oral traditions of Australia, Balkans, and other parts of the world apprise us of master storytellers and poets of the time that could recite thousands of verses and proses from their memory, word to word! However, while such memorisation seems like art or sorcery, the essential idea of creating symbols is to have a system of reminders or mnemonics that helps one recall specific information in one's mind.</p>
+                <p class="mb-4"><span class="paragraph-label">C</span> In a few Polynesian societies, the storytellers used a notched memory stick for assistance in successive stages of recitation. However, among many other global communities, the art of storytelling led to the invention or development of writing systems. For instance, the onset of literacy in ancient Greece is attributed to the fact that the epic tales of the Trojan War and the Voyage of Odysseus were so captivating that there was a need to preserve them. Thus, the Greeks, in 750 B.C. — 700 B.C. borrowed the alphabet system from their east Mediterranean neighbours, the Phoenicians.</p>
+                <p class="mb-4"><span class="paragraph-label">D</span> The pristine practice of documenting stories on parchment and other materials can be traced to many ancient civilisations. The priestly papyrus archives of ancient Egypt and the birch-bark scrolls used by North American Ojibway Indians are excellent examples. It has emerged as a tried and tested practice, thanks to which stories are today synonymous with words on paper. Even the practice of oral storytelling is believed to have been taken over by journals, novels, comic strips, etc. However, written texts are not the primary source for humans to access stories. But then, what is it?</p>
+                <p class="mb-4"><span class="paragraph-label">E</span> Each year, over seven billion people head towards the silver screens to watch the latest offerings of national and international cinema. Yes, the chief storyteller of the day is none other than the Cinema! The movies encompass storytelling in the form of motion pictures, which is a contemporary phenomenon in comparison to reading information on paper or still photography. It is more so an illusion that was originally accepted by the method of sequencing images in a particular order. Even so, it is imperative to acknowledge that the art of visual storytelling must hold a profoundly atavistic vibe to it. In spite of the advantage, the conventional patterns of storyline and characterisation that have been instilled in storytelling for ages are indispensable for a good story.</p>
+                <p class="mb-4"><span class="paragraph-label">F</span> While thousands of scripts land dust on the desks of major film studios, all an aspiring screenwriter needs to look up to is the fourth-century Greek philosopher, Aristotle. In his incomplete work, The Poetics, he left several lecture notes describing the art of storytelling in multiple literary and dramatic mediums. Though it is highly unlikely that he envisaged the popcorn-fuelled atmosphere of today's multiplexes, he had ample perception of how to gather and retain large crowds to such creative centres. Aristotle examined the process with impressive rationalism. He states that when a story fascinates us, we lose the sense of where we are, our fears, and accept fiction. This is one of Aristotle's principles of theatre, which he calls —‘the suspension of disbelief.’</p>
+                <p class="mb-4"><span class="paragraph-label">G</span> The audience knows the feeling! They might have experienced episodes of horror, grief, astonishment or ecstasy, sitting on the theatre seats or even days after the show, knowing that it is all fiction yet letting it impact their state of mind. They seldom think through why they are caught in the web of the storyteller.</p>
+                <p class="mb-4"><span class="paragraph-label">H</span> Aristotle taught at Athens, the city where theatre emerged as a prime mode of public leisure and entertainment. So it is evident that he might have observed suspended disbelief in action. Two theatrical storytelling types, tragedy and comedy, made Athenians immerse themselves in gloom and glee, respectively. Of which, Aristotle explicitly acknowledged tragedy as a potent weapon to trigger the most heartfelt emotions of the spectators, so he explored over the factors in the storyteller's art that brought about such a subconscious commotion. For this, he studied the masterpieces of classical Greek tragedies by Euripides, Aeschylus, Sophocles, and even that of Homer. Even at that time, Homer's stories commanded the same awe as today. His Iliad and the Odyssey were considered literary landmarks and used as a scale to measure all other stories.</p>
+                <p class="mb-4"><span class="paragraph-label">I</span> So, what is the mystery behind Homer's captivating narratives? Homer conceived credible heroes that were powerful and majestic but did not turn into fantasy figures in the end. He made them sulk, quarrel, cheat, and whine. They were the characteristics that an audience could relate to, or wish to follow. This naturally intrigued them to know what happens next. As Aristotle observed, the heroes with a human side, a mix of flaws and vulnerability to which humans are inclined, are aptly dramatic.</p>
+            `,
+            vocab: [
+                { word: "Anecdote (n)", meaning: "Giai thoại, câu chuyện ngắn" },
+                { word: "Intrigued (adj)", meaning: "Bị gợi thích thú, tò mò" },
+                { word: "Mnemonics (n)", meaning: "Thuật ghi nhớ, mẹo để nhớ" },
+                { word: "Pristine (adj)", meaning: "Nguyên sơ, cổ xưa, thuần khiết" },
+                { word: "Atavistic (adj)", meaning: "Thuộc về tổ tiên, trở lại tính cách nguyên thủy" },
+                { word: "Indispensable (adj)", meaning: "Không thể thiếu được" },
+                { word: "Envisage (v)", meaning: "Tưởng tượng, dự tính" },
+                { word: "Suspension of disbelief", meaning: "Sự tạm gác lại sự hoài nghi (để tin vào phim/truyện)" },
+                { word: "Ecstasy (n)", meaning: "Trạng thái ngây ngất, mê ly" },
+                { word: "Majestic (adj)", meaning: "Hùng vĩ, oai vệ, tráng lệ" }
+            ],
+            questions: [
+                // Matching Headings / Information
+                {
+                    id: "q1",
+                    text: "1. An example of the importance of writing systems to a civilization",
+                    options: [
+                        {id: "A", text: "Paragraph A"}, {id: "B", text: "Paragraph B"}, {id: "C", text: "Paragraph C"},
+                        {id: "D", text: "Paragraph D"}, {id: "E", text: "Paragraph E"}, {id: "F", text: "Paragraph F"},
+                        {id: "G", text: "Paragraph G"}, {id: "H", text: "Paragraph H"}, {id: "I", text: "Paragraph I"}
+                    ],
+                    correct: "C",
+                    explanation: "<strong>Đáp án: C</strong><br>Đoạn C đề cập: 'onset of literacy in ancient Greece is attributed to the fact that the epic tales... were so captivating that there was a need to preserve them.' (Sự bắt đầu của việc biết chữ ở Hy Lạp cổ đại là do nhu cầu lưu giữ các câu chuyện sử thi hấp dẫn). Đây là ví dụ về tầm quan trọng của hệ thống chữ viết."
+                },
+                {
+                    id: "q2",
+                    text: "2. A reference to the popularity of a modern form of storytelling",
+                    options: [
+                        {id: "A", text: "Paragraph A"}, {id: "B", text: "Paragraph B"}, {id: "C", text: "Paragraph C"},
+                        {id: "D", text: "Paragraph D"}, {id: "E", text: "Paragraph E"}, {id: "F", text: "Paragraph F"},
+                        {id: "G", text: "Paragraph G"}, {id: "H", text: "Paragraph H"}, {id: "I", text: "Paragraph I"}
+                    ],
+                    correct: "E",
+                    explanation: "<strong>Đáp án: E</strong><br>Đoạn E viết: 'Each year, over seven billion people head towards the silver screens... chief storyteller of the day is none other than the Cinema!' (Hơn 7 tỷ người xem phim mỗi năm... Điện ảnh là người kể chuyện chính). Đây là tham chiếu đến sự phổ biến của hình thức kể chuyện hiện đại."
+                },
+                {
+                    id: "q3",
+                    text: "3. Mention of a concept that can take audience's breath away",
+                    options: [
+                        {id: "A", text: "Paragraph A"}, {id: "B", text: "Paragraph B"}, {id: "C", text: "Paragraph C"},
+                        {id: "D", text: "Paragraph D"}, {id: "E", text: "Paragraph E"}, {id: "F", text: "Paragraph F"},
+                        {id: "G", text: "Paragraph G"}, {id: "H", text: "Paragraph H"}, {id: "I", text: "Paragraph I"}
+                    ],
+                    correct: "F",
+                    explanation: "<strong>Đáp án: F</strong><br>Đoạn F nhắc đến khái niệm của Aristotle: 'the suspension of disbelief' (sự tạm gác sự hoài nghi), khiến khán giả 'lose the sense of where we are' (quên mất mình đang ở đâu) và chấp nhận hư cấu. Điều này tương ứng với việc làm khán giả say mê/nín thở."
+                },
+                {
+                    id: "q4",
+                    text: "4. Mention of oral storytelling losing its popularity due to other forms of recording stories",
+                    options: [
+                        {id: "A", text: "Paragraph A"}, {id: "B", text: "Paragraph B"}, {id: "C", text: "Paragraph C"},
+                        {id: "D", text: "Paragraph D"}, {id: "E", text: "Paragraph E"}, {id: "F", text: "Paragraph F"},
+                        {id: "G", text: "Paragraph G"}, {id: "H", text: "Paragraph H"}, {id: "I", text: "Paragraph I"}
+                    ],
+                    correct: "D",
+                    explanation: "<strong>Đáp án: D</strong><br>Đoạn D: 'Even the practice of oral storytelling is believed to have been taken over by journals, novels, comic strips, etc.' (Kể chuyện truyền miệng bị thay thế/chiếm lĩnh bởi nhật ký, tiểu thuyết, truyện tranh...)."
+                },
+                {
+                    id: "q5",
+                    text: "5. A reference to two distinct types of stories",
+                    options: [
+                        {id: "A", text: "Paragraph A"}, {id: "B", text: "Paragraph B"}, {id: "C", text: "Paragraph C"},
+                        {id: "D", text: "Paragraph D"}, {id: "E", text: "Paragraph E"}, {id: "F", text: "Paragraph F"},
+                        {id: "G", text: "Paragraph G"}, {id: "H", text: "Paragraph H"}, {id: "I", text: "Paragraph I"}
+                    ],
+                    correct: "H",
+                    explanation: "<strong>Đáp án: H</strong><br>Đoạn H đề cập: 'Two theatrical storytelling types, tragedy and comedy...' (Hai loại hình kể chuyện sân khấu: bi kịch và hài kịch)."
+                },
+                // Multiple Choice
+                {
+                    id: "q6",
+                    text: "6. In paragraph B, the writer uses the analogy of herding cats in order to exemplify",
+                    options: [
+                        { id: "A", text: "the difficulty of researching original tales." },
+                        { id: "B", text: "the range of stories available around the world." },
+                        { id: "C", text: "the originality of ancient storytellers." },
+                        { id: "D", text: "the reason for discussing writing systems." }
+                    ],
+                    correct: "A",
+                    explanation: "<strong>Đáp án: A</strong><br>Cụm từ 'herding cats' (chăn mèo) là thành ngữ chỉ một việc cực kỳ khó khăn, hỗn loạn. Tác giả ví việc 'Finding the initial stories' (tìm kiếm những câu chuyện đầu tiên) với 'herding cats' để nói lên sự khó khăn trong việc nghiên cứu nguồn gốc."
+                },
+                {
+                    id: "q7",
+                    text: "7. Some believe that the Greeks created their writing system",
+                    options: [
+                        { id: "A", text: "because the Phoenicians had already invented one." },
+                        { id: "B", text: "because of difficulty in recalling various stories." },
+                        { id: "C", text: "to document important stories that they liked." },
+                        { id: "D", text: "to make the art of storytelling more complex." }
+                    ],
+                    correct: "C",
+                    explanation: "<strong>Đáp án: C</strong><br>Đoạn C: '...epic tales... were so captivating that there was a need to preserve them.' (Những câu chuyện sử thi quá hấp dẫn đến mức có nhu cầu phải lưu giữ chúng). Điều này đồng nghĩa với việc ghi lại những câu chuyện quan trọng mà họ yêu thích."
+                },
+                {
+                    id: "q8",
+                    text: "8. The writer refers to modern cinema in order to",
+                    options: [
+                        { id: "A", text: "analyse how the fundamentals of storytelling have changed." },
+                        { id: "B", text: "prove how important stories are to billions of people." },
+                        { id: "C", text: "demonstrate how the principles of storytelling remain." },
+                        { id: "D", text: "suggest reasons for why past forms of storytelling failed." }
+                    ],
+                    correct: "C",
+                    explanation: "<strong>Đáp án: C</strong><br>Đoạn E nói rằng dù điện ảnh là hiện đại, nhưng: 'conventional patterns... are indispensable for a good story.' (các khuôn mẫu truyền thống là không thể thiếu). Tác giả dùng điện ảnh để chứng minh rằng các nguyên tắc cốt lõi của kể chuyện vẫn được duy trì."
+                },
+                {
+                    id: "q9",
+                    text: "9. The writer encourages screenwriters to read Aristotle",
+                    options: [
+                        { id: "A", text: "to draw inspiration from fourth-century literature on rationalism." },
+                        { id: "B", text: "to learn how to keep the audience interested." },
+                        { id: "C", text: "to investigate how storytelling has changed." },
+                        { id: "D", text: "to examine various elements of storytelling." }
+                    ],
+                    correct: "B",
+                    explanation: "<strong>Đáp án: B</strong><br>Đoạn F nói Aristotle có: 'ample perception of how to gather and retain large crowds' (nhận thức sâu sắc về cách thu hút và giữ chân đám đông). Đây chính là học cách giữ sự hứng thú cho khán giả."
+                }
+            ]
+        };
+
+        const testData = [storyData];
+
+        // --- State Management ---
+        let userAnswers = {}; 
+        let isSubmitted = false;
+        let selectedRange = null;
+
+        // --- DOM Elements ---
+        const readingTitle = document.getElementById('reading-title');
+        const readingContent = document.getElementById('reading-content');
+        const vocabBody = document.getElementById('vocab-body');
+        const questionsContainer = document.getElementById('questions-container');
+        const questionCountLabel = document.getElementById('question-count');
+        const btnSubmit = document.getElementById('btn-submit');
+        const btnReset = document.getElementById('btn-reset');
+        const scoreDisplay = document.getElementById('score-display');
+        const scoreValue = document.getElementById('score-value');
+        const contextMenu = document.getElementById('context-menu');
+        const notification = document.getElementById('notification');
+        const reviewHint = document.getElementById('review-hint');
+
+        // --- Initialization ---
+        function init() {
+            if (!readingTitle || !readingContent) {
+                console.error("Critical DOM elements missing.");
+                return;
+            }
+            loadExercise(0);
+            
+            // Event Listeners
+            document.addEventListener('click', hideContextMenu);
+            readingContent.addEventListener('contextmenu', showContextMenu);
+            document.getElementById('btn-highlight').addEventListener('click', highlightSelection);
+            document.getElementById('btn-remove-highlight').addEventListener('click', removeHighlight);
+        }
+
+        // --- Core Functions ---
+
+        function loadExercise(index) {
+            const data = testData[index];
+
+            // 1. Render Reading Panel
+            if (readingTitle) readingTitle.innerText = data.title;
+            if (readingContent) readingContent.innerHTML = data.content; 
+            
+            // Render Vocab
+            if (vocabBody) {
+                vocabBody.innerHTML = data.vocab.map(v => `
+                    <tr class="hover:bg-blue-50 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-700">${v.word}</td>
+                        <td class="px-6 py-4 text-sm text-gray-600">${v.meaning}</td>
+                    </tr>
+                `).join('');
+            }
+
+            // 2. Render Questions Panel
+            if (questionCountLabel) questionCountLabel.innerText = `${data.questions.length} Câu hỏi`;
+            if (questionsContainer) {
+                questionsContainer.innerHTML = data.questions.map((q, qIndex) => {
+                    // Check if options are A-I (Paragraph matching) to use Grid layout
+                    const isGrid = q.options.length > 5;
+                    const optionsContainerClass = isGrid ? "grid-options" : "space-y-3 pl-2";
+                    
+                    return `
+                    <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm transition-all question-block relative" id="block-${q.id}">
+                        
+                        <!-- View Explanation Label (Review Mode Only) -->
+                        <div class="absolute top-4 right-4 text-blue-600 text-xs font-bold hidden review-indicator">
+                            <i class="fa-solid fa-eye"></i> Xem giải thích
+                        </div>
+
+                        <div class="flex items-start gap-3 mb-4">
+                            <span class="bg-gray-800 text-white text-xs font-bold px-2 py-1 rounded mt-1 shrink-0">Q${qIndex + 1}</span>
+                            <p class="text-gray-800 font-medium text-lg leading-snug">${q.text.substring(q.text.indexOf('.')+1)}</p>
+                        </div>
+                        
+                        <div class="${optionsContainerClass}">
+                            ${q.options.map(opt => `
+                                <div class="relative">
+                                    <input type="radio" name="${q.id}" id="${q.id}_${opt.id}" value="${opt.id}" 
+                                        class="option-radio hidden peer" 
+                                        ${userAnswers[q.id] === opt.id ? 'checked' : ''}
+                                        ${isSubmitted ? 'disabled' : ''}
+                                        onchange="handleAnswer('${q.id}', '${opt.id}')">
+                                    <label for="${q.id}_${opt.id}" 
+                                        class="flex items-center p-3 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-50 transition-all peer-checked:border-blue-700 peer-checked:bg-blue-100 ${isGrid ? 'justify-center font-bold text-center h-full' : ''}"
+                                        id="label-${q.id}-${opt.id}">
+                                        ${!isGrid ? `
+                                            <div class="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center mr-3 peer-checked:border-blue-700 peer-checked:bg-blue-700 text-white text-xs shrink-0">
+                                                ${userAnswers[q.id] === opt.id ? '<i class="fa-solid fa-check"></i>' : opt.id}
+                                            </div>
+                                        ` : ''}
+                                        <span class="text-gray-700 font-medium">${opt.text}</span>
+                                        ${isGrid && userAnswers[q.id] === opt.id ? '<i class="fa-solid fa-check ml-2 text-blue-700"></i>' : ''}
+                                    </label>
+                                </div>
+                            `).join('')}
+                        </div>
+
+                        <!-- Explanation Area (Hidden initially) -->
+                        <div class="explanation-box mt-4 pt-4 border-t border-gray-100 bg-blue-50 p-5 rounded-md text-sm text-gray-800" id="explain-${q.id}">
+                            <div class="font-bold text-blue-800 mb-2 flex items-center text-base"><i class="fa-solid fa-lightbulb text-yellow-500 mr-2"></i> Giải thích chi tiết:</div>
+                            <div class="leading-relaxed">
+                                ${q.explanation}
+                            </div>
+                        </div>
+                    </div>
+                `}).join('');
+            }
+
+            // Update UI for Submitted State if applicable
+            if (isSubmitted) {
+                applyReviewStyles();
+                if (reviewHint) reviewHint.classList.remove('hidden');
+            } else {
+                if (reviewHint) reviewHint.classList.add('hidden');
+            }
+        }
+
+        function handleAnswer(questionId, selectedOptionId) {
+            if (isSubmitted) return;
+            userAnswers[questionId] = selectedOptionId;
+            // Re-render only if it is a grid option to show the checkmark dynamically, 
+            // but for simplicity we rely on CSS mostly. 
+            // If using grid, CSS peer-checked handles the border/bg, but the icon inside needs explicit render or pure CSS.
+            // My CSS handles icon visibility via JS logic in template string, so normally we'd need re-render.
+            // But to avoid full re-render flickering, we can just rely on standard radio behavior.
+            // The template logic `${userAnswers...}` is only for Initial Load/Re-load. 
+            // For live updates, standard radio UI is enough.
+        }
+
+        // --- Submission & Grading ---
+
+        function submitTest() {
+            const answeredCount = Object.keys(userAnswers).length;
+            const totalQuestions = storyData.questions.length;
+
+            let msg = "Bạn có chắc chắn muốn nộp bài không?";
+            if (answeredCount === 0) {
+                msg = "Bạn chưa làm câu nào cả. Bạn có chắc muốn nộp bài và xem đáp án ngay không?";
+            } else if (answeredCount < totalQuestions) {
+                msg = `Bạn mới làm ${answeredCount}/${totalQuestions} câu. Bạn có chắc muốn nộp không?`;
+            }
+            
+            const confirmSubmit = confirm(msg);
+            if (!confirmSubmit) return;
+
+            try {
+                isSubmitted = true;
+                let correctCount = 0;
+
+                storyData.questions.forEach(q => {
+                    if (userAnswers[q.id] === q.correct) {
+                        correctCount++;
+                    }
+                });
+
+                // Update Header
+                if (scoreValue) scoreValue.innerText = `${correctCount}/${totalQuestions}`;
+                if (scoreDisplay) {
+                    scoreDisplay.classList.remove('hidden');
+                    scoreDisplay.classList.add('flex', 'items-center');
+                }
+
+                // Update Buttons
+                if (btnSubmit) btnSubmit.classList.add('hidden');
+                if (btnReset) btnReset.classList.remove('hidden');
+
+                // Reload current view to apply styles
+                loadExercise(0);
+                
+                // Scroll to top
+                if (questionsContainer) {
+                    const panel = document.getElementById('questions-panel');
+                    if (panel) panel.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+                
+                showNotification(`Đã nộp bài! Bạn đúng ${correctCount}/${totalQuestions} câu.`);
+            } catch (error) {
+                console.error("Submission Error:", error);
+                showNotification("Có lỗi xảy ra khi nộp bài. Vui lòng thử lại.");
+            }
+        }
+
+        function applyReviewStyles() {
+            document.body.classList.add('review-mode');
+            const currentQuestions = storyData.questions;
+
+            currentQuestions.forEach(q => {
+                const userAnswer = userAnswers[q.id];
+                const correctAnswer = q.correct;
+                const explanationBox = document.getElementById(`explain-${q.id}`);
+                const questionBlock = document.getElementById(`block-${q.id}`);
+                const reviewIndicator = questionBlock.querySelector('.review-indicator');
+
+                if (reviewIndicator) reviewIndicator.classList.remove('hidden');
+
+                const inputs = document.querySelectorAll(`input[name="${q.id}"]`);
+                inputs.forEach(input => input.disabled = true);
+
+                const correctLabel = document.getElementById(`label-${q.id}-${correctAnswer}`);
+                if (correctLabel) {
+                    correctLabel.classList.add('correct-option');
+                    if (!correctLabel.innerHTML.includes('fa-check-circle')) {
+                        // Different styling for Grid vs List
+                        if (q.options.length > 5) { // Grid
+                             correctLabel.innerHTML += ` <i class="fa-solid fa-check-circle text-green-700 ml-1"></i>`;
+                        } else {
+                             correctLabel.innerHTML += ` <i class="fa-solid fa-check-circle ml-auto text-green-700 text-lg"></i>`;
+                        }
+                    }
+                }
+
+                if (userAnswer && userAnswer !== correctAnswer) {
+                    const wrongLabel = document.getElementById(`label-${q.id}-${userAnswer}`);
+                    if (wrongLabel) {
+                        wrongLabel.classList.add('wrong-option');
+                        if (!wrongLabel.innerHTML.includes('fa-times-circle')) {
+                             // Different styling for Grid vs List
+                            if (q.options.length > 5) {
+                                wrongLabel.innerHTML += ` <i class="fa-solid fa-times-circle text-red-700 ml-1"></i>`;
+                            } else {
+                                wrongLabel.innerHTML += ` <i class="fa-solid fa-times-circle ml-auto text-red-700 text-lg"></i>`;
+                            }
+                        }
+                    }
+                }
+
+                questionBlock.style.cursor = "pointer";
+                questionBlock.onclick = (e) => {
+                    if (e.target.closest('.explanation-box')) return;
+                    if (explanationBox.style.display === 'block') {
+                        explanationBox.style.display = 'none';
+                        questionBlock.classList.remove('ring-2', 'ring-blue-400');
+                    } else {
+                        explanationBox.style.display = 'block';
+                        questionBlock.classList.add('ring-2', 'ring-blue-400');
+                    }
+                };
+            });
+        }
+
+        function resetTest() {
+            if(confirm("Làm lại sẽ xóa hết kết quả. Bạn có chắc không?")) {
+                isSubmitted = false;
+                userAnswers = {};
+                document.body.classList.remove('review-mode');
+                if (scoreDisplay) scoreDisplay.classList.add('hidden');
+                if (btnSubmit) btnSubmit.classList.remove('hidden');
+                if (btnReset) btnReset.classList.add('hidden');
+                loadExercise(0); 
+            }
+        }
+
+        // --- Context Menu & Highlighting ---
+        function showContextMenu(e) {
+            e.preventDefault();
+            const selection = window.getSelection();
+            if (selection.toString().trim() === '') return;
+            selectedRange = selection.getRangeAt(0);
+            let x = e.clientX;
+            let y = e.clientY;
+            contextMenu.style.left = `${x}px`;
+            contextMenu.style.top = `${y}px`;
+            contextMenu.style.display = 'block';
+        }
+
+        function hideContextMenu() { contextMenu.style.display = 'none'; }
+
+        function highlightSelection() {
+            if (!selectedRange) return;
+            try {
+                const span = document.createElement('span');
+                span.className = 'highlight-yellow';
+                span.title = 'Nhấn để xóa';
+                span.onclick = function(e) {
+                    e.stopPropagation();
+                    const parent = this.parentNode;
+                    while(this.firstChild) parent.insertBefore(this.firstChild, this);
+                    parent.removeChild(this);
+                };
+                selectedRange.surroundContents(span);
+                window.getSelection().removeAllRanges();
+            } catch (e) {
+                showNotification("Vui lòng chỉ chọn văn bản trong một đoạn.");
+            }
+            hideContextMenu();
+        }
+
+        function removeHighlight() {
+            showNotification("Mẹo: Nhấn chuột trái vào vùng đã tô màu để xóa nó.");
+            hideContextMenu();
+        }
+
+        function showNotification(msg) {
+            if (!notification) return;
+            notification.innerText = msg;
+            notification.style.opacity = '1';
+            setTimeout(() => { notification.style.opacity = '0'; }, 3000);
+        }
+
+        // Start App
+        init();
+
+    </script>
+</body>
+</html>
