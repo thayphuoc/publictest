@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speaking Practice Flashcards</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f3f4f6;
+            background-image: radial-gradient(#e5e7eb 2px, transparent 2px);
+            background-size: 32px 32px;
+            overflow-x: hidden;
+        }
+
+        /* 3D Flip Container */
+        .perspective-1500 {
+            perspective: 1500px;
+        }
+
+        /* The Card itself */
+        .card-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Bouncy effect */
+            transform-style: preserve-3d;
+            border-radius: 1.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        /* Flip Action */
+        .card-container.flipped {
+            transform: rotateY(180deg);
+        }
+
+        /* Front and Back common styles */
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden; /* Hide back of card */
+            border-radius: 1.5rem;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        /* Front Face */
+        .card-front {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        /* Back Face */
+        .card-back {
+            background: white;
+            color: #1f2937;
+            transform: rotateY(180deg); /* Pre-rotated */
+            display: flex;
+            flex-direction: column;
+            padding: 2.5rem;
+            overflow-y: auto; /* Allow scrolling if text is long */
+        }
+
+        /* Scrollbar for back face */
+        .card-back::-webkit-scrollbar {
+            width: 6px;
+        }
+        .card-back::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        .card-back::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 3px;
+        }
+
+        /* Sample Answer Box */
+        .answer-box {
+            position: relative;
+            background-color: #f9fafb;
+            border-left: 5px solid;
+            padding: 1rem 1rem 1rem 1.2rem;
+            margin-bottom: 1.5rem; /* Increased spacing */
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            text-align: left;
+        }
+
+        .answer-1 { border-color: #3b82f6; } /* Blue */
+        .answer-2 { border-color: #10b981; } /* Green */
+        .answer-3 { border-color: #f59e0b; } /* Orange */
+
+        /* Animation for hints */
+        .hint-tag {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
+
+    <!-- Header -->
+    <div class="mb-6 text-center">
+        <h1 class="text-4xl md:text-5xl font-bold text-slate-800 mb-2 tracking-tight">Speaking Flashcards</h1>
+        <div class="inline-flex items-center px-4 py-1 rounded-full bg-white shadow-sm border border-slate-200">
+            <span id="topic-badge" class="text-indigo-600 font-bold uppercase tracking-wider text-sm">Topic: Daily Routine</span>
+        </div>
+    </div>
+
+    <!-- MAIN CARD AREA -->
+    <div class="relative w-full max-w-3xl h-[600px] perspective-1500 group cursor-pointer select-none" onclick="flipCard()">
+        <div id="main-card" class="card-container">
+            
+            <!-- FRONT SIDE: Question & Hints -->
+            <div class="card-face card-front">
+                <div class="absolute top-6 left-6 opacity-50 text-6xl font-black">Q.</div>
+                
+                <h2 id="card-question" class="text-4xl md:text-5xl font-bold text-center leading-tight mb-8 drop-shadow-md px-4">
+                    What do you often do in the morning?
+                </h2>
+
+                <div class="w-24 h-1 bg-white/30 rounded-full mb-8"></div>
+
+                <div class="text-center w-full px-8">
+                    <p class="text-white/80 text-sm uppercase font-bold tracking-widest mb-3">Gợi ý (Keywords)</p>
+                    <div id="card-hints" class="flex flex-wrap justify-center gap-2">
+                        <!-- Hints inserted via JS -->
+                    </div>
+                </div>
+
+                <div class="absolute bottom-6 text-white/60 text-sm animate-pulse">
+                    Click để xem 3 câu trả lời mẫu
+                </div>
+            </div>
+
+            <!-- BACK SIDE: Sample Answers -->
+            <div class="card-face card-back">
+                <div class="flex items-center justify-between w-full border-b pb-2 mb-6 sticky top-0 bg-white z-10">
+                    <h3 class="text-lg font-bold text-slate-400 uppercase tracking-widest">Sample Answers</h3>
+                    <div class="text-4xl font-black text-slate-100">A.</div>
+                </div>
+                
+                <div class="w-full flex flex-col justify-center flex-grow">
+                    <!-- Answer 1 -->
+                    <div class="answer-box answer-1">
+                        <span class="absolute -top-3 left-4 bg-blue-500 text-white text-xs px-2 py-0.5 rounded shadow-sm font-bold">Cách 1</span>
+                        <p id="ans-1" class="text-lg text-slate-700 leading-relaxed">
+                            I usually wake up at 6 AM. After brushing my teeth, I have breakfast and go to school.
+                        </p>
+                    </div>
+
+                    <!-- Answer 2 -->
+                    <div class="answer-box answer-2">
+                        <span class="absolute -top-3 left-4 bg-emerald-500 text-white text-xs px-2 py-0.5 rounded shadow-sm font-bold">Cách 2</span>
+                        <p id="ans-2" class="text-lg text-slate-700 leading-relaxed">
+                            First, I do some exercise to stay healthy. Then, I take a shower and get ready for work.
+                        </p>
+                    </div>
+
+                    <!-- Answer 3 -->
+                    <div class="answer-box answer-3">
+                        <span class="absolute -top-3 left-4 bg-amber-500 text-white text-xs px-2 py-0.5 rounded shadow-sm font-bold">Cách 3</span>
+                        <p id="ans-3" class="text-lg text-slate-700 leading-relaxed">
+                            I'm not a morning person, so I usually wake up late. I just wash my face and run to class.
+                        </p>
+                    </div>
+                </div>
+
+                <p class="mt-4 text-slate-400 text-xs italic text-center w-full">
+                    *Lưu ý: Bạn có thể thay đổi thông tin cho đúng với bản thân.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Control Bar -->
+    <div class="w-full max-w-3xl mt-6">
+        <!-- Progress Bar -->
+        <div class="flex justify-between text-sm font-bold text-slate-500 mb-2">
+            <span id="counter">Card 1/17</span>
+            <span id="mode-display">Mode: Standard</span>
+        </div>
+        <div class="w-full bg-slate-200 rounded-full h-3 mb-6">
+            <div id="progress" class="bg-indigo-600 h-3 rounded-full transition-all duration-300" style="width: 5%"></div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="grid grid-cols-3 gap-4 md:gap-8">
+            <button onclick="changeCard(-1)" class="py-3 rounded-xl bg-white border border-slate-200 shadow-sm text-slate-600 font-bold hover:bg-slate-50 hover:text-indigo-600 hover:border-indigo-300 transition-all active:scale-95 flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                BACK
+            </button>
+            
+            <button onclick="shuffleCards()" class="py-3 rounded-xl bg-indigo-50 border border-indigo-200 shadow-sm text-indigo-700 font-bold hover:bg-indigo-100 hover:shadow-md transition-all active:scale-95 flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                SHUFFLE
+            </button>
+
+            <button onclick="changeCard(1)" class="py-3 rounded-xl bg-white border border-slate-200 shadow-sm text-slate-600 font-bold hover:bg-slate-50 hover:text-indigo-600 hover:border-indigo-300 transition-all active:scale-95 flex items-center justify-center gap-2">
+                NEXT
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // DATA SOURCE
+        const data = [
+            // Daily Routine
+            {
+                topic: "Daily Routine",
+                q: "What do you often do in the morning?",
+                hints: ["wake up", "brush teeth", "breakfast", "school"],
+                a1: "I usually wake up at 6 AM. After brushing my teeth, I have breakfast and go to school.",
+                a2: "First, I do some exercise to stay healthy. Then, I take a shower and get ready for work.",
+                a3: "I'm not a morning person, so I usually wake up late. I just wash my face and run to class."
+            },
+            {
+                topic: "Daily Routine",
+                q: "Do you cook?",
+                hints: ["sometimes", "help mom", "weekends", "instant noodles"],
+                a1: "Yes, sometimes. I often help my mom cook dinner on weekends. It's fun.",
+                a2: "No, not really. I only know how to cook instant noodles because I'm very busy.",
+                a3: "I love cooking! I can make simple dishes like fried eggs and boiled vegetables for my family."
+            },
+            {
+                topic: "Daily Routine",
+                q: "What is your favorite part of the day?",
+                hints: ["evening", "relax", "morning", "fresh air"],
+                a1: "I love the evening. It's the time when I can relax and watch TV with my family.",
+                a2: "My favorite part is the morning. The air is fresh, and I feel full of energy.",
+                a3: "I like lunchtime the most because I can enjoy delicious food and chat with my friends."
+            },
+            
+            // Friends
+            {
+                topic: "Friends",
+                q: "Who is your best friend?",
+                hints: ["classmate", "neighbor", "kind", "funny"],
+                a1: "My best friend is Lan. We study in the same class and she is very kind.",
+                a2: "It's Nam. He is my neighbor. We grew up together and he is really funny.",
+                a3: "My cousin is my best friend. We live in the same house and play together every day."
+            },
+            {
+                topic: "Friends",
+                q: "Do you think you are a good friend? Why?",
+                hints: ["yes", "listen", "help", "share"],
+                a1: "I think so. I always listen to my friends and help them when they are sad.",
+                a2: "Yes, definitely. I like to share my snacks and toys with my friends.",
+                a3: "I try to be. I am honest and never tell my friends' secrets to other people."
+            },
+            {
+                topic: "Friends",
+                q: "What do you often do with your friends?",
+                hints: ["bubble tea", "cinema", "football", "homework"],
+                a1: "We often go to the cinema or drink bubble tea together. It's always great.",
+                a2: "We usually play football in the park. After that, we do homework together.",
+                a3: "We like playing video games online. It is very exciting and fun."
+            },
+
+            // Clothes
+            {
+                topic: "Clothes",
+                q: "Do you have a favorite item of clothing?",
+                hints: ["hoodie", "comfortable", "jeans", "cool"],
+                a1: "Yes, I really like my blue hoodie. It is very soft and comfortable to wear.",
+                a2: "My favorite item is my black jeans. They look cool and match with many T-shirts.",
+                a3: "I love my sneakers. They are very convenient for running and walking."
+            },
+            {
+                topic: "Clothes",
+                q: "What did you wear yesterday?",
+                hints: ["uniform", "white shirt", "T-shirt", "shorts"],
+                a1: "Since I went to school, I wore my school uniform. It includes a white shirt and blue pants.",
+                a2: "I stayed at home yesterday, so I just wore a simple T-shirt and shorts.",
+                a3: "It was Sunday, so I wore my favorite pajamas all day long. They are very cute."
+            },
+            {
+                topic: "Clothes",
+                q: "Do you enjoy shopping for clothes?",
+                hints: ["love it", "once a month", "hate it", "boring"],
+                a1: "Yes, I love it. I usually go shopping with my mom once a month.",
+                a2: "Honestly, I don't like it much. I find it boring, so I only buy clothes when I need them.",
+                a3: "I prefer shopping online. I can see many beautiful clothes on my phone without going out."
+            },
+
+            // Animals
+            {
+                topic: "Animals",
+                q: "Do you have any pets? Why / why not?",
+                hints: ["dog", "loyal", "no", "apartment"],
+                a1: "Yes, I have a small dog named Lu. He is very cute and loyal to me.",
+                a2: "No, I don't. I live in a small apartment, so I can't keep any pets.",
+                a3: "I have a cat. She is a bit lazy but her fur is very soft and I love hugging her."
+            },
+            {
+                topic: "Animals",
+                q: "Have you ever been to a zoo?",
+                hints: ["yes", "last summer", "no", "TV"],
+                a1: "Yes, I have. I went to the zoo last summer with my family and saw many tigers.",
+                a2: "No, I haven't. But I often watch programs about animals on TV.",
+                a3: "I went there once with my school. We saw big elephants and funny monkeys."
+            },
+            {
+                topic: "Animals",
+                q: "Are you afraid of any animal?",
+                hints: ["snakes", "dangerous", "spiders", "ugly"],
+                a1: "I am very afraid of snakes. They look scary and some are dangerous.",
+                a2: "I'm scared of spiders because they have too many legs. I hate them.",
+                a3: "I am really scared of rats. They are dirty and they run very fast."
+            },
+
+            // Sport
+            {
+                topic: "Sport",
+                q: "Do you like sports? What is your favorite sport?",
+                hints: ["yes", "badminton", "healthy", "no", "lazy"],
+                a1: "Yes, I do. My favorite sport is badminton because it keeps me fit.",
+                a2: "Actually, I'm a bit lazy so I don't play sports much. I prefer reading.",
+                a3: "Yes, I am a big fan of football. I play it every afternoon with my friends."
+            },
+            {
+                topic: "Sport",
+                q: "What sports would you like to try? Why?",
+                hints: ["swimming", "tall", "basketball", "strong"],
+                a1: "I want to try swimming. It looks fun and it is good for my height.",
+                a2: "I'd like to learn basketball. The players look very cool and strong.",
+                a3: "I really want to try skateboarding. It looks difficult but very cool."
+            },
+            {
+                topic: "Sport",
+                q: "Which sports do you think are boring?",
+                hints: ["golf", "slow", "running", "tired"],
+                a1: "I think golf is boring. It is too slow and quiet for me.",
+                a2: "For me, running is boring. It makes me feel tired very quickly.",
+                a3: "I think fishing is boring. You have to sit and wait for a long time."
+            }
+        ];
+
+        // STATE
+        let activeDeck = [...data];
+        let currentIndex = 0;
+        let isFlipped = false;
+
+        // DOM ELEMENTS
+        const cardContainer = document.getElementById('main-card');
+        const questionEl = document.getElementById('card-question');
+        const hintsEl = document.getElementById('card-hints');
+        const topicEl = document.getElementById('topic-badge');
+        const ans1El = document.getElementById('ans-1');
+        const ans2El = document.getElementById('ans-2');
+        const ans3El = document.getElementById('ans-3');
+        const counterEl = document.getElementById('counter');
+        const progressEl = document.getElementById('progress');
+
+        // INIT
+        window.onload = renderCard;
+
+        // FUNCTIONS
+        function renderCard() {
+            const item = activeDeck[currentIndex];
+            
+            // Content
+            topicEl.textContent = `Topic: ${item.topic}`;
+            questionEl.textContent = item.q;
+            ans1El.textContent = item.a1;
+            ans2El.textContent = item.a2;
+            ans3El.textContent = item.a3; // New 3rd answer
+
+            // Hints Pill Generation
+            hintsEl.innerHTML = '';
+            item.hints.forEach(hint => {
+                const span = document.createElement('span');
+                span.className = 'hint-tag bg-white/20 text-white px-3 py-1 rounded-full text-sm font-semibold backdrop-blur-sm shadow-sm border border-white/10';
+                span.textContent = hint;
+                hintsEl.appendChild(span);
+            });
+
+            // Progress UI
+            counterEl.textContent = `Card ${currentIndex + 1} / ${activeDeck.length}`;
+            progressEl.style.width = `${((currentIndex + 1) / activeDeck.length) * 100}%`;
+
+            // Reset Flip if needed
+            if(isFlipped) {
+                cardContainer.classList.remove('flipped');
+                isFlipped = false;
+            }
+        }
+
+        function flipCard() {
+            isFlipped = !isFlipped;
+            if(isFlipped) {
+                cardContainer.classList.add('flipped');
+            } else {
+                cardContainer.classList.remove('flipped');
+            }
+        }
+
+        function changeCard(direction) {
+            // Flip back first to avoid showing answer of new card immediately
+            if(isFlipped) {
+                cardContainer.classList.remove('flipped');
+                isFlipped = false;
+                
+                // Wait for flip animation half-way
+                setTimeout(() => {
+                    updateIndex(direction);
+                }, 300);
+            } else {
+                updateIndex(direction);
+            }
+        }
+
+        function updateIndex(direction) {
+            currentIndex += direction;
+            if (currentIndex >= activeDeck.length) currentIndex = 0;
+            if (currentIndex < 0) currentIndex = activeDeck.length - 1;
+            renderCard();
+        }
+
+        function shuffleCards() {
+            // Fisher-Yates Shuffle
+            for (let i = activeDeck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [activeDeck[i], activeDeck[j]] = [activeDeck[j], activeDeck[i]];
+            }
+            currentIndex = 0;
+            document.getElementById('mode-display').textContent = "Mode: Random";
+            renderCard();
+        }
+
+        // Keyboard support
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' || e.code === 'Enter') {
+                e.preventDefault(); 
+                flipCard();
+            } else if (e.code === 'ArrowRight') {
+                changeCard(1);
+            } else if (e.code === 'ArrowLeft') {
+                changeCard(-1);
+            }
+        });
+    </script>
+</body>
+</html>

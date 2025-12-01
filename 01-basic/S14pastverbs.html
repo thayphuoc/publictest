@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Học Động Từ Bất Quy Tắc</title>
+    <!-- Tailwind CSS for layout and styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: #f0fdf4; /* Light green background */
+            background-image: radial-gradient(#dcfce7 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* 3D Flip Card Styles */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
+            transform-style: preserve-3d;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); /* Tăng bóng đổ */
+            border-radius: 2rem; /* Bo góc lớn hơn */
+        }
+
+        /* Đã sửa: Áp dụng transform trực tiếp lên thẻ khi có class flipped */
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 3rem; /* Tăng padding */
+            border: 6px solid white; /* Viền dày hơn */
+        }
+
+        .card-front {
+            background: linear-gradient(135deg, #6ee7b7 0%, #3b82f6 100%);
+            color: white;
+        }
+
+        .card-back {
+            background: linear-gradient(135deg, #f472b6 0%, #db2777 100%);
+            color: white;
+            transform: rotateY(180deg);
+        }
+
+        /* Interactive Elements */
+        .btn-control {
+            transition: all 0.2s;
+        }
+        .btn-control:active {
+            transform: scale(0.95);
+        }
+
+        /* IPA Font styling */
+        .ipa-text {
+            font-family: 'Nunito', sans-serif;
+            font-weight: 400;
+            opacity: 0.9;
+        }
+
+        /* Key hint visualization */
+        .key-hint {
+            border: 1px solid #cbd5e1;
+            border-bottom: 2px solid #94a3b8;
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-size: 0.85rem;
+            background: white;
+            color: #475569;
+            margin-left: 4px;
+        }
+
+        .progress-bar {
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
+
+    <!-- Header -->
+    <header class="mb-8 text-center">
+        <h1 class="text-4xl md:text-5xl font-extrabold text-slate-700 mb-3">Thẻ Học Từ Vựng</h1>
+        <p class="text-slate-500 font-medium text-lg">Động từ bất quy tắc cơ bản</p>
+    </header>
+
+    <!-- Main Card Container - Tăng size lên max-w-2xl và height 500px -->
+    <div class="relative w-full max-w-2xl h-[500px] perspective-1000 group cursor-pointer" onclick="flipCard()">
+        <div id="card" class="card card-inner">
+            <!-- Front Side -->
+            <div class="card-face card-front shadow-xl">
+                <span class="absolute top-6 right-6 bg-white/20 px-4 py-2 rounded-full text-sm font-bold uppercase tracking-wider">Hiện Tại</span>
+                
+                <h2 id="front-word" class="text-7xl font-extrabold mb-4 drop-shadow-md">be</h2>
+                <p id="front-ipa" class="ipa-text text-3xl mb-8">/biː/</p>
+                
+                <div class="w-24 h-1.5 bg-white/50 rounded-full mb-8"></div>
+                
+                <p id="front-meaning" class="text-4xl font-bold">thì, là, ở</p>
+                
+                <div class="absolute bottom-6 text-white/70 text-base animate-bounce font-medium">
+                    Chạm để lật
+                </div>
+            </div>
+
+            <!-- Back Side -->
+            <div class="card-face card-back shadow-xl">
+                <span class="absolute top-6 right-6 bg-white/20 px-4 py-2 rounded-full text-sm font-bold uppercase tracking-wider">Quá Khứ</span>
+                
+                <h2 id="back-word" class="text-6xl font-extrabold mb-3 drop-shadow-md">was / were</h2>
+                <p id="back-ipa" class="ipa-text text-2xl mb-6">/wɒz/ • /wɜːr/</p>
+                
+                <div class="bg-white/20 p-6 rounded-2xl w-full">
+                    <p class="text-sm uppercase font-bold text-white/70 mb-2">Ví dụ:</p>
+                    <p id="back-example" class="text-3xl font-medium leading-relaxed">"I was happy yesterday."</p>
+                </div>
+                
+                <p id="back-trans" class="mt-6 text-2xl italic opacity-90">(Hôm qua, tôi đã rất vui.)</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Controls - Tăng width container -->
+    <div class="w-full max-w-2xl mt-10 space-y-6">
+        
+        <!-- Progress -->
+        <div class="flex items-center justify-between text-slate-600 font-bold text-base mb-2">
+            <span id="progress-text">Thẻ 1 / 25</span>
+            <span id="mode-text" class="text-blue-600 bg-blue-100 px-3 py-1.5 rounded-lg">Thứ tự chuẩn</span>
+        </div>
+        <div class="w-full bg-slate-200 rounded-full h-4 mb-8 overflow-hidden">
+            <div id="progress-bar" class="bg-blue-500 h-4 rounded-full progress-bar" style="width: 4%"></div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="grid grid-cols-3 gap-6">
+            <button onclick="prevCard()" class="btn-control flex flex-col items-center justify-center p-4 bg-white border-2 border-slate-200 rounded-2xl shadow-sm text-slate-600 hover:bg-slate-50 hover:border-blue-400 hover:text-blue-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+                </svg>
+                <span class="text-sm font-bold hidden sm:inline">Trước <span class="key-hint">←</span></span>
+            </button>
+
+            <button onclick="shuffleDeck()" class="btn-control flex flex-col items-center justify-center p-4 bg-indigo-100 border-2 border-indigo-200 rounded-2xl shadow-sm text-indigo-700 hover:bg-indigo-200 hover:border-indigo-300">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                <span class="text-sm font-bold">Xáo trộn</span>
+            </button>
+
+            <button onclick="nextCard()" class="btn-control flex flex-col items-center justify-center p-4 bg-white border-2 border-slate-200 rounded-2xl shadow-sm text-slate-600 hover:bg-slate-50 hover:border-blue-400 hover:text-blue-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+                </svg>
+                <span class="text-sm font-bold hidden sm:inline">Sau <span class="key-hint">→</span></span>
+            </button>
+        </div>
+        
+        <p class="text-center text-slate-400 text-sm mt-6">
+            Mẹo: Dùng phím <span class="key-hint">Space</span> hoặc <span class="key-hint">↑</span> <span class="key-hint">↓</span> để lật thẻ
+        </p>
+    </div>
+
+    <script>
+        // Database of words
+        const originalData = [
+            { id: 1, front: "be", f_ipa: "/biː/", meaning: "thì, là, ở", back: "was / were", b_ipa: "/wɒz/ • /wɜːr/", ex: "I was happy yesterday.", ex_trans: "(Hôm qua, tôi đã cảm thấy vui.)" },
+            { id: 2, front: "become", f_ipa: "/bɪˈkʌm/", meaning: "trở nên, trở thành", back: "became", b_ipa: "/bɪˈkeɪm/", ex: "She became a doctor.", ex_trans: "(Cô ấy đã trở thành bác sĩ)" },
+            { id: 3, front: "begin", f_ipa: "/bɪˈgɪn/", meaning: "bắt đầu", back: "began", b_ipa: "/bɪˈgæn/", ex: "The movie began at 8 PM.", ex_trans: "(Phim đã bắt đầu lúc 8 giờ tối)" },
+            { id: 4, front: "break", f_ipa: "/breɪk/", meaning: "làm vỡ, bẻ gãy", back: "broke", b_ipa: "/brəʊk/", ex: "He broke his glasses.", ex_trans: "(Anh ấy đã làm vỡ kính)" },
+            { id: 5, front: "bring", f_ipa: "/brɪŋ/", meaning: "mang theo, đem lại", back: "brought", b_ipa: "/brɔːt/", ex: "She brought a gift.", ex_trans: "(Cô ấy đã mang theo một món quà)" },
+            { id: 6, front: "build", f_ipa: "/bɪld/", meaning: "xây dựng", back: "built", b_ipa: "/bɪlt/", ex: "They built a new house.", ex_trans: "(Họ đã xây một ngôi nhà mới)" },
+            { id: 7, front: "buy", f_ipa: "/baɪ/", meaning: "mua", back: "bought", b_ipa: "/bɔːt/", ex: "I bought some milk.", ex_trans: "(Tôi đã mua một ít sữa)" },
+            { id: 8, front: "catch", f_ipa: "/kæʧ/", meaning: "bắt lấy, đuổi kịp", back: "caught", b_ipa: "/kɔːt/", ex: "He caught the ball.", ex_trans: "(Anh ấy đã bắt được quả bóng)" },
+            { id: 9, front: "come", f_ipa: "/kʌm/", meaning: "đến", back: "came", b_ipa: "/keɪm/", ex: "She came to the party.", ex_trans: "(Cô ấy đã đến bữa tiệc)" },
+            { id: 10, front: "do", f_ipa: "/duː/", meaning: "làm", back: "did", b_ipa: "/dɪd/", ex: "I did my homework.", ex_trans: "(Tôi đã làm bài tập về nhà)" },
+            { id: 11, front: "draw", f_ipa: "/drɔː/", meaning: "vẽ", back: "drew", b_ipa: "/druː/", ex: "She drew a cat.", ex_trans: "(Cô ấy đã vẽ một con mèo)" },
+            { id: 12, front: "dream", f_ipa: "/driːm/", meaning: "mơ", back: "dreamt", b_ipa: "/dremt/", ex: "I dreamt of flying.", ex_trans: "(Tôi đã mơ mình biết bay)" },
+            { id: 13, front: "fall", f_ipa: "/fɔːl/", meaning: "ngã, rơi", back: "fell", b_ipa: "/fel/", ex: "The apple fell down.", ex_trans: "(Quả táo đã rơi xuống)" },
+            { id: 14, front: "fight", f_ipa: "/faɪt/", meaning: "đánh nhau, chiến đấu", back: "fought", b_ipa: "/fɔːt/", ex: "They fought bravely.", ex_trans: "(Họ đã chiến đấu dũng cảm)" },
+            { id: 15, front: "find", f_ipa: "/faɪnd/", meaning: "tìm thấy", back: "found", b_ipa: "/faʊnd/", ex: "I found my keys.", ex_trans: "(Tôi đã tìm thấy chìa khóa)" },
+            { id: 16, front: "get", f_ipa: "/get/", meaning: "nhận được, lấy", back: "got", b_ipa: "/gɒt/", ex: "I got a letter.", ex_trans: "(Tôi đã nhận được một lá thư)" },
+            { id: 17, front: "go", f_ipa: "/gəʊ/", meaning: "đi", back: "went", b_ipa: "/went/", ex: "We went to the zoo.", ex_trans: "(Chúng tôi đã đi sở thú)" },
+            { id: 18, front: "have", f_ipa: "/hæv/", meaning: "có, ăn (bữa ăn)", back: "had", b_ipa: "/hæd/", ex: "He had a big car.", ex_trans: "(Anh ấy đã có một chiếc xe lớn)" },
+            { id: 19, front: "make", f_ipa: "/meɪk/", meaning: "làm, chế tạo", back: "made", b_ipa: "/meɪd/", ex: "Mom made a cake.", ex_trans: "(Mẹ đã làm một cái bánh)" },
+            { id: 20, front: "read", f_ipa: "/riːd/", meaning: "đọc", back: "read", b_ipa: "/red/", ex: "I read that book.", ex_trans: "(Tôi đã đọc cuốn sách đó - Lưu ý phát âm 'red')" },
+            { id: 21, front: "see", f_ipa: "/siː/", meaning: "nhìn thấy", back: "saw", b_ipa: "/sɔː/", ex: "I saw a rainbow.", ex_trans: "(Tôi đã nhìn thấy cầu vồng)" },
+            { id: 22, front: "speak", f_ipa: "/spiːk/", meaning: "nói", back: "spoke", b_ipa: "/spəʊk/", ex: "He spoke English well.", ex_trans: "(Anh ấy đã nói tiếng Anh tốt)" },
+            { id: 23, front: "take", f_ipa: "/teɪk/", meaning: "cầm, lấy, đưa đi", back: "took", b_ipa: "/tʊk/", ex: "She took the bus.", ex_trans: "(Cô ấy đã bắt xe buýt)" },
+            { id: 24, front: "teach", f_ipa: "/tiːʧ/", meaning: "dạy học", back: "taught", b_ipa: "/tɔːt/", ex: "Dad taught me to swim.", ex_trans: "(Bố đã dạy tôi bơi)" },
+            { id: 25, front: "think", f_ipa: "/θɪŋk/", meaning: "suy nghĩ", back: "thought", b_ipa: "/θɔːt/", ex: "I thought about you.", ex_trans: "(Tôi đã nghĩ về bạn)" }
+        ];
+
+        let currentDeck = [...originalData];
+        let currentIndex = 0;
+        let isFlipped = false;
+        let isShuffled = false;
+
+        // Elements
+        const cardElement = document.getElementById('card');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const modeText = document.getElementById('mode-text');
+
+        // Initial Load
+        window.onload = () => {
+            updateCardUI();
+        };
+
+        // Functions
+        function updateCardUI() {
+            const word = currentDeck[currentIndex];
+            
+            // Front Elements
+            document.getElementById('front-word').textContent = word.front;
+            document.getElementById('front-ipa').textContent = word.f_ipa;
+            document.getElementById('front-meaning').textContent = word.meaning;
+            
+            // Back Elements
+            document.getElementById('back-word').textContent = word.back;
+            document.getElementById('back-ipa').textContent = word.b_ipa;
+            document.getElementById('back-example').textContent = `"${word.ex}"`;
+            document.getElementById('back-trans').textContent = word.ex_trans;
+
+            // Reset Flip State visually
+            if (isFlipped) {
+                cardElement.classList.remove('flipped');
+                isFlipped = false;
+            }
+
+            // Update Progress
+            progressText.textContent = `Thẻ ${currentIndex + 1} / ${currentDeck.length}`;
+            const percent = ((currentIndex + 1) / currentDeck.length) * 100;
+            progressBar.style.width = `${percent}%`;
+        }
+
+        function flipCard() {
+            isFlipped = !isFlipped;
+            cardElement.classList.toggle('flipped');
+        }
+
+        function nextCard() {
+            // Animate card out slightly if desired, or just swap
+            cardElement.classList.remove('flipped');
+            isFlipped = false;
+            
+            setTimeout(() => {
+                if (currentIndex < currentDeck.length - 1) {
+                    currentIndex++;
+                } else {
+                    currentIndex = 0; // Loop back to start
+                }
+                updateCardUI();
+            }, 150); // Small delay so user doesn't see answer before card turns back
+        }
+
+        function prevCard() {
+            cardElement.classList.remove('flipped');
+            isFlipped = false;
+            
+            setTimeout(() => {
+                if (currentIndex > 0) {
+                    currentIndex--;
+                } else {
+                    currentIndex = currentDeck.length - 1; // Loop to end
+                }
+                updateCardUI();
+            }, 150);
+        }
+
+        function shuffleDeck() {
+            // Fisher-Yates Shuffle
+            for (let i = currentDeck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [currentDeck[i], currentDeck[j]] = [currentDeck[j], currentDeck[i]];
+            }
+            
+            currentIndex = 0;
+            isShuffled = true;
+            modeText.textContent = "Chế độ: Ngẫu nhiên";
+            modeText.className = "text-purple-600 bg-purple-100 px-2 py-1 rounded";
+            
+            // Visual reset
+            cardElement.classList.remove('flipped');
+            isFlipped = false;
+            updateCardUI();
+        }
+
+        // Keyboard Navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                nextCard();
+            } else if (e.key === 'ArrowLeft') {
+                prevCard();
+            } else if (e.key === ' ' || e.key === 'Enter' || e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                e.preventDefault(); // Prevent scrolling
+                flipCard();
+            }
+        });
+
+    </script>
+</body>
+</html>
