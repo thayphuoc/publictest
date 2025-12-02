@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CBI Reading Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            overflow: hidden; /* Prevent body scroll, handle in panels */
+            user-select: none; /* Default no select, enabled specifically for reading */
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555; 
+        }
+
+        /* Reading Passage Specifics */
+        #reading-passage {
+            user-select: text; /* Allow selection for highlighting */
+            font-weight: normal !important; /* Force no bold */
+        }
+        #reading-passage b, #reading-passage strong {
+            font-weight: normal !important;
+        }
+
+        /* Custom Context Menu */
+        #ctx-menu {
+            display: none;
+            position: absolute;
+            z-index: 100;
+            background: white;
+            border: 1px solid #ccc;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+            border-radius: 4px;
+            width: 150px;
+        }
+        #ctx-menu li {
+            padding: 8px 12px;
+            cursor: pointer;
+            list-style: none;
+            font-size: 14px;
+        }
+        #ctx-menu li:hover {
+            background-color: #f0f0f0;
+        }
+
+        /* Highlighting Style */
+        .highlighted-text {
+            background-color: #ffff00;
+        }
+
+        /* Overlay */
+        #overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .correct-answer {
+            color: #16a34a; /* Green */
+            font-weight: bold;
+        }
+        .wrong-answer {
+            color: #dc2626; /* Red */
+            text-decoration: line-through;
+        }
+        .explanation-box {
+            background-color: #f0f9ff;
+            border-left: 4px solid #0ea5e9;
+            padding: 10px;
+            margin-top: 5px;
+            font-size: 0.9em;
+            display: none; /* Hidden by default */
+        }
+        
+        /* Review Mode specific */
+        .review-mode .explanation-box {
+            /* Kept hidden by default, toggled by JS click */
+            display: none;
+        }
+        /* Cursor pointer to indicate clickability in review mode */
+        .review-mode li {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 h-screen flex flex-col">
+
+    <!-- LOGIN OVERLAY -->
+    <div id="overlay">
+        <div class="bg-white p-8 rounded-lg shadow-2xl w-full max-w-md">
+            <h2 class="text-2xl font-bold mb-6 text-center text-blue-800">Reading Test Login</h2>
+            <div id="attempt-warning" class="hidden bg-red-100 text-red-700 p-3 rounded mb-4 text-sm">
+                <strong>Notice:</strong> This is attempt #<span id="attempt-count-display"></span>. Previous attempts or reloads have been recorded.
+            </div>
+            <form id="login-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Full Name</label>
+                    <input type="text" id="student-name" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Email</label>
+                    <input type="email" id="student-email" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Class</label>
+                    <input type="text" id="student-class" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Password</label>
+                    <input type="password" id="student-pass" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="Enter password to start">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Practice Time (Minutes)</label>
+                    <input type="number" id="practice-time" min="1" max="120" value="15" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 transition">Start Test</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN INTERFACE -->
+    <header class="bg-white shadow-sm p-4 flex justify-between items-center z-10 h-16 shrink-0">
+        <div class="font-bold text-xl text-gray-800"><i class="fas fa-book-open mr-2"></i>Reading Assessment</div>
+        <div class="flex items-center space-x-4">
+            <div class="text-sm text-gray-500" id="user-display">Guest</div>
+            <div class="bg-red-50 text-red-600 px-4 py-2 rounded-lg font-mono font-bold text-xl border border-red-200" id="timer">00:00:00</div>
+        </div>
+    </header>
+
+    <main class="flex-grow flex overflow-hidden">
+        
+        <!-- LEFT: READING PASSAGE -->
+        <div class="w-1/2 bg-white border-r border-gray-200 overflow-y-auto p-8 relative" id="reading-container">
+            <h2 class="text-2xl mb-4 text-blue-900">A city survey with a difference</h2>
+            
+            <div id="reading-passage" class="text-lg leading-relaxed text-gray-800 text-justify">
+                <p class="mb-4">There are many websites on the Internet which provide lists of the world's best cities to visit, live or work in. These lists usually grade the cities in order, from 'best' to 'worst', and are based on facts and figures provided by local or national organisations. The City Brands Index (CBI) also provides a list of best and worst cities. However, unlike other surveys, it is based on the idea that cities are similar to products in shops. It asks ordinary people in other countries to grade cities in the same way that they would grade a product, like a soft drink or a car.</p>
+                
+                <p class="mb-4">What is particularly different about the CBI is that the people who take part in the survey may not have ever visited the cities. Instead, they are asked to say what they think the cities are like, basing their opinions on things like news stories, magazine articles or television programmes they have heard or seen.</p>
+                
+                <p class="mb-4">Each year, about 10,000 people in 20 countries take part in the CBI survey, and they grade a total of 50 cities. They do this by filling in an online questionnaire. There are several categories in the survey. These include things like the economy, education, the environment, local culture, climate and what the city's residents are like.</p>
+                
+                <p class="mb-4">The CBI list is useful because it helps people choose a good place to live, find work or take a holiday. It also helps regional governments to understand why people and businesses are, or are not, coming to their cities, and so shows them areas which they could develop or improve.</p>
+            </div>
+
+            <!-- VOCABULARY TABLE -->
+            <div class="mt-12 border-t-2 border-gray-300 pt-6">
+                <h3 class="text-lg font-bold mb-3 text-gray-700"><i class="fas fa-language mr-2"></i>Vocabulary Reference (B1+)</h3>
+                <table class="min-w-full text-sm text-left text-gray-500 border border-gray-200">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-2 border-b">Word</th>
+                            <th class="px-4 py-2 border-b">Definition / Synonyms</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="bg-white border-b">
+                            <td class="px-4 py-2 font-medium text-gray-900">Organisations</td>
+                            <td class="px-4 py-2">An organized body of people with a particular purpose, like a business or government department.</td>
+                        </tr>
+                        <tr class="bg-gray-50 border-b">
+                            <td class="px-4 py-2 font-medium text-gray-900">Questionnaire</td>
+                            <td class="px-4 py-2">A set of printed or written questions with a choice of answers, devised for the purposes of a survey.</td>
+                        </tr>
+                        <tr class="bg-white border-b">
+                            <td class="px-4 py-2 font-medium text-gray-900">Residents</td>
+                            <td class="px-4 py-2">A person who lives somewhere permanently or on a long-term basis.</td>
+                        </tr>
+                        <tr class="bg-gray-50 border-b">
+                            <td class="px-4 py-2 font-medium text-gray-900">Regional</td>
+                            <td class="px-4 py-2">Relating to or characteristic of a region (a specific area of a country).</td>
+                        </tr>
+                        <tr class="bg-white border-b">
+                            <td class="px-4 py-2 font-medium text-gray-900">Categories</td>
+                            <td class="px-4 py-2">A class or division of people or things regarded as having particular shared characteristics.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="h-10"></div> <!-- Spacer -->
+        </div>
+
+        <!-- RIGHT: QUESTIONS -->
+        <div class="w-1/2 bg-gray-50 overflow-y-auto p-8" id="questions-container">
+            <div class="max-w-2xl mx-auto">
+                <h3 class="text-xl font-bold mb-2 text-gray-800">Questions 1-7</h3>
+                <p class="text-sm text-gray-600 mb-6 italic">Complete the notes below. Choose <span class="font-bold text-red-600">ONE WORD OR A NUMBER</span> from the passage for each answer.</p>
+
+                <div class="bg-white p-6 rounded shadow-sm border border-gray-200">
+                    <h4 class="font-bold text-center text-lg mb-4 text-blue-800">The City Brands Index</h4>
+                    
+                    <form id="quiz-form">
+                        <ul class="space-y-6 list-disc pl-5">
+                            <li class="leading-loose">
+                                The CBI believes that cities are like 
+                                <span class="question-block" data-id="1">
+                                    <span class="font-bold">1</span>
+                                    <input type="text" name="q1" class="border-b-2 border-gray-400 outline-none px-1 w-32 bg-gray-50 text-center focus:border-blue-500 focus:bg-white transition" autocomplete="off">
+                                </span>
+                                which people can buy when they go shopping.
+                            </li>
+
+                            <li class="leading-loose">
+                                Surveys take place every 
+                                <span class="question-block" data-id="2">
+                                    <span class="font-bold">2</span>
+                                    <input type="text" name="q2" class="border-b-2 border-gray-400 outline-none px-1 w-32 bg-gray-50 text-center focus:border-blue-500 focus:bg-white transition" autocomplete="off">
+                                </span>
+                            </li>
+
+                            <li class="leading-loose">
+                                A maximum of 
+                                <span class="question-block" data-id="3">
+                                    <span class="font-bold">3</span>
+                                    <input type="text" name="q3" class="border-b-2 border-gray-400 outline-none px-1 w-32 bg-gray-50 text-center focus:border-blue-500 focus:bg-white transition" autocomplete="off">
+                                </span>
+                                cities are included in the survey.
+                            </li>
+
+                            <li class="leading-loose">
+                                A number of different 
+                                <span class="question-block" data-id="4">
+                                    <span class="font-bold">4</span>
+                                    <input type="text" name="q4" class="border-b-2 border-gray-400 outline-none px-1 w-32 bg-gray-50 text-center focus:border-blue-500 focus:bg-white transition" autocomplete="off">
+                                </span>
+                                are included in the survey.
+                            </li>
+
+                            <li class="list-none -ml-5 mt-4">
+                                <span class="font-semibold text-gray-700">The CBI list is helpful for:</span>
+                                <ul class="list-disc pl-10 mt-2 space-y-4">
+                                    <li>
+                                        people who are trying to decide where to 
+                                        <span class="question-block" data-id="5">
+                                            <span class="font-bold">5</span>
+                                            <input type="text" name="q5" class="border-b-2 border-gray-400 outline-none px-1 w-32 bg-gray-50 text-center focus:border-blue-500 focus:bg-white transition" autocomplete="off">
+                                        </span>
+                                        or get a job.
+                                    </li>
+                                    <li>
+                                        people who are looking for a good 
+                                        <span class="question-block" data-id="6">
+                                            <span class="font-bold">6</span>
+                                            <input type="text" name="q6" class="border-b-2 border-gray-400 outline-none px-1 w-32 bg-gray-50 text-center focus:border-blue-500 focus:bg-white transition" autocomplete="off">
+                                        </span>
+                                        destination.
+                                    </li>
+                                    <li>
+                                        local 
+                                        <span class="question-block" data-id="7">
+                                            <span class="font-bold">7</span>
+                                            <input type="text" name="q7" class="border-b-2 border-gray-400 outline-none px-1 w-32 bg-gray-50 text-center focus:border-blue-500 focus:bg-white transition" autocomplete="off">
+                                        </span>
+                                        who want to make their city a better place.
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </form>
+                </div>
+
+                <div class="mt-8 mb-12">
+                    <button id="submit-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded shadow-lg transition transform hover:scale-[1.01]">
+                        Submit Answers
+                    </button>
+                    <div id="result-area" class="mt-4 hidden p-4 bg-white border border-gray-200 rounded text-center">
+                        <div class="text-2xl font-bold mb-2">Score: <span id="score-display">0/7</span></div>
+                        <p class="text-sm text-gray-500">Your results file has been downloaded. Please send it to your teacher.</p>
+                        <p class="text-xs text-gray-400 mt-2">Click on questions to see detailed explanations.</p>
+                        <button id="redo-btn" class="mt-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded transition">
+                            Redo Test
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-gray-800 text-white text-center p-2 text-xs shrink-0">
+        encoded by Dinh Phuoc
+    </footer>
+
+    <!-- CUSTOM CONTEXT MENU -->
+    <ul id="ctx-menu">
+        <li id="menu-highlight"><i class="fas fa-highlighter mr-2 text-yellow-500"></i>Highlight</li>
+        <li id="menu-remove"><i class="fas fa-eraser mr-2 text-gray-500"></i>Remove Highlight</li>
+    </ul>
+
+    <script>
+        // --- DATA & CONFIG ---
+        const answersKey = {
+            1: { ans: "products", expl: "Text: 'based on the idea that cities are similar to <b>products</b> in shops.'" },
+            2: { ans: "year", expl: "Text: 'Each <b>year</b>, about 10,000 people...'" },
+            3: { ans: "50", expl: "Text: '...grade a total of <b>50</b> cities.'" },
+            4: { ans: "categories", expl: "Text: 'There are several <b>categories</b> in the survey.'" },
+            5: { ans: "live", expl: "Text: 'helps people choose a good place to <b>live</b>, find work...'" },
+            6: { ans: "holiday", expl: "Text: '...or take a <b>holiday</b>.' (Corresponds to 'destination')" },
+            7: { ans: "governments", expl: "Text: 'It also helps regional <b>governments</b> to understand...'" }
+        };
+
+        let userInfo = {};
+        let timerInterval;
+        let remainingTime; // seconds
+        let currentAttempt = 0;
+        let cheatFlags = 0; // Tracks tab switches specifically
+        let clientIP = "127.0.0.1"; // Default fallback
+        let isSubmitted = false;
+        let passwordKey = "examp";
+
+        // --- INIT & IP FETCH ---
+        window.onload = async () => {
+            // Track total attempts (Reloads + Fresh starts)
+            let storedAttempts = parseInt(localStorage.getItem('reading_test_attempts') || 0);
+            
+            // Increment attempt on every load
+            currentAttempt = storedAttempts + 1;
+            localStorage.setItem('reading_test_attempts', currentAttempt);
+
+            // Display warning if not the first attempt
+            if (currentAttempt > 1) {
+                document.getElementById('attempt-warning').classList.remove('hidden');
+                document.getElementById('attempt-count-display').textContent = currentAttempt;
+            }
+
+            // Fetch IP
+            try {
+                const res = await fetch('https://api.ipify.org?format=json');
+                const data = await res.json();
+                clientIP = data.ip;
+            } catch (e) {
+                console.log("Could not fetch IP, using fallback");
+            }
+        };
+
+        // --- LOGIN & START ---
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const enteredPass = document.getElementById('student-pass').value;
+
+            if (enteredPass !== passwordKey) {
+                alert("Incorrect Password. Please ask your teacher.");
+                return;
+            }
+
+            userInfo = {
+                name: document.getElementById('student-name').value,
+                email: document.getElementById('student-email').value,
+                class: document.getElementById('student-class').value,
+                practiceTime: parseInt(document.getElementById('practice-time').value)
+            };
+
+            document.getElementById('user-display').textContent = `${userInfo.name} - ${userInfo.class}`;
+            document.getElementById('overlay').style.display = 'none';
+            
+            startTimer(userInfo.practiceTime * 60);
+        });
+
+        // --- TIMER LOGIC ---
+        function startTimer(duration) {
+            remainingTime = duration;
+            updateTimerDisplay();
+            
+            timerInterval = setInterval(() => {
+                remainingTime--;
+                updateTimerDisplay();
+                
+                if (remainingTime <= 0) {
+                    clearInterval(timerInterval);
+                    alert("Time is up! Submitting automatically.");
+                    submitTest();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const h = Math.floor(remainingTime / 3600);
+            const m = Math.floor((remainingTime % 3600) / 60);
+            const s = remainingTime % 60;
+            document.getElementById('timer').textContent = 
+                `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            
+            if (remainingTime < 60) {
+                document.getElementById('timer').classList.add('bg-red-100');
+            }
+        }
+
+        // --- ANTI-CHEAT (Tab Switching) ---
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden && !isSubmitted && document.getElementById('overlay').style.display === 'none') {
+                cheatFlags++;
+                
+                // If this session just switched too many times
+                if (cheatFlags > 2) {
+                    alert("Violation detected: You have switched tabs too many times. The test will reload and be counted as a new attempt.");
+                    location.reload(); 
+                }
+            }
+        });
+
+        // --- HIGHLIGHTING LOGIC ---
+        const readingArea = document.getElementById('reading-passage');
+        const ctxMenu = document.getElementById('ctx-menu');
+
+        readingArea.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            const sel = window.getSelection();
+            if (sel.rangeCount > 0 && !sel.isCollapsed) {
+                ctxMenu.style.display = 'block';
+                ctxMenu.style.left = e.pageX + 'px';
+                ctxMenu.style.top = e.pageY + 'px';
+            }
+        });
+
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('#ctx-menu')) return;
+            ctxMenu.style.display = 'none';
+        });
+
+        document.getElementById('menu-highlight').addEventListener('click', function() {
+            // Use designMode to apply simpler formatting compatible with export/saving
+            document.designMode = "on";
+            document.execCommand("BackColor", false, "#ffff00");
+            document.designMode = "off";
+            window.getSelection().removeAllRanges();
+            ctxMenu.style.display = 'none';
+        });
+
+        document.getElementById('menu-remove').addEventListener('click', function() {
+            document.designMode = "on";
+            document.execCommand("removeFormat", false, null);
+            document.designMode = "off";
+            window.getSelection().removeAllRanges();
+            ctxMenu.style.display = 'none';
+        });
+
+        // --- SUBMISSION & SCORING ---
+        document.getElementById('submit-btn').addEventListener('click', submitTest);
+
+        function submitTest() {
+            if (isSubmitted) return;
+            isSubmitted = true;
+            clearInterval(timerInterval);
+
+            // Calculate Score & UI Updates
+            let score = 0;
+            const form = document.getElementById('quiz-form');
+            let studentAnswers = {};
+
+            for (let i = 1; i <= 7; i++) {
+                const input = form.querySelector(`input[name="q${i}"]`);
+                const userVal = input.value.trim().toLowerCase();
+                studentAnswers[`Q${i}`] = input.value;
+                
+                const container = input.parentElement;
+                
+                // Create Explanation DIV
+                const explDiv = document.createElement('div');
+                explDiv.className = 'explanation-box';
+                explDiv.innerHTML = `<strong>Answer:</strong> ${answersKey[i].ans}<br><strong>Why:</strong> ${answersKey[i].expl}`;
+                
+                // Visual Check
+                if (userVal === answersKey[i].ans || userVal === answersKey[i].ans.toString()) {
+                    score++;
+                    input.classList.add('border-green-500', 'bg-green-50');
+                    input.style.color = 'green';
+                } else {
+                    input.classList.add('border-red-500', 'bg-red-50', 'wrong-answer');
+                    // Add correct answer next to it
+                    const corrSpan = document.createElement('span');
+                    corrSpan.className = 'correct-answer ml-2';
+                    corrSpan.innerText = `(${answersKey[i].ans})`;
+                    container.appendChild(corrSpan);
+                }
+
+                // Append explanation (hidden initially)
+                container.parentElement.appendChild(explDiv);
+                
+                // Click listener for details
+                // We use stopPropagation to ensure clicking input doesn't trigger it weirdly, though input is disabled.
+                container.parentElement.onclick = function(e) {
+                    // Toggle visibility
+                    if (explDiv.style.display === 'block') {
+                        explDiv.style.display = 'none';
+                    } else {
+                        explDiv.style.display = 'block';
+                    }
+                };
+            }
+
+            // Update Results Area
+            document.getElementById('score-display').innerText = `${score}/7`;
+            document.getElementById('result-area').classList.remove('hidden');
+            document.getElementById('submit-btn').style.display = 'none';
+            document.getElementById('questions-container').classList.add('review-mode');
+            
+            // Disable Inputs
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(inp => inp.disabled = true);
+
+            // Generate File
+            generateAndDownloadFile(score, studentAnswers);
+        }
+
+        // --- REDO BUTTON LOGIC ---
+        document.getElementById('redo-btn').addEventListener('click', function() {
+            if(confirm("Redoing the test will reload the page and count as a new attempt. Continue?")) {
+                location.reload();
+            }
+        });
+
+        function generateAndDownloadFile(score, answers) {
+            const timeTaken = (userInfo.practiceTime * 60) - remainingTime;
+            const mins = Math.floor(timeTaken / 60);
+            const secs = timeTaken % 60;
+            
+            const dateStr = new Date().toLocaleString();
+
+            let content = `READING TEST SUBMISSION\n`;
+            content += `=========================\n`;
+            content += `Student Name: ${userInfo.name}\n`;
+            content += `Email: ${userInfo.email}\n`;
+            content += `Class: ${userInfo.class}\n`;
+            content += `Submission Date: ${dateStr}\n`;
+            content += `IP Address: ${clientIP}\n`;
+            content += `Attempt Number: ${currentAttempt}\n`;
+            content += `Tab Switch Violations (This Session): ${cheatFlags}\n`;
+            content += `Time Taken: ${mins}m ${secs}s\n`;
+            content += `Score: ${score}/7\n\n`;
+            content += `ANSWERS:\n`;
+            
+            for (const [q, ans] of Object.entries(answers)) {
+                content += `${q}: ${ans}\n`;
+            }
+
+            const blob = new Blob([content], { type: "text/plain" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            
+            const safeName = userInfo.name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+            const filename = `${safeName}_CBI_Test_Attempt${currentAttempt}.txt`;
+            
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
