@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sổ Tay Listening (Phiên Bản Tự Điền)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @media print {
+            body { -webkit-print-color-adjust: exact; }
+            .page-break { page-break-after: always; } /* Ngắt trang sau mỗi div page */
+            .no-print { display: none; }
+            /* Khổ A4 Ngang */
+            @page { size: A4 landscape; margin: 10mm; }
+        }
+        .dotted-line {
+            border-bottom: 1px dotted #9ca3af;
+            display: block;
+            margin-top: 32px; /* Khoảng cách dòng rộng */
+            width: 100%;
+        }
+        /* Tùy chỉnh checkbox to hơn khi in */
+        input[type="checkbox"] {
+            transform: scale(1.3);
+            margin-right: 4px;
+            cursor: pointer;
+        }
+        /* Chiều cao cố định cho mỗi ngày */
+        .day-container {
+            height: 85mm; /* Khoảng 40-45% chiều cao A4 ngang */
+        }
+    </style>
+</head>
+<body class="bg-gray-200 font-sans text-gray-800 p-8 print:p-0">
+
+    <!-- Nút điều khiển -->
+    <div class="max-w-4xl mx-auto mb-6 text-center no-print bg-white p-6 rounded-lg shadow-lg">
+        <h2 class="text-2xl font-bold text-blue-800 mb-2">SỔ TAY LISTENING (PHIÊN BẢN TỰ ĐIỀN)</h2>
+        <p class="text-gray-600 mb-4">
+            - Bố cục: 2 ngày/trang (in khổ ngang).<br>
+            - Tổng cộng: 15 trang (30 ngày).
+        </p>
+        <button onclick="window.print()" class="bg-blue-600 text-white px-8 py-3 rounded-lg shadow hover:bg-blue-700 font-bold transition flex items-center justify-center mx-auto text-lg">
+            <i class="fas fa-print mr-2"></i> In Ngay (Landscape/Khổ Ngang)
+        </button>
+    </div>
+
+    <!-- Container chứa các trang -->
+    <div id="logbook-container"></div>
+
+    <script>
+        const container = document.getElementById('logbook-container');
+        const totalDays = 30; 
+        const daysPerPage = 2; // 2 Ngày 1 Trang
+        
+        // Hàm tạo dòng kẻ
+        function createLines(count) {
+            let html = '';
+            for(let i=0; i<count; i++) {
+                html += `<div class="dotted-line border-gray-300"></div>`;
+            }
+            return html;
+        }
+
+        // Tạo vòng lặp các trang
+        for (let i = 0; i < totalDays / daysPerPage; i++) {
+            
+            const pageDiv = document.createElement('div');
+            pageDiv.className = `mx-auto bg-white p-8 shadow-xl mb-8 print:shadow-none print:mb-0 print:w-full print:h-screen page-break max-w-[297mm]`;
+            
+            // Header
+            let headerHTML = `
+                <div class="flex justify-between items-center border-b-2 border-gray-800 pb-2 mb-4">
+                    <div class="text-sm font-bold text-gray-400 uppercase tracking-widest">Intensive Listening Logbook</div>
+                    <div class="text-sm text-gray-400 italic">"Nghe sâu - Hiểu thấu - Nhớ lâu"</div>
+                </div>
+            `;
+
+            // Tạo 2 ngày
+            let rowsHTML = '';
+            for (let d = 0; d < daysPerPage; d++) {
+                rowsHTML += `
+                <div class="day-container flex border border-gray-300 mb-6 rounded-lg overflow-hidden shadow-sm print:shadow-none">
+                    
+                    <!-- Cột 1: THÔNG TIN & CHECKLIST (22%) -->
+                    <div class="w-[22%] bg-gray-50 p-3 border-r border-gray-300 flex flex-col justify-between">
+                        <div>
+                            <!-- Ô điền ngày -->
+                            <div class="mb-3">
+                                <span class="text-xs text-gray-500 font-bold uppercase block mb-1">Ngày (Date):</span>
+                                <div class="border-b-2 border-gray-400 h-6 w-full"></div>
+                            </div>
+                            
+                            <!-- Ô điền tên bài -->
+                            <div class="mb-3">
+                                <span class="text-xs text-gray-500 font-bold uppercase block mb-1">Topic:</span>
+                                <div class="border-b border-dotted border-gray-400 h-5 w-full"></div>
+                            </div>
+                        </div>
+
+                        <!-- Checklist ĐỦ 8 BƯỚC -->
+                        <div>
+                            <div class="text-[10px] font-bold text-blue-800 uppercase mb-1 border-t border-gray-300 pt-2">Quy trình 8 bước:</div>
+                            <div class="grid grid-cols-1 gap-1">
+                                <div class="flex items-center justify-between text-[10px] text-gray-700 hover:bg-white rounded px-1">
+                                    <span>1. Đọc & Dịch</span> <input type="checkbox">
+                                </div>
+                                <div class="flex items-center justify-between text-[10px] text-gray-700 hover:bg-white rounded px-1">
+                                    <span>2. Soi lỗi nghe</span> <input type="checkbox">
+                                </div>
+                                <div class="flex items-center justify-between text-[10px] text-gray-700 hover:bg-white rounded px-1">
+                                    <span>3. Luyện âm</span> <input type="checkbox">
+                                </div>
+                                <div class="flex items-center justify-between text-[10px] text-gray-700 hover:bg-white rounded px-1">
+                                    <span>4. Nghe lại</span> <input type="checkbox">
+                                </div>
+                                <div class="flex items-center justify-between text-[10px] text-gray-700 hover:bg-white rounded px-1">
+                                    <span>5. Nghe chay</span> <input type="checkbox">
+                                </div>
+                                <div class="flex items-center justify-between text-[10px] text-gray-700 hover:bg-white rounded px-1">
+                                    <span>6. Làm bài tập</span> <input type="checkbox">
+                                </div>
+                                <div class="flex items-center justify-between text-[10px] text-gray-700 hover:bg-white rounded px-1">
+                                    <span>7. Check Đ/Á</span> <input type="checkbox">
+                                </div>
+                                <div class="flex items-center justify-between text-[10px] font-bold text-red-600 bg-red-50 rounded px-1">
+                                    <span>8. Phân tích lỗi</span> <input type="checkbox">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cột 2: INPUT (39%) -->
+                    <div class="w-[39%] p-4 border-r border-gray-300 relative">
+                        <div class="absolute top-3 left-3 bg-white px-2 text-xs font-bold text-blue-600 uppercase border border-blue-100 rounded">
+                            <i class="fas fa-pen mr-1"></i> Input: Từ vựng & Phát âm
+                        </div>
+                        <div class="mt-4">
+                            ${createLines(6)}
+                        </div>
+                    </div>
+
+                    <!-- Cột 3: FEEDBACK (39%) -->
+                    <div class="w-[39%] p-4 relative bg-red-50/10">
+                        <div class="absolute top-3 left-3 bg-white px-2 text-xs font-bold text-red-500 uppercase border border-red-100 rounded">
+                            <i class="fas fa-search mr-1"></i> Feedback: Tại sao sai?
+                        </div>
+                        <div class="mt-4">
+                            ${createLines(6)}
+                        </div>
+                    </div>
+
+                </div>
+                `;
+            }
+
+            pageDiv.innerHTML = headerHTML + rowsHTML;
+            container.appendChild(pageDiv);
+        }
+    </script>
+</body>
+</html>
