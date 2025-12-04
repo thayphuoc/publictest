@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Psychology of Innovation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            user-select: none;
+        }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+
+        #reading-passage {
+            user-select: text;
+            font-weight: normal !important;
+        }
+        #reading-passage b, #reading-passage strong { font-weight: normal !important; }
+
+        #ctx-menu {
+            display: none;
+            position: absolute;
+            z-index: 100;
+            background: white;
+            border: 1px solid #ccc;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+            border-radius: 4px;
+            width: 150px;
+        }
+        #ctx-menu li {
+            padding: 8px 12px;
+            cursor: pointer;
+            list-style: none;
+            font-size: 14px;
+        }
+        #ctx-menu li:hover { background-color: #f0f0f0; }
+
+        .highlighted-text { background-color: #ffff00; }
+
+        #overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 1000;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        .correct-answer { color: #16a34a; font-weight: bold; }
+        .wrong-answer { color: #dc2626; text-decoration: line-through; }
+        .explanation-box {
+            background-color: #f0f9ff;
+            border-left: 4px solid #0ea5e9;
+            padding: 10px;
+            margin-top: 5px;
+            font-size: 0.9em;
+            display: none;
+        }
+        
+        .review-mode .explanation-box { display: none; }
+        .review-mode .question-container { cursor: pointer; }
+        .review-mode .question-container:hover { background-color: #f8fafc; }
+    </style>
+</head>
+<body class="bg-gray-100 h-screen flex flex-col">
+
+    <!-- LOGIN OVERLAY -->
+    <div id="overlay">
+        <div class="bg-white p-8 rounded-lg shadow-2xl w-full max-w-md">
+            <h2 class="text-2xl font-bold mb-6 text-center text-blue-800">Reading Test Login</h2>
+            <div id="attempt-warning" class="hidden bg-red-100 text-red-700 p-3 rounded mb-4 text-sm">
+                <strong>Notice:</strong> This is attempt #<span id="attempt-count-display"></span>. Previous attempts recorded.
+            </div>
+            <form id="login-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Full Name</label>
+                    <input type="text" id="student-name" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Email</label>
+                    <input type="email" id="student-email" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Class</label>
+                    <input type="text" id="student-class" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Password</label>
+                    <input type="password" id="student-pass" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="Enter 'examp' to start">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Practice Time (Minutes)</label>
+                    <input type="number" id="practice-time" min="1" max="120" value="20" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 transition">Start Test</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <header class="bg-white shadow-sm p-4 flex justify-between items-center z-10 h-16 shrink-0">
+        <div class="font-bold text-xl text-gray-800"><i class="fas fa-brain mr-2"></i>Reading Assessment</div>
+        <div class="flex items-center space-x-4">
+            <div class="text-sm text-gray-500" id="user-display">Guest</div>
+            <div class="bg-red-50 text-red-600 px-4 py-2 rounded-lg font-mono font-bold text-xl border border-red-200" id="timer">00:00:00</div>
+        </div>
+    </header>
+
+    <main class="flex-grow flex overflow-hidden">
+        
+        <!-- LEFT: READING PASSAGE -->
+        <div class="w-1/2 bg-white border-r border-gray-200 overflow-y-auto p-8 relative" id="reading-container">
+            <h2 class="text-2xl mb-4 text-blue-900 font-bold">The psychology of innovation</h2>
+            <h3 class="text-lg mb-4 text-gray-600 italic">Why are so few companies truly innovative?</h3>
+            
+            <div id="reading-passage" class="text-lg leading-relaxed text-gray-800 text-justify">
+                <p class="mb-4">Innovation is key to business survival, and companies put substantial resources into inspiring employees to develop new ideas. There are, nevertheless, people working in luxurious, state-of-the-art centres designed to stimulate innovation who find that their environment doesn't make them feel at all creative. And there are those who don't have a budget, or much space, but who innovate successfully.</p>
+                
+                <p class="mb-4">For Robert B. Cialdini, Professor of Psychology at Arizona State University, one reason that companies don't succeed as often as they should is that innovation starts with recruitment. Research shows that the fit between an employee's values and a company's values makes a difference to what contribution they make and whether, two years after they join, they're still at the company. Studies at Harvard Business School show that, although some individuals may be more creative than others, almost every individual can be creative in the right circumstances.</p>
+                
+                <p class="mb-4">One of the most famous photographs in the story of rock'n'roll emphasises Cialdini's views. The 1956 picture of singers Elvis Presley, Carl Perkins, Johnny Cash and Jerry Lee Lewis jamming at a piano in Sun Studios in Memphis tells a hidden story. Sun's 'million-dollar quartet' could have been a quintet. Missing from the picture is Roy Orbison a greater natural singer than Lewis, Perkins or Cash. Sam Phillips, who owned Sun, wanted to revolutionise popular music with songs that fused black and white music, and country and blues. Presley, Cash, Perkins and Lewis instinctively understood Phillips's ambition and believed in it. Orbison wasn't inspired by the goal, and only ever achieved one hit with the Sun label.</p>
+                
+                <p class="mb-4">The value fit matters, says Cialdini, because innovation is, in part, a process of change, and under that pressure we, as a species, behave differently, 'When things change, we are hard-wired to play it safe.' Managers should therefore adopt an approach that appears counterintuitive - they should explain what stands to be lost if the company fails to seize a particular opportunity. Studies show that we invariably take more gambles when threatened with a loss than when offered a reward.</p>
+                
+                <p class="mb-4">Managing innovation is a delicate art. It's easy for a company to be pulled in conflicting directions as the marketing, product development, and finance departments each get different feedback from different sets of people. And without a system which ensures collaborative exchanges within the company, it's also easy for small 'pockets of innovation' to disappear. Innovation is a contact sport. You can't brief people just by saying, 'We're going in this direction and I'm going to take you with me.'</p>
+                
+                <p class="mb-4">Cialdini believes that this 'follow-the-leader syndrome' is dangerous, not least because it encourages bosses to go it alone. 'It's been scientifically proven that three people will be better than one at solving problems, even if that one person is the smartest person in the field.' To prove his point, Cialdini cites an interview with molecular biologist James Watson. Watson, together with Francis Crick, discovered the structure of DNA, the genetic information carrier of all living organisms. 'When asked how they had cracked the code ahead of an array of highly accomplished rival investigators, he said something that stunned me. He said he and Crick had succeeded because they were aware that they weren't the most intelligent of the scientists pursuing the answer. The smartest scientist was called Rosalind Franklin who, Watson said, "was so intelligent she rarely sought advice".'</p>
+                
+                <p class="mb-4">Teamwork taps into one of the basic drivers of human behaviour. 'The principle of social proof is so pervasive that we don't even recognise it,' says Cialdini. 'If your project is being resisted, for example, by a group of veteran employees, ask another old-timer to speak up for it.' Cialdini is not alone in advocating this strategy. Research shows that peer power, used horizontally not vertically, is much more powerful than any boss's speech.</p>
+                
+                <p class="mb-4">Writing, visualising and prototyping can stimulate the flow of new ideas. Cialdini cites scores of research papers and historical events that prove that even something as simple as writing deepens every individual's engagement in the project. It is, he says, the reason why all those competitions on breakfast cereal packets encouraged us to write in saying, in no more than 10 words: 'I like Kellogg's Corn Flakes because... .' The very act of writing makes us more likely to believe it.</p>
+                
+                <p class="mb-4">Authority doesn't have to inhibit innovation but it often does. The wrong kind of leadership will lead to what Cialdini calls 'captainitis, the regrettable tendency of team members to opt out of team responsibilities that are properly theirs'. He calls it captainitis because, he says, 'crew members of multipilot aircraft exhibit a sometimes deadly passivity when the flight captain makes a clearly wrong-headed decision'. This behaviour is not, he says, unique to air travel, but can happen in any workplace where the leader is overbearing.</p>
+                
+                <p class="mb-4">At the other end of the scale is the 1980s Memphis design collective, a group of young designers for whom 'the only rule was that there were no rule'. This environment encouraged a free interchange of ideas, which led to more creativity with form, function, colour and materials that revolutionised attitudes to furniture design.</p>
+                
+                <p class="mb-4">Many theorists believe the ideal boss should lead from behind, taking pride in collective accomplishment and giving credit where it is due. Cialdini says: 'Leaders should encourage everyone to contribute and simultaneously assure all concerned that every recommendation is important to making the right decision and will be given full attention.' The frustrating thing about innovation is that there are many approaches, but no magic formula. However, a manager who wants to create a truly innovative culture can make their job a lot easier by recognising these psychological realities.</p>
+            </div>
+
+            <!-- VOCABULARY TABLE -->
+            <div class="mt-12 border-t-2 border-gray-300 pt-6">
+                <h3 class="text-lg font-bold mb-3 text-gray-700"><i class="fas fa-language mr-2"></i>Vocabulary Reference (B1+)</h3>
+                <table class="min-w-full text-sm text-left text-gray-500 border border-gray-200">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-2 border-b">Word</th>
+                            <th class="px-4 py-2 border-b">Definition / Synonyms</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="bg-white border-b"><td class="px-4 py-2 font-medium text-gray-900">Innovation</td><td class="px-4 py-2">The action or process of innovating; a new method, idea, product, etc.</td></tr>
+                        <tr class="bg-gray-50 border-b"><td class="px-4 py-2 font-medium text-gray-900">Recruitment</td><td class="px-4 py-2">The action of finding new people to join an organization or support a cause.</td></tr>
+                        <tr class="bg-white border-b"><td class="px-4 py-2 font-medium text-gray-900">Revolutionise</td><td class="px-4 py-2">Change (something) radically or fundamentally.</td></tr>
+                        <tr class="bg-gray-50 border-b"><td class="px-4 py-2 font-medium text-gray-900">Counterintuitive</td><td class="px-4 py-2">Contrary to intuition or to common-sense expectation (but often true).</td></tr>
+                        <tr class="bg-white border-b"><td class="px-4 py-2 font-medium text-gray-900">Collaborative</td><td class="px-4 py-2">Produced or conducted by two or more parties working together.</td></tr>
+                        <tr class="bg-gray-50 border-b"><td class="px-4 py-2 font-medium text-gray-900">Accomplished</td><td class="px-4 py-2">Highly trained or skilled.</td></tr>
+                        <tr class="bg-white border-b"><td class="px-4 py-2 font-medium text-gray-900">Pervasive</td><td class="px-4 py-2">(Especially of an unwelcome influence or physical effect) spreading widely throughout an area or a group of people.</td></tr>
+                        <tr class="bg-gray-50 border-b"><td class="px-4 py-2 font-medium text-gray-900">Overbearing</td><td class="px-4 py-2">Unpleasantly overpowering; domineering.</td></tr>
+                        <tr class="bg-white border-b"><td class="px-4 py-2 font-medium text-gray-900">Simultaneously</td><td class="px-4 py-2">At the same time.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="h-10"></div>
+        </div>
+
+        <!-- RIGHT: QUESTIONS -->
+        <div class="w-1/2 bg-gray-50 overflow-y-auto p-8" id="questions-container">
+            <div class="max-w-2xl mx-auto">
+                <form id="quiz-form">
+                    <!-- SECTION 1: Multiple Choice -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-bold mb-4 text-gray-800">Questions 27-30</h3>
+                        <p class="text-sm text-gray-600 mb-4">Choose the correct letter, <strong>A, B, C or D</strong>.</p>
+                        
+                        <div class="space-y-6">
+                            <!-- Q27 -->
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200">
+                                <p class="mb-2 font-medium">27. The example of the ‘million-dollar quartet’ underlines the writer’s point about</p>
+                                <ul class="list-none pl-4 space-y-1 text-sm text-gray-700 mb-3">
+                                    <li>A. recognising talent.</li>
+                                    <li>B. working as a team.</li>
+                                    <li>C. having a shared objective.</li>
+                                    <li>D. being an effective leader.</li>
+                                </ul>
+                                <div class="flex items-center">
+                                    <label class="mr-2 font-bold text-gray-700">Answer:</label>
+                                    <input type="text" name="q27" class="w-16 border border-gray-300 rounded p-1 text-center uppercase" maxlength="1">
+                                </div>
+                            </div>
+
+                            <!-- Q28 -->
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200">
+                                <p class="mb-2 font-medium">28. James Watson suggests that he and Francis Crick won the race to discover the DNA code because they</p>
+                                <ul class="list-none pl-4 space-y-1 text-sm text-gray-700 mb-3">
+                                    <li>A. were conscious of their own limitations.</li>
+                                    <li>B. brought complementary skills to their partnership.</li>
+                                    <li>C. were determined to outperform their brighter rivals.</li>
+                                    <li>D. encouraged each other to realise their joint ambition.</li>
+                                </ul>
+                                <div class="flex items-center">
+                                    <label class="mr-2 font-bold text-gray-700">Answer:</label>
+                                    <input type="text" name="q28" class="w-16 border border-gray-300 rounded p-1 text-center uppercase" maxlength="1">
+                                </div>
+                            </div>
+
+                            <!-- Q29 -->
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200">
+                                <p class="mb-2 font-medium">29. The writer mentions competitions on breakfast cereal packets as an example of how to</p>
+                                <ul class="list-none pl-4 space-y-1 text-sm text-gray-700 mb-3">
+                                    <li>A. inspire creative thinking.</li>
+                                    <li>B. generate concise writing.</li>
+                                    <li>C. promote loyalty to a group.</li>
+                                    <li>D. strengthen commitment to an idea.</li>
+                                </ul>
+                                <div class="flex items-center">
+                                    <label class="mr-2 font-bold text-gray-700">Answer:</label>
+                                    <input type="text" name="q29" class="w-16 border border-gray-300 rounded p-1 text-center uppercase" maxlength="1">
+                                </div>
+                            </div>
+
+                            <!-- Q30 -->
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200">
+                                <p class="mb-2 font-medium">30. In the last paragraph, the writer suggests that it is important for employees to</p>
+                                <ul class="list-none pl-4 space-y-1 text-sm text-gray-700 mb-3">
+                                    <li>A. be aware of their company’s goals.</li>
+                                    <li>B. feel that their contributions are valued.</li>
+                                    <li>C. have respect for their co-workers' achievements.</li>
+                                    <li>D. understand why certain management decisions are made.</li>
+                                </ul>
+                                <div class="flex items-center">
+                                    <label class="mr-2 font-bold text-gray-700">Answer:</label>
+                                    <input type="text" name="q30" class="w-16 border border-gray-300 rounded p-1 text-center uppercase" maxlength="1">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 2: Matching Endings -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-bold mb-4 text-gray-800">Questions 31-35</h3>
+                        <p class="text-sm text-gray-600 mb-4">Complete each sentence with the correct ending, <strong>A-G</strong>, below.</p>
+                        
+                        <div class="bg-blue-50 p-4 rounded border border-blue-200 mb-4 text-sm">
+                            <ul class="grid grid-cols-2 gap-2">
+                                <li><strong>A.</strong> take chances.</li>
+                                <li><strong>B.</strong> share their ideas.</li>
+                                <li><strong>C.</strong> become competitive.</li>
+                                <li><strong>D.</strong> get promotion.</li>
+                                <li><strong>E.</strong> avoid risk.</li>
+                                <li><strong>F.</strong> ignore their duties.</li>
+                                <li><strong>G.</strong> remain in their jobs.</li>
+                            </ul>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200 flex justify-between items-center">
+                                <span class="w-3/4">31. Employees whose values match those of their employers are more likely to</span>
+                                <input type="text" name="q31" class="w-16 border border-gray-300 rounded p-1 text-center uppercase" maxlength="1">
+                            </div>
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200 flex justify-between items-center">
+                                <span class="w-3/4">32. At times of change, people tend to</span>
+                                <input type="text" name="q32" class="w-16 border border-gray-300 rounded p-1 text-center uppercase" maxlength="1">
+                            </div>
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200 flex justify-between items-center">
+                                <span class="w-3/4">33. If people are aware of what they might lose, they will often</span>
+                                <input type="text" name="q33" class="w-16 border border-gray-300 rounded p-1 text-center uppercase" maxlength="1">
+                            </div>
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200 flex justify-between items-center">
+                                <span class="w-3/4">34. People working under a dominant boss are liable to</span>
+                                <input type="text" name="q34" class="w-16 border border-gray-300 rounded p-1 text-center uppercase" maxlength="1">
+                            </div>
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200 flex justify-between items-center">
+                                <span class="w-3/4">35. Employees working in organisations with few rules are more likely to</span>
+                                <input type="text" name="q35" class="w-16 border border-gray-300 rounded p-1 text-center uppercase" maxlength="1">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 3: YES/NO/NOT GIVEN -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-bold mb-4 text-gray-800">Questions 36-40</h3>
+                        <p class="text-sm text-gray-600 mb-2">Do the following statements agree with the claims of the writer?</p>
+                        <p class="text-xs text-gray-500 mb-4 italic">Write <strong>YES</strong>, <strong>NO</strong>, or <strong>NOT GIVEN</strong>.</p>
+
+                        <div class="space-y-4">
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200">
+                                <p class="mb-2">36. The physical surroundings in which a person works play a key role in determining their creativity.</p>
+                                <input type="text" name="q36" class="w-full border border-gray-300 rounded p-2 uppercase" placeholder="YES / NO / NOT GIVEN">
+                            </div>
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200">
+                                <p class="mb-2">37. Most people have the potential to be creative.</p>
+                                <input type="text" name="q37" class="w-full border border-gray-300 rounded p-2 uppercase" placeholder="YES / NO / NOT GIVEN">
+                            </div>
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200">
+                                <p class="mb-2">38. Teams work best when their members are of equally matched intelligence.</p>
+                                <input type="text" name="q38" class="w-full border border-gray-300 rounded p-2 uppercase" placeholder="YES / NO / NOT GIVEN">
+                            </div>
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200">
+                                <p class="mb-2">39. It is easier for smaller companies to be innovative.</p>
+                                <input type="text" name="q39" class="w-full border border-gray-300 rounded p-2 uppercase" placeholder="YES / NO / NOT GIVEN">
+                            </div>
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200">
+                                <p class="mb-2">40. A manager’s approval of an idea is more persuasive than that of a colleague.</p>
+                                <input type="text" name="q40" class="w-full border border-gray-300 rounded p-2 uppercase" placeholder="YES / NO / NOT GIVEN">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- SUBMIT AREA -->
+                <div class="mt-8 mb-12">
+                    <button id="submit-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded shadow-lg transition transform hover:scale-[1.01]">
+                        Submit Answers
+                    </button>
+                    <div id="result-area" class="mt-4 hidden p-4 bg-white border border-gray-200 rounded text-center">
+                        <div class="text-2xl font-bold mb-2">Score: <span id="score-display">0/14</span></div>
+                        <p class="text-sm text-gray-500">Your results file has been downloaded. Please send it to your teacher.</p>
+                        <p class="text-xs text-gray-400 mt-2">Click on questions to see detailed explanations.</p>
+                        <button id="redo-btn" class="mt-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded transition">
+                            Redo Test
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-gray-800 text-white text-center p-2 text-xs shrink-0">
+        Encoded by Dinh Phuoc
+    </footer>
+
+    <!-- CONTEXT MENU -->
+    <ul id="ctx-menu">
+        <li id="menu-highlight"><i class="fas fa-highlighter mr-2 text-yellow-500"></i>Highlight</li>
+        <li id="menu-remove"><i class="fas fa-eraser mr-2 text-gray-500"></i>Remove Highlight</li>
+    </ul>
+
+    <script>
+        // --- DATA & CONFIG ---
+        const answersKey = {
+            27: { ans: "C", expl: "Text: 'Presley, Cash, Perkins and Lewis instinctively understood Phillips’s ambition and believed in it.' - They shared the goal (ambition)." },
+            28: { ans: "A", expl: "Text: 'they were aware that they weren’t the most intelligent of the scientists'. Being aware they weren't the smartest = conscious of limitations." },
+            29: { ans: "D", expl: "Text: 'The very act of writing makes us more likely to believe it.' = strengthen commitment to an idea." },
+            30: { ans: "B", expl: "Text: 'assure all concerned that every recommendation is important... and will be given full attention' = feel contributions are valued." },
+            31: { ans: "G", expl: "Text: 'fit between an employee’s values... whether, two years after they join, they’re still at the company' (remain in jobs)." },
+            32: { ans: "E", expl: "Text: 'When things change, we are hard-wired to play it safe' (avoid risk)." },
+            33: { ans: "A", expl: "Text: 'we invariably take more gambles when threatened with a loss' (take chances)." },
+            34: { ans: "F", expl: "Text: 'opt out of team responsibilities... deadly passivity' (ignore their duties)." },
+            35: { ans: "B", expl: "Text: 'encouraged a free interchange of ideas' (share their ideas)." },
+            36: { ans: "NO", expl: "Text mentions people in 'luxurious' centers don't feel creative, while those with 'no budget' do. So surroundings are NOT key." },
+            37: { ans: "YES", expl: "Text: 'almost every individual can be creative in the right circumstances.'" },
+            38: { ans: "NOT GIVEN", expl: "Text says mixed intelligence worked for Watson, but doesn't explicitly state teams work 'best' with 'equally matched' intelligence." },
+            39: { ans: "NOT GIVEN", expl: "Text mentions small 'pockets of innovation' disappearing, but doesn't compare ease of innovation between small vs large companies." },
+            40: { ans: "NO", expl: "Text: 'peer power... is much more powerful than any boss’s speech.' (Colleague > Boss)." }
+        };
+
+        let userInfo = {};
+        let timerInterval;
+        let remainingTime;
+        let currentAttempt = 0;
+        let cheatFlags = 0;
+        let clientIP = "127.0.0.1";
+        let isSubmitted = false;
+        const passwordKey = "exampie1";
+
+        // --- INIT & IP FETCH ---
+        window.onload = async () => {
+            let storedAttempts = parseInt(localStorage.getItem('psych_test_attempts') || 0);
+            currentAttempt = storedAttempts + 1;
+            localStorage.setItem('psych_test_attempts', currentAttempt);
+
+            if (currentAttempt > 1) {
+                document.getElementById('attempt-warning').classList.remove('hidden');
+                document.getElementById('attempt-count-display').textContent = currentAttempt;
+            }
+
+            try {
+                const res = await fetch('https://api.ipify.org?format=json');
+                const data = await res.json();
+                clientIP = data.ip;
+            } catch (e) {
+                console.log("Fallback IP used");
+            }
+        };
+
+        // --- LOGIN ---
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const enteredPass = document.getElementById('student-pass').value;
+            if (enteredPass !== passwordKey) {
+                alert("Incorrect Password.");
+                return;
+            }
+            
+            userInfo = {
+                name: document.getElementById('student-name').value,
+                email: document.getElementById('student-email').value,
+                class: document.getElementById('student-class').value,
+                practiceTime: parseInt(document.getElementById('practice-time').value)
+            };
+
+            document.getElementById('user-display').textContent = `${userInfo.name} - ${userInfo.class}`;
+            document.getElementById('overlay').style.display = 'none';
+            startTimer(userInfo.practiceTime * 60);
+        });
+
+        // --- TIMER ---
+        function startTimer(duration) {
+            remainingTime = duration;
+            updateTimerDisplay();
+            timerInterval = setInterval(() => {
+                remainingTime--;
+                updateTimerDisplay();
+                if (remainingTime <= 0) {
+                    clearInterval(timerInterval);
+                    alert("Time's up!");
+                    submitTest();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const h = Math.floor(remainingTime / 3600);
+            const m = Math.floor((remainingTime % 3600) / 60);
+            const s = remainingTime % 60;
+            document.getElementById('timer').textContent = 
+                `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            if (remainingTime < 60) document.getElementById('timer').classList.add('bg-red-100');
+        }
+
+        // --- ANTI-CHEAT ---
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden && !isSubmitted && document.getElementById('overlay').style.display === 'none') {
+                cheatFlags++;
+                if (cheatFlags > 2) {
+                    alert("Cheat violation: Too many tab switches. Reloading.");
+                    location.reload();
+                }
+            }
+        });
+
+        // --- HIGHLIGHTING ---
+        const readingArea = document.getElementById('reading-passage');
+        const ctxMenu = document.getElementById('ctx-menu');
+        readingArea.addEventListener('contextmenu', e => {
+            e.preventDefault();
+            if (window.getSelection().toString().length > 0) {
+                ctxMenu.style.display = 'block';
+                ctxMenu.style.left = e.pageX + 'px';
+                ctxMenu.style.top = e.pageY + 'px';
+            }
+        });
+        document.addEventListener('click', e => {
+            if (!e.target.closest('#ctx-menu')) ctxMenu.style.display = 'none';
+        });
+        document.getElementById('menu-highlight').addEventListener('click', () => {
+            document.designMode = "on";
+            document.execCommand("BackColor", false, "#ffff00");
+            document.designMode = "off";
+            window.getSelection().removeAllRanges();
+            ctxMenu.style.display = 'none';
+        });
+        document.getElementById('menu-remove').addEventListener('click', () => {
+            document.designMode = "on";
+            document.execCommand("removeFormat", false, null);
+            document.designMode = "off";
+            window.getSelection().removeAllRanges();
+            ctxMenu.style.display = 'none';
+        });
+
+        // --- SUBMISSION ---
+        document.getElementById('submit-btn').addEventListener('click', submitTest);
+
+        function submitTest() {
+            if (isSubmitted) return;
+            isSubmitted = true;
+            clearInterval(timerInterval);
+
+            let score = 0;
+            const form = document.getElementById('quiz-form');
+            let studentAnswers = {};
+
+            // Loop through questions 27 to 40
+            for (let i = 27; i <= 40; i++) {
+                const input = form.querySelector(`input[name="q${i}"]`);
+                let userVal = input.value.trim().toUpperCase();
+                
+                // Normalise Y/N/NG inputs slightly ONLY for Yes/No questions (36-40)
+                // This prevents "F" in Q34 matching "False/No"
+                if (i >= 36 && i <= 40) {
+                    if (["Y", "YES", "T", "TRUE"].includes(userVal)) userVal = "YES";
+                    if (["N", "NO", "F", "FALSE"].includes(userVal)) userVal = "NO";
+                    if (["NG", "NOT GIVEN"].includes(userVal)) userVal = "NOT GIVEN";
+                }
+
+                studentAnswers[`Q${i}`] = userVal;
+                
+                const container = input.closest('.question-container');
+                const correctAns = answersKey[i].ans;
+                
+                const explDiv = document.createElement('div');
+                explDiv.className = 'explanation-box';
+                explDiv.innerHTML = `<strong>Answer:</strong> ${correctAns}<br><strong>Why:</strong> ${answersKey[i].expl}`;
+                
+                if (userVal === correctAns) {
+                    score++;
+                    input.classList.add('border-green-500', 'bg-green-50', 'text-green-700', 'font-bold');
+                } else {
+                    input.classList.add('border-red-500', 'bg-red-50', 'wrong-answer');
+                    const corrSpan = document.createElement('div');
+                    corrSpan.className = 'correct-answer mt-1 text-sm';
+                    corrSpan.innerText = `Correct: ${correctAns}`;
+                    container.appendChild(corrSpan);
+                }
+
+                container.appendChild(explDiv);
+                
+                // Add click event for explanation
+                container.onclick = function(e) {
+                     // Prevent triggering when clicking the input itself (though it's disabled)
+                     if(e.target.tagName === 'INPUT') return;
+                     explDiv.style.display = explDiv.style.display === 'block' ? 'none' : 'block';
+                };
+            }
+
+            document.getElementById('score-display').innerText = `${score}/14`;
+            document.getElementById('result-area').classList.remove('hidden');
+            document.getElementById('submit-btn').style.display = 'none';
+            document.getElementById('questions-container').classList.add('review-mode');
+            
+            form.querySelectorAll('input').forEach(inp => inp.disabled = true);
+            generateAndDownloadFile(score, studentAnswers);
+        }
+
+        document.getElementById('redo-btn').addEventListener('click', () => {
+            if(confirm("Redo test? New attempt will be recorded.")) location.reload();
+        });
+
+        function generateAndDownloadFile(score, answers) {
+            const timeTaken = (userInfo.practiceTime * 60) - remainingTime;
+            const mins = Math.floor(timeTaken / 60);
+            const secs = timeTaken % 60;
+            const dateStr = new Date().toLocaleString();
+
+            let content = `READING TEST: PSYCHOLOGY OF INNOVATION\n`;
+            content += `======================================\n`;
+            content += `Student: ${userInfo.name}\nEmail: ${userInfo.email}\nClass: ${userInfo.class}\n`;
+            content += `Date: ${dateStr}\nIP: ${clientIP}\nAttempt: ${currentAttempt}\n`;
+            content += `Violations: ${cheatFlags}\nTime: ${mins}m ${secs}s\nScore: ${score}/14\n\nANSWERS:\n`;
+            
+            for (const [q, ans] of Object.entries(answers)) {
+                content += `${q}: ${ans}\n`;
+            }
+
+            const blob = new Blob([content], { type: "text/plain" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const safeName = userInfo.name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+            a.href = url;
+            a.download = `${safeName}_InnovationTest_${new Date().getTime()}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
