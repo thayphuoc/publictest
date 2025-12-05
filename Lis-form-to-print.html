@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sổ Tay Luyện Nghe Chuyên Sâu</title>
+    <title>Listening notebook - Encoded by Dinh Phuoc</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -98,9 +98,9 @@
 
     <!-- Control Bar -->
     <div class="fixed top-0 left-0 w-full bg-slate-800 text-white p-4 shadow-lg z-50 flex justify-between items-center no-print">
-        <div class="font-bold text-lg"><i class="fas fa-headphones-alt mr-2"></i>Sổ Tay Luyện Nghe Chuyên Sâu</div>
+        <div class="font-bold text-lg"><i class="fas fa-headphones-alt mr-2"></i>Listening notebook</div>
         <div class="space-x-4">
-            <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded transition">
+            <button onclick="handlePrint()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded transition">
                 <i class="fas fa-print mr-2"></i>In / Lưu PDF
             </button>
             <button onclick="resetForm()" class="bg-red-600 hover:bg-red-500 text-white font-bold py-2 px-4 rounded transition">
@@ -121,15 +121,15 @@
             <div class="grid grid-cols-2 gap-6">
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-1">Họ và tên học sinh:</label>
-                    <input type="text" placeholder="Nhập tên..." class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none bg-blue-50">
+                    <input type="text" id="studentName" placeholder="Nhập tên của bạn..." class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none bg-blue-50">
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-1">Ngày học:</label>
-                    <input type="date" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none bg-blue-50">
+                    <input type="date" id="studyDate" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none bg-blue-50">
                 </div>
                 <div class="col-span-2">
                     <label class="block text-sm font-semibold text-slate-700 mb-1">Chủ đề / Tên bài nghe:</label>
-                    <input type="text" placeholder="Ví dụ: Listening part 2 - De 6 - Sach practice test 2G..." class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none bg-blue-50">
+                    <input type="text" id="listeningTopic" placeholder="Ví dụ: TED Talks - The power of introverts..." class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none bg-blue-50">
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-1">Nguồn (Source):</label>
@@ -178,7 +178,7 @@ Ví dụ:
 - Schedule /ˈʃedʒ.uːl/ (US) vs /ˈskedʒ.uːl/ (UK)
 - 'Going to' đọc lướt thành 'Gonna'
 ...
-(Ô này sẽ tự động mở rộng khi em viết dài, không giới hạn!)"></div>
+(Ô này sẽ tự động mở rộng khi bạn viết dài, không giới hạn!)"></div>
                 </div>
             </div>
         </div>
@@ -245,7 +245,7 @@ Ví dụ:
                         <label class="block font-bold text-slate-700 mb-1">1. Lỗi Từ vựng (Chưa thuộc từ?):</label>
                         <p class="text-xs text-gray-500 mb-2">Giải pháp: Quay lại B1 học từ, chép phạt, đặt câu.</p>
                         <div class="editable-div border-gray-300 bg-white" contenteditable="true"
-                             data-placeholder="Ghi lại những từ khiến em mất điểm..."></div>
+                             data-placeholder="Ghi lại những từ khiến bạn mất điểm..."></div>
                     </div>
 
                     <!-- Pronunciation Error -->
@@ -253,7 +253,7 @@ Ví dụ:
                         <label class="block font-bold text-slate-700 mb-1">2. Lỗi Phát âm (Biết từ nhưng nghe nhầm):</label>
                         <p class="text-xs text-gray-500 mb-2">Giải pháp: Quay lại B3, tra từ điển Cambridge, nghe lại đoạn đó 10 lần.</p>
                         <div class="editable-div border-gray-300 bg-white" contenteditable="true"
-                             data-placeholder="Từ nào em phát âm sai dẫn đến nghe sai?"></div>
+                             data-placeholder="Từ nào bạn phát âm sai dẫn đến nghe sai?"></div>
                     </div>
 
                     <!-- Focus Error -->
@@ -261,7 +261,7 @@ Ví dụ:
                         <label class="block font-bold text-slate-700 mb-1">3. Lỗi Tập trung (Quên nội dung/Lỡ nhịp):</label>
                         <p class="text-xs text-gray-500 mb-2">Giải pháp: Luyện Note-taking nhanh hơn, ngủ đủ giấc.</p>
                         <div class="editable-div border-gray-300 bg-white" contenteditable="true"
-                             data-placeholder="Em bị lỡ nhịp ở đoạn nào? Tại sao?"></div>
+                             data-placeholder="Bạn bị lỡ nhịp ở đoạn nào? Tại sao?"></div>
                     </div>
 
                     <!-- Logic Error -->
@@ -304,8 +304,36 @@ Ví dụ:
     </div>
 
     <script>
+        function handlePrint() {
+            // Lấy giá trị từ các ô input
+            const name = document.getElementById('studentName').value.trim();
+            const date = document.getElementById('studyDate').value;
+            const topic = document.getElementById('listeningTopic').value.trim();
+
+            // Tạo tiêu đề file mới
+            let fileName = "SoTayLuyenNghe";
+            
+            if (name) fileName += ` - ${name}`;
+            if (topic) fileName += ` - ${topic}`;
+            if (date) fileName += ` - ${date}`;
+
+            // Lưu tiêu đề cũ
+            const originalTitle = document.title;
+            
+            // Đổi tiêu đề trang (Trình duyệt sẽ dùng tiêu đề này làm tên file PDF)
+            document.title = fileName;
+            
+            // Gọi lệnh in
+            window.print();
+            
+            // Trả lại tiêu đề cũ sau khi hộp thoại in đóng lại
+            setTimeout(() => {
+                document.title = originalTitle;
+            }, 500);
+        }
+
         function resetForm() {
-            if(confirm("Em có chắc chắn muốn xóa hết nội dung đã nhập để làm lại không?")) {
+            if(confirm("Bạn có chắc chắn muốn xóa hết nội dung đã nhập để làm lại không?")) {
                 const inputs = document.querySelectorAll('input');
                 // Chọn tất cả các div có contenteditable
                 const editableDivs = document.querySelectorAll('.editable-div');
