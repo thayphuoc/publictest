@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listening test for basic</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #f0f9ff;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23bae6fd' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        .paper-shadow {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .input-line {
+            border: none;
+            border-bottom: 2px solid #cbd5e1;
+            background: transparent;
+            padding: 5px 10px;
+            outline: none;
+            transition: all 0.3s;
+            color: #0f172a;
+            font-weight: 600;
+            width: 100%;
+        }
+        .input-line:focus {
+            border-bottom-color: #3b82f6;
+            background-color: rgba(59, 130, 246, 0.05);
+        }
+        .input-line.correct {
+            border-bottom-color: #22c55e;
+            color: #15803d;
+            background-color: #dcfce7;
+        }
+        .input-line.incorrect {
+            border-bottom-color: #ef4444;
+            color: #b91c1c;
+            background-color: #fee2e2;
+        }
+        .btn-hover {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .modal {
+            transition: opacity 0.3s ease-in-out;
+            pointer-events: none;
+        }
+        .modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        /* Custom Audio Player Wrapper */
+        .audio-container.hidden-controls audio::-webkit-media-controls-panel {
+            display: none !important;
+        }
+        .highlight-answer {
+            background-color: #fef08a;
+            padding: 0 4px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center py-10 px-4">
+
+    <!-- Header -->
+    <header class="text-center mb-8 max-w-2xl w-full">
+        <h1 class="text-4xl font-extrabold text-blue-600 mb-2 drop-shadow-sm">
+            <i class="fa-solid fa-headphones-simple mr-2"></i> Listening test for basic
+        </h1>
+        <p class="text-slate-600 text-lg">Nghe đoạn hội thoại và điền vào form bên dưới.</p>
+    </header>
+
+    <!-- Student Info Section -->
+    <div class="bg-white p-6 rounded-2xl w-full max-w-3xl mb-6 border-l-8 border-yellow-400 paper-shadow relative overflow-hidden">
+        <div class="absolute -right-6 -top-6 text-yellow-100 opacity-50">
+            <i class="fa-solid fa-user-graduate text-9xl"></i>
+        </div>
+        <h2 class="text-xl font-bold text-slate-800 mb-4 flex items-center">
+            <i class="fa-solid fa-id-card text-yellow-500 mr-2"></i> Thông tin học sinh
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-10">
+            <div>
+                <label class="block text-sm font-semibold text-slate-500 mb-1">Họ và tên *</label>
+                <input type="text" id="studentName" placeholder="bạn phải nhập tên đầy đủ" class="w-full p-3 border-2 border-slate-200 rounded-lg focus:border-blue-400 focus:outline-none transition-colors">
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-slate-500 mb-1">Lớp *</label>
+                <input type="text" id="studentClass" placeholder="Ví dụ: Basic 01" class="w-full p-3 border-2 border-slate-200 rounded-lg focus:border-blue-400 focus:outline-none transition-colors">
+            </div>
+        </div>
+        <div id="infoError" class="text-red-500 text-sm mt-2 hidden"><i class="fa-solid fa-circle-exclamation"></i> Vui lòng nhập đầy đủ Tên và Lớp trước khi nộp bài!</div>
+    </div>
+
+    <!-- Main Content Wrapper -->
+    <div class="w-full max-w-3xl bg-white rounded-2xl overflow-hidden paper-shadow border border-slate-100">
+        
+        <!-- Audio Control Section -->
+        <div class="bg-slate-800 p-4 text-white flex flex-col items-center justify-center relative">
+            
+            <!-- Hidden Audio Element (Logic) -->
+            <audio id="mainAudio" src="https://englishpracticetest.net/wp-content/uploads/2022/a2/listening-for-numbers-and-missing-words-1.mp3"></audio>
+
+            <!-- Pre-submit Controls (Simple Play/Pause) -->
+            <div id="preSubmitAudioControls" class="flex items-center space-x-4">
+                <div class="text-slate-300 mr-2 text-sm"><i class="fa-solid fa-volume-high"></i> Audio:</div>
+                <button onclick="toggleAudio()" id="playBtn" class="bg-green-500 hover:bg-green-600 text-white py-2 px-6 rounded-full font-bold shadow-lg transition-all flex items-center">
+                    <i class="fa-solid fa-play mr-2"></i> NGHE BÀI
+                </button>
+                <button onclick="pauseAudio()" id="pauseBtn" class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-6 rounded-full font-bold shadow-lg transition-all hidden items-center">
+                    <i class="fa-solid fa-pause mr-2"></i> TẠM DỪNG
+                </button>
+            </div>
+
+            <!-- Post-submit Controls (Full Player) -->
+            <div id="postSubmitAudioControls" class="w-full hidden">
+                <p class="text-center text-green-400 font-bold mb-2">Review Mode (Full Controls)</p>
+                <audio id="reviewAudio" controls class="w-full h-10 rounded-lg" src="https://englishpracticetest.net/wp-content/uploads/2022/a2/listening-for-numbers-and-missing-words-1.mp3"></audio>
+            </div>
+        </div>
+
+        <!-- Question Form Section -->
+        <div class="p-8">
+            <div class="border-2 border-slate-800 p-6 md:p-10 rounded-xl relative bg-white">
+                <h3 class="text-2xl font-black text-center text-slate-800 uppercase tracking-wide mb-8 border-b-2 border-slate-200 pb-4">
+                    Tennis Competition
+                </h3>
+
+                <div class="space-y-6 text-lg text-slate-700">
+                    <!-- Example -->
+                    <div class="flex flex-col md:flex-row md:items-center">
+                        <span class="w-40 font-bold text-slate-500">Full Name:</span>
+                        <span class="font-serif italic text-slate-800">Betty Barratt</span>
+                    </div>
+
+                    <!-- Q1 -->
+                    <div class="flex flex-col md:flex-row md:items-center group">
+                        <span class="w-8 font-bold text-blue-600 text-xl">1</span>
+                        <span class="w-32 font-semibold">Age:</span>
+                        <div class="flex-grow relative">
+                            <input type="text" id="q1" class="input-line text-center md:text-left" placeholder="Type here...">
+                            <span class="answer-key hidden absolute right-0 top-0 text-green-600 font-bold text-sm bg-green-100 px-2 py-1 rounded"></span>
+                        </div>
+                    </div>
+
+                    <!-- Q2 -->
+                    <div class="flex flex-col md:flex-row md:items-center group">
+                        <span class="w-8 font-bold text-blue-600 text-xl">2</span>
+                        <span class="w-32 font-semibold">Address:</span>
+                        <div class="flex-grow flex items-center flex-wrap">
+                            <span class="mr-2">17</span>
+                            <div class="relative flex-grow min-w-[150px]">
+                                <input type="text" id="q2" class="input-line text-center" placeholder="Type here...">
+                                <span class="answer-key hidden absolute right-0 -top-8 text-green-600 font-bold text-sm bg-green-100 px-2 py-1 rounded z-10"></span>
+                            </div>
+                            <span class="ml-2">Street</span>
+                        </div>
+                    </div>
+
+                    <!-- Q3 -->
+                    <div class="flex flex-col md:flex-row md:items-center group">
+                        <span class="w-8 font-bold text-blue-600 text-xl">3</span>
+                        <span class="w-32 font-semibold">Phone number:</span>
+                        <div class="flex-grow relative">
+                            <input type="text" id="q3" class="input-line text-center md:text-left" placeholder="Type here...">
+                            <span class="answer-key hidden absolute right-0 top-0 text-green-600 font-bold text-sm bg-green-100 px-2 py-1 rounded"></span>
+                        </div>
+                    </div>
+
+                    <!-- Q4 -->
+                    <div class="flex flex-col md:flex-row md:items-center group">
+                        <span class="w-8 font-bold text-blue-600 text-xl">4</span>
+                        <span class="w-32 font-semibold">Years of tennis:</span>
+                        <div class="flex-grow relative">
+                            <input type="text" id="q4" class="input-line text-center md:text-left" placeholder="Type here...">
+                            <span class="answer-key hidden absolute right-0 top-0 text-green-600 font-bold text-sm bg-green-100 px-2 py-1 rounded"></span>
+                        </div>
+                    </div>
+
+                    <!-- Q5 -->
+                    <div class="flex flex-col md:flex-row md:items-center group">
+                        <span class="w-8 font-bold text-blue-600 text-xl">5</span>
+                        <span class="w-32 font-semibold">Time preferred:</span>
+                        <div class="flex-grow relative">
+                            <input type="text" id="q5" class="input-line text-center md:text-left" placeholder="Type here...">
+                            <span class="answer-key hidden absolute right-0 top-0 text-green-600 font-bold text-sm bg-green-100 px-2 py-1 rounded"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="bg-slate-50 px-8 py-6 flex justify-between items-center border-t border-slate-200">
+            <button onclick="resetTest()" class="text-slate-500 hover:text-blue-500 font-bold transition-colors">
+                <i class="fa-solid fa-rotate-right"></i> Làm lại
+            </button>
+            <button onclick="submitTest()" id="submitBtn" class="btn-hover bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full shadow-lg text-lg flex items-center">
+                <i class="fa-solid fa-paper-plane mr-2"></i> NỘP BÀI
+            </button>
+        </div>
+    </div>
+
+    <!-- Transcript Section (Hidden Initially) -->
+    <div id="transcriptSection" class="w-full max-w-3xl mt-6 hidden bg-white rounded-2xl paper-shadow overflow-hidden border border-yellow-200">
+        <div class="bg-yellow-100 px-6 py-4 border-b border-yellow-200 flex justify-between items-center">
+            <h3 class="font-bold text-yellow-800 text-lg"><i class="fa-solid fa-file-lines mr-2"></i> Transcript</h3>
+            <span class="text-xs bg-yellow-200 text-yellow-800 px-2 py-1 rounded-full uppercase font-bold">Audio Script</span>
+        </div>
+        <div class="p-6 text-slate-700 leading-relaxed space-y-3 font-medium">
+            <p><strong class="text-blue-600">MAN:</strong> What’s your surname, Betty?</p>
+            <p><strong class="text-pink-500">GIRL:</strong> Barratt.</p>
+            <p><strong class="text-blue-600">MAN:</strong> Can you spell that please?</p>
+            <p><strong class="text-pink-500">GIRL:</strong> Yes, it’s B-A double R-A double T.</p>
+            <p><strong class="text-blue-600">MAN:</strong> Thank you.</p>
+            <hr class="border-slate-100 my-2">
+            <p><strong class="text-blue-600">MAN:</strong> Now, you want to play in the tennis competition, don’t you?</p>
+            <p><strong class="text-pink-500">GIRL:</strong> Yes, please.</p>
+            <p><strong class="text-blue-600">MAN:</strong> Good. How old are you Betty?</p>
+            <p><strong class="text-pink-500">GIRL:</strong> I’m <span class="highlight-answer">ten</span>. It was my birthday last week.</p>
+            <p><strong class="text-blue-600">MAN:</strong> OK, that’s fine. And what’s your address?</p>
+            <p><strong class="text-pink-500">GIRL:</strong> It’s 17 <span class="highlight-answer">Randall</span> Street.</p>
+            <p><strong class="text-blue-600">MAN:</strong> Can you spell that for me, please?</p>
+            <p><strong class="text-pink-500">GIRL:</strong> Yes. R-A-N-D-A double L.</p>
+            <p><strong class="text-blue-600">MAN:</strong> Right, and what’s your phone number?</p>
+            <p><strong class="text-pink-500">GIRL:</strong> It’s <span class="highlight-answer">810 double 3 4</span>.</p>
+            <p><strong class="text-blue-600">MAN:</strong> OK, I’ve got that. Now, how long have you played tennis Betty?</p>
+            <p><strong class="text-pink-500">GIRL:</strong> Sorry?</p>
+            <p><strong class="text-blue-600">MAN:</strong> How many years have you played tennis?</p>
+            <p><strong class="text-pink-500">GIRL:</strong> Oh, I see. <span class="highlight-answer">Four years</span>. I started when I was six.</p>
+            <p><strong class="text-blue-600">MAN:</strong> That’s good. Now the last question. When do you prefer to play?</p>
+            <p><strong class="text-pink-500">GIRL:</strong> Do you mean which days?</p>
+            <p><strong class="text-blue-600">MAN:</strong> No, sorry. I mean which time of day, morning or afternoon?</p>
+            <p><strong class="text-pink-500">GIRL:</strong> Oh, I see. I prefer <span class="highlight-answer">afternoons</span>, please.</p>
+            <p><strong class="text-blue-600">MAN:</strong> That’s fine. Thank you.</p>
+            <p><strong class="text-pink-500">GIRL:</strong> Thank you. Bye.</p>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 opacity-0">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center transform scale-95 transition-transform duration-300" id="modalContent">
+            <div class="mb-4">
+                <i class="fa-solid fa-trophy text-6xl text-yellow-400 drop-shadow-md animate-bounce"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-slate-800 mb-2">Chúc Mừng!</h2>
+            <div id="modalMessage" class="text-slate-600 mb-6">
+                <!-- Message will be injected here -->
+            </div>
+            <div class="bg-slate-100 rounded-lg p-4 mb-6">
+                <span class="block text-sm text-slate-500 uppercase tracking-wider font-bold">Điểm số của bạn</span>
+                <span id="modalScore" class="text-4xl font-black text-blue-600">0/5</span>
+            </div>
+            <button onclick="closeModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full w-full transition-colors">
+                Xem chi tiết & Transcript
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-12 text-center text-slate-400 text-sm">
+        <p>&copy; 2025 Dinh Phuoc LMS</p>
+    </footer>
+
+    <script>
+        // Answer Keys
+        const answers = {
+            q1: ["10", "ten"],
+            q2: ["randall"],
+            q3: ["810 334", "810334"], // Allow with or without space
+            q4: ["4 years", "four years", "4", "four"],
+            q5: ["afternoons", "afternoon"]
+        };
+
+        const mainAudio = document.getElementById('mainAudio');
+        const playBtn = document.getElementById('playBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        let isSubmitted = false;
+
+        // Audio Functions
+        function toggleAudio() {
+            if(isSubmitted) return; // Disable main button if submitted (use full player instead)
+            
+            mainAudio.play();
+            playBtn.classList.add('hidden');
+            playBtn.classList.remove('flex');
+            pauseBtn.classList.remove('hidden');
+            pauseBtn.classList.add('flex');
+        }
+
+        function pauseAudio() {
+            mainAudio.pause();
+            playBtn.classList.remove('hidden');
+            playBtn.classList.add('flex');
+            pauseBtn.classList.add('hidden');
+            pauseBtn.classList.remove('flex');
+        }
+
+        // Handle Audio Ending
+        mainAudio.onended = function() {
+            pauseAudio();
+        };
+
+        // Submit Logic
+        function submitTest() {
+            const name = document.getElementById('studentName').value.trim();
+            const className = document.getElementById('studentClass').value.trim();
+
+            // Validation
+            if (!name || !className) {
+                document.getElementById('infoError').classList.remove('hidden');
+                // Shake effect
+                document.querySelector('.border-l-8').classList.add('animate-pulse');
+                setTimeout(() => document.querySelector('.border-l-8').classList.remove('animate-pulse'), 500);
+                return;
+            } else {
+                document.getElementById('infoError').classList.add('hidden');
+            }
+
+            // Stop audio if playing
+            mainAudio.pause();
+            
+            let score = 0;
+            let total = 5;
+
+            // Check answers
+            for (let i = 1; i <= 5; i++) {
+                const qId = 'q' + i;
+                const input = document.getElementById(qId);
+                const userVal = input.value.trim().toLowerCase();
+                const validAnswers = answers[qId];
+                const keySpan = input.nextElementSibling || input.parentElement.querySelector('.answer-key');
+
+                // Disable input
+                input.disabled = true;
+
+                // Check logic
+                if (validAnswers.includes(userVal)) {
+                    score++;
+                    input.classList.add('correct');
+                    input.classList.remove('incorrect');
+                } else {
+                    input.classList.add('incorrect');
+                    input.classList.remove('correct');
+                    // Show Correct Answer
+                    if(keySpan) {
+                        keySpan.innerText = validAnswers[0]; // Show first valid answer
+                        keySpan.classList.remove('hidden');
+                    }
+                }
+            }
+
+            isSubmitted = true;
+
+            // Update UI for Submitted State
+            document.getElementById('submitBtn').classList.add('hidden');
+            document.getElementById('preSubmitAudioControls').classList.add('hidden');
+            document.getElementById('postSubmitAudioControls').classList.remove('hidden');
+            document.getElementById('transcriptSection').classList.remove('hidden');
+
+            // Show Modal
+            const message = `Chúc mừng học sinh <b>${name}</b> - Lớp <b>${className}</b> đã hoàn thành bài thi.`;
+            document.getElementById('modalMessage').innerHTML = message;
+            document.getElementById('modalScore').innerText = `${score}/${total}`;
+            
+            const modal = document.getElementById('successModal');
+            modal.classList.add('active');
+            document.getElementById('modalContent').classList.remove('scale-95');
+            document.getElementById('modalContent').classList.add('scale-100');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('successModal');
+            modal.classList.remove('active');
+            // Scroll to transcript
+            document.getElementById('transcriptSection').scrollIntoView({behavior: 'smooth'});
+        }
+
+        function resetTest() {
+            if(confirm("Bạn có chắc muốn làm lại bài không? Mọi dữ liệu đã nhập sẽ bị xóa.")) {
+                location.reload();
+            }
+        }
+
+    
+        document.addEventListener("keydown", function (e) {
+            if (
+                e.key === "F12" ||
+                (e.ctrlKey && e.shiftKey && e.key === "I") ||
+                (e.ctrlKey && e.shiftKey && e.key === "J") ||
+                (e.ctrlKey && e.shiftKey && e.key === "C") ||
+                (e.ctrlKey && e.key === "u") ||
+                (e.ctrlKey && e.key === "p") ||
+                (e.ctrlKey && e.key === "s") ||
+                (e.ctrlKey && e.key === "c") ||
+                (e.ctrlKey && e.key === "v")
+            ) {
+                e.preventDefault();
+                // alert('Content is protected!!!');
+                return false;
+            }
+        });
+    </script>
+</body>
+</html>
