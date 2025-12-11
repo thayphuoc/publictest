@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gifted Children and Learning</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            user-select: none; /* Base protection */
+        }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+
+        /* Allow text selection in reading area for highlighting */
+        #reading-passage {
+            user-select: text;
+            font-weight: normal !important;
+        }
+        /* Enforce normal weight to prevent cheating/hints */
+        #reading-passage b, #reading-passage strong { font-weight: normal !important; }
+
+        /* Context Menu */
+        #ctx-menu {
+            display: none;
+            position: absolute;
+            z-index: 100;
+            background: white;
+            border: 1px solid #ccc;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+            border-radius: 4px;
+            width: 150px;
+        }
+        #ctx-menu li {
+            padding: 8px 12px;
+            cursor: pointer;
+            list-style: none;
+            font-size: 14px;
+        }
+        #ctx-menu li:hover { background-color: #f0f0f0; }
+
+        /* Highlight Class */
+        .highlight-yellow { background-color: #ffff00; cursor: pointer; }
+
+        /* Overlay */
+        #overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        /* Review Mode Styles */
+        .correct-answer { color: #16a34a; font-weight: bold; }
+        .wrong-answer { color: #dc2626; text-decoration: line-through; }
+        .explanation-box {
+            background-color: #f0f9ff;
+            border-left: 4px solid #0ea5e9;
+            padding: 10px;
+            margin-top: 5px;
+            font-size: 0.9em;
+            display: none;
+        }
+        
+        .review-mode .question-container { cursor: pointer; }
+        .review-mode .question-container:hover { background-color: #f8fafc; }
+
+        /* Inline Input for Fill-in-blanks */
+        .inline-input {
+            border: none;
+            border-bottom: 1px solid #333;
+            background: #f9f9f9;
+            text-align: center;
+            padding: 0 5px;
+            font-weight: bold;
+            color: #2563eb;
+        }
+        .inline-input:focus { outline: none; border-bottom: 2px solid #2563eb; }
+    </style>
+</head>
+<body class="bg-gray-100 h-screen flex flex-col">
+
+    <!-- LOGIN OVERLAY -->
+    <div id="overlay">
+        <div class="bg-white p-8 rounded-lg shadow-2xl w-full max-w-md">
+            <h2 class="text-2xl font-bold mb-6 text-center text-blue-800">Reading Test Login</h2>
+            <div id="attempt-warning" class="hidden bg-red-100 text-red-700 p-3 rounded mb-4 text-sm">
+                <strong>Notice:</strong> This is attempt #<span id="attempt-count-display"></span>. Previous attempts recorded.
+            </div>
+            <form id="login-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Full Name</label>
+                    <input type="text" id="student-name" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="Nguyen Van A">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Email</label>
+                    <input type="email" id="student-email" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Class</label>
+                    <input type="text" id="student-class" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Password</label>
+                    <input type="password" id="student-pass" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="Enter 'examp' to start">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Practice Time (Minutes)</label>
+                    <input type="number" id="practice-time" min="1" max="120" value="20" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 transition font-bold">Start Test</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <header class="bg-white shadow-sm p-4 flex justify-between items-center z-10 h-16 shrink-0">
+        <div class="font-bold text-xl text-gray-800"><i class="fas fa-child mr-2"></i>Gifted Children & Learning</div>
+        <div class="flex items-center space-x-4">
+            <div class="text-sm text-gray-500 font-medium" id="user-display">Guest</div>
+            <div id="cheat-alert" class="hidden text-red-600 font-bold text-sm mr-2">Warning: Tab Switch Detected!</div>
+            <div class="bg-red-50 text-red-600 px-4 py-2 rounded-lg font-mono font-bold text-xl border border-red-200" id="timer">00:00:00</div>
+        </div>
+    </header>
+
+    <main class="flex-grow flex overflow-hidden">
+        
+        <!-- LEFT: READING PASSAGE -->
+        <div class="w-1/2 bg-white border-r border-gray-200 overflow-y-auto p-8 relative" id="reading-container">
+            <h2 class="text-2xl mb-4 text-blue-900 font-bold">Gifted children and learning</h2>
+            
+            <div id="reading-passage" class="text-lg leading-relaxed text-gray-800 text-justify">
+                <p class="mb-4"><span class="font-bold text-blue-600">[A]</span> Internationally, ‘giftedness’ is most frequently determined by a score on a general intelligence test, known as an IQ test, which is above a chosen cutoff point, usually at around the top 2-5%. Children’s educational environment contributes to the IQ score and the way intelligence is used. For example, a very close positive relationship was found when children’s IQ scores were compared with their home educational provision (Freeman, 2010). The higher the children’s IQ scores, especially over IQ 130, the better the quality of their educational backup, measured in terms of reported verbal interactions with parents, number of books and activities in their home etc. Because IQ tests are decidedly influenced by what the child has learned, they are to some extent measures of current achievement based on age-norms; that is, how well the children have learned to manipulate their knowledge and know-how within the terms of the test. The vocabulary aspect, for example, is dependent on having heard those words. But IQ tests can neither identify the processes of learning and thinking nor predict creativity.</p>
+                
+                <p class="mb-4"><span class="font-bold text-blue-600">[B]</span> Excellence does not emerge without appropriate help. To reach an exceptionally high standard in any area very able children need the means to learn, which includes material to work with and focused challenging tuition -and the encouragement to follow their dream. There appears to be a qualitative difference in the way the intellectually highly able think, compared with more average-ability or older pupils, for whom external regulation by the teacher often compensates for lack of internal regulation. To be at their most effective in their self-regulation, all children can be helped to identify their own ways of learning – metacognition – which will include strategies of planning, monitoring, evaluation, and choice of what to learn. Emotional awareness is also part of metacognition, so children should be helped to be aware of their feelings around the area to be learned, feelings of curiosity or confidence, for example.</p>
+                
+                <p class="mb-4"><span class="font-bold text-blue-600">[C]</span> High achievers have been found to use self-regulatory learning strategies more often and more effectively than lower achievers, and are better able to transfer these strategies to deal with unfamiliar tasks. This happens to such a high degree in some children that they appear to be demonstrating talent in particular areas. Overviewing research on the thinking process of highly able children, (Shore and Kanevsky, 1993) put the instructor’s problem succinctly: ‘If they [the gifted] merely think more quickly, then we need only teach more quickly. If they merely make fewer errors, then we can shorten the practice’. But of course, this is not entirely the case; adjustments have to be made in methods of learning and teaching, to take account of the many ways individuals think.</p>
+                
+                <p class="mb-4"><span class="font-bold text-blue-600">[D]</span> Yet in order to learn by themselves, the gifted do need some support from their teachers. Conversely, teachers who have a tendency to ‘overdirect’ can diminish their gifted pupils’ learning autonomy. Although ‘spoon-feeding’ can produce extremely high examination results, these are not always followed by equally impressive life successes. Too much dependence on the teachers’ risks loss of autonomy and motivation to discover. However, when teachers help pupils to reflect on their own learning and thinking activities, they increase their pupils’ self-regulation. For a young child, it may be just the simple question ‘What have you learned today?’ which helps them to recognise what they are doing. Given that a fundamental goal of education is to transfer the control of learning from teachers to pupils, improving pupils’ learning to learn techniques should be a major outcome of the school experience, especially for the highly competent. There are quite a number of new methods which can help, such as child- initiated learning, ability-peer tutoring, etc. Such practices have been found to be particularly useful for bright children from deprived areas.</p>
+                
+                <p class="mb-4"><span class="font-bold text-blue-600">[E]</span> But scientific progress is not all theoretical, knowledge is a so vital to outstanding performance: individuals who know a great deal about a specific domain will achieve at a higher level than those who do not (Elshout, 1995). Research with creative scientists by Simonton (1988) brought him to the conclusion that above a certain high level, characteristics such as independence seemed to contribute more to reaching the highest levels of expertise than intellectual skills, due to the great demands of effort and time needed for learning and practice. Creativity in all forms can be seen as expertise se mixed with a high level of motivation (Weisberg, 1993).</p>
+                
+                <p class="mb-4"><span class="font-bold text-blue-600">[F]</span> To sum up, learning is affected by emotions of both the individual and significant others. Positive emotions facilitate the creative aspects of earning and negative emotions inhibit it. Fear, for example, can limit the development of curiosity, which is a strong force in scientific advance, because it motivates problem-solving behaviour. In Boekaerts’ (1991) review of emotion the learning of very high IQ and highly achieving children, she found emotional forces in harness. They were not only curious, but often had a strong desire to control their environment, improve their learning efficiency and increase their own learning resources.</p>
+            </div>
+
+            <!-- VOCABULARY TABLE -->
+            <div class="mt-12 border-t-2 border-gray-300 pt-6">
+                <h3 class="text-lg font-bold mb-3 text-gray-700"><i class="fas fa-language mr-2"></i>Vocabulary Reference (B1+)</h3>
+                <table class="min-w-full text-sm text-left text-gray-500 border border-gray-200">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-2 border-b">Word</th>
+                            <th class="px-4 py-2 border-b">Definition / Context</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="bg-white border-b"><td class="px-4 py-2 font-medium text-gray-900">Provision</td><td class="px-4 py-2">The action of providing or supplying something for use.</td></tr>
+                        <tr class="bg-gray-50 border-b"><td class="px-4 py-2 font-medium text-gray-900">Metacognition</td><td class="px-4 py-2">Awareness and understanding of one's own thought processes.</td></tr>
+                        <tr class="bg-white border-b"><td class="px-4 py-2 font-medium text-gray-900">Autonomy</td><td class="px-4 py-2">Freedom from external control or influence; independence.</td></tr>
+                        <tr class="bg-gray-50 border-b"><td class="px-4 py-2 font-medium text-gray-900">Succinctly</td><td class="px-4 py-2">In a brief and clearly expressed manner.</td></tr>
+                        <tr class="bg-white border-b"><td class="px-4 py-2 font-medium text-gray-900">Deprived</td><td class="px-4 py-2">Suffering a severe and damaging lack of basic material and cultural benefits.</td></tr>
+                        <tr class="bg-gray-50 border-b"><td class="px-4 py-2 font-medium text-gray-900">Expertise</td><td class="px-4 py-2">Expert skill or knowledge in a particular field.</td></tr>
+                        <tr class="bg-white border-b"><td class="px-4 py-2 font-medium text-gray-900">Inhibit</td><td class="px-4 py-2">Hinder, restrain, or prevent (an action or process).</td></tr>
+                        <tr class="bg-gray-50 border-b"><td class="px-4 py-2 font-medium text-gray-900">Spoon-feeding</td><td class="px-4 py-2">Providing so much help or information that someone does not need to think for themselves.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="h-10"></div>
+        </div>
+
+        <!-- RIGHT: QUESTIONS -->
+        <div class="w-1/2 bg-gray-50 overflow-y-auto p-8" id="questions-container">
+            <div class="max-w-2xl mx-auto">
+                <form id="quiz-form">
+                    
+                    <!-- SECTION 1: MATCHING INFORMATION -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-bold mb-2 text-gray-800">Questions 14-17</h3>
+                        <p class="text-sm text-gray-600 mb-2">Reading Passage 2 has six paragraphs, <strong>A-F</strong>.<br>Which paragraph contains the following information?</p>
+                        <p class="text-xs text-gray-500 mb-4 italic">Write the correct letter, <strong>A-F</strong>, in the boxes.</p>
+
+                        <div class="space-y-4">
+                            <!-- Q14 -->
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200 flex justify-between items-center">
+                                <span class="w-3/4 text-sm">14. a reference to the influence of the domestic background on the gifted child.</span>
+                                <input type="text" name="q14" class="w-16 border border-gray-300 rounded p-1 text-center uppercase" maxlength="1">
+                            </div>
+                            <!-- Q15 -->
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200 flex justify-between items-center">
+                                <span class="w-3/4 text-sm">15. reference to what can be lost if learners are given too much guidance.</span>
+                                <input type="text" name="q15" class="w-16 border border-gray-300 rounded p-1 text-center uppercase" maxlength="1">
+                            </div>
+                            <!-- Q16 -->
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200 flex justify-between items-center">
+                                <span class="w-3/4 text-sm">16. a reference to the damaging effects of anxiety.</span>
+                                <input type="text" name="q16" class="w-16 border border-gray-300 rounded p-1 text-center uppercase" maxlength="1">
+                            </div>
+                            <!-- Q17 -->
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200 flex justify-between items-center">
+                                <span class="w-3/4 text-sm">17. examples of classroom techniques which favour socially-disadvantaged children.</span>
+                                <input type="text" name="q17" class="w-16 border border-gray-300 rounded p-1 text-center uppercase" maxlength="1">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 2: MATCHING FEATURES (PEOPLE) -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-bold mb-2 text-gray-800">Questions 18-22</h3>
+                        <p class="text-sm text-gray-600 mb-2">Look at the following statements (Questions 18-22) and the list of people below.</p>
+                        <p class="text-sm text-gray-600 mb-4">Match each statement with the correct person or people, <strong>A-E</strong>.</p>
+                        
+                        <div class="bg-blue-50 p-4 rounded border border-blue-200 mb-6 text-sm">
+                            <h4 class="font-bold mb-2 text-gray-800">List of People</h4>
+                            <ul class="ml-4 text-gray-700 grid grid-cols-2 gap-2">
+                                <li><strong>A</strong> Freeman</li>
+                                <li><strong>B</strong> Shore and Kanevsky</li>
+                                <li><strong>C</strong> Elshout</li>
+                                <li><strong>D</strong> Simonton</li>
+                                <li><strong>E</strong> Boekaerts</li>
+                            </ul>
+                        </div>
+
+                        <div class="space-y-4">
+                            <!-- Q18 -->
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200 flex justify-between items-center">
+                                <span class="w-3/4 text-sm">18. Less time can be spent on exercises with gifted pupils who produce accurate work.</span>
+                                <input type="text" name="q18" class="w-16 border border-gray-300 rounded p-1 text-center uppercase" maxlength="1">
+                            </div>
+                            <!-- Q19 -->
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200 flex justify-between items-center">
+                                <span class="w-3/4 text-sm">19. Self-reliance is a valuable tool that helps gifted students reach their goals.</span>
+                                <input type="text" name="q19" class="w-16 border border-gray-300 rounded p-1 text-center uppercase" maxlength="1">
+                            </div>
+                            <!-- Q20 -->
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200 flex justify-between items-center">
+                                <span class="w-3/4 text-sm">20. Gifted children know how to channel their feelings to assist their learning.</span>
+                                <input type="text" name="q20" class="w-16 border border-gray-300 rounded p-1 text-center uppercase" maxlength="1">
+                            </div>
+                            <!-- Q21 -->
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200 flex justify-between items-center">
+                                <span class="w-3/4 text-sm">21. The very gifted child benefits from appropriate support from close relatives.</span>
+                                <input type="text" name="q21" class="w-16 border border-gray-300 rounded p-1 text-center uppercase" maxlength="1">
+                            </div>
+                            <!-- Q22 -->
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200 flex justify-between items-center">
+                                <span class="w-3/4 text-sm">22. Really successful students have learnt a considerable amount about their subject.</span>
+                                <input type="text" name="q22" class="w-16 border border-gray-300 rounded p-1 text-center uppercase" maxlength="1">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 3: SENTENCE COMPLETION -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-bold mb-2 text-gray-800">Questions 23-26</h3>
+                        <p class="text-sm text-gray-600 mb-2">Complete the sentences below.</p>
+                        <p class="text-sm text-gray-600 mb-4">Choose <strong>NO MORE THAN THREE WORDS</strong> from the passage for each answer.</p>
+
+                        <div class="space-y-6 text-gray-800 leading-loose">
+                            <!-- Q23 -->
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200">
+                                23. One study found a strong connection between children’s IQ and the availability of <input type="text" name="q23" class="inline-input w-48" placeholder="Answer here"> at home.
+                            </div>
+                            <!-- Q24 -->
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200">
+                                24. Children of average ability seem to need more direction from teachers because they do not have <input type="text" name="q24" class="inline-input w-48" placeholder="Answer here">.
+                            </div>
+                            <!-- Q25 -->
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200">
+                                25. Meta-cognition involves children understanding their own learning strategies, as well as developing <input type="text" name="q25" class="inline-input w-48" placeholder="Answer here">.
+                            </div>
+                            <!-- Q26 -->
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200">
+                                26. Teachers who rely on what is known as <input type="text" name="q26" class="inline-input w-48" placeholder="Answer here"> often produce sets of impressive grades in class tests.
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+
+                <!-- SUBMIT AREA -->
+                <div class="mt-8 mb-12">
+                    <button id="submit-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded shadow-lg transition transform hover:scale-[1.01]">
+                        Submit Answers
+                    </button>
+                    <div id="result-area" class="mt-4 hidden p-4 bg-white border border-gray-200 rounded text-center">
+                        <div class="text-2xl font-bold mb-2">Score: <span id="score-display">0/13</span></div>
+                        <p class="text-sm text-gray-500">Your results file has been downloaded. Please send it to your teacher.</p>
+                        <p class="text-xs text-gray-400 mt-2">Click on questions to see detailed explanations.</p>
+                        <button id="redo-btn" class="mt-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded transition">
+                            Redo Test
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-gray-800 text-white text-center p-2 text-xs shrink-0">
+        Encoded by Dinh Phuoc
+    </footer>
+
+    <!-- CONTEXT MENU -->
+    <ul id="ctx-menu">
+        <li id="menu-highlight"><i class="fas fa-highlighter mr-2 text-yellow-500"></i>Highlight</li>
+        <li id="menu-remove"><i class="fas fa-eraser mr-2 text-gray-500"></i>Remove Highlight</li>
+    </ul>
+
+    <script>
+        // --- DATA & CONFIG ---
+        const answersKey = {
+            14: { ans: "A", expl: "Paragraph A: 'children’s IQ scores were compared with their home educational provision' (home educational provision = domestic background)." },
+            15: { ans: "D", expl: "Paragraph D: 'Too much dependence on the teachers’ risks loss of autonomy' (lost = loss of autonomy; too much guidance = too much dependence)." },
+            16: { ans: "F", expl: "Paragraph F: 'Fear, for example, can limit the development of curiosity' (damaging effects of anxiety/fear)." },
+            17: { ans: "D", expl: "Paragraph D: 'Such practices have been found to be particularly useful for bright children from deprived areas' (socially-disadvantaged = deprived)." },
+            18: { ans: "B", expl: "Paragraph C: Shore and Kanevsky: 'If they merely make fewer errors, then we can shorten the practice'." },
+            19: { ans: "D", expl: "Paragraph E: Simonton: 'independence seemed to contribute more... than intellectual skills' (Self-reliance = independence)." },
+            20: { ans: "E", expl: "Paragraph F: Boekaerts: 'found emotional forces in harness... strong desire to control their environment'." },
+            21: { ans: "A", expl: "Paragraph A: Freeman: 'better the quality of their educational backup... verbal interactions with parents'." },
+            22: { ans: "C", expl: "Paragraph E: Elshout: 'individuals who know a great deal about a specific domain will achieve at a higher level'." },
+            23: { ans: "BOOKS AND ACTIVITIES", expl: "Paragraph A: 'number of books and activities in their home'." },
+            24: { ans: "INTERNAL REGULATION", expl: "Paragraph B: 'external regulation by the teacher often compensates for lack of internal regulation'. (Also accepts 'self-regulation')." },
+            25: { ans: "EMOTIONAL AWARENESS", expl: "Paragraph B: 'Emotional awareness is also part of metacognition'." },
+            26: { ans: "SPOON-FEEDING", expl: "Paragraph D: 'Although spoon-feeding can produce extremely high examination results'." }
+        };
+
+        let userInfo = {};
+        let timerInterval;
+        let remainingTime;
+        let currentAttempt = 0;
+        let cheatFlags = 0;
+        let clientIP = "127.0.0.1";
+        let isSubmitted = false;
+        const passwordKey = "examp"; 
+
+        // --- INIT & IP FETCH ---
+        window.onload = async () => {
+            let storedAttempts = parseInt(localStorage.getItem('gifted_test_attempts') || 0);
+            currentAttempt = storedAttempts + 1;
+            localStorage.setItem('gifted_test_attempts', currentAttempt);
+
+            if (currentAttempt > 1) {
+                document.getElementById('attempt-warning').classList.remove('hidden');
+                document.getElementById('attempt-count-display').textContent = currentAttempt;
+            }
+
+            try {
+                const res = await fetch('https://api.ipify.org?format=json');
+                const data = await res.json();
+                clientIP = data.ip;
+            } catch (e) {
+                console.log("Fallback IP used");
+            }
+        };
+
+        // --- LOGIN ---
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const enteredPass = document.getElementById('student-pass').value;
+            if (enteredPass !== passwordKey) {
+                alert("Incorrect Password. (Hint: check placeholder)");
+                return;
+            }
+            
+            userInfo = {
+                name: document.getElementById('student-name').value,
+                email: document.getElementById('student-email').value,
+                class: document.getElementById('student-class').value,
+                practiceTime: parseInt(document.getElementById('practice-time').value)
+            };
+
+            document.getElementById('user-display').textContent = `${userInfo.name} - ${userInfo.class}`;
+            document.getElementById('overlay').style.display = 'none';
+            startTimer(userInfo.practiceTime * 60);
+        });
+
+        // --- TIMER ---
+        function startTimer(duration) {
+            remainingTime = duration;
+            updateTimerDisplay();
+            timerInterval = setInterval(() => {
+                remainingTime--;
+                updateTimerDisplay();
+                if (remainingTime <= 0) {
+                    clearInterval(timerInterval);
+                    alert("Time's up!");
+                    submitTest();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const h = Math.floor(remainingTime / 3600);
+            const m = Math.floor((remainingTime % 3600) / 60);
+            const s = remainingTime % 60;
+            document.getElementById('timer').textContent = 
+                `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            if (remainingTime < 60) document.getElementById('timer').classList.add('bg-red-100');
+        }
+
+        // --- ANTI-CHEAT (TAB SWITCHING) ---
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden && !isSubmitted && document.getElementById('overlay').style.display === 'none') {
+                cheatFlags++;
+                document.getElementById('cheat-alert').classList.remove('hidden');
+                document.getElementById('cheat-alert').textContent = `Warning: Tab Switch Detected! (${cheatFlags}/2)`;
+                
+                if (cheatFlags > 2) {
+                    alert("Cheat violation: Too many tab switches. Reloading.");
+                    location.reload();
+                }
+            }
+        });
+
+        // --- HIGHLIGHTING (DOM-BASED ROBUST VERSION) ---
+        const readingArea = document.getElementById('reading-passage');
+        const ctxMenu = document.getElementById('ctx-menu');
+        let savedRange = null;
+        let clickedElement = null;
+
+        readingArea.addEventListener('contextmenu', e => {
+            e.preventDefault();
+            clickedElement = e.target;
+            const sel = window.getSelection();
+            
+            if (sel.toString().length > 0 && readingArea.contains(sel.anchorNode)) {
+                savedRange = sel.getRangeAt(0);
+                showMenu(e.pageX, e.pageY);
+            } 
+            else if (clickedElement.classList.contains('highlight-yellow')) {
+                savedRange = null; 
+                showMenu(e.pageX, e.pageY);
+            }
+        });
+
+        function showMenu(x, y) {
+            ctxMenu.style.display = 'block';
+            ctxMenu.style.left = x + 'px';
+            ctxMenu.style.top = y + 'px';
+        }
+
+        document.addEventListener('click', e => {
+            if (!e.target.closest('#ctx-menu')) ctxMenu.style.display = 'none';
+        });
+
+        document.getElementById('menu-highlight').addEventListener('click', () => {
+            if (savedRange) {
+                try {
+                    const span = document.createElement('span');
+                    span.className = 'highlight-yellow';
+                    savedRange.surroundContents(span);
+                    window.getSelection().removeAllRanges();
+                } catch(err) {
+                    alert("Can't highlight across multiple paragraphs. Please select within one paragraph.");
+                }
+            }
+            ctxMenu.style.display = 'none';
+        });
+
+        document.getElementById('menu-remove').addEventListener('click', () => {
+            if (clickedElement && clickedElement.classList.contains('highlight-yellow')) {
+                const parent = clickedElement.parentNode;
+                while (clickedElement.firstChild) {
+                    parent.insertBefore(clickedElement.firstChild, clickedElement);
+                }
+                parent.removeChild(clickedElement);
+            }
+            ctxMenu.style.display = 'none';
+        });
+
+        // --- SUBMISSION ---
+        document.getElementById('submit-btn').addEventListener('click', submitTest);
+
+        function submitTest() {
+            if (isSubmitted) return;
+            isSubmitted = true;
+            clearInterval(timerInterval);
+
+            let score = 0;
+            const form = document.getElementById('quiz-form');
+            let studentAnswers = {};
+
+            // Loop through questions 14 to 26
+            for (let i = 14; i <= 26; i++) {
+                const input = form.querySelector(`input[name="q${i}"]`);
+                let userVal = input.value.trim().toUpperCase();
+                
+                studentAnswers[`Q${i}`] = userVal;
+                
+                const container = input.closest('.question-container');
+                const correctAns = answersKey[i].ans;
+                let isCorrect = false;
+
+                // Checking logic
+                if (i >= 23) {
+                     // Fill in blank special logic
+                     if (i === 24) {
+                         if (userVal === "INTERNAL REGULATION" || userVal === "SELF-REGULATION") isCorrect = true;
+                     } else if (i === 23) {
+                         if (userVal.includes("BOOKS") && userVal.includes("ACTIVITIES")) isCorrect = true;
+                     } else {
+                         if (userVal === correctAns) isCorrect = true;
+                     }
+                } else {
+                    // Standard exact match for letters
+                    if (userVal === correctAns) isCorrect = true;
+                }
+                
+                const explDiv = document.createElement('div');
+                explDiv.className = 'explanation-box';
+                explDiv.innerHTML = `<strong>Answer:</strong> ${correctAns}<br><strong>Why:</strong> ${answersKey[i].expl}`;
+                
+                if (isCorrect) {
+                    score++;
+                    input.classList.add('border-green-500', 'bg-green-50', 'text-green-700', 'font-bold');
+                } else {
+                    input.classList.add('border-red-500', 'bg-red-50', 'wrong-answer');
+                    const corrSpan = document.createElement('div');
+                    corrSpan.className = 'correct-answer mt-1 text-sm';
+                    corrSpan.innerText = `Correct: ${correctAns}`;
+                    container.appendChild(corrSpan);
+                }
+
+                container.appendChild(explDiv);
+                
+                container.onclick = function(e) {
+                     if(e.target.tagName === 'INPUT') return;
+                     explDiv.style.display = explDiv.style.display === 'block' ? 'none' : 'block';
+                };
+            }
+
+            document.getElementById('score-display').innerText = `${score}/13`;
+            document.getElementById('result-area').classList.remove('hidden');
+            document.getElementById('submit-btn').style.display = 'none';
+            document.getElementById('questions-container').classList.add('review-mode');
+            
+            form.querySelectorAll('input').forEach(inp => inp.disabled = true);
+            generateAndDownloadFile(score, studentAnswers);
+        }
+
+        document.getElementById('redo-btn').addEventListener('click', () => {
+            if(confirm("Redo test? New attempt will be recorded.")) location.reload();
+        });
+
+        function generateAndDownloadFile(score, answers) {
+            const timeTaken = (userInfo.practiceTime * 60) - remainingTime;
+            const mins = Math.floor(timeTaken / 60);
+            const secs = timeTaken % 60;
+            const dateStr = new Date().toLocaleString();
+
+            let content = `READING TEST: GIFTED CHILDREN AND LEARNING\n`;
+            content += `==========================================\n`;
+            content += `Student: ${userInfo.name}\nEmail: ${userInfo.email}\nClass: ${userInfo.class}\n`;
+            content += `Date: ${dateStr}\nIP: ${clientIP}\nAttempt: ${currentAttempt}\n`;
+            content += `Violations: ${cheatFlags}\nTime: ${mins}m ${secs}s\nScore: ${score}/13\n\nANSWERS:\n`;
+            
+            for (const [q, ans] of Object.entries(answers)) {
+                content += `${q}: ${ans}\n`;
+            }
+
+            const blob = new Blob([content], { type: "text/plain" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const safeName = userInfo.name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+            a.href = url;
+            a.download = `${safeName}_GiftedTest_${new Date().getTime()}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // --- PREVENT INSPECT (F12, Ctrl+Shift+I, etc.) ---
+        document.addEventListener("keydown", function (e) {
+            if (
+                e.key === "F12" ||
+                (e.ctrlKey && e.shiftKey && e.key === "I") ||
+                (e.ctrlKey && e.shiftKey && e.key === "J") ||
+                (e.ctrlKey && e.shiftKey && e.key === "C") ||
+                (e.ctrlKey && e.key === "u") ||
+                (e.ctrlKey && e.key === "p") ||
+                (e.ctrlKey && e.key === "s")
+            ) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Museums of Fine Art and Their Public</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            user-select: none; /* Base protection */
+        }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+
+        /* Allow text selection in reading area for highlighting */
+        #reading-passage {
+            user-select: text;
+            font-weight: normal !important;
+        }
+        /* Enforce normal weight to prevent cheating/hints */
+        #reading-passage b, #reading-passage strong { font-weight: normal !important; }
+
+        /* Context Menu */
+        #ctx-menu {
+            display: none;
+            position: absolute;
+            z-index: 100;
+            background: white;
+            border: 1px solid #ccc;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+            border-radius: 4px;
+            width: 150px;
+        }
+        #ctx-menu li {
+            padding: 8px 12px;
+            cursor: pointer;
+            list-style: none;
+            font-size: 14px;
+        }
+        #ctx-menu li:hover { background-color: #f0f0f0; }
+
+        /* Highlight Class */
+        .highlight-yellow { background-color: #ffff00; cursor: pointer; }
+
+        /* Overlay */
+        #overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        /* Review Mode Styles */
+        .correct-answer { color: #16a34a; font-weight: bold; }
+        .wrong-answer { color: #dc2626; text-decoration: line-through; }
+        .explanation-box {
+            background-color: #f0f9ff;
+            border-left: 4px solid #0ea5e9;
+            padding: 10px;
+            margin-top: 5px;
+            font-size: 0.9em;
+            display: none;
+        }
+        
+        .review-mode .question-container { cursor: pointer; }
+        .review-mode .question-container:hover { background-color: #f8fafc; }
+
+        /* Inline Input for Summary */
+        .inline-select {
+            border: none;
+            border-bottom: 2px solid #ccc;
+            background: #f9f9f9;
+            text-align: center;
+            padding: 2px 5px;
+            font-weight: bold;
+            color: #2563eb;
+            width: 60px;
+            cursor: pointer;
+        }
+        .inline-select:focus { outline: none; border-bottom: 2px solid #2563eb; }
+    </style>
+</head>
+<body class="bg-gray-100 h-screen flex flex-col">
+
+    <!-- LOGIN OVERLAY -->
+    <div id="overlay">
+        <div class="bg-white p-8 rounded-lg shadow-2xl w-full max-w-md">
+            <h2 class="text-2xl font-bold mb-6 text-center text-blue-800">Reading Test Login</h2>
+            <div id="attempt-warning" class="hidden bg-red-100 text-red-700 p-3 rounded mb-4 text-sm">
+                <strong>Notice:</strong> This is attempt #<span id="attempt-count-display"></span>. Previous attempts recorded.
+            </div>
+            <form id="login-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Full Name</label>
+                    <input type="text" id="student-name" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="Nguyen Van A">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Email</label>
+                    <input type="email" id="student-email" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Class</label>
+                    <input type="text" id="student-class" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Password</label>
+                    <input type="password" id="student-pass" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="Enter 'examp' to start">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Practice Time (Minutes)</label>
+                    <input type="number" id="practice-time" min="1" max="120" value="20" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 transition font-bold">Start Test</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <header class="bg-white shadow-sm p-4 flex justify-between items-center z-10 h-16 shrink-0">
+        <div class="font-bold text-xl text-gray-800"><i class="fas fa-palette mr-2"></i>Museums of Fine Art</div>
+        <div class="flex items-center space-x-4">
+            <div class="text-sm text-gray-500 font-medium" id="user-display">Guest</div>
+            <div id="cheat-alert" class="hidden text-red-600 font-bold text-sm mr-2">Warning: Tab Switch Detected!</div>
+            <div class="bg-red-50 text-red-600 px-4 py-2 rounded-lg font-mono font-bold text-xl border border-red-200" id="timer">00:00:00</div>
+        </div>
+    </header>
+
+    <main class="flex-grow flex overflow-hidden">
+        
+        <!-- LEFT: READING PASSAGE -->
+        <div class="w-1/2 bg-white border-r border-gray-200 overflow-y-auto p-8 relative" id="reading-container">
+            <h2 class="text-2xl mb-4 text-blue-900 font-bold">Museums of fine art and their public</h2>
+            
+            <div id="reading-passage" class="text-lg leading-relaxed text-gray-800 text-justify">
+                <p class="mb-4">The fact that people go to the Louvre museum in Paris to see the original painting Mona Lisa when they can see a reproduction anywhere leads us to question some assumptions about the role of museums of fine art in today’s world.</p>
+                <p class="mb-4">One of the most famous works of art in the world is Leonardo da Vinci’s Mona Lisa. Nearly everyone who goes to see the original will already be familiar with it from reproductions, but they accept that fine art is more rewardingly viewed in its original form.</p>
+                <p class="mb-4">However, if Mona Lisa was a famous novel, few people would bother to go to a museum to read the writer’s actual manuscript rather than a printed reproduction. This might be explained by the fact that the novel has evolved precisely because of technological developments that made it possible to print out huge numbers of texts, whereas oil paintings have always been produced as unique objects. In addition, it could be argued that the practice of interpreting or ‘reading’ each medium follows different conventions. With novels, the reader attends mainly to the meaning of words rather than the way they are printed on the page, whereas the ‘reader’ of a painting must attend just as closely to the material form of marks and shapes in the picture as to any ideas they may signify.</p>
+                <p class="mb-4">Yet it has always been possible to make very accurate facsimiles of pretty well any fine art work. The seven surviving versions of Mona Lisa bear witness to the fact that in the 16th century, artists seemed perfectly content to assign the reproduction of their creations to their workshop apprentices as regular ‘bread and butter’ work. And today the task of reproducing pictures is incomparably more simple and reliable, with reprographic techniques that allow the production of high-quality prints made exactly to the original scale, with faithful colour values, and even with duplication of the surface relief of the painting.</p>
+                <p class="mb-4">But despite an implicit recognition that the spread of good reproductions can be culturally valuable, museums continue to promote the special status of original work.</p>
+                <p class="mb-4">Unfortunately, this seems to place severe limitations on the kind of experience offered to visitors.</p>
+                <p class="mb-4">One limitation is related to the way the museum presents its exhibits. As repositories of unique historical objects, art museums are often called ‘treasure houses’. We are reminded of this even before we view a collection by the presence of security guards, attendants, ropes and display cases to keep us away from the exhibits. In many cases, the architectural style of the building further reinforces that notion. In addition, a major collection like that of London’s National Gallery is housed in numerous rooms, each with dozens of works, any one of which is likely to be worth more than all the average visitor possesses. In a society that judges the personal status of the individual so much by their material worth, it is therefore difficult not to be impressed by one’s own relative ‘worthlessness’ in such an environment.</p>
+                <p class="mb-4">Furthermore, consideration of the ‘value’ of the original work in its treasure house setting impresses upon the viewer that, since these works were originally produced, they have been assigned a huge monetary value by some person or institution more powerful than themselves. Evidently, nothing the viewer thinks about the work is going to alter that value, and so today’s viewer is deterred from trying to extend that spontaneous, immediate, self-reliant kind of reading which would originally have met the work.</p>
+                <p class="mb-4">The visitor may then be struck by the strangeness of seeing such diverse paintings, drawings and sculptures brought together in an environment for which they were not originally created. This ‘displacement effect’ is further heightened by the sheer volume of exhibits. In the case of a major collection, there are probably more works on display than we could realistically view in weeks or even months.</p>
+                <p class="mb-4">This is particularly distressing because time seems to be a vital factor in the appreciation of all art forms. A fundamental difference between paintings and other art forms is that there is no prescribed time over which a painting is viewed. By contrast, the audience encourage an opera or a play over a specific time, which is the duration of the performance. Similarly, novels and poems are read in a prescribed temporal sequence, whereas a picture has no clear place at which to start viewing, or at which to finish. Thus art works themselves encourage us to view them superficially, without appreciating the richness of detail and labour that is involved.</p>
+                <p class="mb-4">Consequently, the dominant critical approach becomes that of the art historian, a specialised academic approach devoted to ‘discovering the meaning’ of art within the cultural context of its time. This is in perfect harmony with the museum’s function, since the approach is dedicated to seeking out and conserving ‘authentic’, original, readings of the exhibits. Again, this seems to put paid to that spontaneous, participators criticism which can be found in abundance in criticism of classic works of literature, but is absent from most art history.</p>
+                <p class="mb-4">The displays of art museums serve as a warning of what critical practices can emerge when spontaneous criticism is suppressed. The museum public, like any other audience, experience art more rewardingly when given the confidence to express their views. If appropriate works of fine art could be rendered permanently accessible to the public by means of high-fidelity reproductions, as literature and music already are, the public may feel somewhat less in awe of them. Unfortunately, that may be too much to ask from those who seek to maintain and control the art establishment.</p>
+            </div>
+
+            <!-- VOCABULARY TABLE -->
+            <div class="mt-12 border-t-2 border-gray-300 pt-6">
+                <h3 class="text-lg font-bold mb-3 text-gray-700"><i class="fas fa-language mr-2"></i>Vocabulary Reference (B1+)</h3>
+                <table class="min-w-full text-sm text-left text-gray-500 border border-gray-200">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-2 border-b">Word</th>
+                            <th class="px-4 py-2 border-b">Definition / Context</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="bg-white border-b"><td class="px-4 py-2 font-medium text-gray-900">Manuscript</td><td class="px-4 py-2">A book, document, or piece of music written by hand rather than typed or printed.</td></tr>
+                        <tr class="bg-gray-50 border-b"><td class="px-4 py-2 font-medium text-gray-900">Facsimile</td><td class="px-4 py-2">An exact copy, especially of written or printed material.</td></tr>
+                        <tr class="bg-white border-b"><td class="px-4 py-2 font-medium text-gray-900">Apprentice</td><td class="px-4 py-2">A person who is learning a trade from a skilled employer.</td></tr>
+                        <tr class="bg-gray-50 border-b"><td class="px-4 py-2 font-medium text-gray-900">Implicit</td><td class="px-4 py-2">Implied though not plainly expressed.</td></tr>
+                        <tr class="bg-white border-b"><td class="px-4 py-2 font-medium text-gray-900">Repository</td><td class="px-4 py-2">A place, building, or receptacle where things are or may be stored.</td></tr>
+                        <tr class="bg-gray-50 border-b"><td class="px-4 py-2 font-medium text-gray-900">Reinforce</td><td class="px-4 py-2">Strengthen or support (an object or substance), especially with additional material.</td></tr>
+                        <tr class="bg-white border-b"><td class="px-4 py-2 font-medium text-gray-900">Deter</td><td class="px-4 py-2">Discourage (someone) from doing something by instilling doubt or fear.</td></tr>
+                        <tr class="bg-gray-50 border-b"><td class="px-4 py-2 font-medium text-gray-900">Displacement</td><td class="px-4 py-2">The moving of something from its place or position.</td></tr>
+                        <tr class="bg-white border-b"><td class="px-4 py-2 font-medium text-gray-900">Superficial</td><td class="px-4 py-2">Existing or occurring at or on the surface; not deep or thorough.</td></tr>
+                        <tr class="bg-gray-50 border-b"><td class="px-4 py-2 font-medium text-gray-900">Suppress</td><td class="px-4 py-2">Forcibly put an end to.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="h-10"></div>
+        </div>
+
+        <!-- RIGHT: QUESTIONS -->
+        <div class="w-1/2 bg-gray-50 overflow-y-auto p-8" id="questions-container">
+            <div class="max-w-2xl mx-auto">
+                <form id="quiz-form">
+                    
+                    <!-- SECTION 1: SUMMARY COMPLETION -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-bold mb-2 text-gray-800">Questions 27-31</h3>
+                        <p class="text-sm text-gray-600 mb-2">Complete the summary using the list of words, <strong>A-L</strong>, below.</p>
+                        
+                        <div class="bg-white p-6 rounded shadow-sm border border-gray-200 leading-loose text-justify text-gray-800">
+                            <h4 class="font-bold mb-2 text-center text-blue-900">The value attached to original works of art</h4>
+                            People go to art museums because they accept the value of seeing an original work of art. But they do not go to museums to read original manuscripts of novels, perhaps because the availability of novels has depended on 
+                            <strong>27</strong> <input type="text" name="q27" class="inline-select" maxlength="1"> for so long, and also because with novels, the 
+                            <strong>28</strong> <input type="text" name="q28" class="inline-select" maxlength="1"> are the most important thing.
+                            However, in historical times artists such as Leonardo were happy to instruct 
+                            <strong>29</strong> <input type="text" name="q29" class="inline-select" maxlength="1"> to produce copies of their work and these days new methods of reproduction allow excellent replication of surface relief features as well as colour and 
+                            <strong>30</strong> <input type="text" name="q30" class="inline-select" maxlength="1">. It is regrettable that museums still promote the superiority of original works of art, since this may not be in the interests of the 
+                            <strong>31</strong> <input type="text" name="q31" class="inline-select" maxlength="1">.
+                        </div>
+
+                        <!-- OPTIONS BOX -->
+                        <div class="bg-blue-50 p-4 rounded border border-blue-200 mt-4 text-sm">
+                            <div class="grid grid-cols-3 gap-2 text-gray-700">
+                                <div><strong>A</strong> institution</div>
+                                <div><strong>B</strong> mass production</div>
+                                <div><strong>C</strong> mechanical processes</div>
+                                <div><strong>D</strong> public</div>
+                                <div><strong>E</strong> paints</div>
+                                <div><strong>F</strong> artist</div>
+                                <div><strong>G</strong> size</div>
+                                <div><strong>H</strong> underlying ideas</div>
+                                <div><strong>I</strong> basic technology</div>
+                                <div><strong>J</strong> readers</div>
+                                <div><strong>K</strong> picture frames</div>
+                                <div><strong>L</strong> assistants</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 2: MULTIPLE CHOICE -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-bold mb-2 text-gray-800">Questions 32-35</h3>
+                        <p class="text-sm text-gray-600 mb-4">Choose the correct letter, <strong>A, B, C or D</strong>.</p>
+                        
+                        <div class="space-y-6">
+                            <!-- Q32 -->
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200">
+                                <p class="mb-2 font-medium">32. The writer mentions London’s National Gallery to illustrate</p>
+                                <div class="space-y-2 text-sm text-gray-700">
+                                    <label class="flex items-start cursor-pointer"><input type="radio" name="q32" value="A" class="mt-1 mr-2"> A. the undesirable cost to a nation of maintaining a huge collection of art.</label>
+                                    <label class="flex items-start cursor-pointer"><input type="radio" name="q32" value="B" class="mt-1 mr-2"> B. the conflict that may arise in society between financial and artistic values.</label>
+                                    <label class="flex items-start cursor-pointer"><input type="radio" name="q32" value="C" class="mt-1 mr-2"> C. the negative effect a museum can have on visitors’ opinions of themselves.</label>
+                                    <label class="flex items-start cursor-pointer"><input type="radio" name="q32" value="D" class="mt-1 mr-2"> D. the need to put individual well-being above large-scale artistic schemes.</label>
+                                </div>
+                            </div>
+
+                            <!-- Q33 -->
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200">
+                                <p class="mb-2 font-medium">33. The writer says that today, viewers may be unwilling to criticise a work because</p>
+                                <div class="space-y-2 text-sm text-gray-700">
+                                    <label class="flex items-start cursor-pointer"><input type="radio" name="q33" value="A" class="mt-1 mr-2"> A. they lack the knowledge needed to support an opinion.</label>
+                                    <label class="flex items-start cursor-pointer"><input type="radio" name="q33" value="B" class="mt-1 mr-2"> B. they fear it may have financial implications.</label>
+                                    <label class="flex items-start cursor-pointer"><input type="radio" name="q33" value="C" class="mt-1 mr-2"> C. they have no real concept of the work’s value.</label>
+                                    <label class="flex items-start cursor-pointer"><input type="radio" name="q33" value="D" class="mt-1 mr-2"> D. they feel their personal reaction is of no significance.</label>
+                                </div>
+                            </div>
+
+                            <!-- Q34 -->
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200">
+                                <p class="mb-2 font-medium">34. According to the writer, the ‘displacement effect’ on the visitor is caused by</p>
+                                <div class="space-y-2 text-sm text-gray-700">
+                                    <label class="flex items-start cursor-pointer"><input type="radio" name="q34" value="A" class="mt-1 mr-2"> A. the variety of works on display and the way they are arranged.</label>
+                                    <label class="flex items-start cursor-pointer"><input type="radio" name="q34" value="B" class="mt-1 mr-2"> B. the impossibility of viewing particular works of art over a long period.</label>
+                                    <label class="flex items-start cursor-pointer"><input type="radio" name="q34" value="C" class="mt-1 mr-2"> C. the similar nature of the paintings and the lack of great works.</label>
+                                    <label class="flex items-start cursor-pointer"><input type="radio" name="q34" value="D" class="mt-1 mr-2"> D. the inappropriate nature of the individual works selected for exhibition.</label>
+                                </div>
+                            </div>
+
+                            <!-- Q35 -->
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200">
+                                <p class="mb-2 font-medium">35. The writer says that unlike other forms of art, a painting does not</p>
+                                <div class="space-y-2 text-sm text-gray-700">
+                                    <label class="flex items-start cursor-pointer"><input type="radio" name="q35" value="A" class="mt-1 mr-2"> A. involve direct contact with an audience.</label>
+                                    <label class="flex items-start cursor-pointer"><input type="radio" name="q35" value="B" class="mt-1 mr-2"> B. require a specific location for a performance.</label>
+                                    <label class="flex items-start cursor-pointer"><input type="radio" name="q35" value="C" class="mt-1 mr-2"> C. need the involvement of other professionals.</label>
+                                    <label class="flex items-start cursor-pointer"><input type="radio" name="q35" value="D" class="mt-1 mr-2"> D. have a specific beginning or end.</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 3: YES/NO/NOT GIVEN -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-bold mb-2 text-gray-800">Questions 36-40</h3>
+                        <p class="text-sm text-gray-600 mb-2">Do the following statements agree with the views of the writer in Reading Passage?</p>
+                        <div class="bg-gray-100 p-3 rounded mb-4 text-xs italic text-gray-600">
+                            <strong>YES</strong> if the statement agrees with the views of the writer<br>
+                            <strong>NO</strong> if the statement contradicts the views of the writer<br>
+                            <strong>NOT GIVEN</strong> if the is impossible to say what the writer thinks about this
+                        </div>
+
+                        <div class="space-y-4">
+                            <!-- Q36 -->
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200">
+                                <p class="mb-2">36. Art history should focus on discovering the meaning of art using a range of media.</p>
+                                <input type="text" name="q36" class="w-full border border-gray-300 rounded p-2 uppercase" placeholder="YES / NO / NOT GIVEN">
+                            </div>
+                            <!-- Q37 -->
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200">
+                                <p class="mb-2">37. The approach of art historians conflicts with that of art museums.</p>
+                                <input type="text" name="q37" class="w-full border border-gray-300 rounded p-2 uppercase" placeholder="YES / NO / NOT GIVEN">
+                            </div>
+                            <!-- Q38 -->
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200">
+                                <p class="mb-2">38. People should be encouraged to give their opinions openly on works of art.</p>
+                                <input type="text" name="q38" class="w-full border border-gray-300 rounded p-2 uppercase" placeholder="YES / NO / NOT GIVEN">
+                            </div>
+                            <!-- Q39 -->
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200">
+                                <p class="mb-2">39. Reproductions of fine art should only be sold to the public if they are of high quality.</p>
+                                <input type="text" name="q39" class="w-full border border-gray-300 rounded p-2 uppercase" placeholder="YES / NO / NOT GIVEN">
+                            </div>
+                            <!-- Q40 -->
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200">
+                                <p class="mb-2">40. In the future, those with power are likely to encourage more people to enjoy art.</p>
+                                <input type="text" name="q40" class="w-full border border-gray-300 rounded p-2 uppercase" placeholder="YES / NO / NOT GIVEN">
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+
+                <!-- SUBMIT AREA -->
+                <div class="mt-8 mb-12">
+                    <button id="submit-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded shadow-lg transition transform hover:scale-[1.01]">
+                        Submit Answers
+                    </button>
+                    <div id="result-area" class="mt-4 hidden p-4 bg-white border border-gray-200 rounded text-center">
+                        <div class="text-2xl font-bold mb-2">Score: <span id="score-display">0/14</span></div>
+                        <p class="text-sm text-gray-500">Your results file has been downloaded. Please send it to your teacher.</p>
+                        <p class="text-xs text-gray-400 mt-2">Click on questions to see detailed explanations.</p>
+                        <button id="redo-btn" class="mt-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded transition">
+                            Redo Test
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-gray-800 text-white text-center p-2 text-xs shrink-0">
+        Encoded by Dinh Phuoc
+    </footer>
+
+    <!-- CONTEXT MENU -->
+    <ul id="ctx-menu">
+        <li id="menu-highlight"><i class="fas fa-highlighter mr-2 text-yellow-500"></i>Highlight</li>
+        <li id="menu-remove"><i class="fas fa-eraser mr-2 text-gray-500"></i>Remove Highlight</li>
+    </ul>
+
+    <script>
+        // --- DATA & CONFIG ---
+        const answersKey = {
+            27: { ans: "B", expl: "Text: 'novel has evolved precisely because of technological developments that made it possible to print out huge numbers of texts'. (Mass production)" },
+            28: { ans: "H", expl: "Text: 'reader attends mainly to the meaning of words rather than the way they are printed'. (Underlying ideas)" },
+            29: { ans: "L", expl: "Text: 'assign the reproduction of their creations to their workshop apprentices'. (Assistants)" },
+            30: { ans: "G", expl: "Text: 'production of high-quality prints made exactly to the original scale'. (Size)" },
+            31: { ans: "D", expl: "Text: 'museums continue to promote the special status of original work... unfortunately this seems to place severe limitations on the kind of experience offered to visitors'. (Public)" },
+            32: { ans: "C", expl: "Text: 'it is therefore difficult not to be impressed by one’s own relative ‘worthlessness’ in such an environment'." },
+            33: { ans: "D", expl: "Text: 'nothing the viewer thinks about the work is going to alter that value... deterred from trying to extend that spontaneous... reading'." },
+            34: { ans: "A", expl: "Text: 'strangeness of seeing such diverse paintings... brought together in an environment for which they were not originally created... sheer volume of exhibits'." },
+            35: { ans: "D", expl: "Text: 'whereas a picture has no clear place at which to start viewing, or at which to finish'." },
+            36: { ans: "NOT GIVEN", expl: "The text discusses art historians 'discovering the meaning', but does not mention they *should* use a 'range of media'." },
+            37: { ans: "NO", expl: "Text: 'This is in perfect harmony with the museum’s function'. (They agree, not conflict)." },
+            38: { ans: "YES", expl: "Text: 'museum public... experience art more rewardingly when given the confidence to express their views'." },
+            39: { ans: "NOT GIVEN", expl: "Text mentions 'high-fidelity reproductions' make art accessible, but doesn't explicitly restrict sales based on quality." },
+            40: { ans: "NO", expl: "Text: 'Unfortunately, that may be too much to ask from those who seek to maintain and control the art establishment'." }
+        };
+
+        let userInfo = {};
+        let timerInterval;
+        let remainingTime;
+        let currentAttempt = 0;
+        let cheatFlags = 0;
+        let clientIP = "127.0.0.1";
+        let isSubmitted = false;
+        const passwordKey = "examp"; 
+
+        // --- INIT & IP FETCH ---
+        window.onload = async () => {
+            let storedAttempts = parseInt(localStorage.getItem('museum_test_attempts') || 0);
+            currentAttempt = storedAttempts + 1;
+            localStorage.setItem('museum_test_attempts', currentAttempt);
+
+            if (currentAttempt > 1) {
+                document.getElementById('attempt-warning').classList.remove('hidden');
+                document.getElementById('attempt-count-display').textContent = currentAttempt;
+            }
+
+            try {
+                const res = await fetch('https://api.ipify.org?format=json');
+                const data = await res.json();
+                clientIP = data.ip;
+            } catch (e) {
+                console.log("Fallback IP used");
+            }
+        };
+
+        // --- LOGIN ---
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const enteredPass = document.getElementById('student-pass').value;
+            if (enteredPass !== passwordKey) {
+                alert("Incorrect Password. (Hint: check placeholder)");
+                return;
+            }
+            
+            userInfo = {
+                name: document.getElementById('student-name').value,
+                email: document.getElementById('student-email').value,
+                class: document.getElementById('student-class').value,
+                practiceTime: parseInt(document.getElementById('practice-time').value)
+            };
+
+            document.getElementById('user-display').textContent = `${userInfo.name} - ${userInfo.class}`;
+            document.getElementById('overlay').style.display = 'none';
+            startTimer(userInfo.practiceTime * 60);
+        });
+
+        // --- TIMER ---
+        function startTimer(duration) {
+            remainingTime = duration;
+            updateTimerDisplay();
+            timerInterval = setInterval(() => {
+                remainingTime--;
+                updateTimerDisplay();
+                if (remainingTime <= 0) {
+                    clearInterval(timerInterval);
+                    alert("Time's up!");
+                    submitTest();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const h = Math.floor(remainingTime / 3600);
+            const m = Math.floor((remainingTime % 3600) / 60);
+            const s = remainingTime % 60;
+            document.getElementById('timer').textContent = 
+                `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            if (remainingTime < 60) document.getElementById('timer').classList.add('bg-red-100');
+        }
+
+        // --- ANTI-CHEAT (TAB SWITCHING) ---
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden && !isSubmitted && document.getElementById('overlay').style.display === 'none') {
+                cheatFlags++;
+                document.getElementById('cheat-alert').classList.remove('hidden');
+                document.getElementById('cheat-alert').textContent = `Warning: Tab Switch Detected! (${cheatFlags}/2)`;
+                
+                if (cheatFlags > 2) {
+                    alert("Cheat violation: Too many tab switches. Reloading.");
+                    location.reload();
+                }
+            }
+        });
+
+        // --- HIGHLIGHTING (DOM-BASED ROBUST VERSION) ---
+        const readingArea = document.getElementById('reading-passage');
+        const ctxMenu = document.getElementById('ctx-menu');
+        let savedRange = null;
+        let clickedElement = null;
+
+        readingArea.addEventListener('contextmenu', e => {
+            e.preventDefault();
+            clickedElement = e.target;
+            const sel = window.getSelection();
+            
+            if (sel.toString().length > 0 && readingArea.contains(sel.anchorNode)) {
+                savedRange = sel.getRangeAt(0);
+                showMenu(e.pageX, e.pageY);
+            } 
+            else if (clickedElement.classList.contains('highlight-yellow')) {
+                savedRange = null; 
+                showMenu(e.pageX, e.pageY);
+            }
+        });
+
+        function showMenu(x, y) {
+            ctxMenu.style.display = 'block';
+            ctxMenu.style.left = x + 'px';
+            ctxMenu.style.top = y + 'px';
+        }
+
+        document.addEventListener('click', e => {
+            if (!e.target.closest('#ctx-menu')) ctxMenu.style.display = 'none';
+        });
+
+        document.getElementById('menu-highlight').addEventListener('click', () => {
+            if (savedRange) {
+                try {
+                    const span = document.createElement('span');
+                    span.className = 'highlight-yellow';
+                    savedRange.surroundContents(span);
+                    window.getSelection().removeAllRanges();
+                } catch(err) {
+                    alert("Can't highlight across multiple paragraphs. Please select within one paragraph.");
+                }
+            }
+            ctxMenu.style.display = 'none';
+        });
+
+        document.getElementById('menu-remove').addEventListener('click', () => {
+            if (clickedElement && clickedElement.classList.contains('highlight-yellow')) {
+                const parent = clickedElement.parentNode;
+                while (clickedElement.firstChild) {
+                    parent.insertBefore(clickedElement.firstChild, clickedElement);
+                }
+                parent.removeChild(clickedElement);
+            }
+            ctxMenu.style.display = 'none';
+        });
+
+        // --- SUBMISSION ---
+        document.getElementById('submit-btn').addEventListener('click', submitTest);
+
+        function submitTest() {
+            if (isSubmitted) return;
+            isSubmitted = true;
+            clearInterval(timerInterval);
+
+            let score = 0;
+            const form = document.getElementById('quiz-form');
+            let studentAnswers = {};
+
+            // Loop through questions 27 to 40
+            for (let i = 27; i <= 40; i++) {
+                let userVal = "";
+                
+                // Get value based on input type (Text for Summary, Radio for MC, Text for Y/N)
+                if (i >= 27 && i <= 31) {
+                     // Summary Completion
+                     const input = form.querySelector(`input[name="q${i}"]`);
+                     userVal = input.value.trim().toUpperCase();
+                     studentAnswers[`Q${i}`] = userVal;
+                     
+                     // Visual Check
+                     const container = input.closest('.mb-8'); // Summary block container check
+                } else if (i >= 32 && i <= 35) {
+                     // Multiple Choice
+                     const radio = form.querySelector(`input[name="q${i}"]:checked`);
+                     userVal = radio ? radio.value : "";
+                     studentAnswers[`Q${i}`] = userVal;
+                     
+                     // Disable radios
+                     form.querySelectorAll(`input[name="q${i}"]`).forEach(r => r.disabled = true);
+                } else {
+                     // Y/N/NG
+                     const input = form.querySelector(`input[name="q${i}"]`);
+                     userVal = input.value.trim().toUpperCase();
+                     // Normalise
+                     if (["Y", "YES", "T", "TRUE"].includes(userVal)) userVal = "YES";
+                     if (["N", "NO", "F", "FALSE"].includes(userVal)) userVal = "NO";
+                     if (["NG", "NOT GIVEN"].includes(userVal)) userVal = "NOT GIVEN";
+                     
+                     studentAnswers[`Q${i}`] = userVal;
+                }
+
+                const correctAns = answersKey[i].ans;
+                let isCorrect = (userVal === correctAns);
+                
+                // --- RENDERING FEEDBACK ---
+                
+                // Locate container for feedback
+                let container;
+                if (i >= 27 && i <= 31) {
+                    // For summary, feedback is tricky. We append it to the main block or replace input style
+                    const input = form.querySelector(`input[name="q${i}"]`);
+                    container = input.parentElement; // The text block
+                    if (isCorrect) {
+                        input.style.backgroundColor = "#dcfce7"; // green-100
+                        input.style.borderBottom = "2px solid #16a34a";
+                    } else {
+                        input.style.backgroundColor = "#fee2e2"; // red-100
+                        input.style.borderBottom = "2px solid #dc2626";
+                        // Create tooltip/span for correct answer
+                        const span = document.createElement("span");
+                        span.className = "text-xs text-red-600 font-bold ml-1";
+                        span.innerText = `(${correctAns})`;
+                        input.after(span);
+                    }
+                } else {
+                    // Standard containers
+                    if (i >= 32 && i <= 35) {
+                         container = form.querySelector(`input[name="q${i}"]`).closest('.question-container');
+                    } else {
+                         container = form.querySelector(`input[name="q${i}"]`).closest('.question-container');
+                         const input = form.querySelector(`input[name="q${i}"]`);
+                         if (isCorrect) input.classList.add('border-green-500', 'text-green-700', 'font-bold');
+                         else input.classList.add('border-red-500', 'wrong-answer');
+                    }
+                    
+                    const explDiv = document.createElement('div');
+                    explDiv.className = 'explanation-box';
+                    explDiv.innerHTML = `<strong>Answer:</strong> ${correctAns}<br><strong>Why:</strong> ${answersKey[i].expl}`;
+                    
+                    if (!isCorrect) {
+                        const corrSpan = document.createElement('div');
+                        corrSpan.className = 'correct-answer mt-1 text-sm';
+                        corrSpan.innerText = `Correct: ${correctAns}`;
+                        container.appendChild(corrSpan);
+                    }
+                    container.appendChild(explDiv);
+                    container.onclick = function(e) {
+                        if(e.target.tagName === 'INPUT') return;
+                        explDiv.style.display = explDiv.style.display === 'block' ? 'none' : 'block';
+                    };
+                }
+
+                if (isCorrect) score++;
+            }
+
+            document.getElementById('score-display').innerText = `${score}/14`;
+            document.getElementById('result-area').classList.remove('hidden');
+            document.getElementById('submit-btn').style.display = 'none';
+            document.getElementById('questions-container').classList.add('review-mode');
+            
+            form.querySelectorAll('input').forEach(inp => inp.disabled = true);
+            generateAndDownloadFile(score, studentAnswers);
+        }
+
+        document.getElementById('redo-btn').addEventListener('click', () => {
+            if(confirm("Redo test? New attempt will be recorded.")) location.reload();
+        });
+
+        function generateAndDownloadFile(score, answers) {
+            const timeTaken = (userInfo.practiceTime * 60) - remainingTime;
+            const mins = Math.floor(timeTaken / 60);
+            const secs = timeTaken % 60;
+            const dateStr = new Date().toLocaleString();
+
+            let content = `READING TEST: MUSEUMS OF FINE ART\n`;
+            content += `=================================\n`;
+            content += `Student: ${userInfo.name}\nEmail: ${userInfo.email}\nClass: ${userInfo.class}\n`;
+            content += `Date: ${dateStr}\nIP: ${clientIP}\nAttempt: ${currentAttempt}\n`;
+            content += `Violations: ${cheatFlags}\nTime: ${mins}m ${secs}s\nScore: ${score}/14\n\nANSWERS:\n`;
+            
+            for (const [q, ans] of Object.entries(answers)) {
+                content += `${q}: ${ans}\n`;
+            }
+
+            const blob = new Blob([content], { type: "text/plain" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const safeName = userInfo.name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+            a.href = url;
+            a.download = `${safeName}_MuseumTest_${new Date().getTime()}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // --- PREVENT INSPECT (F12, Ctrl+Shift+I, etc.) ---
+        document.addEventListener("keydown", function (e) {
+            if (
+                e.key === "F12" ||
+                (e.ctrlKey && e.shiftKey && e.key === "I") ||
+                (e.ctrlKey && e.shiftKey && e.key === "J") ||
+                (e.ctrlKey && e.shiftKey && e.key === "C") ||
+                (e.ctrlKey && e.key === "u") ||
+                (e.ctrlKey && e.key === "p") ||
+                (e.ctrlKey && e.key === "s")
+            ) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    </script>
+</body>
+</html>

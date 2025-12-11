@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tea and the Industrial Revolution</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            user-select: none; /* Base protection */
+        }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+
+        /* Allow text selection in reading area for highlighting */
+        #reading-passage {
+            user-select: text;
+            font-weight: normal !important;
+        }
+        /* Enforce normal weight to prevent cheating/hints */
+        #reading-passage b, #reading-passage strong { font-weight: normal !important; }
+
+        /* Context Menu */
+        #ctx-menu {
+            display: none;
+            position: absolute;
+            z-index: 100;
+            background: white;
+            border: 1px solid #ccc;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+            border-radius: 4px;
+            width: 150px;
+        }
+        #ctx-menu li {
+            padding: 8px 12px;
+            cursor: pointer;
+            list-style: none;
+            font-size: 14px;
+        }
+        #ctx-menu li:hover { background-color: #f0f0f0; }
+
+        /* Highlight Class */
+        .highlight-yellow { background-color: #ffff00; cursor: pointer; }
+
+        /* Overlay */
+        #overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        /* Review Mode Styles */
+        .correct-answer { color: #16a34a; font-weight: bold; }
+        .wrong-answer { color: #dc2626; text-decoration: line-through; }
+        .explanation-box {
+            background-color: #f0f9ff;
+            border-left: 4px solid #0ea5e9;
+            padding: 10px;
+            margin-top: 5px;
+            font-size: 0.9em;
+            display: none;
+        }
+        
+        .review-mode .question-container { cursor: pointer; }
+        .review-mode .question-container:hover { background-color: #f8fafc; }
+
+        /* Roman Numeral List Style */
+        .roman-list { list-style-type: lower-roman; padding-left: 20px; }
+    </style>
+</head>
+<body class="bg-gray-100 h-screen flex flex-col">
+
+    <!-- LOGIN OVERLAY -->
+    <div id="overlay">
+        <div class="bg-white p-8 rounded-lg shadow-2xl w-full max-w-md">
+            <h2 class="text-2xl font-bold mb-6 text-center text-blue-800">Reading Test Login</h2>
+            <div id="attempt-warning" class="hidden bg-red-100 text-red-700 p-3 rounded mb-4 text-sm">
+                <strong>Notice:</strong> This is attempt #<span id="attempt-count-display"></span>. Previous attempts recorded.
+            </div>
+            <form id="login-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Full Name</label>
+                    <input type="text" id="student-name" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="Nguyen Van A">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Email</label>
+                    <input type="email" id="student-email" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Class</label>
+                    <input type="text" id="student-class" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Password</label>
+                    <input type="password" id="student-pass" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="Enter 'examp' to start">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Practice Time (Minutes)</label>
+                    <input type="number" id="practice-time" min="1" max="120" value="20" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 transition font-bold">Start Test</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <header class="bg-white shadow-sm p-4 flex justify-between items-center z-10 h-16 shrink-0">
+        <div class="font-bold text-xl text-gray-800"><i class="fas fa-mug-hot mr-2"></i>Tea & Industrial Revolution</div>
+        <div class="flex items-center space-x-4">
+            <div class="text-sm text-gray-500 font-medium" id="user-display">Guest</div>
+            <div id="cheat-alert" class="hidden text-red-600 font-bold text-sm mr-2">Warning: Tab Switch Detected!</div>
+            <div class="bg-red-50 text-red-600 px-4 py-2 rounded-lg font-mono font-bold text-xl border border-red-200" id="timer">00:00:00</div>
+        </div>
+    </header>
+
+    <main class="flex-grow flex overflow-hidden">
+        
+        <!-- LEFT: READING PASSAGE -->
+        <div class="w-1/2 bg-white border-r border-gray-200 overflow-y-auto p-8 relative" id="reading-container">
+            <h2 class="text-2xl mb-2 text-blue-900 font-bold">Tea and the Industrial Revolution</h2>
+            <h3 class="text-lg mb-4 text-gray-600 italic">A Cambridge professor says that a change in drinking habits was the reason for the Industrial Revolution in Britain. Anjana Abuja reports</h3>
+            
+            <div id="reading-passage" class="text-lg leading-relaxed text-gray-800 text-justify">
+                <p class="mb-4"><span class="font-bold text-blue-600">[A]</span> Alan Macfarlane, professor of anthropological science at King’s College, Cambridge has, like other historians, spent decades wrestling with the enigma of the Industrial Revolution. Why did this particular Big Bang – the world-changing birth of industry-happen in Britain? And why did it strike at the end of the 18th century?</p>
+                
+                <p class="mb-4"><span class="font-bold text-blue-600">[B]</span> Macfarlane compares the puzzle to a combination lock. ‘There are about 20 different factors and all of them need to be present before the revolution can happen,’ he says. For industry to take off, there needs to be the technology and power to drive factories, large urban populations to provide cheap labour, easy transport to move goods around, an affluent middle-class willing to buy mass-produced objects, a market-driven economy and a political system that allows this to happen. While this was the case for England, other nations, such as Japan, the Netherlands and France also met some of these criteria but were not industrialising. All these factors must have been necessary. But not sufficient to cause the revolution, says Macfarlane. ‘After all, Holland had everything except coal while China also had many of these factors. Most historians are convinced there are one or two missing factors that you need to open the lock.’</p>
+                
+                <p class="mb-4"><span class="font-bold text-blue-600">[C]</span> The missing factors, he proposes, are to be found in almost even kitchen cupboard. Tea and beer, two of the nation’s favourite drinks, fuelled the revolution. The antiseptic properties of tannin, the active ingredient in tea, and of hops in beer – plus the fact that both are made with boiled water – allowed urban communities to flourish at close quarters without succumbing to water-borne diseases such as dysentery. The theory sounds eccentric but once he starts to explain the detective work that went into his deduction, the scepticism gives way to wary admiration. Macfarlanes case has been strengthened by support from notable quarters – Roy Porter, the distinguished medical historian, recently wrote a favourable appraisal of his research.</p>
+                
+                <p class="mb-4"><span class="font-bold text-blue-600">[D]</span> Macfarlane had wondered for a long time how the Industrial Revolution came about. Historians had alighted on one interesting factor around the mid-18th century that required explanation. Between about 1650 and 1740, the population in Britain was static. But then there was a burst in population growth. Macfarlane says: ‘The infant mortality rate halved in the space of 20 years, and this happened in both rural areas and cities, and across all classes. People suggested four possible causes. Was there a sudden change in the viruses and bacteria around? Unlikely. Was there a revolution in medical science? But this was a century before Lister’s revolution*. Was there a change in environmental conditions? There were improvements in agriculture that wiped out malaria, but these were small gains. Sanitation did not become widespread until the 19th century. The only option left is food. But the height and weight statistics show a decline. So the food must have got worse. Efforts to explain this sudden reduction in child deaths appeared to draw a blank.’</p>
+                
+                <p class="mb-4"><span class="font-bold text-blue-600">[E]</span> This population burst seemed to happen at just the right time to provide labour for the Industrial Revolution. ‘When you start moving towards an industrial revolution, it is economically efficient to have people living close together,’ says Macfarlane. ‘But then you get disease, particularly from human waste.’ Some digging around in historical records revealed that there was a change in the incidence of water-borne disease at that time, especially dysentery. Macfarlane deduced that whatever the British were drinking must have been important in regulating disease. He says, ‘We drank beer. For a long time, the English were protected by the strong antibacterial agent in hops, which were added to help preserve the beer. But in the late 17th century a tax was introduced on malt, the basic ingredient of beer. The poor turned to water and gin and in the 1720s the mortality rate began to rise again. Then it suddenly dropped again. What caused this?’</p>
+                
+                <p class="mb-4"><span class="font-bold text-blue-600">[F]</span> Macfarlane looked to Japan, which was also developing large cities about the same time, and also had no sanitation. Water-borne diseases had a much looser grip on the Japanese population than those in Britain. Could it be the prevalence of tea in their culture? Macfarlane then noted that the history of tea in Britain provided an extraordinary coincidence of dates. Tea was relatively expensive until Britain started a direct clipper trade with China in the early 18th century. By the 1740s, about the time that infant mortality was dipping, the drink was common. Macfarlane guessed that the fact that water had to be boiled, together with the stomach-purifying properties of tea meant that the breast milk provided by mothers was healthier than it had ever been. No other European nation sipped tea like the British, which, by Macfarlanes logic, pushed these other countries out of contention for the revolution.</p>
+                
+                <p class="mb-4"><span class="font-bold text-blue-600">[G]</span> But, if tea is a factor in the combination lock, why didn’t Japan forge ahead in a tea-soaked industrial revolution of its own? Macfarlane notes that even though 17th-century Japan had large cities, high literacy rates, even a futures market, it had turned its back on the essence of any work-based revolution by giving up labour-saving devices such as animals, afraid that they would put people out of work. So, the nation that we now think of as one of the most technologically advanced entered the 19th century having ‘abandoned the wheel’.</p>
+                
+                <p class="text-sm mt-8 border-t pt-2 text-gray-500">* Joseph Lister was the first doctor to use antiseptic techniques during surgical operations to prevent infections.</p>
+            </div>
+
+            <!-- VOCABULARY TABLE -->
+            <div class="mt-12 border-t-2 border-gray-300 pt-6">
+                <h3 class="text-lg font-bold mb-3 text-gray-700"><i class="fas fa-language mr-2"></i>Vocabulary Reference (B1+)</h3>
+                <table class="min-w-full text-sm text-left text-gray-500 border border-gray-200">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-2 border-b">Word</th>
+                            <th class="px-4 py-2 border-b">Definition / Context</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="bg-white border-b"><td class="px-4 py-2 font-medium text-gray-900">Anthropological</td><td class="px-4 py-2">Relating to the study of humankind.</td></tr>
+                        <tr class="bg-gray-50 border-b"><td class="px-4 py-2 font-medium text-gray-900">Enigma</td><td class="px-4 py-2">A person or thing that is mysterious or difficult to understand.</td></tr>
+                        <tr class="bg-white border-b"><td class="px-4 py-2 font-medium text-gray-900">Affluent</td><td class="px-4 py-2">(Especially of a group or area) having a great deal of money; wealthy.</td></tr>
+                        <tr class="bg-gray-50 border-b"><td class="px-4 py-2 font-medium text-gray-900">Succumbing</td><td class="px-4 py-2">Fail to resist pressure, temptation, or some other negative force (often disease).</td></tr>
+                        <tr class="bg-white border-b"><td class="px-4 py-2 font-medium text-gray-900">Dysentery</td><td class="px-4 py-2">Infection of the intestines resulting in severe diarrhoea.</td></tr>
+                        <tr class="bg-gray-50 border-b"><td class="px-4 py-2 font-medium text-gray-900">Eccentric</td><td class="px-4 py-2">(Of a person or their behaviour) unconventional and slightly strange.</td></tr>
+                        <tr class="bg-white border-b"><td class="px-4 py-2 font-medium text-gray-900">Scepticism</td><td class="px-4 py-2">A sceptical attitude; doubt as to the truth of something.</td></tr>
+                        <tr class="bg-gray-50 border-b"><td class="px-4 py-2 font-medium text-gray-900">Incidence</td><td class="px-4 py-2">The occurrence, rate, or frequency of a disease, crime, or something else undesirable.</td></tr>
+                        <tr class="bg-white border-b"><td class="px-4 py-2 font-medium text-gray-900">Prevalence</td><td class="px-4 py-2">The fact or condition of being prevalent; commonness.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="h-10"></div>
+        </div>
+
+        <!-- RIGHT: QUESTIONS -->
+        <div class="w-1/2 bg-gray-50 overflow-y-auto p-8" id="questions-container">
+            <div class="max-w-2xl mx-auto">
+                <form id="quiz-form">
+                    
+                    <!-- SECTION 1: MATCHING HEADINGS -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-bold mb-2 text-gray-800">Questions 1-7</h3>
+                        <p class="text-sm text-gray-600 mb-4">Reading Passage 1 has seven paragraphs, <strong>A-G</strong>.<br>Choose the correct heading for each paragraph from the list of headings below.</p>
+                        <p class="text-xs text-gray-500 mb-4 italic">Write the correct number, <strong>i-ix</strong>, in the boxes.</p>
+                        
+                        <!-- List of Headings Box -->
+                        <div class="bg-yellow-50 p-4 rounded border border-yellow-200 mb-6 text-sm">
+                            <h4 class="font-bold mb-2 text-gray-800">List of Headings</h4>
+                            <ul class="space-y-1 ml-4 text-gray-700">
+                                <li><strong>i</strong> &nbsp;&nbsp;&nbsp;&nbsp;The search for the reasons for an increase in population</li>
+                                <li><strong>ii</strong> &nbsp;&nbsp;&nbsp;Industrialisation and the fear of unemployment</li>
+                                <li><strong>iii</strong> &nbsp;&nbsp;The development of cities in Japan</li>
+                                <li><strong>iv</strong> &nbsp;&nbsp;The time and place of the Industrial Revolution</li>
+                                <li><strong>v</strong> &nbsp;&nbsp;&nbsp;The cases of Holland, France and China</li>
+                                <li><strong>vi</strong> &nbsp;&nbsp;Changes in drinking habits in Britain</li>
+                                <li><strong>vii</strong> &nbsp;Two keys to Britain’s industrial revolution</li>
+                                <li><strong>viii</strong> Conditions required for industrialisation</li>
+                                <li><strong>ix</strong> &nbsp;&nbsp;Comparisons with Japan lead to the answer</li>
+                            </ul>
+                        </div>
+
+                        <div class="space-y-4">
+                            <!-- Q1 -->
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200 flex justify-between items-center">
+                                <span class="w-3/4 font-medium">1. Paragraph A</span>
+                                <input type="text" name="q1" class="w-20 border border-gray-300 rounded p-1 text-center lowercase" placeholder="i-ix">
+                            </div>
+                            <!-- Q2 -->
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200 flex justify-between items-center">
+                                <span class="w-3/4 font-medium">2. Paragraph B</span>
+                                <input type="text" name="q2" class="w-20 border border-gray-300 rounded p-1 text-center lowercase" placeholder="i-ix">
+                            </div>
+                            <!-- Q3 -->
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200 flex justify-between items-center">
+                                <span class="w-3/4 font-medium">3. Paragraph C</span>
+                                <input type="text" name="q3" class="w-20 border border-gray-300 rounded p-1 text-center lowercase" placeholder="i-ix">
+                            </div>
+                            <!-- Q4 -->
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200 flex justify-between items-center">
+                                <span class="w-3/4 font-medium">4. Paragraph D</span>
+                                <input type="text" name="q4" class="w-20 border border-gray-300 rounded p-1 text-center lowercase" placeholder="i-ix">
+                            </div>
+                            <!-- Q5 -->
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200 flex justify-between items-center">
+                                <span class="w-3/4 font-medium">5. Paragraph E</span>
+                                <input type="text" name="q5" class="w-20 border border-gray-300 rounded p-1 text-center lowercase" placeholder="i-ix">
+                            </div>
+                            <!-- Q6 -->
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200 flex justify-between items-center">
+                                <span class="w-3/4 font-medium">6. Paragraph F</span>
+                                <input type="text" name="q6" class="w-20 border border-gray-300 rounded p-1 text-center lowercase" placeholder="i-ix">
+                            </div>
+                            <!-- Q7 -->
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200 flex justify-between items-center">
+                                <span class="w-3/4 font-medium">7. Paragraph G</span>
+                                <input type="text" name="q7" class="w-20 border border-gray-300 rounded p-1 text-center lowercase" placeholder="i-ix">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 2: TRUE/FALSE/NOT GIVEN -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-bold mb-4 text-gray-800">Questions 8-13</h3>
+                        <p class="text-sm text-gray-600 mb-2">Do the following statements agree with the information given in Reading Passage 1?</p>
+                        <div class="bg-gray-100 p-3 rounded mb-4 text-xs italic text-gray-600">
+                            <strong>TRUE</strong> if the statement agrees with the information<br>
+                            <strong>FALSE</strong> if the statement contradicts the information<br>
+                            <strong>NOT GIVEN</strong> if there is no information on this
+                        </div>
+
+                        <div class="space-y-4">
+                            <!-- Q8 -->
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200">
+                                <p class="mb-2">8. China’s transport system was not suitable for industry in the 18th century.</p>
+                                <input type="text" name="q8" class="w-full border border-gray-300 rounded p-2 uppercase" placeholder="TRUE / FALSE / NOT GIVEN">
+                            </div>
+                            <!-- Q9 -->
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200">
+                                <p class="mb-2">9. Tea and beer both helped to prevent dysentery in Britain.</p>
+                                <input type="text" name="q9" class="w-full border border-gray-300 rounded p-2 uppercase" placeholder="TRUE / FALSE / NOT GIVEN">
+                            </div>
+                            <!-- Q10 -->
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200">
+                                <p class="mb-2">10. Roy Porter disagrees with Professor Macfarlane’s findings.</p>
+                                <input type="text" name="q10" class="w-full border border-gray-300 rounded p-2 uppercase" placeholder="TRUE / FALSE / NOT GIVEN">
+                            </div>
+                            <!-- Q11 -->
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200">
+                                <p class="mb-2">11. After 1740, there was a reduction in population in Britain.</p>
+                                <input type="text" name="q11" class="w-full border border-gray-300 rounded p-2 uppercase" placeholder="TRUE / FALSE / NOT GIVEN">
+                            </div>
+                            <!-- Q12 -->
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200">
+                                <p class="mb-2">12. People in Britain used to make beer at home.</p>
+                                <input type="text" name="q12" class="w-full border border-gray-300 rounded p-2 uppercase" placeholder="TRUE / FALSE / NOT GIVEN">
+                            </div>
+                            <!-- Q13 -->
+                            <div class="question-container bg-white p-4 rounded shadow-sm border border-gray-200">
+                                <p class="mb-2">13. The tax on malt indirectly caused a rise in the death rate.</p>
+                                <input type="text" name="q13" class="w-full border border-gray-300 rounded p-2 uppercase" placeholder="TRUE / FALSE / NOT GIVEN">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- SUBMIT AREA -->
+                <div class="mt-8 mb-12">
+                    <button id="submit-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded shadow-lg transition transform hover:scale-[1.01]">
+                        Submit Answers
+                    </button>
+                    <div id="result-area" class="mt-4 hidden p-4 bg-white border border-gray-200 rounded text-center">
+                        <div class="text-2xl font-bold mb-2">Score: <span id="score-display">0/13</span></div>
+                        <p class="text-sm text-gray-500">Your results file has been downloaded. Please send it to your teacher.</p>
+                        <p class="text-xs text-gray-400 mt-2">Click on questions to see detailed explanations.</p>
+                        <button id="redo-btn" class="mt-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded transition">
+                            Redo Test
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-gray-800 text-white text-center p-2 text-xs shrink-0">
+        Encoded by Dinh Phuoc
+    </footer>
+
+    <!-- CONTEXT MENU -->
+    <ul id="ctx-menu">
+        <li id="menu-highlight"><i class="fas fa-highlighter mr-2 text-yellow-500"></i>Highlight</li>
+        <li id="menu-remove"><i class="fas fa-eraser mr-2 text-gray-500"></i>Remove Highlight</li>
+    </ul>
+
+    <script>
+        // --- DATA & CONFIG ---
+        const answersKey = {
+            1: { ans: "iv", expl: "Paragraph A asks 'Why did this particular Big Bang... happen in Britain? And why... at the end of the 18th century?' This matches 'The time and place of the Industrial Revolution'." },
+            2: { ans: "viii", expl: "Paragraph B lists many requirements: technology, power, urban populations, transport, etc. matching 'Conditions required for industrialisation'." },
+            3: { ans: "vii", expl: "Paragraph C introduces 'Tea and beer, two of the nation’s favourite drinks, fuelled the revolution.' This matches 'Two keys to Britain’s industrial revolution'." },
+            4: { ans: "i", expl: "Paragraph D discusses the 'burst in population growth' and Macfarlane's investigation into causes like viruses, medical science, etc. Matches 'The search for the reasons for an increase in population'." },
+            5: { ans: "vi", expl: "Paragraph E discusses the shift from beer to water/gin due to tax, then back to beer/tea. Matches 'Changes in drinking habits in Britain'." },
+            6: { ans: "ix", expl: "Paragraph F starts with 'Macfarlane looked to Japan...' and compares disease rates and tea drinking. Matches 'Comparisons with Japan lead to the answer'." },
+            7: { ans: "ii", expl: "Paragraph G mentions Japan 'turned its back on... labour-saving devices... afraid that they would put people out of work.' Matches 'Industrialisation and the fear of unemployment'." },
+            8: { ans: "NOT GIVEN", expl: "Paragraph B mentions China had 'many of these factors' but does not explicitly state the transport system was unsuitable." },
+            9: { ans: "TRUE", expl: "Paragraph C: 'The antiseptic properties of tannin... and of hops... allowed urban communities to flourish... without succumbing to water-borne diseases such as dysentery.'" },
+            10: { ans: "FALSE", expl: "Paragraph C: 'Roy Porter... recently wrote a favourable appraisal of his research.' (Favourable means he agrees)." },
+            11: { ans: "FALSE", expl: "Paragraph D: 'Between about 1650 and 1740, the population in Britain was static. But then there was a burst in population growth.'" },
+            12: { ans: "NOT GIVEN", expl: "The text mentions drinking beer and taxes on malt, but does not specify if it was made 'at home' or purchased." },
+            13: { ans: "TRUE", expl: "Paragraph E: '...tax was introduced on malt... The poor turned to water and gin and in the 1720s the mortality rate began to rise again.'" }
+        };
+
+        let userInfo = {};
+        let timerInterval;
+        let remainingTime;
+        let currentAttempt = 0;
+        let cheatFlags = 0;
+        let clientIP = "127.0.0.1";
+        let isSubmitted = false;
+        const passwordKey = "examp"; 
+
+        // --- INIT & IP FETCH ---
+        window.onload = async () => {
+            let storedAttempts = parseInt(localStorage.getItem('tea_test_attempts') || 0);
+            currentAttempt = storedAttempts + 1;
+            localStorage.setItem('tea_test_attempts', currentAttempt);
+
+            if (currentAttempt > 1) {
+                document.getElementById('attempt-warning').classList.remove('hidden');
+                document.getElementById('attempt-count-display').textContent = currentAttempt;
+            }
+
+            try {
+                const res = await fetch('https://api.ipify.org?format=json');
+                const data = await res.json();
+                clientIP = data.ip;
+            } catch (e) {
+                console.log("Fallback IP used");
+            }
+        };
+
+        // --- LOGIN ---
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const enteredPass = document.getElementById('student-pass').value;
+            if (enteredPass !== passwordKey) {
+                alert("Incorrect Password. (Hint: check placeholder)");
+                return;
+            }
+            
+            userInfo = {
+                name: document.getElementById('student-name').value,
+                email: document.getElementById('student-email').value,
+                class: document.getElementById('student-class').value,
+                practiceTime: parseInt(document.getElementById('practice-time').value)
+            };
+
+            document.getElementById('user-display').textContent = `${userInfo.name} - ${userInfo.class}`;
+            document.getElementById('overlay').style.display = 'none';
+            startTimer(userInfo.practiceTime * 60);
+        });
+
+        // --- TIMER ---
+        function startTimer(duration) {
+            remainingTime = duration;
+            updateTimerDisplay();
+            timerInterval = setInterval(() => {
+                remainingTime--;
+                updateTimerDisplay();
+                if (remainingTime <= 0) {
+                    clearInterval(timerInterval);
+                    alert("Time's up!");
+                    submitTest();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const h = Math.floor(remainingTime / 3600);
+            const m = Math.floor((remainingTime % 3600) / 60);
+            const s = remainingTime % 60;
+            document.getElementById('timer').textContent = 
+                `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            if (remainingTime < 60) document.getElementById('timer').classList.add('bg-red-100');
+        }
+
+        // --- ANTI-CHEAT (TAB SWITCHING) ---
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden && !isSubmitted && document.getElementById('overlay').style.display === 'none') {
+                cheatFlags++;
+                document.getElementById('cheat-alert').classList.remove('hidden');
+                document.getElementById('cheat-alert').textContent = `Warning: Tab Switch Detected! (${cheatFlags}/2)`;
+                
+                if (cheatFlags > 2) {
+                    alert("Cheat violation: Too many tab switches. Reloading.");
+                    location.reload();
+                }
+            }
+        });
+
+        // --- HIGHLIGHTING (DOM-BASED ROBUST VERSION) ---
+        const readingArea = document.getElementById('reading-passage');
+        const ctxMenu = document.getElementById('ctx-menu');
+        let savedRange = null;
+        let clickedElement = null;
+
+        readingArea.addEventListener('contextmenu', e => {
+            e.preventDefault();
+            clickedElement = e.target;
+            const sel = window.getSelection();
+            
+            if (sel.toString().length > 0 && readingArea.contains(sel.anchorNode)) {
+                savedRange = sel.getRangeAt(0);
+                showMenu(e.pageX, e.pageY);
+            } 
+            else if (clickedElement.classList.contains('highlight-yellow')) {
+                savedRange = null; 
+                showMenu(e.pageX, e.pageY);
+            }
+        });
+
+        function showMenu(x, y) {
+            ctxMenu.style.display = 'block';
+            ctxMenu.style.left = x + 'px';
+            ctxMenu.style.top = y + 'px';
+        }
+
+        document.addEventListener('click', e => {
+            if (!e.target.closest('#ctx-menu')) ctxMenu.style.display = 'none';
+        });
+
+        document.getElementById('menu-highlight').addEventListener('click', () => {
+            if (savedRange) {
+                try {
+                    const span = document.createElement('span');
+                    span.className = 'highlight-yellow';
+                    savedRange.surroundContents(span);
+                    window.getSelection().removeAllRanges();
+                } catch(err) {
+                    alert("Can't highlight across multiple paragraphs. Please select within one paragraph.");
+                }
+            }
+            ctxMenu.style.display = 'none';
+        });
+
+        document.getElementById('menu-remove').addEventListener('click', () => {
+            if (clickedElement && clickedElement.classList.contains('highlight-yellow')) {
+                const parent = clickedElement.parentNode;
+                while (clickedElement.firstChild) {
+                    parent.insertBefore(clickedElement.firstChild, clickedElement);
+                }
+                parent.removeChild(clickedElement);
+            }
+            ctxMenu.style.display = 'none';
+        });
+
+        // --- SUBMISSION ---
+        document.getElementById('submit-btn').addEventListener('click', submitTest);
+
+        function submitTest() {
+            if (isSubmitted) return;
+            isSubmitted = true;
+            clearInterval(timerInterval);
+
+            let score = 0;
+            const form = document.getElementById('quiz-form');
+            let studentAnswers = {};
+
+            // Loop through questions 1 to 13
+            for (let i = 1; i <= 13; i++) {
+                const input = form.querySelector(`input[name="q${i}"]`);
+                let userVal = input.value.trim().toLowerCase(); // Lowercase for headings (i, ii, v)
+                
+                // Normalise logic based on question type
+                if (i <= 7) {
+                    // Headings: keep as is (user enters roman numerals)
+                } else {
+                    // T/F/NG: Uppercase for comparison
+                    userVal = userVal.toUpperCase();
+                    if (["Y", "YES", "T", "TRUE"].includes(userVal)) userVal = "TRUE";
+                    if (["N", "NO", "F", "FALSE"].includes(userVal)) userVal = "FALSE";
+                    if (["NG", "NOT GIVEN"].includes(userVal)) userVal = "NOT GIVEN";
+                }
+
+                studentAnswers[`Q${i}`] = userVal;
+                
+                const container = input.closest('.question-container');
+                const correctAns = answersKey[i].ans;
+                // For comparison: Headings are lowercase in key, T/F/NG are uppercase in logic
+                const comparisonVal = (i <= 7) ? userVal : userVal; 
+                // Note: answersKey uses 'iv' (lower) for 1-7 and 'TRUE' (upper) for 8-13
+                
+                const explDiv = document.createElement('div');
+                explDiv.className = 'explanation-box';
+                explDiv.innerHTML = `<strong>Answer:</strong> ${correctAns}<br><strong>Why:</strong> ${answersKey[i].expl}`;
+                
+                if (comparisonVal === correctAns || (i <= 7 && comparisonVal === correctAns.toLowerCase())) {
+                    score++;
+                    input.classList.add('border-green-500', 'bg-green-50', 'text-green-700', 'font-bold');
+                } else {
+                    input.classList.add('border-red-500', 'bg-red-50', 'wrong-answer');
+                    const corrSpan = document.createElement('div');
+                    corrSpan.className = 'correct-answer mt-1 text-sm';
+                    corrSpan.innerText = `Correct: ${correctAns}`;
+                    container.appendChild(corrSpan);
+                }
+
+                container.appendChild(explDiv);
+                
+                container.onclick = function(e) {
+                     if(e.target.tagName === 'INPUT') return;
+                     explDiv.style.display = explDiv.style.display === 'block' ? 'none' : 'block';
+                };
+            }
+
+            document.getElementById('score-display').innerText = `${score}/13`;
+            document.getElementById('result-area').classList.remove('hidden');
+            document.getElementById('submit-btn').style.display = 'none';
+            document.getElementById('questions-container').classList.add('review-mode');
+            
+            form.querySelectorAll('input').forEach(inp => inp.disabled = true);
+            generateAndDownloadFile(score, studentAnswers);
+        }
+
+        document.getElementById('redo-btn').addEventListener('click', () => {
+            if(confirm("Redo test? New attempt will be recorded.")) location.reload();
+        });
+
+        function generateAndDownloadFile(score, answers) {
+            const timeTaken = (userInfo.practiceTime * 60) - remainingTime;
+            const mins = Math.floor(timeTaken / 60);
+            const secs = timeTaken % 60;
+            const dateStr = new Date().toLocaleString();
+
+            let content = `READING TEST: TEA AND INDUSTRIAL REVOLUTION\n`;
+            content += `===========================================\n`;
+            content += `Student: ${userInfo.name}\nEmail: ${userInfo.email}\nClass: ${userInfo.class}\n`;
+            content += `Date: ${dateStr}\nIP: ${clientIP}\nAttempt: ${currentAttempt}\n`;
+            content += `Violations: ${cheatFlags}\nTime: ${mins}m ${secs}s\nScore: ${score}/13\n\nANSWERS:\n`;
+            
+            for (const [q, ans] of Object.entries(answers)) {
+                content += `${q}: ${ans}\n`;
+            }
+
+            const blob = new Blob([content], { type: "text/plain" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const safeName = userInfo.name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+            a.href = url;
+            a.download = `${safeName}_TeaTest_${new Date().getTime()}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // --- PREVENT INSPECT (F12, Ctrl+Shift+I, etc.) ---
+        document.addEventListener("keydown", function (e) {
+            if (
+                e.key === "F12" ||
+                (e.ctrlKey && e.shiftKey && e.key === "I") ||
+                (e.ctrlKey && e.shiftKey && e.key === "J") ||
+                (e.ctrlKey && e.shiftKey && e.key === "C") ||
+                (e.ctrlKey && e.key === "u") ||
+                (e.ctrlKey && e.key === "p") ||
+                (e.ctrlKey && e.key === "s")
+            ) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    </script>
+</body>
+</html>
