@@ -277,7 +277,7 @@
                         <!-- Map Placeholder Section -->
                         <div class="mb-6 text-center">
                             <!-- INSERT YOUR MAP URL BELOW in the src attribute -->
-                            <img src="" width = 600 alt="Granford Map" class="max-w-full h-auto mx-auto rounded-lg shadow-md border border-gray-200 bg-gray-50 min-h-[200px] flex items-center justify-center">
+                            <img src="../c13/t1map.png" width = 600 alt="Granford Map" class="max-w-full h-auto mx-auto rounded-lg shadow-md border border-gray-200 bg-gray-50 min-h-[200px] flex items-center justify-center">
                             
                         </div>
 
@@ -1071,7 +1071,20 @@ So, now we’ve had a look…`;
         function closeTranscript() {
             document.getElementById('transcriptModal').classList.add('hidden');
         }
-
+        document.addEventListener("keydown", function (e) {
+            if (
+                e.key === "F12" ||
+                (e.ctrlKey && e.shiftKey && e.key === "I") ||
+                (e.ctrlKey && e.shiftKey && e.key === "J") ||
+                (e.ctrlKey && e.shiftKey && e.key === "C") ||
+                (e.ctrlKey && e.key === "u") ||
+                (e.ctrlKey && e.key === "p") ||
+                (e.ctrlKey && e.key === "s")
+            ) {
+                e.preventDefault();
+                return false;
+            }
+        });
     </script>
 </body>
 </html>
