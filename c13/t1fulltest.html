@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test 1 - Listening</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; padding-bottom: 80px; /* Space for bottom nav */ }
+        .correct-answer { color: #16a34a; font-weight: bold; }
+        .wrong-answer { color: #dc2626; text-decoration: line-through; }
+        .feedback { display: none; margin-top: 0.5rem; font-size: 0.9em; }
+        .show-feedback .feedback { display: block; }
+        input[type="text"] { text-align: center; font-weight: 500; color: #4f46e5; }
+        input[type="text"]::placeholder { color: #cbd5e1; font-weight: normal; }
+        
+        /* Modal Styles */
+        .modal { transition: opacity 0.3s ease-in-out; }
+        .modal-active { overflow: hidden; }
+
+        /* Navigation Styles */
+        .nav-active { background-color: #4338ca; color: white; }
+        .part-section { display: none; }
+        .part-section.active { display: block; animation: fadeIn 0.3s ease-in; }
+        
+        /* Interactive Questions (Post-Submit) */
+        .interactive-question { cursor: pointer; transition: background-color 0.2s; border-radius: 8px; }
+        .interactive-question:hover { background-color: #f0f9ff; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Scrollbar for question grid */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #888; border-radius: 3px; }
+
+        /* Form Controls */
+        .mode-option { cursor: pointer; border: 2px solid #e5e7eb; border-radius: 0.75rem; padding: 1rem; transition: all 0.2s; }
+        .mode-option:hover { border-color: #818cf8; background-color: #f5f3ff; }
+        .mode-option.selected { border-color: #4f46e5; background-color: #eef2ff; ring: 2px solid #4f46e5; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen relative">
+
+    <!-- Start Screen Modal -->
+    <div id="startModal" class="fixed inset-0 bg-indigo-900 z-[60] flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl shadow-2xl p-6 md:p-8 max-w-lg w-full text-center my-8">
+            <div class="mb-4">
+                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-indigo-100 text-indigo-600 mb-3">
+                    <i class="fas fa-user-graduate text-2xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-900">Listening Test - Encoded by Dinh Phuoc</h2>
+                <p class="text-gray-500 text-sm mt-1">Enter details and select mode to begin.</p>
+            </div>
+            
+            <form id="startForm" onsubmit="startTest(event)" class="space-y-4 text-left">
+                <!-- User Info -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Full Name</label>
+                        <input type="text" id="studentName" required class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none !text-left !text-gray-900" placeholder="Your Name">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Class</label>
+                        <input type="text" id="studentClass" required class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none !text-left !text-gray-900" placeholder="Class ID">
+                    </div>
+                </div>
+
+                <hr class="border-gray-200 my-2">
+
+                <!-- Mode Selection -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Select Mode</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="mode-option selected" id="optFull" onclick="selectMode('full')">
+                            <div class="flex items-center">
+                                <input type="radio" name="testMode" value="full" checked class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                <span class="ml-2 font-bold text-gray-700">Full Test</span>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1 ml-6">All 4 Parts. Audio hidden. Strict timing.</p>
+                        </div>
+                        <div class="mode-option" id="optPractice" onclick="selectMode('practice')">
+                            <div class="flex items-center">
+                                <input type="radio" name="testMode" value="practice" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                <span class="ml-2 font-bold text-gray-700">Practice</span>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1 ml-6">Custom parts. Audio controls optional.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Practice Options (Hidden by default) -->
+                <div id="practiceOptions" class="hidden bg-gray-50 p-4 rounded-lg border border-gray-200 space-y-4">
+                    <!-- Part Selection -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Select Parts to Practice</label>
+                        <div class="flex gap-4">
+                            <label class="inline-flex items-center"><input type="checkbox" name="practiceParts" value="1" checked class="rounded text-indigo-600 focus:ring-indigo-500 h-5 w-5"><span class="ml-2 text-sm">Part 1</span></label>
+                            <label class="inline-flex items-center"><input type="checkbox" name="practiceParts" value="2" checked class="rounded text-indigo-600 focus:ring-indigo-500 h-5 w-5"><span class="ml-2 text-sm">Part 2</span></label>
+                            <label class="inline-flex items-center"><input type="checkbox" name="practiceParts" value="3" checked class="rounded text-indigo-600 focus:ring-indigo-500 h-5 w-5"><span class="ml-2 text-sm">Part 3</span></label>
+                            <label class="inline-flex items-center"><input type="checkbox" name="practiceParts" value="4" checked class="rounded text-indigo-600 focus:ring-indigo-500 h-5 w-5"><span class="ml-2 text-sm">Part 4</span></label>
+                        </div>
+                    </div>
+                    <!-- Audio Controls -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Audio Controls</label>
+                        <div class="flex gap-4">
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="audioControl" value="show" class="text-indigo-600 focus:ring-indigo-500 h-4 w-4">
+                                <span class="ml-2 text-sm">Show (Control playback)</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="audioControl" value="hide" checked class="text-indigo-600 focus:ring-indigo-500 h-4 w-4">
+                                <span class="ml-2 text-sm">Hide (Exam style)</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <p class="text-red-500 text-xs font-bold mb-2"><i class="fas fa-exclamation-triangle"></i> Warning: Switching tabs 3 times will reset your test!</p>
+                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-lg transform transition hover:-translate-y-1">
+                        Start Now
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-indigo-700 text-white shadow-lg sticky top-0 z-40">
+        <div class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-xl font-bold"><i class="fas fa-headphones-alt mr-2"></i>Test 1 Listening</h1>
+            <div class="flex items-center gap-4">
+                <div id="userInfoDisplay" class="hidden text-sm bg-indigo-800 px-3 py-1 rounded"></div>
+                <div id="scoreDisplayHeader" class="font-mono text-lg bg-indigo-800 px-3 py-1 rounded hidden">Score: 0/40</div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 py-8 pb-24">
+
+        <!-- Audio Player Section (Hidden initially) -->
+        <div id="audioSection" class="bg-white rounded-xl shadow-md p-6 mb-8 border-l-4 border-indigo-500 hidden">
+            <h2 class="text-lg font-semibold mb-3 text-gray-700" id="audioSectionTitle">Audio Player</h2>
+            <div class="flex flex-wrap gap-2 mb-4" id="audioTrackButtons">
+                <!-- Track buttons injected via JS -->
+            </div>
+            <audio id="mainAudio" controls class="w-full h-10 rounded-lg bg-gray-100">
+                <source src="" type="audio/mpeg">
+                Your browser does not support the audio element.
+            </audio>
+            <div class="flex justify-between items-center mt-2">
+                <p id="nowPlayingText" class="text-xs text-gray-500 italic"></p>
+                <button id="btnFullTranscript" onclick="showFullTranscript()" class="hidden px-3 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200 text-xs font-medium border border-green-200"><i class="fas fa-file-alt mr-1"></i> Transcript</button>
+            </div>
+        </div>
+
+        <!-- Hidden Audio for Test Mode (Background Play) -->
+        <audio id="hiddenTestAudio" style="display:none;"></audio>
+
+        <form id="quizForm" class="blur-sm select-none pointer-events-none transition-all duration-500">
+            
+            <!-- SECTION 1 (Part 1) -->
+            <div id="part1" class="part-section active">
+                <section class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 mb-8">
+                    <div class="border-b pb-4 mb-6 flex justify-between items-center">
+                        <h2 class="text-2xl font-bold text-indigo-900">Section 1: Cookery Classes</h2>
+                        <span class="bg-indigo-100 text-indigo-800 text-xs font-semibold px-2.5 py-0.5 rounded">Part 1</span>
+                    </div>
+                    <p class="text-gray-600 mb-4"><i class="fas fa-pen mr-1"></i> Write <strong>ONE WORD AND/OR A NUMBER</strong> for each answer.</p>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-indigo-50 text-indigo-900">
+                                    <th class="p-3 rounded-tl-lg">Cookery Class</th>
+                                    <th class="p-3">Focus</th>
+                                    <th class="p-3 rounded-tr-lg">Other Information</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr>
+                                    <td class="p-3 font-semibold">The Food Studio</td>
+                                    <td class="p-3">how to <span class="q-wrapper" onclick="showExplanation('q1')"><input type="text" name="q1" id="q1" class="border-b-2 border-gray-300 w-24 focus:outline-none focus:border-indigo-600" data-correct="choose"></span> and cook with seasonal products</td>
+                                    <td class="p-3">
+                                        <ul class="list-disc pl-4 space-y-2">
+                                            <li>small classes</li>
+                                            <li>also offers <span class="q-wrapper" onclick="showExplanation('q2')"><input type="text" name="q2" id="q2" class="border-b-2 border-gray-300 w-24 focus:outline-none focus:border-indigo-600" data-correct="private"></span> classes</li>
+                                            <li>clients who return get a <span class="q-wrapper" onclick="showExplanation('q3')"><input type="text" name="q3" id="q3" class="border-b-2 border-gray-300 w-24 focus:outline-none focus:border-indigo-600" data-correct="20 percent/20%"></span> discount</li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-semibold">Bond's Cookery School</td>
+                                    <td class="p-3">food that is <span class="q-wrapper" onclick="showExplanation('q4')"><input type="text" name="q4" id="q4" class="border-b-2 border-gray-300 w-24 focus:outline-none focus:border-indigo-600" data-correct="healthy"></span></td>
+                                    <td class="p-3">
+                                        <ul class="list-disc pl-4 space-y-2">
+                                            <li>includes recipes to strengthen your <span class="q-wrapper" onclick="showExplanation('q5')"><input type="text" name="q5" id="q5" class="border-b-2 border-gray-300 w-24 focus:outline-none focus:border-indigo-600" data-correct="bones"></span></li>
+                                            <li>they have a free <span class="q-wrapper" onclick="showExplanation('q6')"><input type="text" name="q6" id="q6" class="border-b-2 border-gray-300 w-24 focus:outline-none focus:border-indigo-600" data-correct="lecture"></span> every Thursday</li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-semibold">The <span class="q-wrapper" onclick="showExplanation('q7')"><input type="text" name="q7" id="q7" class="border-b-2 border-gray-300 w-24 focus:outline-none focus:border-indigo-600" data-correct="arretsa"></span> Centre</td>
+                                    <td class="p-3">mainly <span class="q-wrapper" onclick="showExplanation('q8')"><input type="text" name="q8" id="q8" class="border-b-2 border-gray-300 w-24 focus:outline-none focus:border-indigo-600" data-correct="vegetarian"></span> food</td>
+                                    <td class="p-3">
+                                        <ul class="list-disc pl-4 space-y-2">
+                                            <li>located near the <span class="q-wrapper" onclick="showExplanation('q9')"><input type="text" name="q9" id="q9" class="border-b-2 border-gray-300 w-24 focus:outline-none focus:border-indigo-600" data-correct="market"></span></li>
+                                            <li>a special course in skills with a <span class="q-wrapper" onclick="showExplanation('q10')"><input type="text" name="q10" id="q10" class="border-b-2 border-gray-300 w-24 focus:outline-none focus:border-indigo-600" data-correct="knife"></span> is sometimes available</li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <!-- SECTION 2 (Part 2) -->
+            <div id="part2" class="part-section">
+                <section class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 mb-8">
+                    <div class="border-b pb-4 mb-6 flex justify-between items-center">
+                        <h2 class="text-2xl font-bold text-indigo-900">Section 2: Traffic Changes in Granford</h2>
+                        <span class="bg-indigo-100 text-indigo-800 text-xs font-semibold px-2.5 py-0.5 rounded">Part 2</span>
+                    </div>
+
+                    <!-- Questions 11-13 Multiple Choice -->
+                    <div class="mb-8">
+                        <p class="font-semibold text-gray-700 mb-4">Choose the correct letter, A, B or C.</p>
+                        
+                        <div class="space-y-6">
+                            <!-- Q11 -->
+                            <div class="question-block" data-id="q11" data-correct="B" id="block-q11" onclick="showExplanation('q11')">
+                                <p class="font-medium mb-2"><span class="bg-indigo-100 text-indigo-800 px-2 rounded text-sm font-bold mr-2">11</span> Why are changes needed to traffic systems in Granford?</p>
+                                <div class="pl-4 space-y-1">
+                                    <label class="flex items-center cursor-pointer hover:text-indigo-600"><input type="radio" name="q11" value="A" class="mr-2"> A. The number of traffic accidents has risen.</label>
+                                    <label class="flex items-center cursor-pointer hover:text-indigo-600"><input type="radio" name="q11" value="B" class="mr-2"> B. The amount of traffic on the roads has increased.</label>
+                                    <label class="flex items-center cursor-pointer hover:text-indigo-600"><input type="radio" name="q11" value="C" class="mr-2"> C. The types of vehicles on the roads have changed.</label>
+                                </div>
+                                <div class="feedback text-indigo-600 mt-1 font-semibold">Correct Answer: B</div>
+                            </div>
+
+                            <!-- Q12 -->
+                            <div class="question-block" data-id="q12" data-correct="C" id="block-q12" onclick="showExplanation('q12')">
+                                <p class="font-medium mb-2"><span class="bg-indigo-100 text-indigo-800 px-2 rounded text-sm font-bold mr-2">12</span> In a survey, local residents particularly complained about</p>
+                                <div class="pl-4 space-y-1">
+                                    <label class="flex items-center cursor-pointer hover:text-indigo-600"><input type="radio" name="q12" value="A" class="mr-2"> A. dangerous driving by parents.</label>
+                                    <label class="flex items-center cursor-pointer hover:text-indigo-600"><input type="radio" name="q12" value="B" class="mr-2"> B. pollution from trucks and lorries.</label>
+                                    <label class="flex items-center cursor-pointer hover:text-indigo-600"><input type="radio" name="q12" value="C" class="mr-2"> C. inconvenience from parked cars.</label>
+                                </div>
+                                <div class="feedback text-indigo-600 mt-1 font-semibold">Correct Answer: C</div>
+                            </div>
+
+                            <!-- Q13 -->
+                            <div class="question-block" data-id="q13" data-correct="B" id="block-q13" onclick="showExplanation('q13')">
+                                <p class="font-medium mb-2"><span class="bg-indigo-100 text-indigo-800 px-2 rounded text-sm font-bold mr-2">13</span> According to the speaker, one problem with the new regulations will be</p>
+                                <div class="pl-4 space-y-1">
+                                    <label class="flex items-center cursor-pointer hover:text-indigo-600"><input type="radio" name="q13" value="A" class="mr-2"> A. raising money to pay for them.</label>
+                                    <label class="flex items-center cursor-pointer hover:text-indigo-600"><input type="radio" name="q13" value="B" class="mr-2"> B. finding a way to make people follow them.</label>
+                                    <label class="flex items-center cursor-pointer hover:text-indigo-600"><input type="radio" name="q13" value="C" class="mr-2"> C. getting the support of the police.</label>
+                                </div>
+                                <div class="feedback text-indigo-600 mt-1 font-semibold">Correct Answer: B</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Questions 14-20 Map Labeling -->
+                    <div>
+                        <p class="font-semibold text-gray-700 mb-4">Label the map below (Write the correct letter A-I).</p>
+                        
+                        <!-- Map Placeholder Section -->
+                        <div class="mb-6 text-center">
+                            <!-- INSERT YOUR MAP URL BELOW in the src attribute -->
+                            <img src="" alt="Granford Map - Please insert image URL in HTML code" class="max-w-full h-auto mx-auto rounded-lg shadow-md border border-gray-200 bg-gray-50 min-h-[200px] flex items-center justify-center">
+                            <!-- Optional: Helper text if image is broken or empty -->
+                            <p class="text-sm text-gray-500 mt-2 italic">Note: If map is missing, please edit HTML source and add URL to img src.</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="flex items-center justify-between bg-gray-50 p-3 rounded q-wrapper" onclick="showExplanation('q14')">
+                                <span><span class="font-bold mr-2">14.</span> New traffic lights</span>
+                                <input type="text" name="q14" id="q14" class="w-12 h-8 border rounded text-center uppercase" maxlength="1" data-correct="E">
+                            </div>
+                            <div class="flex items-center justify-between bg-gray-50 p-3 rounded q-wrapper" onclick="showExplanation('q15')">
+                                <span><span class="font-bold mr-2">15.</span> Pedestrian crossing</span>
+                                <input type="text" name="q15" id="q15" class="w-12 h-8 border rounded text-center uppercase" maxlength="1" data-correct="D">
+                            </div>
+                            <div class="flex items-center justify-between bg-gray-50 p-3 rounded q-wrapper" onclick="showExplanation('q16')">
+                                <span><span class="font-bold mr-2">16.</span> Parking allowed</span>
+                                <input type="text" name="q16" id="q16" class="w-12 h-8 border rounded text-center uppercase" maxlength="1" data-correct="B">
+                            </div>
+                            <div class="flex items-center justify-between bg-gray-50 p-3 rounded q-wrapper" onclick="showExplanation('q17')">
+                                <span><span class="font-bold mr-2">17.</span> New ‘No Parking’ sign</span>
+                                <input type="text" name="q17" id="q17" class="w-12 h-8 border rounded text-center uppercase" maxlength="1" data-correct="G">
+                            </div>
+                            <div class="flex items-center justify-between bg-gray-50 p-3 rounded q-wrapper" onclick="showExplanation('q18')">
+                                <span><span class="font-bold mr-2">18.</span> New disabled parking spaces</span>
+                                <input type="text" name="q18" id="q18" class="w-12 h-8 border rounded text-center uppercase" maxlength="1" data-correct="C">
+                            </div>
+                            <div class="flex items-center justify-between bg-gray-50 p-3 rounded q-wrapper" onclick="showExplanation('q19')">
+                                <span><span class="font-bold mr-2">19.</span> Widened pavement</span>
+                                <input type="text" name="q19" id="q19" class="w-12 h-8 border rounded text-center uppercase" maxlength="1" data-correct="H">
+                            </div>
+                            <div class="flex items-center justify-between bg-gray-50 p-3 rounded q-wrapper" onclick="showExplanation('q20')">
+                                <span><span class="font-bold mr-2">20.</span> Lorry loading/unloading restrictions</span>
+                                <input type="text" name="q20" id="q20" class="w-12 h-8 border rounded text-center uppercase" maxlength="1" data-correct="I">
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- SECTION 3 (Part 3) -->
+            <div id="part3" class="part-section">
+                <section class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 mb-8">
+                    <div class="border-b pb-4 mb-6 flex justify-between items-center">
+                        <h2 class="text-2xl font-bold text-indigo-900">Section 3: Seed Germination</h2>
+                        <span class="bg-indigo-100 text-indigo-800 text-xs font-semibold px-2.5 py-0.5 rounded">Part 3</span>
+                    </div>
+
+                    <!-- Questions 21-25 Multiple Choice -->
+                    <div class="mb-8 space-y-6">
+                        <div class="question-block" data-id="q21" data-correct="A" id="block-q21" onclick="showExplanation('q21')">
+                            <p class="font-medium mb-2"><span class="bg-indigo-100 text-indigo-800 px-2 rounded text-sm font-bold mr-2">21</span> Why is Jack interested in investigating seed germination?</p>
+                            <div class="pl-4 space-y-1">
+                                <label class="flex items-center cursor-pointer hover:text-indigo-600"><input type="radio" name="q21" value="A" class="mr-2"> A. He may do a module on a related topic later on.</label>
+                                <label class="flex items-center cursor-pointer hover:text-indigo-600"><input type="radio" name="q21" value="B" class="mr-2"> B. He wants to have a career in plant science.</label>
+                                <label class="flex items-center cursor-pointer hover:text-indigo-600"><input type="radio" name="q21" value="C" class="mr-2"> C. He is thinking of choosing this topic for his dissertation.</label>
+                            </div>
+                            <div class="feedback text-indigo-600 mt-1 font-semibold">Correct Answer: A</div>
+                        </div>
+
+                        <div class="question-block" data-id="q22" data-correct="C" id="block-q22" onclick="showExplanation('q22')">
+                            <p class="font-medium mb-2"><span class="bg-indigo-100 text-indigo-800 px-2 rounded text-sm font-bold mr-2">22</span> Jack and Emma agree the main advantage of their present experiment is that it can be</p>
+                            <div class="pl-4 space-y-1">
+                                <label class="flex items-center cursor-pointer hover:text-indigo-600"><input type="radio" name="q22" value="A" class="mr-2"> A. described very easily.</label>
+                                <label class="flex items-center cursor-pointer hover:text-indigo-600"><input type="radio" name="q22" value="B" class="mr-2"> B. carried out inside the laboratory.</label>
+                                <label class="flex items-center cursor-pointer hover:text-indigo-600"><input type="radio" name="q22" value="C" class="mr-2"> C. completed in the time available.</label>
+                            </div>
+                            <div class="feedback text-indigo-600 mt-1 font-semibold">Correct Answer: C</div>
+                        </div>
+
+                        <div class="question-block" data-id="q23" data-correct="B" id="block-q23" onclick="showExplanation('q23')">
+                            <p class="font-medium mb-2"><span class="bg-indigo-100 text-indigo-800 px-2 rounded text-sm font-bold mr-2">23</span> What do they decide to check with their tutor?</p>
+                            <div class="pl-4 space-y-1">
+                                <label class="flex items-center cursor-pointer hover:text-indigo-600"><input type="radio" name="q23" value="A" class="mr-2"> A. whether their aim is appropriate</label>
+                                <label class="flex items-center cursor-pointer hover:text-indigo-600"><input type="radio" name="q23" value="B" class="mr-2"> B. whether anyone else has chosen this topic</label>
+                                <label class="flex items-center cursor-pointer hover:text-indigo-600"><input type="radio" name="q23" value="C" class="mr-2"> C. whether the assignment contributes to their final grade</label>
+                            </div>
+                            <div class="feedback text-indigo-600 mt-1 font-semibold">Correct Answer: B</div>
+                        </div>
+
+                        <div class="question-block" data-id="q24" data-correct="C" id="block-q24" onclick="showExplanation('q24')">
+                            <p class="font-medium mb-2"><span class="bg-indigo-100 text-indigo-800 px-2 rounded text-sm font-bold mr-2">24</span> They agree that Graves’ book on seed germination is disappointing because</p>
+                            <div class="pl-4 space-y-1">
+                                <label class="flex items-center cursor-pointer hover:text-indigo-600"><input type="radio" name="q24" value="A" class="mr-2"> A. it fails to cover recent advances in seed science.</label>
+                                <label class="flex items-center cursor-pointer hover:text-indigo-600"><input type="radio" name="q24" value="B" class="mr-2"> B. the content is irrelevant for them.</label>
+                                <label class="flex items-center cursor-pointer hover:text-indigo-600"><input type="radio" name="q24" value="C" class="mr-2"> C. its focus is very theoretical.</label>
+                            </div>
+                            <div class="feedback text-indigo-600 mt-1 font-semibold">Correct Answer: C</div>
+                        </div>
+
+                        <div class="question-block" data-id="q25" data-correct="B" id="block-q25" onclick="showExplanation('q25')">
+                            <p class="font-medium mb-2"><span class="bg-indigo-100 text-indigo-800 px-2 rounded text-sm font-bold mr-2">25</span> What does Jack say about the article on seed germination by Lee Hall?</p>
+                            <div class="pl-4 space-y-1">
+                                <label class="flex items-center cursor-pointer hover:text-indigo-600"><input type="radio" name="q25" value="A" class="mr-2"> A. The diagrams of plant development are useful.</label>
+                                <label class="flex items-center cursor-pointer hover:text-indigo-600"><input type="radio" name="q25" value="B" class="mr-2"> B. The analysis of seed germination statistics is thorough.</label>
+                                <label class="flex items-center cursor-pointer hover:text-indigo-600"><input type="radio" name="q25" value="C" class="mr-2"> C. The findings on seed germination after fires are surprising.</label>
+                            </div>
+                            <div class="feedback text-indigo-600 mt-1 font-semibold">Correct Answer: B</div>
+                        </div>
+                    </div>
+
+                    <!-- Questions 26-30 Flow Chart -->
+                    <div class="bg-indigo-50 p-6 rounded-xl">
+                        <h3 class="font-bold text-lg mb-4 text-indigo-800">Stages in the experiment</h3>
+                        <div class="mb-4 text-sm bg-white p-3 rounded border border-indigo-100">
+                            <strong>Options:</strong>
+                            <span class="mx-2">A. container</span>
+                            <span class="mx-2">B. soil</span>
+                            <span class="mx-2">C. weight</span>
+                            <span class="mx-2">D. condition</span>
+                            <span class="mx-2">E. height</span>
+                            <span class="mx-2">F. colour</span>
+                            <span class="mx-2">G. types</span>
+                            <span class="mx-2">H. depths</span>
+                        </div>
+
+                        <div class="space-y-4 relative">
+                            <!-- Line connector -->
+                            <div class="absolute left-6 top-4 bottom-4 w-0.5 bg-indigo-200 -z-10"></div>
+
+                            <div class="flex items-start bg-white p-3 rounded shadow-sm relative q-wrapper" onclick="showExplanation('q26')">
+                                <div class="bg-indigo-500 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mr-3 shrink-0">1</div>
+                                <div>Select seeds of different <input type="text" name="q26" id="q26" class="border-b border-indigo-300 w-12 text-center uppercase" maxlength="1" data-correct="G"> and sizes.</div>
+                            </div>
+
+                            <div class="flex items-start bg-white p-3 rounded shadow-sm relative q-wrapper" onclick="showExplanation('q27')">
+                                 <div class="bg-indigo-500 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mr-3 shrink-0">2</div>
+                                <div>Measure and record the <input type="text" name="q27" id="q27" class="border-b border-indigo-300 w-12 text-center uppercase" maxlength="1" data-correct="C"> and size of each one.</div>
+                            </div>
+
+                            <div class="flex items-start bg-white p-3 rounded shadow-sm relative q-wrapper" onclick="showExplanation('q28')">
+                                 <div class="bg-indigo-500 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mr-3 shrink-0">3</div>
+                                <div>Decide on the <input type="text" name="q28" id="q28" class="border-b border-indigo-300 w-12 text-center uppercase" maxlength="1" data-correct="H"> to be used.</div>
+                            </div>
+
+                             <div class="flex items-start bg-white p-3 rounded shadow-sm relative q-wrapper" onclick="showExplanation('q29')">
+                                 <div class="bg-indigo-500 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mr-3 shrink-0">4</div>
+                                <div>Use a different <input type="text" name="q29" id="q29" class="border-b border-indigo-300 w-12 text-center uppercase" maxlength="1" data-correct="A"> for each seed and label it.</div>
+                            </div>
+
+                             <div class="flex items-start bg-white p-3 rounded shadow-sm relative q-wrapper" onclick="showExplanation('q30')">
+                                 <div class="bg-indigo-500 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mr-3 shrink-0">5</div>
+                                <div>After about 3 weeks, record the plant's <input type="text" name="q30" id="q30" class="border-b border-indigo-300 w-12 text-center uppercase" maxlength="1" data-correct="E">.</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- SECTION 4 (Part 4) -->
+            <div id="part4" class="part-section">
+                <section class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 mb-8">
+                    <div class="border-b pb-4 mb-6 flex justify-between items-center">
+                        <h2 class="text-2xl font-bold text-indigo-900">Section 4: Effects of Urban Environments</h2>
+                        <span class="bg-indigo-100 text-indigo-800 text-xs font-semibold px-2.5 py-0.5 rounded">Part 4</span>
+                    </div>
+                    <p class="text-gray-600 mb-4"><i class="fas fa-pen mr-1"></i> Write <strong>ONE WORD ONLY</strong> for each answer.</p>
+
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="font-bold text-gray-800 mb-2">Introduction</h3>
+                            <p class="leading-loose">
+                                It was previously thought that only a few animals were suitable for city life, e.g.<br>
+                                ● the <span class="q-wrapper" onclick="showExplanation('q31')"><input type="text" name="q31" id="q31" class="border-b-2 border-gray-300 w-32 focus:outline-none focus:border-indigo-600" data-correct="crow"></span> – because of its general adaptability<br>
+                                ● the pigeon – because walls of city buildings are similar to <span class="q-wrapper" onclick="showExplanation('q32')"><input type="text" name="q32" id="q32" class="border-b-2 border-gray-300 w-32 focus:outline-none focus:border-indigo-600" data-correct="cliffs"></span>.<br>
+                                In fact, many urban animals are adapting with unusual <span class="q-wrapper" onclick="showExplanation('q33')"><input type="text" name="q33" id="q33" class="border-b-2 border-gray-300 w-32 focus:outline-none focus:border-indigo-600" data-correct="speed"></span>.
+                            </p>
+                        </div>
+
+                        <div>
+                            <h3 class="font-bold text-gray-800 mb-2">Recent research</h3>
+                            <div class="space-y-3">
+                                <p class="leading-loose">
+                                    <strong>Emilie Snell-Rood</strong> studied small urbanised mammal specimens.<br>
+                                    – She found the size of their <span class="q-wrapper" onclick="showExplanation('q34')"><input type="text" name="q34" id="q34" class="border-b-2 border-gray-300 w-32 focus:outline-none focus:border-indigo-600" data-correct="brain/brains"></span> had increased.<br>
+                                    – She suggests this may be due to the need to locate new sources of <span class="q-wrapper" onclick="showExplanation('q35')"><input type="text" name="q35" id="q35" class="border-b-2 border-gray-300 w-32 focus:outline-none focus:border-indigo-600" data-correct="food"></span> and to deal with new dangers.
+                                </p>
+                                <p class="leading-loose">
+                                    <strong>Catarina Miranda</strong> focused on the <span class="q-wrapper" onclick="showExplanation('q36')"><input type="text" name="q36" id="q36" class="border-b-2 border-gray-300 w-32 focus:outline-none focus:border-indigo-600" data-correct="behaviour/behavior"></span> of urban and rural blackbirds.<br>
+                                    – She found urban birds were often braver, but were afraid of situations that were <span class="q-wrapper" onclick="showExplanation('q37')"><input type="text" name="q37" id="q37" class="border-b-2 border-gray-300 w-32 focus:outline-none focus:border-indigo-600" data-correct="new"></span>.
+                                </p>
+                                <p class="leading-loose">
+                                    <strong>Jonathan Atwell</strong> found that some animals respond to <span class="q-wrapper" onclick="showExplanation('q38')"><input type="text" name="q38" id="q38" class="border-b-2 border-gray-300 w-32 focus:outline-none focus:border-indigo-600" data-correct="stress"></span> by producing lower levels of hormones.
+                                </p>
+                                <p class="leading-loose">
+                                    <strong>Sarah Partan’s team</strong> found urban squirrels use their <span class="q-wrapper" onclick="showExplanation('q39')"><input type="text" name="q39" id="q39" class="border-b-2 border-gray-300 w-32 focus:outline-none focus:border-indigo-600" data-correct="tails/tail"></span> to help them communicate.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="font-bold text-gray-800 mb-2">Long-term possibilities</h3>
+                            <p class="leading-loose">
+                                Species of animals may develop which are unique to cities. However, some changes may not be <span class="q-wrapper" onclick="showExplanation('q40')"><input type="text" name="q40" id="q40" class="border-b-2 border-gray-300 w-32 focus:outline-none focus:border-indigo-600" data-correct="permanent"></span>.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+        </form>
+
+        <!-- Question Grid Pop-up (Bottom Sheet) -->
+        <div id="questionGrid" class="fixed bottom-[70px] left-0 w-full bg-white shadow-2xl rounded-t-2xl transform translate-y-full transition-transform duration-300 z-50 border-t border-gray-200">
+            <div class="p-4">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-gray-700">Go to Question</h3>
+                    <button onclick="toggleQuestionGrid()" class="text-gray-500 hover:text-gray-800"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="grid grid-cols-5 md:grid-cols-10 gap-2 max-h-60 overflow-y-auto custom-scrollbar p-1" id="questionGridContent">
+                    <!-- JS will populate this based on selected parts -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Fixed Bottom Navigation -->
+        <div id="bottomNav" class="hidden fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-50 px-4 py-2 flex justify-between items-center h-[70px]">
+            <div class="flex gap-2 overflow-x-auto no-scrollbar" id="partNavButtons">
+                <!-- Buttons injected via JS -->
+            </div>
+            
+            <div class="flex gap-2">
+                <button onclick="toggleQuestionGrid()" class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition">
+                    <i class="fas fa-th"></i>
+                </button>
+                <button id="submitBtn" onclick="checkAnswers()" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg shadow-md transition whitespace-nowrap">
+                    Submit
+                </button>
+            </div>
+        </div>
+
+        <!-- Result Modal -->
+        <div id="resultModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[70] flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full text-center transform scale-95 opacity-0 transition-all duration-300" id="modalContent">
+                <div class="mb-4">
+                    <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-indigo-100 text-indigo-600">
+                        <i class="fas fa-trophy text-2xl"></i>
+                    </div>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Test Completed!</h3>
+                <p class="text-gray-500 mb-2">Your answers have been downloaded.</p>
+                <div class="text-4xl font-black text-indigo-600 mb-4" id="scoreDisplay">0/0</div>
+                <div class="text-sm text-gray-400 mb-6">Approx. IELTS Band: <span id="bandScore" class="font-bold text-gray-600">-</span></div>
+                <button onclick="closeModal()" class="w-full bg-gray-900 text-white py-3 rounded-xl hover:bg-gray-800 transition">
+                    Review Answers & Listen
+                </button>
+            </div>
+        </div>
+
+        <!-- Explanation Modal -->
+        <div id="explanationModal" class="hidden fixed inset-0 bg-black bg-opacity-40 z-[80] flex items-center justify-center p-4" onclick="closeExplanation()">
+            <div class="bg-white rounded-xl shadow-2xl p-6 max-w-lg w-full transform scale-95 opacity-0 transition-all duration-200" id="explanationContent" onclick="event.stopPropagation()">
+                <div class="flex justify-between items-start mb-4 border-b pb-2">
+                    <h3 class="text-lg font-bold text-indigo-900" id="expTitle">Answer Explanation</h3>
+                    <button onclick="closeExplanation()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+                </div>
+                <div id="expBody" class="text-gray-700 leading-relaxed text-sm">
+                    <!-- Content injected here -->
+                </div>
+                <div class="mt-6 text-right">
+                    <button onclick="closeExplanation()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg text-sm font-medium transition">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Full Transcript Modal -->
+        <div id="transcriptModal" class="hidden fixed inset-0 bg-black bg-opacity-40 z-[80] flex items-center justify-center p-4" onclick="closeTranscript()">
+            <div class="bg-white rounded-xl shadow-2xl p-6 max-w-2xl w-full h-[80vh] flex flex-col transform scale-95 opacity-0 transition-all duration-200" id="transcriptContent" onclick="event.stopPropagation()">
+                <div class="flex justify-between items-start mb-4 border-b pb-2">
+                    <h3 class="text-xl font-bold text-indigo-900">Full Audio Transcript</h3>
+                    <button onclick="closeTranscript()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+                </div>
+                <div id="fullTranscriptBody" class="flex-1 overflow-y-auto custom-scrollbar text-gray-700 leading-loose text-sm p-2 bg-gray-50 rounded-lg whitespace-pre-wrap font-mono">
+                    <!-- Content injected here -->
+                </div>
+                <div class="mt-4 text-right">
+                    <button onclick="closeTranscript()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg text-sm font-medium transition">Close</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // --- GLOBAL VARIABLES ---
+        let studentInfo = { name: '', class: '' };
+        let tabSwitchCount = 0;
+        let isTestActive = false;
+        let isReviewMode = false;
+        let activeParts = [1, 2, 3, 4]; // Default all
+        let activeAudioTracks = []; 
+        let currentTrackIndex = 0;
+        let showAudioControls = false; // Default hidden
+
+        // Audio Playlist Config
+        const allAudioTracks = [
+            "https://s4-media1.study4.com/media/ielts_media/sound/08_Cam13-Test1-Section1.mp3",
+            "https://s4-media1.study4.com/media/ielts_media/sound/08_Cam13-Test1-Section2.mp3",
+            "https://s4-media1.study4.com/media/ielts_media/sound/08_Cam13-Test1-Section3.mp3",
+            "https://s4-media1.study4.com/media/ielts_media/sound/08_Cam13-Test1-Section4.mp3"
+        ];
+        
+        const hiddenAudio = document.getElementById('hiddenTestAudio');
+        const mainAudio = document.getElementById('mainAudio');
+        const quizForm = document.getElementById('quizForm');
+
+        // --- TRANSCRIPT & EXPLANATION DATA ---
+        const explanations = {
+            q1: "OFFICIAL: They focus on seasonal products, and as well as teaching you how to cook them, they also show you how to <strong>choose</strong> (Q1) them.",
+            q2: "WOMAN: And could I get a <strong>private</strong> (Q2) lesson there?",
+            q3: "OFFICIAL: And this company has a special deal for clients where they offer a discount of <strong>20 percent</strong> (Q3) if you return for a further class.",
+            q4: "OFFICIAL: They concentrate on teaching you to prepare <strong>healthy</strong> (Q4) food, and they have quite a lot of specialist staff.",
+            q5: "OFFICIAL: Well, I don’t think they particularly focus on low calorie diets or weight loss. It’s more to do with recipes that look at specific needs, like including ingredients that will help build up your <strong>bones</strong> (Q5) and make them stronger, that sort of thing.",
+            q6: "OFFICIAL: And if you want to know more about them, every Thursday evening they have a <strong>lecture</strong> (Q6) at the school.",
+            q7: "OFFICIAL: OK, there’s one more place you might be interested in. That’s got a rather strange name, it’s called The <strong>Arretsa</strong> (Q7) Centre – that’s spelled A-R-R-E-T-S-A.",
+            q8: "OFFICIAL: They’ve got a very good reputation. They do a bit of meat and fish cookery but they mostly specialise in <strong>vegetarian</strong> (Q8) dishes.",
+            q9: "WOMAN: In fact, I think I might have seen that school today. Is it just by the <strong>market</strong>? (Q9)",
+            q10: "OFFICIAL: And they also offer a special two-hour course in how to use a <strong>knife</strong> (Q10). They cover all the different skills – buying them, sharpening, chopping techniques.",
+            q11: "SPEAKER: But it’s the overall rise in the volume of traffic of all kinds that’s concerning us (Q11). (Answer: B - The amount of traffic on the roads has increased)",
+            q12: "SPEAKER: People were very concerned about the lack of visibility on some roads due to cars parked along the sides of the roads (Q12). (Answer: C - inconvenience from parked cars)",
+            q13: "SPEAKER: But, of course, it’s no good introducing new regulations if we don’t have a way of making sure that everyone obeys them (Q13), and that’s an area we’re still working on with the help of representatives from the police force. (Answer: B - finding a way to make people follow them)",
+            q14: "SPEAKER: we already have a set of traffic lights in the High Street at the junction with Station Road, but we’re planning to have another set at the other end, at the School Road junction (Q14), to regulate the flow or traffic along the High Street. (Answer: E - New traffic lights)",
+            q15: "SPEAKER: We decided we definitely need a pedestrian crossing... so we decided to locate it on the High Street, crossing the road in front of the supermarket (Q15). (Answer: D - Pedestrian crossing)",
+            q16: "SPEAKER: At present, parking isn’t allowed on the High Street outside the library, but we’re going to change that, and allow parking there (Q16), but not at the other end of the High Street near School Road. (Answer: B - Parking allowed)",
+            q17: "SPEAKER: There’ll be a new ‘No Parking’ sign on School Road, just by the entrance to the school (Q17), forbidding parking for 25 metres. (Answer: G - New 'No Parking' sign)",
+            q18: "SPEAKER: As far as disabled drivers are concerned... we’ve got two new disabled parking spaces on the side road up towards the bank (Q18). (Answer: C - New disabled parking spaces)",
+            q19: "SPEAKER: We also plan to widen the pavement on School Road. We think we can manage to get an extra half-metre on the bend just before you get to the school, on the same side of the road (Q19). (Answer: H - Widened pavement)",
+            q20: "SPEAKER: Finally, we’ve introduced new restrictions on loading and unloading for the supermarket, so lorries will only be allowed to stop there before 8 am. That’s the supermarket on School Road (Q20) (Answer: I - Lorry loading/unloading restrictions)",
+            q21: "JACK: No, there’s an optional module on seed structure and function in the third year that I might do, so I thought it might be useful for that (Q21). (Answer: A - He may do a module on a related topic later on)",
+            q22: "EMMA: OK. We’d need to allow time for the seeds to come up (Q22). JACK: That should be fine if we start now. A lot of the other possible experiments need quite a bit longer. EMMA: So that’d make it a good one to choose. (Answer: C - completed in the time available)",
+            q23: "JACK: But we need to be sure we’re the only ones doing it (Q23). (Answer: B - whether anyone else has chosen this topic)",
+            q24: "EMMA: I found it quite hard to follow – lots about the theory, which I hadn’t expected (Q24). (Answer: C - its focus is very theoretical)",
+            q25: "JACK: His analysis of figures comparing the times of the fires and the proportion of seeds that germinated was done in a lot of detail – very impressive (Q25). (Answer: B - The analysis of seed germination statistics is thorough)",
+            q26: "JACK: So, how many sorts do we need? About four different ones? (Q26) EMMA: I think that would be enough. (Answer: G - types)",
+            q27: "JACK: Then, for each seed we need to find out how much it weighs (Q27), and also measure its dimensions, and we need to keep a careful record of all that. (Answer: C - weight)",
+            q28: "EMMA: And we also need to decide how deep we’re going to plant the seeds (Q28) – right on the surface, a few millimetres down, or several centimetres. (Answer: H - depths)",
+            q29: "JACK: OK. So then we get planting. Do you think we can plant several seeds together in the same plant pot? (Q29) EMMA: No, I think we need a different one for each seed. (Answer: A - container)",
+            q30: "JACK: Then we see if our plants have come up, and write down how tall they’ve grown. (Q30) (Answer: E - height)",
+            q31: "SPEAKER: One species which is well known as being highly adaptable is the <strong>crow</strong>, and there’ve been various studies about how they manage to learn new skills (Q31).",
+            q32: "SPEAKER: Another successful species is the pigeon, because they’re able to perch on ledges on the walls of city buildings, just like they once perched on <strong>cliffs</strong> by the sea. (Q32).",
+            q33: "SPEAKER: And one thing that researchers are finding especially interesting is the <strong>speed</strong> with which they’re doing this – we’re not talking about gradual evolution here – these animals are changing fast. (Q33)",
+            q34: "SPEAKER: And she found that during that time, these small mammals had experienced a jump in <strong>brain</strong> size when compared to rural mammals (Q34).",
+            q35: "SPEAKER: And Snell-Rood thinks that this change might reflect the cognitive demands of adjusting to city life – having to look in different places to find <strong>food</strong>, for example, and coping with a whole new set of dangers. (Q35)",
+            q36: "SPEAKER: And she’s been looking not at their anatomy but at their <strong>behaviour</strong> (Q36).",
+            q37: "SPEAKER: But there’s one type of situation that does seem to frighten the urban blackbirds, and that’s anything <strong>new</strong> – anything they haven’t experienced before (Q37).",
+            q38: "SPEAKER: He’s found that when they’re under <strong>stress</strong>, their endocrine systems react by reducing the amount of hormones such as corticosterone into their blood (Q38).",
+            q39: "SPEAKER: they’ve been looking at how squirrels communicate in an urban environment, and they’ve found that a routine part of their communication is carried out by waving their <strong>tails</strong> (Q39).",
+            q40: "SPEAKER: But on the other hand, it’s possible that not all of these adaptations will be <strong>permanent</strong> (Q40). Once the animal’s got accustomed to its new environment, it may no longer need the features it’s developed."
+        };
+
+        const fullTranscript = `OFFICIAL: Hello, Tourist Information Centre, Mike speaking, how can I help you?
+WOMAN: Oh, hi. I wanted to find out about cookery classes. I believe there are some one-day classes for tourists?
+OFFICIAL: Well, they’re open to everyone, but tourists are always welcome. OK, let me give you some details of what’s available. There are several classes. One very popular one is at the Food Studio.
+WOMAN: OK
+OFFICIAL: They focus on seasonal products, and as well as teaching you how to cook them, they also show you how to choose (Q1) them.
+WOMAN: Right, that sounds good. How big are the classes?
+OFFICIAL: I’m not sure exactly, but they’ll be quite small.
+WOMAN: And could I get a private (Q2) lesson there?
+OFFICIAL: I think so … let me check, yes, they do offer those. Though in fact most of the people who attend the classes find it’s a nice way of getting to know one another.
+WOMAN: I suppose it must be, yes.
+OFFICIAL: And this company has a special deal for clients where they offer a discount of 20 percent (Q3) if you return for a further class.
+WOMAN: OK. But you said there were several classes?
+OFFICIAL: That’s right. Another one you might be interested in is Bond’s Cookery School. They’re quite new, they just opened six months ago, but I’ve heard good things about them. They concentrate on teaching you to prepare healthy (Q4) food, and they have quite a lot of specialist staff.
+WOMAN: So is that food for people on a diet and things like that? I don’t know if I’d be interested in that.
+OFFICIAL: Well, I don’t think they particularly focus on low calorie diets or weight loss. It’s more to do with recipes that look at specific needs, like including ingredients that will help build up your bones (Q5) and make them stronger, that sort of thing.
+WOMAN: I see. Well, I might be interested, I’m not sure. Do they have a website I could check?
+OFFICIAL: Yes, just key in the name of the school – it’ll come up. And if you want to know more about them, every Thursday evening they have a lecture (Q6) at the school. It’s free and you don’t need to book or anything, just turn up at 7.30. And that might give you an idea of whether you want to go to an actual class.
+—————————
+OFFICIAL: OK, there’s one more place you might be interested in. That’s got a rather strange name, it’s called The Arretsa (Q7) Centre – that’s spelled A-R-R-E-T-S-A.
+WOMAN: OK.
+OFFICIAL: They’ve got a very good reputation. They do a bit of meat and fish cookery but they mostly specialise in vegetarian (Q8) dishes.
+WOMAN: Right. That’s certainly an area I’d like to learn more about. I’ve got lots of friends who don’t eat meat. In fact, I think I might have seen that school today. Is it just by the market? (Q9)
+OFFICIAL: That’s right. So they don’t have any problem getting their ingredients. They’re right next door. And they also offer a special two-hour course in how to use a knife (Q10). They cover all the different skills – buying them, sharpening, chopping techniques. It gets booked up quickly though so you’d need to check it was available.
+WOMAN: Right, well thank you very much. I’ll go and …
+
+Good evening everyone. My name’s Phil Sutton, and I’m chairman of the Highways Committee. We’ve called this meeting to inform members of the public about the new regulations for traffic and parking we’re proposing for Granford. I’ll start by summarising these changes before we open the meeting to questions.
+So, why do we need to make these changes to traffic systems in Granford? Well, we’re very aware that traffic is becoming an increasing problem. It’s been especially noticeable with the increase in heavy traffic while they’ve been building the new hospital. But it’s the overall rise in the volume of traffic of all kinds that’s concerning us (Q11). To date there’s not been any increase in traffic accidents, but that’s not something we want to see happen, obviously.
+We recently carried out a survey of local residents, and their responses were interesting. People were very concerned about the lack of visibility on some roads due to cars parked along the sides of the roads (Q12). We’d expected complaints about the congestion near the school when parents are dropping off their children or picking them up, but this wasn’t top of the list, and nor were noise and fumes from trucks and lorries, though they were mentioned by some people.
+We think these new traffic regulations would make a lot of difference. But we still have a long way to go. We’ve managed to keep our proposals within budget, just, so they can be covered by the Council. But, of course, it’s no good introducing new regulations if we don’t have a way of making sure that everyone obeys them (Q13), and that’s an area we’re still working on with the help of representatives from the police force.
+—————–
+ OK, so this slide shows a map of the central area of Granford, with the High Street in the middle and School Road on the right. Now, we already have a set of traffic lights in the High Street at the junction with Station Road, but we’re planning to have another set at the other end, at the School Road junction (Q14), to regulate the flow or traffic along the High Street.
+We’re decided we definitely need a pedestrian crossing. We considered putting this on School Road, just outside the school, but in the end we decided that could lead to a lot of traffic congestion so we decided to locate it on the High Street, crossing the road in front of the supermarket (Q15). That’s a very busy area, so it should help things there.
+We’re proposing some changes to parking. At present, parking isn’t allowed on the High Street outside the library, but we’re going to change that, and allow parking there (Q16), but not at the other end of the High Street near School Road.
+There’ll be a new ‘No Parking’ sign on School Road, just by the entrance to the school (Q17), forbidding parking for 25 metres. This should improve visibility for drivers and pedestrians, especially on the bend just to the north of the school.
+As far as disabled drivers are concerned, at present they have parking outside the supermarket, but lorries also use those spaces, so we’ve got two new disabled parking spaces on the side road up towards the bank (Q18). It’s not ideal, but probably better than the present arrangement.
+We also plan to widen the pavement on School Road. We think we can manage to get an extra half-metre on the bend just before you get to the school, on the same side of the road (Q19).
+Finally, we’ve introduced new restrictions on loading and unloading for the supermarket, so lorries will only be allowed to stop there before 8 am. That’s the supermarket on School Road (Q20) – we kept to the existing arrangements with the High Street supermarket.
+OK. So that’s about it. Now, would anyone …
+
+EMMA: We’ve got to choose a topic for our experiment, haven’t we, Jack? Were you thinking of something to do with seeds?
+JACK: That’s right. I thought we could look at seed germination – how a seed begins to grow.
+EMMA: OK. Any particular reason? I know you’re hoping to work in plant science eventually …
+JACK: Yeah, but practically everything we do is going to feed into that. No, there’s an optional module on seed structure and function in the third year that I might do, so I thought it might be useful for that (Q21). If I choose that option, I don’t have to do a dissertation module.
+EMMA: Good idea.
+JACK: Well, I thought for this experiment we could look at the relationship between seed size and the way the seeds are planted. So, we could plant different sized seeds in different ways, and see which grow best.
+EMMA: OK. We’d need to allow time for the seeds to come up (Q22).
+JACK: That should be fine if we start now. A lot of the other possible experiments need quite a bit longer.
+EMMA: So that’d make it a good one to choose. And I don’t suppose it’d need much equipment; we’re not doing chemical analysis or anything. Though that’s not really an issue, we’ve got plenty of equipment in the laboratory.
+JACK: Yeah. We need to have a word with the tutor if we’re going to go ahead with it though. I’m sure our aim’s OK. It’s not very ambitious but the assignment’s only ten percent of our final mark, isn’t it? But we need to be sure we’re the only ones doing it (Q23).
+EMMA: Yeah, it’s only five percent actually, but it’d be a bit boring if everyone was doing it.
+JACK: Did you read that book on seed germination on our reading list?
+EMMA: The one by Graves? I looked through it for my last experiment, though it wasn’t all that relevant there. It would be for this experiment, though. I found it quite hard to follow – lots about the theory, which I hadn’t expected (Q24)
+JACK: Yes, I’d been hoping for something more practical. It does include references to the recent findings on genetically-modified seeds, though.
+EMMA: Yes, that was interesting.
+JACK: I read an article about seed germination by Lee Hall.
+EMMA: About seeds that lie in the ground for ages and only germinate after a fire?
+JACK: That’s the one. I knew a bit about it already, but not about this research. His analysis of figures comparing the times of the fires and the proportion of seeds that germinated was done in a lot of detail – very impressive (Q25).
+EMMA: Was that the article with the illustrations of early stages of plant development? They were very clear.
+JACK: I think those diagrams were in another article.
+———————–
+EMMA: Anyway, shall we have a look at the procedure for our experiment? We’ll need to get going with it quite soon.
+JACK: Right. So the first thing we have to do is find our seeds. I think vegetable seeds would be best. And obviously they mustn’t all be the same size. So, how many sorts do we need? About four different ones? (Q26)
+EMMA: I think that would be enough. There’ll be quite a large number of seeds for each one.
+JACK: Then, for each seed we need to find out how much it weighs (Q27), and also measure its dimensions, and we need to keep a careful record of all that.
+EMMA: That’ll be quite time-consuming. And we also need to decide how deep we’re going to plant the seeds (Q28) – right on the surface, a few millimetres down, or several centimetres.
+JACK: OK. So then we get planting. Do you think we can plant several seeds together in the same plant pot? (Q29)
+EMMA: No, I think we need a different one for each seed.
+JACK: Right. And we’ll need to label them – we can use different coloured labels. Then we wait for the seeds to germinate – I reckon that’ll be about three weeks, depending on what the weather’s like. Then we see if our plants have come up, and write down how tall they’ve grown. (Q30)
+EMMA: Then all we have to do is look at our numbers, and see if there’s any relation between them.
+JACK: That’s right. So … 
+
+Hi. Today we’re going to be looking at animals in urban environments and I’m going to be telling you about some research on how they’re affected by these environments.
+Now, in evolutionary terms, urban environments represent huge upheavals, the sorts of massive changes that usually happen over millions of years. And we used to think that only a few species could adapt to this new environment. One species which is well known as being highly adaptable is the crow, and there’ve been various studies about how they manage to learn new skills (Q31). Another successful species is the pigeon, because they’re able to perch on ledges on the walls of city buildings, just like they once perched on cliffs by the sea. (Q32).
+But in fact, we’re now finding that these early immigrants were just the start of a more general movement of animals into cities, and of adaptation by these animals to city life. And one thing that researchers are finding especially interesting is the speed with which they’re doing this – we’re not talking about gradual evolution here – these animals are changing fast. (Q33)
+Let me tell you about some of the studies that have been carried out in this area. So, in the University of Minnesota, a biologist called Emilie Snell-Rood and her colleagues looked at specimens of urbanised small mammals such as mice and gophers that had been collected in Minnesota, and that are now kept in museums there. And she looked at specimens that had been collected over the last hundred years, which is a very short time in evolutionary terms. And she found that during that time, these small mammals had experienced a jump in brain size when compared to rural mammals (Q34). Now, we can’t be sure this means they’re more intelligent, but since the sizes of other parts of the body didn’t change, it does suggest that something cognitive was going on. And Snell-Rood thinks that this change might reflect the cognitive demands of adjusting to city life – having to look in different places to find food, for example, and coping with a whole new set of dangers. (Q35)
+Then over in Germany at the Max Planck Institute, there’s another biologist called Catarina Miranda who’s done some experiments with blackbirds living in urban and rural areas. And she’s been looking not at their anatomy but at their behaviour (Q36). So as you might expect, she’s found that the urban blackbirds tend to be quite bold – they’re prepared to face up to a lot of threats that would frighten away their country counterparts. But there’s one type of situation that does seem to frighten the urban blackbirds, and that’s anything new – anything they haven’t experienced before (Q37). And if you think about it, that’s quite sensible for a bird living in the city.
+——————
+Jonathan Atwell, in Indiana University, is looking at how a range of animals respond to urban environments. He’s found that when they’re under stress, their endocrine systems react by reducing the amount of hormones such as corticosterone into their blood (Q38). It’s a sensible-seeming adaptation. A rat that gets scared every time a subway train rolls past won’t be very successful.
+There’s just one more study I’d like to mention which is by Sarah Partan and her team, and they’ve been looking at how squirrels communicate in an urban environment, and they’ve found that a routine part of their communication is carried out by waving their tails (Q39). You do also see this in the country, but it’s much more prevalent in cities, possibly because it’s effective in a noisy environment.
+So what are the long-term implications of this? One possibility is that we may see completely new species developing in cities. But on the other hand, it’s possible that not all of these adaptations will be permanent (Q40). Once the animal’s got accustomed to its new environment, it may no longer need the features it’s developed.
+So, now we’ve had a look…`;
+
+        // --- MODE SELECTION LOGIC ---
+        function selectMode(mode) {
+            const optFull = document.getElementById('optFull');
+            const optPractice = document.getElementById('optPractice');
+            const practiceOptions = document.getElementById('practiceOptions');
+            const optionsInputs = document.querySelectorAll('input[name="practiceParts"], input[name="audioControl"]');
+
+            if (mode === 'full') {
+                optFull.classList.add('selected');
+                optPractice.classList.remove('selected');
+                practiceOptions.classList.add('hidden');
+                // Select input hidden logic handled in startTest
+            } else {
+                optPractice.classList.add('selected');
+                optFull.classList.remove('selected');
+                practiceOptions.classList.remove('hidden');
+            }
+        }
+
+        // --- 1. START TEST FUNCTION ---
+        function startTest(event) {
+            event.preventDefault();
+            const name = document.getElementById('studentName').value.trim();
+            const cls = document.getElementById('studentClass').value.trim();
+            const mode = document.querySelector('input[name="testMode"]:checked').value;
+
+            if(name && cls) {
+                studentInfo.name = name;
+                studentInfo.class = cls;
+
+                // Configure Mode
+                if (mode === 'full') {
+                    activeParts = [1, 2, 3, 4];
+                    showAudioControls = false;
+                } else {
+                    // Practice Mode
+                    const checkboxes = document.querySelectorAll('input[name="practiceParts"]:checked');
+                    activeParts = Array.from(checkboxes).map(cb => parseInt(cb.value));
+                    
+                    if (activeParts.length === 0) {
+                        alert("Please select at least one part to practice!");
+                        return;
+                    }
+
+                    const audioVal = document.querySelector('input[name="audioControl"]:checked').value;
+                    showAudioControls = (audioVal === 'show');
+                }
+
+                // Setup Audio Playlist based on selection
+                activeAudioTracks = [];
+                activeParts.forEach(part => {
+                    activeAudioTracks.push(allAudioTracks[part - 1]);
+                });
+
+                // Initialize UI
+                setupUIForParts();
+                
+                // Close Modal & Start
+                document.getElementById('startModal').classList.add('hidden');
+                document.getElementById('userInfoDisplay').textContent = `${name} - ${cls} (${mode.toUpperCase()})`;
+                document.getElementById('userInfoDisplay').classList.remove('hidden');
+                quizForm.classList.remove('blur-sm', 'select-none', 'pointer-events-none');
+                
+                // Show Bottom Nav
+                document.getElementById('bottomNav').classList.remove('hidden');
+                
+                isTestActive = true;
+                
+                // Audio Logic
+                if (showAudioControls) {
+                    // Show player immediately, load first track, NO auto-play for practice (user control)
+                    document.getElementById('audioSection').classList.remove('hidden');
+                    document.getElementById('audioSectionTitle').innerText = "Audio Control (Practice)";
+                    document.getElementById('btnFullTranscript').classList.remove('hidden'); // Allow transcript in practice?
+                    
+                    // Render track buttons for selected parts only
+                    const trackContainer = document.getElementById('audioTrackButtons');
+                    trackContainer.innerHTML = '';
+                    activeParts.forEach((part, index) => {
+                         trackContainer.innerHTML += `<button onclick="playSpecificTrack(${index})" class="px-4 py-2 bg-indigo-100 text-indigo-700 rounded hover:bg-indigo-200 text-sm font-medium">Part ${part}</button>`;
+                    });
+                    
+                    // Load first track
+                    playSpecificTrack(0, false); // false = don't auto play
+                } else {
+                    // Hidden audio (Exam style) - Auto play sequence
+                    playPlaylist();
+                }
+
+                // Switch to first active part
+                switchPart(activeParts[0]);
+            }
+        }
+
+        function setupUIForParts() {
+            // 1. Build Nav Buttons
+            const navContainer = document.getElementById('partNavButtons');
+            navContainer.innerHTML = '';
+            activeParts.forEach(part => {
+                navContainer.innerHTML += `<button onclick="switchPart(${part})" id="btn-part${part}" class="px-4 py-2 rounded-lg text-sm font-semibold text-gray-600 hover:bg-gray-100 transition whitespace-nowrap">Part ${part}</button>`;
+            });
+
+            // 2. Build Question Grid
+            const gridContainer = document.getElementById('questionGridContent');
+            gridContainer.innerHTML = '';
+            
+            // Map parts to question ranges
+            const ranges = { 1: [1, 10], 2: [11, 20], 3: [21, 30], 4: [31, 40] };
+            
+            activeParts.forEach(part => {
+                const [start, end] = ranges[part];
+                for (let i = start; i <= end; i++) {
+                    gridContainer.innerHTML += `<button onclick="goToQuestion(${i})" class="p-2 bg-gray-100 hover:bg-indigo-100 text-gray-700 rounded text-sm font-medium border border-gray-200">${i}</button>`;
+                }
+            });
+        }
+
+        // --- NAVIGATION FUNCTIONS ---
+        function switchPart(partNumber) {
+            // Hide all
+            document.querySelectorAll('.part-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('[id^="btn-part"]').forEach(el => {
+                el.classList.remove('nav-active', 'bg-indigo-700', 'text-white');
+                el.classList.add('text-gray-600');
+            });
+
+            // Show target if active
+            if (activeParts.includes(partNumber)) {
+                document.getElementById(`part${partNumber}`).classList.add('active');
+                const activeBtn = document.getElementById(`btn-part${partNumber}`);
+                if(activeBtn) {
+                    activeBtn.classList.add('nav-active');
+                    activeBtn.classList.remove('text-gray-600');
+                }
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        function toggleQuestionGrid() {
+            const grid = document.getElementById('questionGrid');
+            grid.classList.toggle('translate-y-full');
+        }
+
+        function goToQuestion(number) {
+            let part = 1;
+            if (number >= 11) part = 2;
+            if (number >= 21) part = 3;
+            if (number >= 31) part = 4;
+
+            if (!activeParts.includes(part)) return; // Should not happen with dynamic grid
+
+            switchPart(part);
+            toggleQuestionGrid();
+            setTimeout(() => {
+                const element = document.getElementById(`q${number}`) || document.getElementById(`block-q${number}`);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    element.classList.add('ring-4', 'ring-indigo-200');
+                    setTimeout(() => element.classList.remove('ring-4', 'ring-indigo-200'), 1500);
+                }
+            }, 100);
+        }
+
+        // --- AUDIO LOGIC ---
+        function playPlaylist() {
+            if(currentTrackIndex < activeAudioTracks.length) {
+                hiddenAudio.src = activeAudioTracks[currentTrackIndex];
+                hiddenAudio.play().catch(e => console.log("Autoplay blocked"));
+                hiddenAudio.onended = function() {
+                    currentTrackIndex++;
+                    playPlaylist();
+                };
+            }
+        }
+        
+        function playSpecificTrack(activeTrackIndex, autoPlay = true) {
+            // Maps the button click (0,1,2,3 relative to selection) to actual file
+            if (activeTrackIndex < activeAudioTracks.length) {
+                mainAudio.src = activeAudioTracks[activeTrackIndex];
+                if(autoPlay) mainAudio.play();
+                const partNum = activeParts[activeTrackIndex];
+                document.getElementById('nowPlayingText').textContent = `Loaded: Part ${partNum}`;
+            }
+        }
+
+        // --- 3. ANTI-CHEAT ---
+        document.addEventListener('visibilitychange', function() {
+            if (isTestActive && document.hidden) {
+                tabSwitchCount++;
+                if (tabSwitchCount < 3) {
+                    alert(`WARNING ${tabSwitchCount}/3: You switched tabs!`);
+                } else {
+                    alert("VIOLATION: Test reset.");
+                    location.reload();
+                }
+            }
+        });
+
+        // --- 4. CHECK & SUBMIT ---
+        function checkAnswers() {
+            isTestActive = false;
+            isReviewMode = true;
+            hiddenAudio.pause();
+            
+            document.querySelectorAll('.q-wrapper, .question-block').forEach(el => {
+                el.classList.add('interactive-question');
+                el.setAttribute('title', 'Click for explanation');
+            });
+
+            // Calculate Score (Only for active parts)
+            let score = 0;
+            let total = 0;
+            
+            // Loop through all inputs (1-40) but only count active ones
+            // Actually, we can just grab all inputs in DOM. The inactive parts are hidden but inputs exist.
+            // Wait, if parts are hidden via display:none, values are still there.
+            // We should only grade active parts to be fair in Practice Mode? 
+            // Or grade all? Usually practice means grade what you did.
+            // Let's grade ALL inputs found in the form, assuming user skipped inactive ones.
+            // Better: Grade only active parts range.
+            
+            const ranges = { 1: [1, 10], 2: [11, 20], 3: [21, 30], 4: [31, 40] };
+            let activeQuestionIds = [];
+            activeParts.forEach(p => {
+                const [s, e] = ranges[p];
+                for(let i=s; i<=e; i++) activeQuestionIds.push(i);
+            });
+            total = activeQuestionIds.length;
+
+            let resultText = `Student: ${studentInfo.name}\nClass: ${studentInfo.class}\nMode: ${showAudioControls ? 'Practice' : 'Full'}\n----------------\n`;
+
+            activeQuestionIds.forEach(id => {
+                // Text input?
+                const textInput = document.getElementById(`q${id}`);
+                const radioInput = document.querySelector(`input[name="q${id}"]:checked`);
+                
+                let isCorrect = false;
+                let userVal = "No Answer";
+                let correctVal = "";
+
+                if (textInput) {
+                    userVal = textInput.value.trim().toLowerCase();
+                    correctVal = textInput.dataset.correct;
+                    const valids = correctVal.toLowerCase().split('/').map(s=>s.trim());
+                    if (valids.includes(userVal)) isCorrect = true;
+                    
+                    // UI Update
+                    textInput.classList.remove('border-gray-300');
+                    if(isCorrect) {
+                        textInput.classList.add('border-green-500', 'text-green-600', 'font-bold');
+                    } else {
+                        if(userVal !== "") textInput.classList.add('border-red-500', 'text-red-600');
+                        // Show feedback
+                        let fb = textInput.nextElementSibling;
+                        if (!fb || !fb.classList.contains('inline-feedback')) {
+                            fb = document.createElement('span');
+                            fb.className = 'inline-feedback text-xs text-green-600 block mt-1 font-bold';
+                            textInput.parentNode.insertBefore(fb, textInput.nextSibling);
+                        }
+                        fb.innerText = `✓ ${valids[0]}`;
+                    }
+                } else {
+                    // Radio
+                    const block = document.getElementById(`block-q${id}`);
+                    correctVal = block.dataset.correct;
+                    if (radioInput) {
+                        userVal = radioInput.value;
+                        if (userVal === correctVal) isCorrect = true;
+                    }
+                    
+                    // UI
+                    block.querySelectorAll('label').forEach(l => l.classList.remove('text-green-600', 'font-bold', 'text-red-600'));
+                    if (radioInput) {
+                        if (isCorrect) radioInput.parentElement.classList.add('text-green-600', 'font-bold');
+                        else radioInput.parentElement.classList.add('text-red-600');
+                    }
+                    block.querySelector('.feedback').style.display = 'block';
+                }
+
+                if (isCorrect) score++;
+                resultText += `Q${id}: ${userVal} [Correct: ${correctVal}]\n`;
+            });
+
+            resultText += `----------------\nSCORE: ${score}/${total}`;
+            downloadResults(resultText);
+            
+            // Show Modal
+            document.getElementById('scoreDisplay').textContent = `${score}/${total}`;
+            // Simple band calc for practice (scaled?) No, just raw.
+            document.getElementById('bandScore').textContent = "-";
+            document.getElementById('resultModal').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('modalContent').classList.remove('scale-95', 'opacity-0');
+                document.getElementById('modalContent').classList.add('scale-100', 'opacity-100');
+            }, 10);
+
+            // Post-Submit UI
+            document.getElementById('audioSection').classList.remove('hidden');
+            document.getElementById('btnFullTranscript').classList.remove('hidden');
+            
+            // Regenerate Audio Buttons for Review (Show All used in test)
+            const trackContainer = document.getElementById('audioTrackButtons');
+            trackContainer.innerHTML = '';
+            activeParts.forEach((part, index) => {
+                 trackContainer.innerHTML += `<button onclick="playSpecificTrack(${index})" class="px-4 py-2 bg-indigo-100 text-indigo-700 rounded hover:bg-indigo-200 text-sm font-medium">Part ${part}</button>`;
+            });
+
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+            btn.innerText = "Submitted";
+        }
+
+        // ... [Include helper functions downloadResults, showExplanation, etc. from previous code] ...
+        
+        function downloadResults(text) {
+            const blob = new Blob([text], { type: 'text/plain' });
+            const anchor = document.createElement('a');
+            anchor.download = `${studentInfo.name.replace(/\s+/g, '_')}_Result.txt`;
+            anchor.href = window.URL.createObjectURL(blob);
+            anchor.target = '_blank';
+            anchor.style.display = 'none';
+            document.body.appendChild(anchor);
+            anchor.click();
+            document.body.removeChild(anchor);
+        }
+        
+        function closeModal() {
+            document.getElementById('resultModal').classList.add('hidden');
+        }
+
+        function showExplanation(questionId) {
+            if (!isReviewMode) return;
+            // ... (Same logic as before) ...
+             const content = explanations[questionId];
+            if (content) {
+                document.getElementById('expTitle').textContent = `Explanation for Question ${questionId.replace('q', '').toUpperCase()}`;
+                document.getElementById('expBody').innerHTML = content;
+                document.getElementById('explanationModal').classList.remove('hidden');
+                setTimeout(() => {
+                     document.getElementById('explanationContent').classList.remove('scale-95', 'opacity-0');
+                     document.getElementById('explanationContent').classList.add('scale-100', 'opacity-100');
+                }, 10);
+            }
+        }
+        
+        function closeExplanation() {
+             document.getElementById('explanationModal').classList.add('hidden');
+        }
+
+        function showFullTranscript() {
+            document.getElementById('fullTranscriptBody').textContent = fullTranscript;
+            document.getElementById('transcriptModal').classList.remove('hidden');
+             setTimeout(() => {
+                     document.getElementById('transcriptContent').classList.remove('scale-95', 'opacity-0');
+                     document.getElementById('transcriptContent').classList.add('scale-100', 'opacity-100');
+                }, 10);
+        }
+        
+        function closeTranscript() {
+            document.getElementById('transcriptModal').classList.add('hidden');
+        }
+
+    </script>
+</body>
+</html>
