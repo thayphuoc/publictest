@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@600&display=swap" rel="stylesheet">
+    <title>IELTS Reading: The Geography of Taste Buds</title>
+    <style>
+        /* All CSS styles from the original code */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background-color: #ffffff; line-height: 1.4; font-size: 16px; }
+        .header { background-color: #ffffff; padding: 12px 20px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 60px; }
+        .main-container { margin-top: 60px; display: flex; flex-direction: column; background: #ffffff; height: calc(100vh - 60px); }
+        .panels-container { display: flex; flex: 1; overflow: hidden; }
+        .passage-panel { flex: 1; padding: 20px 20px 100px; overflow-y: auto; min-width: 200px; }
+        .questions-panel { flex: 1; padding: 20px 20px 100px; overflow-y: auto; min-width: 200px; border-left: 1px solid #e0e0e0; }
+        .resizer { width: 10px; cursor: col-resize; background-color: #f0f0f0; background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="30" viewBox="0 0 10 30"><path d="M4 11h2v2H4zM4 15h2v2H4zM4 19h2v2H4z" fill="%23888"/></svg>'); background-repeat: no-repeat; background-position: center; flex-shrink: 0; flex-grow: 0; }
+        
+        /* Typography & Components */
+        .text-center { text-align: center; }
+        .reading-passage h4 { font-family: 'Merriweather', serif; font-size: 22px; font-weight: 600; color: #2c3e50; line-height: 1.4; margin-bottom: 20px; text-align: center; border-bottom: 2px solid #4a90e2; padding-bottom: 5px; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); }
+        .reading-passage p { margin-bottom: 1.2em; }
+        .part-header { background-color: #f1f2ec; padding: 15px 20px; border: 1px solid #e0e0e0; text-align: left; margin: 10px 20px; border-radius: 5px; }
+        
+        /* Question Styles */
+        .question-prompt { margin-bottom: 20px; background: #f9f9f9; padding: 10px; border-radius: 5px; border-left: 4px solid #4a90e2; }
+        .tf-question { margin-bottom: 15px; padding: 10px 0px; border-radius: 4px; transition: background-color 0.3s; }
+        .tf-question-line { display: flex; align-items: flex-start; margin-bottom: 10px; }
+        .tf-question-number { border: 2px solid #ccc; padding: 2px 8px; margin-right: 10px; border-radius: 3px; font-weight: bold; min-width: 35px; text-align: center; }
+        .tf-question-text { padding-top: 3px; }
+        .tf-options { display: flex; gap: 15px; padding-left: 50px; }
+        .tf-option { cursor: pointer; display: flex; align-items: center; gap: 5px; }
+        
+        .answer-input { border: 1px solid #888; border-radius: 4px; padding: 4px 8px; font-size: 16px; width: 150px; text-align: center; transition: all 0.3s; }
+        .answer-input:focus, .answer-input.active-input { border-color: #4a90e2; box-shadow: 0 0 3px 1px rgba(74, 144, 226, 0.5); outline: none; }
+        .answer-input.correct { border-color: #28a745; background-color: #e9f7ef; }
+        .answer-input.incorrect { border-color: #dc3545; background-color: #f8d7da; color: #721c24; }
+        
+        /* Navigation */
+        .nav-arrows { position: fixed; bottom: 100px; right: 20px; display: flex; gap: 5px; z-index: 101; }
+        .nav-arrow { width: 50px; height: 50px; background: #333; color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: bold; border-radius: 4px; }
+        .nav-arrow:hover { background: #555; }
+        
+        .nav-row { position: fixed; bottom: 0; left: 0; right: 0; background: #ffffff; padding: 0; display: flex; align-items: center; height: 80px; z-index: 100; border-top: 1px solid #ccc; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
+        .footer__questionWrapper___1tZ46 { display: flex; align-items: center; margin-right: 20px; height: 100%; padding-left: 20px; }
+        .footer__subquestionWrapper___9GgoP { display: flex; gap: 5px; flex-wrap: wrap; }
+        .subQuestion { width: 35px; height: 35px; border: 1px solid #ccc; background: white; color: #333; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 4px; font-weight: bold; }
+        .subQuestion.active { background-color: #4a90e2; color: white; border-color: #4a90e2; }
+        .subQuestion.correct { background-color: #28a745; color: white; border-color: #28a745; }
+        .subQuestion.incorrect { background-color: #dc3545; color: white; border-color: #dc3545; }
+        
+        .footer__deliverButton___3FM07 { margin-left: auto; margin-right: 20px; background-color: #f0f0f0; color: #333; border: 1px solid #ccc; padding: 12px 24px; border-radius: 4px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 16px; }
+        .footer__deliverButton___3FM07:hover { background-color: #e0e0e0; }
+
+        /* Timer */
+        .timer-container { display: flex; align-items: center; font-weight: 500; font-size: 18px; color: #333; }
+        .timer-controls button { background: none; border: none; cursor: pointer; margin-left: 10px; }
+        
+        /* Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; display: none; justify-content: center; align-items: center; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: white; padding: 30px; border-radius: 8px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto; position: relative; }
+        .modal-close-btn { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 24px; cursor: pointer; }
+        .result-row { display: grid; grid-template-columns: 40px 1fr 1fr; gap: 10px; padding: 8px; border-bottom: 1px solid #eee; }
+        .result-row.incorrect { background-color: #fff0f0; }
+        .correct-ans { color: #28a745; font-weight: bold; }
+        .user-ans { color: #555; }
+        .q-num { font-weight: bold; }
+
+        /* Helper Classes */
+        .hidden { display: none !important; }
+        .correct-answer-display { margin-left: 10px; color: #28a745; font-weight: bold; font-size: 14px; }
+        
+        /* Matching Form specific */
+        .matching-form-row { display: flex; align-items: center; margin-bottom: 15px; justify-content: space-between; border-bottom: 1px solid #f0f0f0; padding-bottom: 10px; }
+        .matching-form-label { flex: 1; padding-right: 15px; }
+
+        /* Summary Gap Fill */
+        .gap-fill-text { line-height: 2.2; font-size: 16px; }
+        .gap-fill-text input { margin: 0 5px; border: none; border-bottom: 2px solid #ccc; border-radius: 0; padding: 0 5px; width: 120px; text-align: center; }
+        .gap-fill-text input:focus { border-bottom-color: #4a90e2; }
+
+        /* Context Menu */
+        .context-menu { position: absolute; background: white; border: 1px solid #ccc; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; display: none; min-width: 140px; }
+        .context-menu-item { padding: 12px 16px; cursor: pointer; font-size: 16px; border-bottom: 1px solid #f0f0f0; transition: background-color 0.2s; display: flex; align-items: center; gap: 8px; }
+        .context-menu-item:hover { background-color: #f8f9fa; }
+        .context-menu-item:last-child { border-bottom: none; }
+        
+        /* Highlights & Notes */
+        .highlight { background-color: #ffff00; }
+        .comment-highlight { background-color: #90EE90; position: relative; cursor: help; }
+        .comment-tooltip { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 8px 12px; border-radius: 4px; font-size: 14px; white-space: nowrap; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+        .comment-highlight:hover .comment-tooltip { opacity: 1; }
+
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="timer-container">
+            <span class="timer-display">40:00</span>
+            <div class="timer-controls">
+                <button id="timer-toggle-btn" title="Pause/Resume">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#333"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M8 5v14l11-7L8 5z"/></svg>
+                </button>
+            </div>
+        </div>
+        <div style="font-weight: bold; font-size: 18px;">IELTS Reading Practice - Dinh Phuoc Edu</div>
+    </div>
+
+    <div class="main-container">
+        <div id="passage-header-container">
+            <!-- Emulating Part 3 since questions are 27-40 -->
+            <div class="part-header">
+                <p><strong>Passage 3</strong></p>
+                <p>Read the text and answer questions 27-40.</p>
+            </div>
+        </div>
+
+        <div class="panels-container">
+            <div class="passage-panel" id="passage-panel">
+                <div class="reading-passage">
+                    <h4 class="text-center">The Geography of Taste Buds</h4>
+                    
+                    <p><strong>A</strong> Scientific researchers mapping the geography of the human tongue have finally succeeded in locating and identifying the sensors for sour tastes.</p>
+
+                    <p><strong>B</strong> Scientists have long known that the surface of the tongue is covered with taste buds: onion-shaped bundles of cells that stand guard for the digestive system. Long before our modern world of supermarkets and restaurants, taste buds served as a crucial tool to maintain the daily existence of our ancestors. The bitter flavour of a wild almond told a prehistoric human foraging in African forests that the nut was poisonous, and they should spit it out. A sweet fruit, though, was safe to consume, and full of energy from carbohydrates. The presence of lions and other man-eating predators also added urgency to meal choices. 'If the thing didn't taste good, you might decide it's not worth it to be out in the open and at risk,' says Steve Miller, a taste researcher at the University of Maryland School of Medicine.</p>
+
+                    <p><strong>C</strong> Much of what we 'taste' in everyday life is actually the work of our nose. The tongue can distinguish only five basic flavour sensations - sweet, sour, bitter, salt and umami, the 'savoury' taste of meat and cheese which indicates protein. Sour taste comes from acidic compounds, and, like bitter taste, it can be a sign to leave decomposing meat or vegetables. Unpleasant tartness in unripe fruits comes from too much citric acid. This is how a tree or shrub keeps hungry diners at bay until its seeds are mature enough to travel - via the diner's digestive system - to a new home.</p>
+
+                    <p><strong>D</strong> Unlike animals, humans have acquired a taste for tartness. In the case of the Japanese pickle called 'umeboshi', the plums are harvested when still green and sour, before the tree fills them with sugar and turns them into a tantalising snack for birds and animals. Sour cream, yoghurt, lemonade, gorgonzola cheese, the German fermented cabbage 'sauerkraut' and other tart treats are eaten every day by millions of people.</p>
+
+                    <p><strong>E</strong> Only a decade ago, popular myth held that separate areas of the tongue were responsible for each taste. Referred to as the 'mouth map', the concept probably originated with a German text mistranslated into English at the beginning of the 20th century. As recently as 1996, 'mouth map' diagrams still appeared in university neuroscience textbooks.</p>
+
+                    <p><strong>F</strong> By the late 1990s, however, scientists had learned enough about molecular biology to turn their attention seriously to taste. They had discovered that thousands of taste buds cover the tongue, each containing 50 to 100 taste cells. Each cell has two poles: one end covered with taste receptors projecting from the tongue's surface, and one end inside the tongue that connects to the brain via nerves. When a person bites into a lemon, acidic molecules from the food bump into acid-sensitive taste receptors, activating a taste cell, which sends a 'sour' message to the brain.</p>
+
+                    <p><strong>G</strong> The details of this process were long a matter of debate. In line with the 'mouth map' concept, some scientists believed that the taste buds in different areas of the tongue were filled with cells of only one type: the tip with sweet-sensing cells, the back with bitter-sensing cells, and so on. Others were not convinced and further suggested the location of cells was not an issue because each cell could sense all five tastes. However, no one had identified any of the taste receptors, so which cells responded to which tastes was unknown. The recent discovery of the sour-taste receptor is a major step forward. Researchers found that the receptor is a specialized protein channel in the membrane of the taste cell. When acid from a food, such as the citric acid in a lemon, enters the pore of this channel, it triggers a change in the cell's electrical charge, ultimately leading to a signal being sent to the brain.</p>
+                </div>
+            </div>
+
+            <div class="resizer" id="resizer"></div>
+
+            <div class="questions-panel" id="questions-panel">
+                
+                <!-- Questions 27-31 -->
+                <div class="question-block" data-q-start="27" data-q-end="31">
+                    <div class="question-prompt">
+                        <p><strong>Questions 27-31</strong><br>Do the following statements agree with the information given in the Reading Passage?</p>
+                        <p>In boxes 27-31 on your answer sheet, write</p>
+                        <ul style="list-style: none; padding-left: 20px;">
+                            <li><strong>TRUE</strong> if the statement agrees with the information</li>
+                            <li><strong>FALSE</strong> if the statement contradicts the information</li>
+                            <li><strong>NOT GIVEN</strong> if there is no information on this</li>
+                        </ul>
+                    </div>
+
+                    <div class="tf-question" data-q-start="27">
+                        <div class="tf-question-line"><span class="tf-question-number">27</span><span class="tf-question-text">Taste buds were more critical for survival in the past than they are today.</span></div>
+                        <div class="tf-options">
+                            <label class="tf-option"><input type="radio" name="q27" value="TRUE"> TRUE</label>
+                            <label class="tf-option"><input type="radio" name="q27" value="FALSE"> FALSE</label>
+                            <label class="tf-option"><input type="radio" name="q27" value="NOT GIVEN"> NOT GIVEN</label>
+                        </div>
+                    </div>
+
+                    <div class="tf-question" data-q-start="28">
+                        <div class="tf-question-line"><span class="tf-question-number">28</span><span class="tf-question-text">The primary role of a sour taste was to identify foods rich in protein.</span></div>
+                        <div class="tf-options">
+                            <label class="tf-option"><input type="radio" name="q28" value="TRUE"> TRUE</label>
+                            <label class="tf-option"><input type="radio" name="q28" value="FALSE"> FALSE</label>
+                            <label class="tf-option"><input type="radio" name="q28" value="NOT GIVEN"> NOT GIVEN</label>
+                        </div>
+                    </div>
+
+                    <div class="tf-question" data-q-start="29">
+                        <div class="tf-question-line"><span class="tf-question-number">29</span><span class="tf-question-text">Plants produce sour-tasting acid in unripe fruit to protect their seeds.</span></div>
+                        <div class="tf-options">
+                            <label class="tf-option"><input type="radio" name="q29" value="TRUE"> TRUE</label>
+                            <label class="tf-option"><input type="radio" name="q29" value="FALSE"> FALSE</label>
+                            <label class="tf-option"><input type="radio" name="q29" value="NOT GIVEN"> NOT GIVEN</label>
+                        </div>
+                    </div>
+
+                    <div class="tf-question" data-q-start="30">
+                        <div class="tf-question-line"><span class="tf-question-number">30</span><span class="tf-question-text">Animals, unlike humans, generally enjoy the taste of sour cream and yoghurt.</span></div>
+                        <div class="tf-options">
+                            <label class="tf-option"><input type="radio" name="q30" value="TRUE"> TRUE</label>
+                            <label class="tf-option"><input type="radio" name="q30" value="FALSE"> FALSE</label>
+                            <label class="tf-option"><input type="radio" name="q30" value="NOT GIVEN"> NOT GIVEN</label>
+                        </div>
+                    </div>
+
+                    <div class="tf-question" data-q-start="31">
+                        <div class="tf-question-line"><span class="tf-question-number">31</span><span class="tf-question-text">The 'mouth map' theory was based on accurate scientific research.</span></div>
+                        <div class="tf-options">
+                            <label class="tf-option"><input type="radio" name="q31" value="TRUE"> TRUE</label>
+                            <label class="tf-option"><input type="radio" name="q31" value="FALSE"> FALSE</label>
+                            <label class="tf-option"><input type="radio" name="q31" value="NOT GIVEN"> NOT GIVEN</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Questions 32-36 -->
+                <div class="question-block" data-q-start="32" data-q-end="36">
+                    <div class="question-prompt">
+                        <p><strong>Questions 32-36</strong><br>Choose <strong>NO MORE THAN TWO WORDS</strong> from the passage for each answer.</p>
+                    </div>
+
+                    <div class="gap-fill-text">
+                        <p>The process of tasting begins when molecules from food interact with <span class="tf-question-number">32</span> <input type="text" id="q32" class="answer-input" placeholder="answer"> on the tongue.</p>
+                        <p>Each taste cell has a specific structure: one end has these receptors, while the other end connects to the <span class="tf-question-number">33</span> <input type="text" id="q33" class="answer-input" placeholder="answer">.</p>
+                        <p>For a sour taste, <span class="tf-question-number">34</span> <input type="text" id="q34" class="answer-input" placeholder="answer"> molecules from food activate the relevant receptors. This activation causes the taste cell to send a message to the brain.</p>
+                        <p>For a long time, there were two main theories about how taste buds worked. One theory supported the 'mouth map' idea, suggesting that each <span class="tf-question-number">35</span> <input type="text" id="q35" class="answer-input" placeholder="answer"> of the tongue had cells for only one taste.</p>
+                        <p>The opposing theory proposed that the <span class="tf-question-number">36</span> <input type="text" id="q36" class="answer-input" placeholder="answer"> of the cells was unimportant because every single cell could detect all five basic tastes.</p>
+                    </div>
+                </div>
+
+                <!-- Questions 37-40 -->
+                <div class="question-block" data-q-start="37" data-q-end="40" style="margin-top: 40px;">
+                    <div class="question-prompt">
+                        <p><strong>Questions 37-40</strong><br>Which paragraph contains the following information?</p>
+                        <p>Write the correct letter, <strong>A-G</strong>, in boxes 37-40 on your answer sheet.</p>
+                    </div>
+
+                    <div class="matching-form-row" data-q-start="37">
+                        <label class="matching-form-label"><strong>37</strong> A list of everyday sour foods consumed by people.</label>
+                        <select class="answer-input" id="q37">
+                            <option value=""></option>
+                            <option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>
+                            <option value="E">E</option><option value="F">F</option><option value="G">G</option>
+                        </select>
+                    </div>
+
+                    <div class="matching-form-row" data-q-start="38">
+                        <label class="matching-form-label"><strong>38</strong> The reason why the 'mouth map' continued to be taught for a long time.</label>
+                        <select class="answer-input" id="q38">
+                            <option value=""></option>
+                            <option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>
+                            <option value="E">E</option><option value="F">F</option><option value="G">G</option>
+                        </select>
+                    </div>
+
+                    <div class="matching-form-row" data-q-start="39">
+                        <label class="matching-form-label"><strong>39</strong> A reference to the constant danger our ancestors faced while eating.</label>
+                        <select class="answer-input" id="q39">
+                            <option value=""></option>
+                            <option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>
+                            <option value="E">E</option><option value="F">F</option><option value="G">G</option>
+                        </select>
+                    </div>
+
+                    <div class="matching-form-row" data-q-start="40">
+                        <label class="matching-form-label"><strong>40</strong> The recent scientific breakthrough that identified the specific mechanism for sensing sourness.</label>
+                        <select class="answer-input" id="q40">
+                            <option value=""></option>
+                            <option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>
+                            <option value="E">E</option><option value="F">F</option><option value="G">G</option>
+                        </select>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Arrows -->
+    <div class="nav-arrows">
+        <button class="nav-arrow" onclick="previousQuestion()" id="prevBtn">‹</button>
+        <button class="nav-arrow" onclick="nextQuestion()" id="nextBtn">›</button>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="nav-row">
+        <div class="footer__questionWrapper___1tZ46 selected">
+            <div class="footer__subquestionWrapper___9GgoP">
+                <!-- Buttons for 27-40 -->
+                <script>
+                    for(let i=27; i<=40; i++) {
+                        document.write(`<button class="subQuestion scorable-item" onclick="goToQuestion(${i})">${i}</button>`);
+                    }
+                </script>
+            </div>
+        </div>
+        
+        <button id="deliver-button" class="footer__deliverButton___3FM07">
+            <span>Check Answers</span>
+        </button>
+    </nav>
+
+    <!-- Context Menu -->
+    <div id="contextMenu" class="context-menu">
+        <div id="menu-highlight" class="context-menu-item" onclick="highlightText()">Highlight</div>
+        <div id="menu-note" class="context-menu-item" onclick="addNote()">Note</div>
+        <div id="menu-clear" class="context-menu-item" onclick="clearHighlight()">Clear</div>
+        <div id="menu-clear-all" class="context-menu-item" onclick="clearAllHighlights()">Clear All</div>
+    </div>
+
+    <!-- Results Modal -->
+    <div id="results-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeResultsModal()">&times;</button>
+            <h2 class="text-center">Results</h2>
+            <div class="results-summary text-center" style="margin: 20px 0; font-size: 18px;">
+                <p>Score: <span id="results-score" style="font-weight: bold;"></span> / 14</p>
+                <p>IELTS Band: <span id="results-band" style="font-weight: bold;"></span></p>
+            </div>
+            <div id="results-details">
+                <!-- Results injected here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- STATE VARIABLES ---
+            let currentQuestion = 27;
+            let timeInSeconds = 2400; // 40 mins for one part usually, adjusted
+            let timerInterval;
+            let selectedRange = null; // For context menu
+            
+            // --- DOM ELEMENTS ---
+            const timerDisplay = document.querySelector('.timer-display');
+            const timerToggleButton = document.getElementById('timer-toggle-btn');
+            const deliverButton = document.getElementById('deliver-button');
+            const resizer = document.getElementById('resizer');
+            const passagePanel = document.getElementById('passage-panel');
+            const questionsPanel = document.getElementById('questions-panel');
+            const contextMenu = document.getElementById('contextMenu');
+            
+            // --- DATA ---
+            const correctAnswers = {
+                '27': 'TRUE', '28': 'FALSE', '29': 'TRUE', '30': 'FALSE', '31': 'FALSE',
+                '32': 'taste receptors', '33': 'brain', '34': 'acidic', '35': 'area', '36': 'location',
+                '37': 'D', '38': 'E', '39': 'B', '40': 'G'
+            };
+
+            // --- INITIALIZATION ---
+            function initialize() {
+                startTimer();
+                goToQuestion(27);
+                
+                deliverButton.addEventListener('click', checkAnswers);
+                timerToggleButton.addEventListener('click', toggleTimer);
+                resizer.addEventListener('mousedown', initResize, false);
+                
+                // Input tracking for nav
+                document.body.addEventListener('input', updateNavigationState);
+                document.body.addEventListener('change', updateNavigationState);
+                
+                initializeContextMenu();
+            }
+
+            // --- TIMER FUNCTIONS ---
+            function startTimer() {
+                if(timerInterval) clearInterval(timerInterval);
+                timerInterval = setInterval(() => {
+                    timeInSeconds--;
+                    const mins = Math.floor(timeInSeconds / 60);
+                    const secs = timeInSeconds % 60;
+                    timerDisplay.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+                    if(timeInSeconds <= 0) clearInterval(timerInterval);
+                }, 1000);
+            }
+
+            function toggleTimer() {
+                if(timerInterval) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                } else {
+                    startTimer();
+                }
+            }
+
+            // --- NAVIGATION ---
+            window.goToQuestion = function(qNum) {
+                currentQuestion = qNum;
+                
+                // Highlight Nav Button
+                document.querySelectorAll('.subQuestion').forEach(b => b.classList.remove('active'));
+                const btn = document.querySelector(`.subQuestion[onclick="goToQuestion(${qNum})"]`);
+                if(btn) btn.classList.add('active');
+
+                // Scroll Question into View
+                const qEl = document.querySelector(`[data-q-start="${qNum}"]`) || document.getElementById(`q${qNum}`);
+                if(qEl) {
+                    if(qEl.tagName === 'INPUT' || qEl.tagName === 'SELECT') {
+                        qEl.focus();
+                        qEl.scrollIntoView({behavior: "smooth", block: "center"});
+                    } else {
+                        qEl.scrollIntoView({behavior: "smooth", block: "center"});
+                    }
+                }
+            }
+
+            window.nextQuestion = function() {
+                if(currentQuestion < 40) goToQuestion(currentQuestion + 1);
+            }
+
+            window.previousQuestion = function() {
+                if(currentQuestion > 27) goToQuestion(currentQuestion - 1);
+            }
+
+            function updateNavigationState() {
+                for(let i=27; i<=40; i++) {
+                    const btn = document.querySelector(`.subQuestion[onclick="goToQuestion(${i})"]`);
+                    if(isQuestionAnswered(i)) {
+                        btn.classList.add('answered');
+                    } else {
+                        btn.classList.remove('answered');
+                    }
+                }
+            }
+
+            function isQuestionAnswered(qNum) {
+                const textInput = document.getElementById(`q${qNum}`);
+                if(textInput && textInput.value.trim() !== '') return true;
+                
+                const radio = document.querySelector(`input[name="q${qNum}"]:checked`);
+                if(radio) return true;
+                
+                return false;
+            }
+
+            // --- CHECKING ANSWERS ---
+            function checkAnswers() {
+                clearInterval(timerInterval);
+                let score = 0;
+                const resultsContainer = document.getElementById('results-details');
+                resultsContainer.innerHTML = '';
+
+                // Disable inputs
+                document.querySelectorAll('input, select').forEach(el => el.disabled = true);
+                deliverButton.disabled = true;
+
+                for(let i=27; i<=40; i++) {
+                    const key = String(i);
+                    const correctVal = correctAnswers[key];
+                    let userVal = '';
+                    let isCorrect = false;
+
+                    const textInput = document.getElementById(`q${i}`);
+                    const radio = document.querySelector(`input[name="q${i}"]:checked`);
+
+                    if(textInput) {
+                        userVal = textInput.value.trim();
+                        isCorrect = userVal.toLowerCase() === correctVal.toLowerCase();
+                        
+                        textInput.classList.add(isCorrect ? 'correct' : 'incorrect');
+                        if(!isCorrect) {
+                            const span = document.createElement('span');
+                            span.className = 'correct-answer-display';
+                            span.textContent = `✓ ${correctVal}`;
+                            textInput.parentNode.insertBefore(span, textInput.nextSibling);
+                        }
+
+                    } else if (radio) {
+                        userVal = radio.value;
+                        isCorrect = userVal === correctVal;
+                        
+                        const optionLabel = radio.closest('.tf-option');
+                        if(optionLabel) optionLabel.style.backgroundColor = isCorrect ? '#e9f7ef' : '#f8d7da';
+                        
+                        if(!isCorrect) {
+                            const correctRadio = document.querySelector(`input[name="q${i}"][value="${correctVal}"]`);
+                            if(correctRadio) {
+                                correctRadio.closest('.tf-option').style.backgroundColor = '#d4edda';
+                                correctRadio.closest('.tf-option').style.border = '1px solid #28a745';
+                            }
+                        }
+                    }
+
+                    if(isCorrect) score++;
+
+                    const row = document.createElement('div');
+                    row.className = `result-row ${isCorrect ? '' : 'incorrect'}`;
+                    row.innerHTML = `
+                        <span class="q-num">${i}</span>
+                        <span class="user-ans">${userVal || '(No Answer)'}</span>
+                        <span class="correct-ans">${correctVal}</span>
+                    `;
+                    resultsContainer.appendChild(row);
+
+                    const btn = document.querySelector(`.subQuestion[onclick="goToQuestion(${i})"]`);
+                    if(btn) {
+                        btn.classList.remove('active', 'answered');
+                        btn.classList.add(isCorrect ? 'correct' : 'incorrect');
+                    }
+                }
+
+                document.getElementById('results-score').textContent = score;
+                document.getElementById('results-band').textContent = calculateBand(score);
+                document.querySelector('.modal-overlay').classList.add('active');
+            }
+
+            function calculateBand(score) {
+                const percentage = (score / 14) * 100;
+                if(percentage >= 90) return '9.0';
+                if(percentage >= 80) return '8.0';
+                if(percentage >= 70) return '7.0';
+                if(percentage >= 60) return '6.0';
+                if(percentage >= 50) return '5.0';
+                return 'Below 5.0';
+            }
+
+            window.closeResultsModal = function() {
+                document.querySelector('.modal-overlay').classList.remove('active');
+            }
+
+            // --- RESIZER ---
+            function initResize(e) {
+                e.preventDefault();
+                const startX = e.clientX;
+                const startWidth = passagePanel.offsetWidth;
+                const doDrag = (e) => {
+                    passagePanel.style.flex = `0 0 ${startWidth + e.clientX - startX}px`;
+                };
+                const stopDrag = () => {
+                    window.removeEventListener('mousemove', doDrag);
+                    window.removeEventListener('mouseup', stopDrag);
+                };
+                window.addEventListener('mousemove', doDrag);
+                window.addEventListener('mouseup', stopDrag);
+            }
+
+            // --- CONTEXT MENU / HIGHLIGHT LOGIC ---
+            function initializeContextMenu() {
+                const panels = [passagePanel, questionsPanel];
+                let targetElementForClear = null;
+
+                document.addEventListener('selectionchange', () => {
+                    const selection = window.getSelection();
+                    if (selection && !selection.isCollapsed && selection.toString().trim().length > 0) {
+                        const range = selection.getRangeAt(0);
+                        if (panels.some(panel => panel.contains(range.commonAncestorContainer))) {
+                            selectedRange = range;
+                            targetElementForClear = null;
+                        }
+                    }
+                });
+
+                const showContextMenu = (e) => {
+                    const target = e.target;
+                    const isClickOnHighlight = target.closest('.highlight, .comment-highlight');
+                    const isSelectionActive = selectedRange && selectedRange.toString().trim().length > 0;
+                    
+                    let showMenu = false;
+
+                    if (isClickOnHighlight) {
+                        document.getElementById('menu-highlight').style.display = 'none';
+                        document.getElementById('menu-note').style.display = 'none';
+                        document.getElementById('menu-clear').style.display = 'block';
+                        document.getElementById('menu-clear-all').style.display = 'block';
+                        contextMenu.targetElementForClear = isClickOnHighlight;
+                        showMenu = true;
+                    } else if (isSelectionActive && panels.some(panel => panel.contains(selectedRange.commonAncestorContainer))) {
+                        document.getElementById('menu-highlight').style.display = 'flex';
+                        document.getElementById('menu-note').style.display = 'flex';
+                        document.getElementById('menu-clear').style.display = 'none';
+                        document.getElementById('menu-clear-all').style.display = 'block';
+                        showMenu = true;
+                    }
+
+                    if (showMenu) {
+                        e.preventDefault();
+                        contextMenu.style.display = 'block';
+                        
+                        // Positioning logic
+                        let left = e.pageX;
+                        let top = e.pageY;
+                        const menuWidth = 140; 
+                        const menuHeight = contextMenu.offsetHeight || 150; // estimate if not visible
+
+                        if (left + menuWidth > window.innerWidth) left = window.innerWidth - menuWidth - 5;
+                        if (top + menuHeight > window.innerHeight) top = e.pageY - menuHeight - 5;
+                        
+                        contextMenu.style.left = `${left}px`;
+                        contextMenu.style.top = `${top}px`;
+                    }
+                };
+
+                panels.forEach(panel => {
+                    panel.addEventListener('contextmenu', showContextMenu);
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (contextMenu.style.display === 'block' && !contextMenu.contains(e.target)) {
+                        contextMenu.style.display = 'none';
+                        selectedRange = null;
+                    }
+                });
+            }
+
+            function unwrapElement(element) {
+                const parent = element.parentNode;
+                if (!parent) return;
+                while (element.firstChild) {
+                    parent.insertBefore(element.firstChild, element);
+                }
+                parent.removeChild(element);
+                parent.normalize();
+            }
+
+            window.highlightText = () => {
+                if (selectedRange && !selectedRange.collapsed) {
+                    const span = document.createElement('span');
+                    span.className = 'highlight';
+                    span.appendChild(selectedRange.extractContents());
+                    selectedRange.insertNode(span);
+                }
+                contextMenu.style.display = 'none';
+                window.getSelection().removeAllRanges();
+            };
+
+            window.addNote = () => {
+                const note = prompt('Enter your note:');
+                if (note && selectedRange && !selectedRange.collapsed) {
+                    const span = document.createElement('span');
+                    span.className = 'comment-highlight';
+                    const tooltip = document.createElement('span');
+                    tooltip.className = 'comment-tooltip';
+                    tooltip.textContent = note;
+                    span.appendChild(selectedRange.extractContents());
+                    span.appendChild(tooltip);
+                    selectedRange.insertNode(span);
+                }
+                contextMenu.style.display = 'none';
+                window.getSelection().removeAllRanges();
+            };
+
+            window.clearHighlight = () => {
+                const elementToClear = contextMenu.targetElementForClear;
+                if (elementToClear) {
+                    unwrapElement(elementToClear);
+                }
+                contextMenu.style.display = 'none';
+                window.getSelection().removeAllRanges();
+            };
+            
+            window.clearAllHighlights = () => {
+                document.querySelectorAll('.highlight, .comment-highlight').forEach(unwrapElement);
+                contextMenu.style.display = 'none';
+                window.getSelection().removeAllRanges();
+            };
+
+            initialize();
+        });
+
+        
+        document.addEventListener("keydown", function (e) {
+            if (
+                e.key === "F12" ||
+                (e.ctrlKey && e.shiftKey && e.key === "I") ||
+                (e.ctrlKey && e.shiftKey && e.key === "J") ||
+                (e.ctrlKey && e.shiftKey && e.key === "C") ||
+                (e.ctrlKey && e.key === "u") ||
+                (e.ctrlKey && e.key === "p") ||
+                (e.ctrlKey && e.key === "s")
+            ) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    </script>
+</body>
+</html>

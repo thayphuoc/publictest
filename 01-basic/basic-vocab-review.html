@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vocabulary Flashcards Review</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap');
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%); /* Nền gradient tươi sáng */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        h1 {
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .controls {
+            margin-top: 20px;
+            margin-bottom: 10px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        button {
+            padding: 15px 30px; /* Nút lớn hơn */
+            border: none;
+            border-radius: 50px;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            min-width: 120px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0,0,0,0.25);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* Màu sắc nút riêng biệt */
+        .btn-prev { background-color: #2196F3; } /* Xanh dương */
+        .btn-flip { background-color: #9C27B0; } /* Tím */
+        .btn-next { background-color: #4CAF50; } /* Xanh lá */
+        .btn-shuffle { background-color: #FF9800; min-width: 200px; } /* Cam */
+
+        .scene {
+            width: 600px; /* Thẻ rộng hơn nhiều */
+            height: 400px; /* Thẻ cao hơn */
+            perspective: 1000px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+            cursor: pointer;
+            border-radius: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .card.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card__face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            box-sizing: border-box;
+            text-align: center;
+            border: 5px solid white;
+        }
+
+        .card__face--front {
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+        }
+
+        .card__face--back {
+            background: linear-gradient(135deg, #fff1eb 0%, #ace0f9 100%);
+            transform: rotateY(180deg);
+        }
+
+        .word {
+            font-size: 4rem; /* Chữ cực lớn */
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            line-height: 1.2;
+        }
+
+        .ipa {
+            font-size: 2rem;
+            color: #7f8c8d;
+            font-family: 'Times New Roman', serif;
+            margin-bottom: 20px;
+        }
+
+        .meaning {
+            font-size: 3.5rem; /* Nghĩa cực lớn */
+            font-weight: 700;
+            color: #d84315;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .example {
+            font-size: 1.8rem;
+            color: #37474f;
+            font-style: italic;
+            background: rgba(255,255,255,0.6);
+            padding: 10px 20px;
+            border-radius: 15px;
+        }
+
+        .progress {
+            margin-top: 10px;
+            color: #fff;
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .category-tag {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            font-size: 1.2rem;
+            padding: 8px 16px;
+            border-radius: 20px;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            text-transform: uppercase;
+        }
+
+        .tap-hint {
+            position: absolute;
+            bottom: 20px;
+            font-size: 1rem;
+            color: #999;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 650px) {
+            .scene {
+                width: 90vw;
+                height: 60vh;
+            }
+            .word { font-size: 3rem; }
+            .meaning { font-size: 2.5rem; }
+            .example { font-size: 1.4rem; }
+            button { padding: 12px 20px; font-size: 1rem; min-width: auto;}
+            h1 { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Vocabulary Review</h1>
+
+    <div class="scene scene--card">
+        <div class="card">
+            <div class="card__face card__face--front">
+                <span class="category-tag" id="categoryTag">Verb</span>
+                <div class="word" id="wordDisplay">run</div>
+                <div class="ipa" id="ipaDisplay">/rʌn/</div>
+                <div class="tap-hint">(Bấm để xem nghĩa)</div>
+            </div>
+            <div class="card__face card__face--back">
+                <div class="meaning" id="meaningDisplay">chạy</div>
+                <div class="example" id="exampleDisplay">"I run in the park every morning."</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="btn-prev" onclick="prevCard()">← Prev</button>
+        <button class="btn-flip" onclick="flipCard()">Flip</button>
+        <button class="btn-next" onclick="nextCard()">Next →</button>
+    </div>
+    
+    <div class="controls">
+        <button class="btn-shuffle" onclick="shuffleDeck()">Shuffle (Trộn thẻ)</button>
+    </div>
+
+    <div class="progress" id="progressDisplay">Card 1 of 65</div>
+
+    <script>
+        const vocabulary = [
+            // Verbs
+            { word: "run", ipa: "/rʌn/", meaning: "chạy", example: "I like to run in the park.", type: "Verb" },
+            { word: "listen", ipa: "/ˈlɪs.ən/", meaning: "nghe", example: "Please listen to the teacher.", type: "Verb" },
+            { word: "download", ipa: "/ˌdaʊnˈləʊd/", meaning: "tải xuống", example: "I download games on my phone.", type: "Verb" },
+            { word: "protect", ipa: "/prəˈtekt/", meaning: "bảo vệ", example: "Antivirus helps protect your PC.", type: "Verb" },
+            { word: "install", ipa: "/ɪnˈstɔːl/", meaning: "cài đặt", example: "Install this app now.", type: "Verb" },
+            { word: "score", ipa: "/skɔːr/", meaning: "ghi bàn / ghi điểm", example: "He scored a goal.", type: "Verb" },
+            { word: "throw", ipa: "/θrəʊ/", meaning: "ném", example: "Throw the ball to me.", type: "Verb" },
+            { word: "kick", ipa: "/kɪk/", meaning: "đá", example: "Kick the ball hard.", type: "Verb" },
+            { word: "catch", ipa: "/kætʃ/", meaning: "bắt / chụp", example: "Try to catch the ball.", type: "Verb" },
+            { word: "save", ipa: "/seɪv/", meaning: "lưu", example: "Save your work often.", type: "Verb" },
+            { word: "open", ipa: "/ˈəʊ.pən/", meaning: "mở", example: "Open your book.", type: "Verb" },
+            { word: "delete", ipa: "/dɪˈliːt/", meaning: "xóa", example: "Delete the bad photo.", type: "Verb" },
+
+            // Adjectives
+            { word: "delicious", ipa: "/dɪˈlɪʃ.əs/", meaning: "ngon", example: "The soup is delicious.", type: "Adjective" },
+            { word: "strong", ipa: "/strɒŋ/", meaning: "khỏe mạnh", example: "He is strong.", type: "Adjective" },
+            { word: "expensive", ipa: "/ɪkˈspen.sɪv/", meaning: "đắt", example: "The car is expensive.", type: "Adjective" },
+            { word: "tired", ipa: "/taɪəd/", meaning: "mệt mỏi", example: "I am tired today.", type: "Adjective" },
+            { word: "cold", ipa: "/kəʊld/", meaning: "lạnh", example: "It is cold outside.", type: "Adjective" },
+            { word: "happy", ipa: "/ˈhæp.i/", meaning: "vui vẻ", example: "She is happy.", type: "Adjective" },
+            { word: "warm", ipa: "/wɔːm/", meaning: "ấm áp", example: "The tea is warm.", type: "Adjective" },
+            { word: "dark", ipa: "/dɑːk/", meaning: "tối", example: "It is dark at night.", type: "Adjective" },
+            { word: "hungry", ipa: "/ˈhʌŋ.ɡri/", meaning: "đói", example: "I am hungry for lunch.", type: "Adjective" },
+            { word: "excited", ipa: "/ɪkˈsaɪ.tɪd/", meaning: "hào hứng", example: "I am excited for the trip.", type: "Adjective" },
+            { word: "sleepy", ipa: "/ˈsliː.pi/", meaning: "buồn ngủ", example: "The baby is sleepy.", type: "Adjective" },
+            { word: "relaxed", ipa: "/rɪˈlækst/", meaning: "thư giãn", example: "He feels relaxed.", type: "Adjective" },
+            { word: "boring", ipa: "/ˈbɔː.rɪŋ/", meaning: "nhàm chán", example: "This movie is boring.", type: "Adjective" },
+            { word: "difficult", ipa: "/ˈdɪf.ɪ.kəlt/", meaning: "khó khăn", example: "Math is difficult.", type: "Adjective" },
+            { word: "beautiful", ipa: "/ˈbjuː.tɪ.fəl/", meaning: "xinh đẹp", example: "The flower is beautiful.", type: "Adjective" },
+            { word: "cheap", ipa: "/tʃiːp/", meaning: "rẻ", example: "This pen is cheap.", type: "Adjective" },
+            { word: "colorful", ipa: "/ˈkʌl.ə.fəl/", meaning: "sặc sỡ", example: "A colorful garden.", type: "Adjective" },
+            { word: "scared", ipa: "/skeəd/", meaning: "sợ hãi", example: "He is scared of ghosts.", type: "Adjective" },
+            { word: "sad", ipa: "/sæd/", meaning: "buồn", example: "Don't be sad.", type: "Adjective" },
+            { word: "noisy", ipa: "/ˈnɔɪ.zi/", meaning: "ồn ào", example: "The traffic is noisy.", type: "Adjective" },
+            { word: "big", ipa: "/bɪɡ/", meaning: "to / lớn", example: "A big house.", type: "Adjective" },
+            { word: "small", ipa: "/smɔːl/", meaning: "nhỏ", example: "A small mouse.", type: "Adjective" },
+            { word: "fast", ipa: "/fɑːst/", meaning: "nhanh", example: "Run fast!", type: "Adjective" },
+            { word: "angry", ipa: "/ˈæŋ.ɡri/", meaning: "tức giận", example: "He is angry.", type: "Adjective" },
+            { word: "intelligent", ipa: "/ɪnˈtel.ɪ.dʒənt/", meaning: "thông minh", example: "Dolphins are intelligent.", type: "Adjective" },
+            { word: "wild", ipa: "/waɪld/", meaning: "hoang dã", example: "A tiger is a wild animal.", type: "Adjective" },
+
+            // Nouns
+            { word: "doctor", ipa: "/ˈdɒk.tər/", meaning: "bác sĩ", example: "My dad is a doctor.", type: "Noun" },
+            { word: "teacher", ipa: "/ˈtiː.tʃər/", meaning: "giáo viên", example: "I love my teacher.", type: "Noun" },
+            { word: "soup", ipa: "/suːp/", meaning: "súp / canh", example: "Hot soup.", type: "Noun" },
+            { word: "weather", ipa: "/ˈweð.ər/", meaning: "thời tiết", example: "Nice weather.", type: "Noun" },
+            { word: "shoes", ipa: "/ʃuːz/", meaning: "giày", example: "New shoes.", type: "Noun" },
+            { word: "competition", ipa: "/ˌkɒm.pəˈtɪʃ.ən/", meaning: "cuộc thi", example: "A singing competition.", type: "Noun" },
+            { word: "ghost", ipa: "/ɡəʊst/", meaning: "ma", example: "A scary ghost.", type: "Noun" },
+            { word: "lottery", ipa: "/ˈlɒt.ər.i/", meaning: "xổ số", example: "Win the lottery.", type: "Noun" },
+            { word: "safari", ipa: "/səˈfɑː.ri/", meaning: "cuộc đi săn", example: "Go on a safari.", type: "Noun" },
+            { word: "racquet", ipa: "/ˈræk.ɪt/", meaning: "vợt", example: "Tennis racquet.", type: "Noun" },
+            { word: "giraffe", ipa: "/dʒɪˈrɑːf/", meaning: "hươu cao cổ", example: "Tall giraffe.", type: "Noun" },
+            { word: "programming", ipa: "/ˈprəʊ.ɡræm.ɪŋ/", meaning: "lập trình", example: "Computer programming.", type: "Noun" },
+            { word: "antivirus", ipa: "/ˌæn.tiˈvaɪ.rəs/", meaning: "diệt virus", example: "Install antivirus.", type: "Noun" },
+            { word: "keyboard", ipa: "/ˈkiː.bɔːd/", meaning: "bàn phím", example: "Type on a keyboard.", type: "Noun" },
+            { word: "printer", ipa: "/ˈprɪn.tər/", meaning: "máy in", example: "Color printer.", type: "Noun" },
+            { word: "football", ipa: "/ˈfʊt.bɔːl/", meaning: "bóng đá", example: "Play football.", type: "Noun" },
+            { word: "dolphin", ipa: "/ˈdɒl.fɪn/", meaning: "cá heo", example: "Blue dolphin.", type: "Noun" },
+            { word: "eagle", ipa: "/ˈiː.ɡl̩/", meaning: "đại bàng", example: "Flying eagle.", type: "Noun" },
+            { word: "kangaroo", ipa: "/ˌkæŋ.ɡərˈuː/", meaning: "chuột túi", example: "Jumping kangaroo.", type: "Noun" },
+            { word: "jungle", ipa: "/ˈdʒʌŋ.ɡl̩/", meaning: "rừng rậm", example: "Green jungle.", type: "Noun" },
+            { word: "headphones", ipa: "/ˈhed.fəʊnz/", meaning: "tai nghe", example: "Wear headphones.", type: "Noun" },
+            { word: "stadium", ipa: "/ˈsteɪ.di.əm/", meaning: "sân vận động", example: "Big stadium.", type: "Noun" },
+            { word: "skyscraper", ipa: "/ˈskaɪˌskreɪ.pər/", meaning: "nhà chọc trời", example: "City skyscraper.", type: "Noun" },
+            { word: "zoo", ipa: "/zuː/", meaning: "sở thú", example: "Visit the zoo.", type: "Noun" },
+            { word: "selfie", ipa: "/ˈsel.fi/", meaning: "ảnh tự chụp", example: "Take a selfie.", type: "Noun" },
+            { word: "hiking", ipa: "/ˈhaɪ.kɪŋ/", meaning: "leo núi / đi bộ", example: "Go hiking.", type: "Noun" },
+            { word: "traffic", ipa: "/ˈtræf.ɪk/", meaning: "giao thông", example: "Heavy traffic.", type: "Noun" },
+            { word: "tablet", ipa: "/ˈtæb.lət/", meaning: "máy tính bảng", example: "Use a tablet.", type: "Noun" }
+        ];
+
+        let currentIndex = 0;
+        const cardElement = document.querySelector('.card');
+        const wordDisplay = document.getElementById('wordDisplay');
+        const ipaDisplay = document.getElementById('ipaDisplay');
+        const meaningDisplay = document.getElementById('meaningDisplay');
+        const exampleDisplay = document.getElementById('exampleDisplay');
+        const progressDisplay = document.getElementById('progressDisplay');
+        const categoryTag = document.getElementById('categoryTag');
+
+        // Initial Load
+        updateCard();
+
+        // Flip Logic
+        cardElement.addEventListener('click', flipCard);
+
+        function flipCard() {
+            cardElement.classList.toggle('is-flipped');
+        }
+
+        function updateCard() {
+            // Reset Flip
+            cardElement.classList.remove('is-flipped');
+            
+            // Wait slightly for flip animation if needed, but instant update is better for navigation
+            const item = vocabulary[currentIndex];
+            wordDisplay.textContent = item.word;
+            ipaDisplay.textContent = item.ipa;
+            meaningDisplay.textContent = item.meaning;
+            exampleDisplay.textContent = `"${item.example}"`;
+            categoryTag.textContent = item.type;
+            
+            // Color coding types with background colors
+            if (item.type === "Verb") {
+                categoryTag.style.backgroundColor = "#ff5252"; // Red
+            } else if (item.type === "Adjective") {
+                categoryTag.style.backgroundColor = "#448aff"; // Blue
+            } else {
+                categoryTag.style.backgroundColor = "#69f0ae"; // Green
+                categoryTag.style.color = "#333"; // Darker text for light green
+                if(item.type !== "Noun") categoryTag.style.color = "white"; // Revert for others
+            }
+            if(item.type !== "Noun") categoryTag.style.color = "white";
+
+            progressDisplay.textContent = `Card ${currentIndex + 1} of ${vocabulary.length}`;
+        }
+
+        function nextCard() {
+            // Add a small delay to allow the "unflip" to happen visually if user clicks quickly while flipped
+            // But for simple flashcards, just resetting is fine.
+            if (currentIndex < vocabulary.length - 1) {
+                currentIndex++;
+            } else {
+                currentIndex = 0; // Loop back
+            }
+            updateCard();
+        }
+
+        function prevCard() {
+            if (currentIndex > 0) {
+                currentIndex--;
+            } else {
+                currentIndex = vocabulary.length - 1; // Loop to end
+            }
+            updateCard();
+        }
+
+        function shuffleDeck() {
+            for (let i = vocabulary.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [vocabulary[i], vocabulary[j]] = [vocabulary[j], vocabulary[i]];
+            }
+            currentIndex = 0;
+            updateCard();
+        }
+
+        // Add keyboard support
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'ArrowDown') {
+                flipCard();
+                e.preventDefault(); // Prevent scrolling
+            } else if (e.code === 'ArrowRight') {
+                nextCard();
+            } else if (e.code === 'ArrowLeft') {
+                prevCard();
+            }
+        });
+    </script>
+</body>
+</html>
