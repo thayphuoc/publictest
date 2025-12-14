@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INTRO - 4 Week Challenge - DP</title>
+    <style>
+        :root {
+            --primary: #4a90e2;
+            --secondary: #50e3c2;
+            --accent-1: #ff6b6b;
+            --accent-2: #feca57;
+            --accent-3: #5f27cd;
+            --bg: #f7f9fc;
+            --text: #2d3436;
+            --white: #ffffff;
+            /* Footer colors updated */
+            --footer-bg: #f1f2f6; 
+            --footer-text: #636e72;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            padding-bottom: 50px; /* Reduced space for smaller footer */
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--white);
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.2em;
+            font-weight: 700;
+        }
+
+        /* Tabs Navigation */
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px 0;
+            padding: 0 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            background-color: #e0e0e0;
+            color: #777;
+        }
+
+        .tab-btn.active {
+            color: var(--white);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        /* Specific Tab Colors */
+        .tab-btn[data-target="week1"] { --btn-color: var(--accent-1); }
+        .tab-btn[data-target="week1"].active { background-color: var(--accent-1); }
+
+        .tab-btn[data-target="week2"] { --btn-color: var(--secondary); }
+        .tab-btn[data-target="week2"].active { background-color: #2bcbba; }
+
+        .tab-btn[data-target="week3"] { --btn-color: var(--primary); }
+        .tab-btn[data-target="week3"].active { background-color: var(--primary); }
+
+        .tab-btn[data-target="week4"] { --btn-color: var(--accent-3); }
+        .tab-btn[data-target="week4"].active { background-color: var(--accent-3); }
+
+        /* Content Sections */
+        .content-container {
+            max-width: 900px;
+            margin: 0 auto 50px auto;
+            padding: 0 20px;
+        }
+
+        .topic-section {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .topic-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .topic-header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #444;
+        }
+
+        /* Question Accordion */
+        .question-card {
+            background: var(--white);
+            margin-bottom: 15px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .question-header {
+            padding: 18px 20px;
+            background: var(--white);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 700;
+            font-size: 1.05em;
+            color: #2d3436;
+            border-left: 6px solid #ccc; /* Default gray */
+            transition: background-color 0.2s;
+        }
+
+        .question-header:hover {
+            background-color: #f8f9fa;
+        }
+
+        .question-header::after {
+            content: '+';
+            font-size: 1.5em;
+            color: #aaa;
+            transition: transform 0.3s;
+        }
+
+        .question-card.open .question-header::after {
+            transform: rotate(45deg);
+        }
+
+        /* Color coding per week for borders */
+        #week1 .question-header { border-left-color: var(--accent-1); color: #d63031; }
+        #week2 .question-header { border-left-color: #2bcbba; color: #009688; }
+        #week3 .question-header { border-left-color: var(--primary); color: #2980b9; }
+        #week4 .question-header { border-left-color: var(--accent-3); color: #8e44ad; }
+
+        .answer-panel {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out;
+            background-color: #fff;
+        }
+
+        .answer-content {
+            padding: 20px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        /* Styled Options */
+        .sample-answer {
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border: 1px solid transparent;
+            position: relative;
+        }
+
+        /* Option 1 Style */
+        .sample-answer:nth-of-type(1) {
+            background-color: #e3f2fd; /* Light Blue */
+            border-color: #bbdefb;
+        }
+        .sample-answer:nth-of-type(1) h4 { color: #1565c0; }
+
+        /* Option 2 Style */
+        .sample-answer:nth-of-type(2) {
+            background-color: #e8f5e9; /* Light Green */
+            border-color: #c8e6c9;
+        }
+        .sample-answer:nth-of-type(2) h4 { color: #2e7d32; }
+
+        /* Option 3 Style */
+        .sample-answer:nth-of-type(3) {
+            background-color: #f3e5f5; /* Light Purple */
+            border-color: #e1bee7;
+        }
+        .sample-answer:nth-of-type(3) h4 { color: #6a1b9a; }
+
+
+        .sample-answer h4 {
+            margin: 0 0 8px 0;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 800;
+        }
+
+        /* Sticky Footer */
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--footer-bg);
+            color: var(--footer-text);
+            text-align: center;
+            padding: 8px 0;
+            font-size: 0.9em;
+            border-top: 1px solid #dcdcdc;
+            z-index: 1000;
+        }
+
+        /* Highlight vocabulary */
+        .highlight {
+            color: #d63031;
+            font-weight: 700;
+            background-color: #ffeaa7;
+            padding: 0 4px;
+            border-radius: 3px;
+        }
+        
+        strong {
+            font-weight: 700;
+        }
+
+        /* Translation Toggle */
+        .trans-btn {
+            display: inline-block;
+            margin-top: 8px;
+            font-size: 0.85em;
+            color: #555;
+            cursor: pointer;
+            text-decoration: underline;
+            border: none;
+            background: none;
+            padding: 0;
+        }
+        
+        .trans-btn:hover {
+            color: #000;
+        }
+
+        .translation-text {
+            display: none;
+            margin-top: 8px;
+            font-style: italic;
+            color: #666;
+            font-size: 0.95em;
+            border-top: 1px dashed rgba(0,0,0,0.1);
+            padding-top: 5px;
+        }
+
+        @media (max-width: 600px) {
+            header h1 { font-size: 1.8em; }
+            .tabs { gap: 8px; }
+            .tab-btn { padding: 8px 12px; font-size: 0.85em; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>INTRO SPEAKING Challenge</h1>
+</header>
+
+<div class="tabs">
+    <button class="tab-btn active" data-target="week1">Week 1: Food 🍔</button>
+    <button class="tab-btn" data-target="week2">Week 2: Animals 🐶</button>
+    <button class="tab-btn" data-target="week3">Week 3: Daily Life 📅</button>
+    <button class="tab-btn" data-target="week4">Week 4: Hobbies 🎮</button>
+</div>
+
+<div class="content-container">
+
+    <!-- WEEK 1 -->
+    <div id="week1" class="topic-section active">
+        <div class="topic-header">
+            <h2>Topic: Food and Cooking</h2>
+            <p>Focus: Preferences, Habits & Tradition</p>
+        </div>
+
+        <!-- Q1 -->
+        <div class="question-card">
+            <div class="question-header">1. What is your favorite type of food?</div>
+            <div class="answer-panel"><div class="answer-content">
+                <div class="sample-answer">
+                    <h4>Option 1 (Direct & Enthusiastic)</h4>
+                    <p>To be honest, <strong>I’m into</strong> spicy food, especially Thai cuisine. <strong>If I have to choose</strong> one dish, it would be Tom Yum soup. It’s absolutely delicious. I mean, <strong>who doesn’t</strong> love a bit of spice in their life?</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Thành thật mà nói, tôi rất thích đồ ăn cay, đặc biệt là ẩm thực Thái Lan. Nếu phải chọn một món, đó sẽ là súp Tom Yum. Nó thực sự rất ngon. Ý tôi là, ai mà chẳng thích chút vị cay trong cuộc sống chứ?</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 2 (Preference comparison)</h4>
+                    <p><strong>When it comes to</strong> food, <strong>I prefer</strong> home-cooked meals over fast food. <strong>What I like most is</strong> the freshness of the ingredients. Fast food is just <strong>not my thing</strong>.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Khi nói đến đồ ăn, tôi thích cơm nhà hơn là đồ ăn nhanh. Điều tôi thích nhất là sự tươi ngon của nguyên liệu. Đồ ăn nhanh không phải là thứ tôi thích.</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 3 (Detailed)</h4>
+                    <p>I’m a huge fan of Italian food. <strong>Speaking of</strong> which, I could eat pasta every single day. It’s my ultimate comfort food when I want to <strong>unwind</strong> after a long day.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Tôi là một fan lớn của đồ ăn Ý. Nhân tiện nói về điều này, tôi có thể ăn mỳ Ý mỗi ngày. Đó là món ăn an ủi tinh thần tuyệt vời nhất khi tôi muốn thư giãn sau một ngày dài.</div>
+                </div>
+            </div></div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="question-card">
+            <div class="question-header">2. Do you enjoy cooking? Why or why not?</div>
+            <div class="answer-panel"><div class="answer-content">
+                <div class="sample-answer">
+                    <h4>Option 1 (Yes, very much)</h4>
+                    <p>Absolutely! <strong>I’m keen on</strong> experimenting with new recipes. It’s a great way to <strong>let my hair down</strong> on the weekends. <strong>I don’t want to brag</strong>, but my signature steak is quite famous among my friends.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Chắc chắn rồi! Tôi rất thích thử nghiệm các công thức nấu ăn mới. Đó là một cách tuyệt vời để xả hơi vào cuối tuần. Tôi không muốn khoe khoang đâu, nhưng món bít tết "tủ" của tôi khá nổi tiếng trong đám bạn đấy.</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 2 (No, not really)</h4>
+                    <p>Not really. Cooking involves <strong>mountains of</strong> preparation and cleaning up, which I find exhausting. <strong>I prefer</strong> ordering takeaway or eating out to save time.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Không hẳn. Nấu nướng bao gồm hàng núi công việc chuẩn bị và dọn dẹp, điều mà tôi thấy rất mệt mỏi. Tôi thích gọi đồ mang về hoặc ăn ngoài để tiết kiệm thời gian hơn.</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 3 (Sometimes)</h4>
+                    <p>It depends. On weekdays, I’m too busy. But <strong>if my memory serves me right</strong>, the last time I cooked for my family was last Sunday, and I actually enjoyed it. It was a nice <strong>pastime</strong>.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Cũng tùy lúc. Vào các ngày trong tuần thì tôi quá bận. Nhưng nếu tôi nhớ không nhầm thì lần cuối tôi nấu ăn cho gia đình là chủ nhật vừa rồi, và tôi thực sự thích điều đó. Đó là một thú vui khá hay.</div>
+                </div>
+            </div></div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="question-card">
+            <div class="question-header">3. Have your eating habits changed over the years?</div>
+            <div class="answer-panel"><div class="answer-content">
+                <div class="sample-answer">
+                    <h4>Option 1 (Yes, healthier)</h4>
+                    <p>Yes, significantly. In the past, I used to eat <strong>mountains of</strong> junk food. But now, <strong>I’m into</strong> clean eating with lots of veggies. I realized I need to take care of my body.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Có, thay đổi đáng kể. Trước đây, tôi từng ăn hàng núi đồ ăn vặt. Nhưng bây giờ, tôi thích ăn uống lành mạnh với nhiều rau củ. Tôi nhận ra mình cần phải chăm sóc cơ thể.</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 2 (Yes, busier lifestyle)</h4>
+                    <p><strong>Speaking of</strong> habits, I think I eat out much more now because of my work schedule. Cooking is just <strong>not my thing</strong> anymore because I don't have the time.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Nói về thói quen, tôi nghĩ giờ tôi ăn ngoài nhiều hơn do lịch trình công việc. Nấu ăn không còn là việc tôi làm thường xuyên nữa vì tôi không có thời gian.</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 3 (No change)</h4>
+                    <p>Not really. <strong>If I have to choose</strong>, I still stick to traditional Vietnamese food like my mom cooks. <strong>What I like most is</strong> the consistency in flavor.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Không hẳn. Nếu phải chọn, tôi vẫn trung thành với các món ăn truyền thống Việt Nam mẹ nấu. Điều tôi thích nhất là sự ổn định trong hương vị.</div>
+                </div>
+            </div></div>
+        </div>
+        
+        <!-- Additional Q -->
+        <div class="question-card">
+            <div class="question-header">4. Do you prefer eating at home or at restaurants?</div>
+            <div class="answer-panel"><div class="answer-content">
+                <div class="sample-answer">
+                    <h4>Option 1 (Restaurants)</h4>
+                    <p><strong>I prefer</strong> restaurants because I love the atmosphere. It’s a great place to <strong>blow off some steam</strong> with colleagues after work.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Tôi thích nhà hàng hơn vì tôi yêu bầu không khí ở đó. Đó là nơi tuyệt vời để xả hơi cùng đồng nghiệp sau giờ làm.</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 2 (Home)</h4>
+                    <p>Home, definitely. <strong>When it comes to</strong> hygiene and health, you can't beat home cooking. Plus, it’s cheaper.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Chắc chắn là ở nhà. Khi nói đến vệ sinh và sức khỏe, không gì bằng cơm nhà nấu. Thêm nữa, nó rẻ hơn.</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 3 (Balance)</h4>
+                    <p>It depends on the occasion. I love eating at home, but on special occasions, <strong>who doesn't</strong> want to be served delicious food at a fancy restaurant?</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Tùy vào dịp nào nữa. Tôi thích ăn ở nhà, nhưng vào những dịp đặc biệt, ai mà chẳng muốn được phục vụ đồ ăn ngon tại một nhà hàng sang trọng chứ?</div>
+                </div>
+            </div></div>
+        </div>
+
+        <!-- NEW QUESTION 5 -->
+        <div class="question-card">
+            <div class="question-header">5. Is there any food you dislike?</div>
+            <div class="answer-panel"><div class="answer-content">
+                <div class="sample-answer">
+                    <h4>Option 1 (Specific dislike)</h4>
+                    <p>Yes, I really can't stand durian. The smell is just <strong>not my thing</strong>. I know some people love it, but I’m <strong>not a big fan</strong>.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Có, tôi thực sự không chịu nổi sầu riêng. Mùi của nó không phải thứ tôi thích. Tôi biết nhiều người mê nó, nhưng tôi thì không hâm mộ lắm.</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 2 (Sweet food)</h4>
+                    <p>I don’t really <strong>have a sweet tooth</strong>, so I usually avoid desserts like cakes or candies. <strong>I prefer</strong> savory snacks instead.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Tôi không hảo ngọt lắm, nên tôi thường tránh các món tráng miệng như bánh hay kẹo. Thay vào đó tôi thích các món ăn vặt mặn hơn.</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 3 (Not picky)</h4>
+                    <p>Honestly, I eat almost anything. <strong>When it comes to</strong> food, I’m quite adventurous. I think <strong>variety is the spice of life</strong>.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Thú thật thì tôi ăn gần như mọi thứ. Khi nói đến đồ ăn, tôi khá thích khám phá. Tôi nghĩ sự đa dạng là gia vị của cuộc sống.</div>
+                </div>
+            </div></div>
+        </div>
+
+         <!-- NEW QUESTION 6 -->
+         <div class="question-card">
+            <div class="question-header">6. Did you learn to cook when you were a child?</div>
+            <div class="answer-panel"><div class="answer-content">
+                <div class="sample-answer">
+                    <h4>Option 1 (Yes)</h4>
+                    <p>Yes, <strong>if my memory serves me right</strong>, I started helping my mom in the kitchen when I was about 10. She taught me that cooking is a life skill, not just a <strong>pastime</strong>.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Có, nếu tôi nhớ không nhầm thì tôi bắt đầu phụ mẹ trong bếp khi lên 10. Mẹ dạy tôi rằng nấu ăn là một kỹ năng sống chứ không chỉ là thú vui.</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 2 (No)</h4>
+                    <p>No, not really. My parents were always busy, so we ate out a lot. Learning to cook was <strong>not my thing</strong> back then.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Không hẳn. Bố mẹ tôi luôn bận rộn nên chúng tôi ăn ngoài rất nhiều. Học nấu ăn không phải là điều tôi quan tâm hồi đó.</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 3 (A little)</h4>
+                    <p>Only simple things like boiling eggs. But now, <strong>I’m keen on</strong> learning more complex dishes to impress my family.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Chỉ những thứ đơn giản như luộc trứng thôi. Nhưng giờ tôi rất hứng thú học những món phức tạp hơn để gây ấn tượng với gia đình.</div>
+                </div>
+            </div></div>
+        </div>
+    </div>
+
+    <!-- WEEK 2 -->
+    <div id="week2" class="topic-section">
+        <div class="topic-header">
+            <h2>Topic: Pets and Animals</h2>
+            <p>Focus: Opinions, Childhood & Nature</p>
+        </div>
+
+        <!-- Q1 -->
+        <div class="question-card">
+            <div class="question-header">1. Do you have any pets? If so, tell me about them.</div>
+            <div class="answer-panel"><div class="answer-content">
+                <div class="sample-answer">
+                    <h4>Option 1 (Yes)</h4>
+                    <p>Yes, I have a Golden Retriever. <strong>Speaking of</strong> him, he’s like my best friend. Playing with him is how I <strong>unwind</strong> and <strong>recharge my batteries</strong> after a stressful day.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Có, tôi có một chú chó Golden Retriever. Nhắc đến nó, nó giống như người bạn thân nhất của tôi vậy. Chơi với nó là cách tôi thư giãn và nạp lại năng lượng sau một ngày căng thẳng.</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 2 (No but want one)</h4>
+                    <p>Currently, no. But <strong>I’m keen on</strong> getting a cat soon. I think they are low-maintenance. <strong>Who doesn’t</strong> love a cute fluffy cat?</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Hiện tại thì không. Nhưng tôi đang rất muốn nuôi một con mèo sớm. Tôi nghĩ chúng dễ chăm sóc. Ai mà lại không yêu một chú mèo lông xù dễ thương chứ?</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 3 (No, dislike)</h4>
+                    <p>No, keeping animals is <strong>not my thing</strong>. I have <strong>mountains of</strong> work to do, so I don't have time to take care of another living being.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Không, nuôi động vật không phải sở thích của tôi. Tôi có hàng núi công việc phải làm nên không có thời gian chăm sóc cho một sinh vật khác.</div>
+                </div>
+            </div></div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="question-card">
+            <div class="question-header">2. What is your favorite animal and why?</div>
+            <div class="answer-panel"><div class="answer-content">
+                <div class="sample-answer">
+                    <h4>Option 1 (Dog)</h4>
+                    <p><strong>If I have to choose</strong>, it would be dogs. They are loyal and friendly. <strong>What I like most is</strong> how happy they are to see you when you come home.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Nếu phải chọn, tôi sẽ chọn chó. Chúng trung thành và thân thiện. Điều tôi thích nhất là vẻ hạnh phúc của chúng khi thấy bạn về nhà.</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 2 (Wild animal)</h4>
+                    <p><strong>I’m into</strong> wild animals like dolphins. They are incredibly smart. <strong>I don’t want to brag</strong>, but I actually swam with one once!</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Tôi thích các loài động vật hoang dã như cá heo. Chúng cực kỳ thông minh. Tôi không muốn khoe đâu nhưng tôi từng bơi với cá heo một lần rồi đấy!</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 3 (Bird)</h4>
+                    <p>I prefer birds. Their singing helps me <strong>let my hair down</strong> in the mornings. It’s very peaceful and soothing.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Tôi thích chim hơn. Tiếng hót của chúng giúp tôi thư giãn vào buổi sáng. Nó rất yên bình và êm dịu.</div>
+                </div>
+            </div></div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="question-card">
+            <div class="question-header">3. What do you think are the benefits of having pets?</div>
+            <div class="answer-panel"><div class="answer-content">
+                <div class="sample-answer">
+                    <h4>Option 1 (Companionship)</h4>
+                    <p><strong>When it comes to</strong> loneliness, pets are the best cure. They are always there for you, rain or shine.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Khi nói đến sự cô đơn, thú cưng là liều thuốc tốt nhất. Chúng luôn ở bên bạn, dù nắng hay mưa.</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 2 (Stress relief)</h4>
+                    <p>They help you <strong>blow off some steam</strong>. Just walking a dog is a healthy <strong>pastime</strong> that gets you out of the house.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Chúng giúp bạn giải tỏa căng thẳng. Chỉ việc dắt chó đi dạo cũng là một thú vui lành mạnh giúp bạn ra khỏi nhà.</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 3 (Responsibility)</h4>
+                    <p>They teach responsibility. You have to feed them and clean up. <strong>If my memory serves me right</strong>, having a dog taught me how to care for others when I was a kid.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Chúng dạy ta tinh thần trách nhiệm. Bạn phải cho chúng ăn và dọn dẹp. Nếu tôi nhớ không nhầm thì việc nuôi chó đã dạy tôi cách quan tâm đến người khác khi tôi còn bé.</div>
+                </div>
+            </div></div>
+        </div>
+
+        <!-- Additional Q -->
+        <div class="question-card">
+            <div class="question-header">4. Do you like visiting zoos?</div>
+            <div class="answer-panel"><div class="answer-content">
+                <div class="sample-answer">
+                    <h4>Option 1 (Yes)</h4>
+                    <p>Yes, <strong>I’m keen on</strong> learning about wildlife. It’s fascinating to see animals up close. It's definitely <strong>my cup of tea</strong>.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Có, tôi rất thích tìm hiểu về thế giới hoang dã. Thật thú vị khi nhìn thấy động vật ở cự ly gần. Đó chắc chắn là sở thích của tôi.</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 2 (No)</h4>
+                    <p>No, seeing animals in cages is <strong>not my thing</strong>. <strong>I prefer</strong> seeing them in the wild or in nature reserves where they are free.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Không, nhìn động vật trong lồng không phải thứ tôi thích. Tôi thích nhìn chúng trong tự nhiên hoặc các khu bảo tồn nơi chúng được tự do hơn.</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 3 (Mixed)</h4>
+                    <p>It depends. Modern zoos are okay, but old ones are sad. <strong>Speaking of</strong> zoos, I haven't been to one in years, maybe <strong>once in a blue moon</strong>.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Cũng tùy. Các sở thú hiện đại thì ổn, nhưng mấy chỗ cũ kỹ thì trông buồn lắm. Nhắc đến sở thú, tôi không đi cũng nhiều năm rồi, họa hoằn lắm mới đi.</div>
+                </div>
+            </div></div>
+        </div>
+
+        <!-- NEW QUESTION 5 -->
+        <div class="question-card">
+            <div class="question-header">5. What is a popular pet to have in your country?</div>
+            <div class="answer-panel"><div class="answer-content">
+                <div class="sample-answer">
+                    <h4>Option 1 (Dogs)</h4>
+                    <p>Dogs are definitely the most popular. <strong>Who doesn't</strong> love a loyal companion? You see people walking them everywhere in the parks.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Chó chắc chắn là phổ biến nhất. Ai mà chẳng yêu một người bạn đồng hành trung thành chứ? Bạn có thể thấy người ta dắt chó đi dạo ở khắp các công viên.</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 2 (Cats)</h4>
+                    <p><strong>If I have to choose</strong> the most common one in cities, it's cats. Since many people live in apartments, cats are easier to keep. They are perfect if you have a busy <strong>daily routine</strong>.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Nếu phải chọn loài phổ biến nhất ở thành phố, đó là mèo. Vì nhiều người sống ở chung cư nên nuôi mèo dễ hơn. Chúng rất hoàn hảo nếu bạn có lịch trình bận rộn.</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 3 (Birds/Fish)</h4>
+                    <p>Older people <strong>are into</strong> keeping birds or fish. It's a relaxing <strong>pastime</strong> for them to just watch or listen to them.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Người lớn tuổi thường thích nuôi chim hoặc cá. Đó là một thú vui thư giãn cho họ khi chỉ cần ngắm hoặc nghe chúng hót.</div>
+                </div>
+            </div></div>
+        </div>
+
+        <!-- NEW QUESTION 6 -->
+        <div class="question-card">
+            <div class="question-header">6. Did you have a pet as a child?</div>
+            <div class="answer-panel"><div class="answer-content">
+                <div class="sample-answer">
+                    <h4>Option 1 (Yes)</h4>
+                    <p>Yes, <strong>if my memory serves me right</strong>, we had a small puppy named Milu. He was adorable and I spent <strong>mountains of</strong> time playing with him.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Có, nếu tôi nhớ không nhầm, chúng tôi từng có một chú cún nhỏ tên Milu. Nó rất đáng yêu và tôi đã dành hàng núi thời gian để chơi với nó.</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 2 (No)</h4>
+                    <p>No, my mom was allergic to fur, so having a pet was <strong>not my thing</strong> growing up. I always envied my friends who had dogs.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Không, mẹ tôi bị dị ứng lông thú, nên nuôi thú cưng không phải là điều tôi được trải nghiệm khi lớn lên. Tôi luôn ghen tị với bạn bè có nuôi chó.</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 3 (Fish)</h4>
+                    <p>We only had a goldfish tank. It wasn't very exciting, but watching them swim helped me <strong>unwind</strong> after school.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Chúng tôi chỉ có một bể cá vàng. Nó không thú vị lắm, nhưng nhìn chúng bơi giúp tôi thư giãn sau giờ học.</div>
+                </div>
+            </div></div>
+        </div>
+    </div>
+
+    <!-- WEEK 3 -->
+    <div id="week3" class="topic-section">
+        <div class="topic-header">
+            <h2>Topic: Daily Life</h2>
+            <p>Focus: Routines, Schedules & Time Management</p>
+        </div>
+
+        <!-- Q1 -->
+        <div class="question-card">
+            <div class="question-header">1. What do you usually do in the morning?</div>
+            <div class="answer-panel"><div class="answer-content">
+                <div class="sample-answer">
+                    <h4>Option 1 (Busy)</h4>
+                    <p>My morning is usually hectic. I have <strong>mountains of</strong> emails to check. So, I just grab a coffee and rush to work. <strong>It’s not my thing</strong> to wake up early, to be honest.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Buổi sáng của tôi thường rất tất bật. Tôi có hàng núi email phải kiểm tra. Nên tôi chỉ kịp mua vội ly cà phê và lao đến chỗ làm. Thú thật thì dậy sớm không phải sở trường của tôi.</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 2 (Relaxed)</h4>
+                    <p>I like to take it slow. <strong>What I like most is</strong> sipping tea and reading news. It’s part of my <strong>daily routine</strong> to start the day calmly before the <strong>hustle and bustle</strong> begins.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Tôi thích từ từ tận hưởng. Điều tôi thích nhất là nhâm nhi trà và đọc tin tức. Đó là một phần thói quen hàng ngày để bắt đầu ngày mới một cách bình tĩnh trước khi sự xô bồ bắt đầu.</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 3 (Active)</h4>
+                    <p><strong>I’m into</strong> fitness, so I hit the gym first thing. It helps me wake up and <strong>recharge my batteries</strong> for the day ahead.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Tôi mê thể dục, nên việc đầu tiên tôi làm là đi tập gym. Nó giúp tôi tỉnh ngủ và nạp năng lượng cho cả ngày phía trước.</div>
+                </div>
+            </div></div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="question-card">
+            <div class="question-header">2. Do you have a favorite time of day? Why?</div>
+            <div class="answer-panel"><div class="answer-content">
+                <div class="sample-answer">
+                    <h4>Option 1 (Evening)</h4>
+                    <p><strong>If I have to choose</strong>, it’s the evening. That’s when I finish work and can finally <strong>let my hair down</strong>.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Nếu phải chọn, đó là buổi tối. Đó là lúc tôi xong việc và cuối cùng có thể xả hơi.</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 2 (Morning)</h4>
+                    <p>I prefer the early morning. It’s quiet and peaceful. <strong>Who doesn’t</strong> love seeing the sunrise and enjoying the fresh air?</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Tôi thích sáng sớm hơn. Nó yên tĩnh và thanh bình. Ai mà chẳng thích ngắm bình minh và tận hưởng không khí trong lành chứ?</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 3 (Night)</h4>
+                    <p>Nighttime. <strong>When it comes to</strong> creativity, I work best at night. Sometimes I <strong>burn the midnight oil</strong> to get things done.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Ban đêm. Khi nói đến sự sáng tạo, tôi làm việc tốt nhất vào ban đêm. Đôi khi tôi "chong đèn" làm việc khuya để hoàn thành mọi thứ.</div>
+                </div>
+            </div></div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="question-card">
+            <div class="question-header">3. What part of your daily routine do you enjoy the most?</div>
+            <div class="answer-panel"><div class="answer-content">
+                <div class="sample-answer">
+                    <h4>Option 1 (Dinner)</h4>
+                    <p>Definitely dinner time. It’s when my family gathers. <strong>Speaking of</strong> dinner, we have a rule: no phones at the table.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Chắc chắn là giờ ăn tối. Đó là lúc gia đình tôi quây quần. Nhân tiện nói về bữa tối, chúng tôi có quy tắc: không dùng điện thoại tại bàn ăn.</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 2 (Exercise)</h4>
+                    <p>My gym session. It’s the perfect way to <strong>blow off some steam</strong> after sitting in the office all day.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Buổi tập gym của tôi. Đó là cách hoàn hảo để xả stress sau khi ngồi văn phòng cả ngày.</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 3 (Bedtime)</h4>
+                    <p>Reading before bed. It’s my favorite <strong>pastime</strong> to help me <strong>unwind</strong> and fall asleep.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Đọc sách trước khi ngủ. Đó là thú vui yêu thích giúp tôi thư giãn và chìm vào giấc ngủ.</div>
+                </div>
+            </div></div>
+        </div>
+
+        <!-- Additional Q -->
+        <div class="question-card">
+            <div class="question-header">4. Is your routine the same every day?</div>
+            <div class="answer-panel"><div class="answer-content">
+                <div class="sample-answer">
+                    <h4>Option 1 (Yes)</h4>
+                    <p>Pretty much. I like structure. <strong>If my memory serves me right</strong>, I’ve had this same schedule for two years now.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Hầu như là vậy. Tôi thích sự nề nếp. Nếu tôi nhớ không lầm thì tôi đã giữ lịch trình y hệt thế này được hai năm rồi.</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 2 (No)</h4>
+                    <p>No, I hate repetition. Doing the same thing every day is <strong>not my thing</strong>. <strong>I prefer</strong> variety and spontaneity.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Không, tôi ghét sự lặp lại. Làm cùng một việc mỗi ngày không phải phong cách của tôi. Tôi thích sự đa dạng và ngẫu hứng hơn.</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 3 (Weekdays vs Weekends)</h4>
+                    <p>Only on weekdays. <strong>When it comes to</strong> weekends, I have no plan. I just go with the flow.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Chỉ các ngày trong tuần thôi. Còn cuối tuần thì tôi không có kế hoạch gì cả. Tôi cứ thuận theo tự nhiên thôi.</div>
+                </div>
+            </div></div>
+        </div>
+
+        <!-- NEW QUESTION 5 -->
+        <div class="question-card">
+            <div class="question-header">5. Do you usually wake up early?</div>
+            <div class="answer-panel"><div class="answer-content">
+                <div class="sample-answer">
+                    <h4>Option 1 (Early Bird)</h4>
+                    <p>Yes, I'm an early bird. <strong>What I like most is</strong> the silence of the morning. It helps me focus on my tasks before the world wakes up.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Có, tôi là người hay dậy sớm. Điều tôi thích nhất là sự tĩnh lặng của buổi sáng. Nó giúp tôi tập trung vào công việc trước khi cả thế giới thức giấc.</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 2 (Night Owl)</h4>
+                    <p>No way. Waking up early is <strong>not my thing</strong>. I usually stay up late to <strong>burn the midnight oil</strong>, so I sleep in whenever I can.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Không đời nào. Dậy sớm không phải sở trường của tôi. Tôi thường thức khuya làm việc, nên tôi sẽ ngủ nướng bất cứ khi nào có thể.</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 3 (Depends)</h4>
+                    <p>It depends on my schedule. If I have <strong>mountains of</strong> work, I'll wake up early. Otherwise, I enjoy sleeping in a bit.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Tùy vào lịch trình. Nếu tôi có hàng núi việc, tôi sẽ dậy sớm. Còn không thì tôi thích ngủ nướng thêm một chút.</div>
+                </div>
+            </div></div>
+        </div>
+
+        <!-- NEW QUESTION 6 -->
+        <div class="question-card">
+            <div class="question-header">6. How do you organize your study/work time?</div>
+            <div class="answer-panel"><div class="answer-content">
+                <div class="sample-answer">
+                    <h4>Option 1 (To-do lists)</h4>
+                    <p>I rely heavily on to-do lists. <strong>When it comes to</strong> productivity, writing things down helps me clear my mind.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Tôi phụ thuộc rất nhiều vào danh sách việc cần làm. Khi nói đến năng suất, việc ghi chép ra giúp đầu óc tôi thông thoáng.</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 2 (Digital Calendar)</h4>
+                    <p><strong>I prefer</strong> using apps like Google Calendar. It sends me reminders so I never miss a deadline. <strong>Who doesn't</strong> need a little help remembering things?</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Tôi thích dùng các ứng dụng như Google Calendar hơn. Nó gửi nhắc nhở nên tôi không bao giờ lỡ hạn. Ai mà chẳng cần chút trợ giúp để ghi nhớ mọi thứ chứ?</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 3 (Flexible)</h4>
+                    <p>I don't really plan strictly. I just tackle the most urgent tasks first. Rigorous planning is <strong>not my thing</strong>.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Tôi không thực sự lên kế hoạch quá chặt chẽ. Tôi cứ giải quyết việc gấp trước. Lập kế hoạch quá nghiêm ngặt không phải phong cách của tôi.</div>
+                </div>
+            </div></div>
+        </div>
+    </div>
+
+    <!-- WEEK 4 -->
+    <div id="week4" class="topic-section">
+        <div class="topic-header">
+            <h2>Topic: Hobbies & Relaxation</h2>
+            <p>Focus: Free time, Weekends & Fun</p>
+        </div>
+
+        <!-- Q1 -->
+        <div class="question-card">
+            <div class="question-header">1. How do you like to relax after a long day?</div>
+            <div class="answer-panel"><div class="answer-content">
+                <div class="sample-answer">
+                    <h4>Option 1 (Active)</h4>
+                    <p>I usually play sports. <strong>I’m into</strong> badminton. It’s a great way to <strong>blow off some steam</strong> and stay fit.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Tôi thường chơi thể thao. Tôi rất thích cầu lông. Đó là cách tuyệt vời để xả hơi và giữ dáng.</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 2 (Passive)</h4>
+                    <p>I just watch Netflix. <strong>What I like most is</strong> binge-watching a series to <strong>unwind</strong>. <strong>Who doesn’t</strong> love a good movie?</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Tôi chỉ xem Netflix thôi. Điều tôi thích nhất là "cày" phim bộ để thư giãn. Ai mà chẳng thích một bộ phim hay chứ?</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 3 (Social)</h4>
+                    <p>I hang out with friends. We usually go for a drink to <strong>let our hair down</strong> and chat about life.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Tôi đi chơi với bạn bè. Chúng tôi thường đi uống nước để xả hơi và tán gẫu về cuộc sống.</div>
+                </div>
+            </div></div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="question-card">
+            <div class="question-header">2. How do you spend your weekends?</div>
+            <div class="answer-panel"><div class="answer-content">
+                <div class="sample-answer">
+                    <h4>Option 1 (Productive)</h4>
+                    <p>I usually have <strong>mountains of</strong> housework to catch up on. But I try to squeeze in some reading.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Tôi thường có hàng núi việc nhà phải làm bù. Nhưng tôi cố gắng tranh thủ đọc sách một chút.</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 2 (Outdoors)</h4>
+                    <p><strong>I prefer</strong> going out. <strong>Speaking of</strong> weekends, I’m actually planning a hiking trip this Sunday. Getting back to nature is <strong>my cup of tea</strong>.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Tôi thích ra ngoài hơn. Nhắc đến cuối tuần, tôi đang định đi leo núi chủ nhật này. Hòa mình vào thiên nhiên đúng là sở thích của tôi.</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 3 (Lazy)</h4>
+                    <p>Sleeping in! Waking up early on a Sunday is definitely <strong>not my thing</strong>. I take it easy to <strong>recharge my batteries</strong>.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Ngủ nướng! Dậy sớm vào chủ nhật chắc chắn không phải thứ tôi thích. Tôi thư thả để nạp lại năng lượng.</div>
+                </div>
+            </div></div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="question-card">
+            <div class="question-header">3. Do you have a favorite pastime?</div>
+            <div class="answer-panel"><div class="answer-content">
+                <div class="sample-answer">
+                    <h4>Option 1 (Music)</h4>
+                    <p>Yes, I play the guitar. <strong>I don’t want to brag</strong>, but I’m getting pretty good at it. It’s my main <strong>pastime</strong>.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Có, tôi chơi đàn guitar. Tôi không muốn khoe đâu nhưng tôi chơi khá giỏi đấy. Đó là thú vui chính của tôi.</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 2 (Gaming)</h4>
+                    <p><strong>I’m keen on</strong> video games. Some people think it's a waste of time, but it helps me maintain my reflexes.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Tôi rất mê trò chơi điện tử. Vài người nghĩ đó là phí thời gian, nhưng nó giúp tôi duy trì phản xạ.</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 3 (Cooking)</h4>
+                    <p>As I mentioned before, cooking is how I relax. <strong>If I have to choose</strong> between cooking and watching TV, I’d choose cooking.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Như tôi đã nói, nấu ăn là cách tôi thư giãn. Nếu phải chọn giữa nấu ăn và xem TV, tôi sẽ chọn nấu ăn.</div>
+                </div>
+            </div></div>
+        </div>
+
+         <!-- Additional Q -->
+         <div class="question-card">
+            <div class="question-header">4. Did you have different hobbies when you were younger?</div>
+            <div class="answer-panel"><div class="answer-content">
+                <div class="sample-answer">
+                    <h4>Option 1 (Yes)</h4>
+                    <p>Yes. <strong>If my memory serves me right</strong>, I used to collect stamps. Now, that is <strong>not my thing</strong> at all.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Có. Nếu tôi nhớ không nhầm thì tôi từng sưu tập tem. Giờ thì tôi chẳng hứng thú gì với nó nữa.</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 2 (No)</h4>
+                    <p>Not really. <strong>I’m into</strong> football now, and I was into football then. Some things never change.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Không hẳn. Giờ tôi mê bóng đá, và hồi xưa cũng thế. Có những thứ chẳng bao giờ thay đổi.</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 3 (Changed completely)</h4>
+                    <p>I used to have <strong>mountains of</strong> toys, but now my favorite <strong>pastime</strong> is photography. I prefer creative hobbies now.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Hồi xưa tôi có hàng núi đồ chơi, nhưng giờ thú vui của tôi là nhiếp ảnh. Giờ tôi thích những sở thích mang tính sáng tạo hơn.</div>
+                </div>
+            </div></div>
+        </div>
+
+        <!-- NEW QUESTION 5 -->
+        <div class="question-card">
+            <div class="question-header">5. Do you prefer indoor or outdoor hobbies?</div>
+            <div class="answer-panel"><div class="answer-content">
+                <div class="sample-answer">
+                    <h4>Option 1 (Outdoor)</h4>
+                    <p><strong>I prefer</strong> outdoor activities like hiking or cycling. I hate being cooped up inside. Fresh air really helps me <strong>blow off some steam</strong>.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Tôi thích các hoạt động ngoài trời như leo núi hay đạp xe. Tôi ghét bị ru rú trong nhà. Không khí trong lành thực sự giúp tôi xả hơi.</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 2 (Indoor)</h4>
+                    <p>Definitely indoor. Reading a book in a quiet corner is <strong>my cup of tea</strong>. The heat outside is just <strong>not my thing</strong>.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Chắc chắn là trong nhà. Đọc sách ở một góc yên tĩnh đúng là gu của tôi. Nắng nóng ngoài trời không phải thứ tôi thích.</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 3 (Both)</h4>
+                    <p>It depends on the weather. If it's sunny, <strong>who doesn't</strong> want to go out? But if it rains, staying in to watch a movie is perfect.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Tùy thời tiết. Nếu trời nắng đẹp, ai mà chẳng muốn ra ngoài? Nhưng nếu mưa, ở nhà xem phim là tuyệt nhất.</div>
+                </div>
+            </div></div>
+        </div>
+
+        <!-- NEW QUESTION 6 -->
+        <div class="question-card">
+            <div class="question-header">6. Is it important to have a hobby?</div>
+            <div class="answer-panel"><div class="answer-content">
+                <div class="sample-answer">
+                    <h4>Option 1 (Yes, balance)</h4>
+                    <p>Absolutely. <strong>When it comes to</strong> work-life balance, hobbies are essential. You need something to help you <strong>unwind</strong> after working hard.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Chắc chắn rồi. Khi nói đến cân bằng cuộc sống và công việc, sở thích là thiết yếu. Bạn cần một thứ gì đó giúp mình thư giãn sau khi làm việc vất vả.</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 2 (Yes, skills)</h4>
+                    <p>Yes, hobbies can teach you new skills. <strong>I don't want to brag</strong>, but I learned English mostly through my hobby of watching movies.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Có, sở thích có thể dạy bạn kỹ năng mới. Tôi không muốn khoe đâu nhưng tôi học tiếng Anh chủ yếu qua sở thích xem phim đấy.</div>
+                </div>
+                <div class="sample-answer">
+                    <h4>Option 3 (Maybe not)</h4>
+                    <p>Not necessarily. Some people just enjoy resting. Doing nothing can also be a way to <strong>recharge your batteries</strong> <strong>once in a blue moon</strong>.</p>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="translation-text">Không nhất thiết. Vài người chỉ thích nghỉ ngơi thôi. Không làm gì cả đôi khi cũng là một cách để nạp lại năng lượng lâu lâu một lần.</div>
+                </div>
+            </div></div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Footer -->
+<footer>
+    Đình Phước Edu
+</footer>
+
+<script>
+    // Tab switching logic
+    const tabs = document.querySelectorAll('.tab-btn');
+    const sections = document.querySelectorAll('.topic-section');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            // Remove active class from all
+            tabs.forEach(t => t.classList.remove('active'));
+            sections.forEach(s => s.classList.remove('active'));
+
+            // Add active class to clicked
+            tab.classList.add('active');
+            const targetId = tab.getAttribute('data-target');
+            document.getElementById(targetId).classList.add('active');
+        });
+    });
+
+    // Accordion logic for questions
+    const questionCards = document.querySelectorAll('.question-card');
+
+    questionCards.forEach(card => {
+        const header = card.querySelector('.question-header');
+        const panel = card.querySelector('.answer-panel');
+
+        header.addEventListener('click', () => {
+            // Toggle current
+            const isOpen = card.classList.contains('open');
+            
+            if (!isOpen) {
+                card.classList.add('open');
+                panel.style.maxHeight = panel.scrollHeight + "px";
+            } else {
+                card.classList.remove('open');
+                panel.style.maxHeight = null;
+            }
+        });
+    });
+
+    // Toggle Translation Logic
+    function toggleTrans(btn) {
+        const transText = btn.nextElementSibling;
+        const panel = btn.closest('.answer-panel'); // Get parent panel to resize
+
+        if (transText.style.display === "block") {
+            transText.style.display = "none";
+            btn.textContent = "Xem bản dịch";
+        } else {
+            transText.style.display = "block";
+            btn.textContent = "Ẩn bản dịch";
+        }
+        
+        // Dynamic resize of accordion panel when content changes
+        panel.style.maxHeight = panel.scrollHeight + "px";
+    }
+</script>
+
+</body>
+</html>
