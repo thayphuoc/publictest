@@ -52,14 +52,24 @@
         
         .question-item { margin-bottom: 20px; display: flex; align-items: baseline; justify-content: space-between; gap: 10px; border-bottom: 1px dashed #eee; padding-bottom: 10px;}
         .question-text { flex: 1; }
-        
+        .explanation-btn { font-size: 12px; background-color: #e9ecef; color: #333; padding: 2px 6px; border-radius: 4px; cursor: pointer; margin-left: 10px; border: 1px solid #ccc; display: none; }
+        .explanation-btn:hover { background-color: #dbe0e5; }
+        .show-explanation .explanation-btn { display: inline-block; }
+
         /* Modal Styles */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); z-index: 2000; display: flex; justify-content: center; align-items: center; }
-        .modal-content { background: white; padding: 30px; border-radius: 8px; width: 90%; max-width: 500px; text-align: center; position: relative; }
+        .modal-content { background: white; padding: 30px; border-radius: 8px; width: 90%; max-width: 600px; text-align: center; position: relative; max-height: 80vh; overflow-y: auto; }
         .modal-close-btn { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 28px; cursor: pointer; color: #888; }
         .results-summary { font-size: 20px; font-weight: bold; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
         .correct-answer-display { color: #28a745; font-weight: bold; margin-left: 5px; font-size: 14px; background: #d4edda; padding: 0 4px; border-radius: 3px; }
+        .result-row { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; }
+        .result-row:hover { background-color: #f9f9f9; }
         
+        /* Explanation content styles */
+        .explanation-content { text-align: left; line-height: 1.6; font-size: 15px; color: #333; }
+        .explanation-title { font-weight: bold; font-size: 18px; margin-bottom: 10px; color: #4a90e2; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .keyword-highlight { font-weight: bold; color: #d63384; }
+
         /* Highlighting */
         .highlight { background-color: #ffff00; }
         .context-menu { position: absolute; background: white; border: 1px solid #ccc; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; display: none; min-width: 140px; }
@@ -70,7 +80,7 @@
 <body>
     <div class="header">
         <div class="timer-container">
-            <span class="timer-display">40:00</span>
+            <span class="timer-display">20:00</span>
             <div class="timer-controls">
                 <button id="timer-toggle-btn" title="Pause/Resume Timer">||</button>
                 <button id="timer-reset-btn" title="Reset Timer">↺</button>
@@ -103,6 +113,7 @@
                     <p>The answer, it would appear, is fear – blood-thirsty and gruesome aspects of the story, such as the eating of the grandmother by the wolf, turned out to be the best preserved of all. Why are these details retained by generations of storytellers, when other features are not? Tehrani has an idea: ‘In an oral context, a story won’t survive because of one great teller. It also needs to be interesting when it’s told by someone who’s not necessarily a great storyteller.’ Maybe being swallowed whole by a wolf, then cut out of its stomach alive is so gripping that it helps the story remain popular, no matter how badly it’s told.</p>
                     <p>Jack Zipes at the University of Minnesota, Minneapolis, is unconvinced by Tehrani’s views on fairy tales. ‘Even if they’re gruesome, they won’t stick unless they matter,’ he says. He believes the perennial theme of women as victims in stories like Little Red Riding Hood explains why they continue to feel relevant. But Tehrani points out that although this is often the case in Western versions, it is not always true elsewhere. In Chinese and Japanese versions, often known as The Tiger Grandmother, the villain is a woman, and in both Iran and Nigeria, the victim is a boy.</p>
                     <p>Mathias Clasen at Aarhus University in Denmark isn’t surprised by Tehrani’s findings. ‘Habits and morals change, but the things that scare us, and the fact that we seek out entertainment that’s designed to scare us – those are constant,’ he says. Clasen believes that scary stories teach us what it feels like to be afraid without having to experience real danger, and so build up resistance to negative emotions.</p>
+                    <p style="font-size: 12px; margin-top: 20px;">*Folklorists: those who study traditional stories</p>
                 </div>
             </div>
             
@@ -136,30 +147,35 @@
                                     <select class="answer-input" id="q27">
                                         <option value=""></option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option>
                                     </select>
+                                    <span class="explanation-btn" onclick="showExplanation(27)">ℹ️ Xem giải thích</span>
                                 </div>
                                 <div class="question-item">
                                     <div class="question-text"><strong>28.</strong> Tehrani rejects the idea that the useful lessons for life in fairy tales</div>
                                     <select class="answer-input" id="q28">
                                         <option value=""></option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option>
                                     </select>
+                                    <span class="explanation-btn" onclick="showExplanation(28)">ℹ️ Xem giải thích</span>
                                 </div>
                                 <div class="question-item">
                                     <div class="question-text"><strong>29.</strong> Various theories about the social significance of fairy tales</div>
                                     <select class="answer-input" id="q29">
                                         <option value=""></option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option>
                                     </select>
+                                    <span class="explanation-btn" onclick="showExplanation(29)">ℹ️ Xem giải thích</span>
                                 </div>
                                 <div class="question-item">
                                     <div class="question-text"><strong>30.</strong> Insights into the development of fairy tales</div>
                                     <select class="answer-input" id="q30">
                                         <option value=""></option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option>
                                     </select>
+                                    <span class="explanation-btn" onclick="showExplanation(30)">ℹ️ Xem giải thích</span>
                                 </div>
                                 <div class="question-item">
                                     <div class="question-text"><strong>31.</strong> All the fairy tales analysed by Tehrani</div>
                                     <select class="answer-input" id="q31">
                                         <option value=""></option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option>
                                     </select>
+                                    <span class="explanation-btn" onclick="showExplanation(31)">ℹ️ Xem giải thích</span>
                                 </div>
                             </div>
                         </div>
@@ -207,7 +223,16 @@
             <div class="results-summary">
                 <p>Score: <span id="results-score"></span> / 5</p>
             </div>
-            <div id="results-details" style="text-align: left; max-height: 300px; overflow-y: auto;"></div>
+            <p style="margin-bottom: 10px; font-size: 14px; color: #666;">Click on a row to see the explanation.</p>
+            <div id="results-details" style="text-align: left;"></div>
+        </div>
+    </div>
+
+    <!-- Explanation Modal -->
+    <div id="explanation-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeExplanationModal()">&times;</button>
+            <div id="explanation-content" class="explanation-content"></div>
         </div>
     </div>
 
@@ -227,8 +252,48 @@
             '31': 'E'
         };
 
+        const explanations = {
+            '27': `
+                <div class="explanation-title">Question 27: In fairy tales, details of the plot...</div>
+                <p><strong>Keywords:</strong> fairy tales, details, plot</p>
+                <p>The answer lies in the first paragraph. You can read the whole paragraph for getting a clear view; however, the first lines provide the main idea. Here, the writer of the passage says, "People of every culture tell each other fairy tales but the same story often takes a variety of forms in different parts of the world......"</p>
+                <p>Here, <span class="keyword-highlight">a variety of forms in different parts of the world = considerable global variation</span>.</p>
+                <p>So, the answer is: <strong>C (show considerable global variation.)</strong></p>
+            `,
+            '28': `
+                <div class="explanation-title">Question 28: Tehrani rejects the idea that the useful lessons for life in fairy tales...</div>
+                <p><strong>Keywords:</strong> Tehrani, rejects, useful lessons, life, fairy tales</p>
+                <p>The answer to this question can be traced in lines 3-6 of paragraph no. 2. The author explains what Tehrani thinks about the survival of the fairy tales, "It might be what we find interesting about this story is that it's got this survival-relevant information in it,' says anthropologist Jamie Tehrani at Durham University in the UK. But his research suggests otherwise......"</p>
+                <p>Here, <span class="keyword-highlight">it's got this survival-relevant information in it = useful lessons for life in fairy tales are the reason for their survival</span>, and <span class="keyword-highlight">But his research suggests otherwise = Tehrani rejects the idea</span>.</p>
+                <p>So, the answer is: <strong>B (are the reason for their survival.)</strong></p>
+            `,
+            '29': `
+                <div class="explanation-title">Question 29: Various theories about the social significance of fairy tales...</div>
+                <p><strong>Keywords:</strong> various theories, social significance, fairy tales</p>
+                <p>In paragraph no. 2, the last few lines say, ".... 'We have this huge gap in our knowledge about the history and prehistory of storytelling, despite the fact that we know the genre is an incredibly ancient one,' he says. That hasn't stopped anthropologists, folklorists* and other academics devising theories to explain the importance of fairy tales in human society..."</p>
+                <p>Here, <span class="keyword-highlight">We have this huge gap in our knowledge ...... despite the fact that we know the genre is an incredibly ancient one = without factual basis</span>.</p>
+                <p><span class="keyword-highlight">That hasn't stopped anthropologists, folklorists* and other academics devising theories = Various theories about the social significance of fairy tales have been developed</span>.</p>
+                <p>So, the answer is: <strong>F (have been developed without factual basis.)</strong></p>
+            `,
+            '30': `
+                <div class="explanation-title">Question 30: Insights into the development of fairy tales...</div>
+                <p><strong>Keywords:</strong> insights into, development, fairy tales</p>
+                <p>Paragraph no. 3 says, "To work out the evolutionary history, development and relationships among groups of organisms, biologists compare the characteristics of living species in a process called 'phylogenetic analysis'. Tehrani has used the same approach to compare related versions of fairy tales to discover how they have evolved and which elements have survived the longest."</p>
+                <p>Here, the main idea of the paragraph is that we can understand how fairy tales evolve or develop if we use methods used in biological research like 'phylogenetic analysis' as Tehrani has done in his research.</p>
+                <p>Here, <span class="keyword-highlight">how they have evolved = the development of fairy tales</span>.</p>
+                <p>So, the answer is: <strong>A (may be provided through methods used in biological research.)</strong></p>
+            `,
+            '31': `
+                <div class="explanation-title">Question 31: All the fairy tales analysed by Tehrani...</div>
+                <p><strong>Keywords:</strong> all the fairy tales, analyse, Tehrani</p>
+                <p>Take a close look at these lines from paragraph no. 4, "Tehrani's analysis focused on Little Red Riding Hood in its many forms, which include another Western fairy tale known as The Wolf and the Kids. Checking for variants of these two tales and similar stories from Africa, East Asia, and other regions, he ended up with 58 stories recorded from oral traditions...."</p>
+                <p>Here, <span class="keyword-highlight">he ended up with 58 stories = all the fairy tales analysed by Tehrani</span>, and <span class="keyword-highlight">recorded from oral traditions = were originally spoken rather than written</span>.</p>
+                <p>So, the answer is: <strong>E (were originally spoken rather than written.)</strong></p>
+            `
+        };
+
         const questionIds = [27, 28, 29, 30, 31];
-        let timeInSeconds = 2400; // 40 mins
+        let timeInSeconds = 1200; // 20 mins
         let timerInterval;
         let selectedRange = null;
 
@@ -281,6 +346,9 @@
             document.querySelectorAll('.answer-input').forEach(input => input.disabled = true);
             deliverButton.disabled = true;
             deliverButton.textContent = "Checked";
+            
+            // Enable explanation buttons
+            document.querySelector('.questions-panel').classList.add('show-explanation');
 
             questionIds.forEach(id => {
                 const input = document.getElementById(`q${id}`);
@@ -303,6 +371,17 @@
                     // Mark nav button
                     document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`).classList.add('incorrect');
                 }
+
+                // Add to results modal list
+                const row = document.createElement('div');
+                row.className = 'result-row';
+                row.innerHTML = `
+                    <span style="font-weight:bold;">Q${id}</span>
+                    <span>Your Answer: <span style="color:${isCorrect ? 'green' : 'red'}">${userAnswer || 'None'}</span></span>
+                    <span style="color:green; font-weight:bold;">Correct: ${correctAnswer}</span>
+                `;
+                row.onclick = () => showExplanation(id);
+                resultsContainer.appendChild(row);
             });
 
             // Show Modal
@@ -341,6 +420,20 @@
 
         window.closeResultsModal = () => {
             document.getElementById('results-modal').classList.add('hidden');
+        }
+
+        window.showExplanation = (id) => {
+            const content = explanations[id];
+            if (content) {
+                document.getElementById('explanation-content').innerHTML = content;
+                document.getElementById('explanation-modal').classList.remove('hidden');
+                // If opened from inside results modal, we might want to keep results modal open underneath, 
+                // but z-index handles stacking.
+            }
+        };
+
+        window.closeExplanationModal = () => {
+            document.getElementById('explanation-modal').classList.add('hidden');
         }
 
         // --- UTILS (Timer, Resizer, Highlight) ---
