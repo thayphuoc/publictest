@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@600&display=swap" rel="stylesheet">
+    <title>Practice test: Why fairy tales are really scary tales</title>
+    <style>
+        /* All CSS styles remain exactly the same as in the original code */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background-color: #ffffff; line-height: 1.4; font-size: 16px; }
+        .header { background-color: #ffffff; padding: 12px 20px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 60px; }
+        .main-container { margin-top: 60px; display: flex; flex-direction: column; background: #ffffff; height: calc(100vh - 60px); }
+        .panels-container { display: flex; flex: 1; overflow: hidden; }
+        .passage-panel { flex: 1; padding: 20px 20px 100px; overflow-y: auto; min-width: 200px; }
+        .text-center { text-align: center; }
+        .reading-passage h4 { font-family: 'Merriweather', serif; font-size: 20px; font-weight: 600; color: #2c3e50; line-height: 1.4; margin-bottom: 20px; text-align: center; border-bottom: 2px solid #4a90e2; padding-bottom: 5px; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); }
+        .reading-passage p { margin-bottom: 1.2em; text-align: justify; }
+        .questions-panel { flex: 1; padding: 20px 20px 100px; overflow-y: auto; min-width: 200px; border-left: 1px solid #e0e0e0; }
+        .resizer { width: 10px; cursor: col-resize; background-color: #f0f0f0; flex-shrink: 0; flex-grow: 0; background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="30" viewBox="0 0 10 30"><path d="M4 11h2v2H4zM4 15h2v2H4zM4 19h2v2H4z" fill="%23888"/></svg>'); background-repeat: no-repeat; background-position: center; }
+        .question-number { background: white; border: 1px solid #4a90e2; padding: 4px 8px; border-radius: 3px; font-weight: bold; font-size: 14px; color: #4a90e2; min-width: 30px; text-align: center; }
+        .question-prompt { margin-bottom: 20px; background: #f9f9f9; padding: 15px; border-radius: 5px; border-left: 4px solid #4a90e2; }
+        
+        .answer-input { border: 1px solid #888; border-radius: 4px; background-color: #fff; padding: 2px 5px; font-size: 16px; text-align: center; margin: 0 4px; transition: border-color 0.3s, box-shadow 0.3s; height: 30px; width: 60px; display: inline-block; cursor: pointer; }
+        .answer-input.active-input { border-color: #4a90e2; box-shadow: 0 0 3px 1px rgba(74, 144, 226, 0.5); }
+        .answer-input.correct { border-color: #28a745; background-color: #e9f7ef; color: #155724; font-weight: bold; }
+        .answer-input.incorrect { border-color: #dc3545; background-color: #f8d7da; color: #721c24; }
+        
+        .part-header { background-color: #f1f2ec; padding: 15px 20px; border: 1px solid #e0e0e0; text-align: left; margin: 10px 20px; border-radius: 5px; }
+        .example-box { border: 1px solid #ddd; background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0; }
+        .timer-container { display: flex; align-items: center; font-weight: 500; }
+        .timer-controls { display: flex; gap: 8px; margin-left: 15px; }
+        .timer-controls button { background: #f0f0f0; border: 1px solid #ccc; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .nav-row { position: fixed; bottom: 0; left: 0; right: 0; background: #ffffff; padding: 0; display: flex; align-items: center; height: 80px; z-index: 100; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
+        .footer__questionWrapper___1tZ46 { display: flex; align-items: center; margin-right: 20px; padding-left: 20px; }
+        .footer__questionNo___3WNct { background: none; border: none; padding: 10px 15px; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+        .footer__subquestionWrapper___9GgoP { display: flex; gap: 5px; margin-left: 10px; flex-wrap: wrap; }
+        .subQuestion { width: 36px; height: 36px; border: 1px solid #ccc; background: white; color: #333; font-size: 14px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: all 0.2s; }
+        .subQuestion:hover { background-color: #f0f0f0; }
+        .subQuestion.active { background-color: #4a90e2; color: white; border-color: #4a90e2; }
+        .subQuestion.correct { background-color: #28a745; color: white; border-color: #28a745; }
+        .subQuestion.incorrect { background-color: #dc3545; color: white; border-color: #dc3545; }
+        .subQuestion.answered { background-color: #e9ecef; border-color: #bbb; }
+        .footer__deliverButton___3FM07 { margin-left: auto; margin-right: 20px; background-color: #4a90e2; color: #fff; border: none; padding: 12px 24px; border-radius: 4px; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+        .footer__deliverButton___3FM07:hover { background-color: #357abd; }
+        .hidden { display: none !important; }
+        
+        /* Specific styles for Sentence Completion */
+        .option-list { list-style: none; padding-left: 10px; }
+        .option-list li { margin-bottom: 10px; font-size: 15px; }
+        .option-list strong { color: #4a90e2; margin-right: 8px; display: inline-block; width: 25px; }
+        
+        .question-item { margin-bottom: 20px; display: flex; align-items: baseline; justify-content: space-between; gap: 10px; border-bottom: 1px dashed #eee; padding-bottom: 10px;}
+        .question-text { flex: 1; }
+        
+        /* Modal Styles */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); z-index: 2000; display: flex; justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 30px; border-radius: 8px; width: 90%; max-width: 500px; text-align: center; position: relative; }
+        .modal-close-btn { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 28px; cursor: pointer; color: #888; }
+        .results-summary { font-size: 20px; font-weight: bold; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+        .correct-answer-display { color: #28a745; font-weight: bold; margin-left: 5px; font-size: 14px; background: #d4edda; padding: 0 4px; border-radius: 3px; }
+        
+        /* Highlighting */
+        .highlight { background-color: #ffff00; }
+        .context-menu { position: absolute; background: white; border: 1px solid #ccc; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; display: none; min-width: 140px; }
+        .context-menu-item { padding: 12px 16px; cursor: pointer; font-size: 16px; border-bottom: 1px solid #f0f0f0; }
+        .context-menu-item:hover { background-color: #f8f9fa; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="timer-container">
+            <span class="timer-display">40:00</span>
+            <div class="timer-controls">
+                <button id="timer-toggle-btn" title="Pause/Resume Timer">||</button>
+                <button id="timer-reset-btn" title="Reset Timer">↺</button>
+            </div>
+        </div>
+        <div style="font-weight: bold; color: #4a90e2;">Đình Phước Edu</div>
+    </div>
+
+    <div class="main-container">
+        <div id="passage-header-container">
+            <div id="part-header-1" class="part-header">
+                <p><strong>Practice test</strong></p>
+                <p>Read the text and answer questions 27-31.</p>
+            </div>
+        </div>
+        
+        <div class="panels-container">
+            <div class="passage-panel" id="passage-panel">
+                <div id="passage-text-1" class="reading-passage">
+                    <h4 class="text-center">Why fairy tales are really scary tales</h4>
+                    <p style="text-align: center; font-style: italic; margin-bottom: 20px; font-size: 14px;">Some people think that fairy tales are just stories to amuse children, but their universal and enduring appeal may be due to more serious reasons</p>
+                    
+                    <p>People of every culture tell each other fairy tales but the same story often takes a variety of forms in different parts of the world. In the story of Little Red Riding Hood that European children are familiar with, a young girl on the way to see her grandmother meets a wolf and tells him where she is going. The wolf runs on ahead and disposes of the grandmother, then gets into bed dressed in the grandmother’s clothes to wait for Little Red Riding Hood. You may think you know the story – but which version? In some versions, the wolf swallows up the grandmother, while in others it locks her in a cupboard. In some stories Red Riding Hood gets the better of the wolf on her own, while in others a hunter or a woodcutter hears her cries and comes to her rescue.</p>
+                    <p>The universal appeal of these tales is frequently attributed to the idea that they contain cautionary messages: in the case of Little Red Riding Hood, to listen to your mother, and avoid talking to strangers. ‘It might be what we find interesting about this story is that it’s got this survival-relevant information in it,’ says anthropologist Jamie Tehrani at Durham University in the UK. But his research suggests otherwise. ‘We have this huge gap in our knowledge about the history and prehistory of storytelling, despite the fact that we know this genre is an incredibly ancient one,’ he says. That hasn’t stopped anthropologists, folklorists* and other academics devising theories to explain the importance of fairy tales in human society. Now Tehrani has found a way to test these ideas, borrowing a technique from evolutionary biologists.</p>
+                    <p>To work out the evolutionary history, development and relationships among groups of organisms, biologists compare the characteristics of living species in a process called ‘phylogenetic analysis’. Tehrani has used the same approach to compare related versions of fairy tales to discover how they have evolved and which elements have survived longest.</p>
+                    <p>Tehrani’s analysis focused on Little Red Riding Hood in its many forms, which include another Western fairy tale known as The Wolf and the Kids. Checking for variants of these two tales and similar stories from Africa, East Asia and other regions, he ended up with 58 stories recorded from oral traditions. Once his phylogenetic analysis had established that they were indeed related, he used the same methods to explore how they have developed and altered over time.</p>
+                    <p>First he tested some assumptions about which aspects of the story alter least as it evolves, indicating their importance. Folklorists believe that what happens in a story is more central to the story than the characters in it – that visiting a relative, only to be met by a scary animal in disguise, is more fundamental than whether the visitor is a little girl or three siblings, or the animal is a tiger instead of a wolf.</p>
+                    <p>However, Tehrani found no significant difference in the rate of evolution of incidents compared with that of characters. ‘Certain episodes are very stable because they are crucial to the story, but there are lots of other details that can evolve quite freely,’ he says. Neither did his analysis support the theory that the central section of a story is the most conserved part. He found no significant difference in the flexibility of events there compared with the beginning or the end.</p>
+                    <p>But the really big surprise came when he looked at the cautionary elements of the story. ‘Studies on hunter-gatherer folk tales suggest that these narratives include really important information about the environment and the possible dangers that may be faced there – stuff that’s relevant to survival,’ he says. Yet in his analysis such elements were just as flexible as seemingly trivial details. What, then, is important enough to be reproduced from generation to generation?</p>
+                    <p>The answer, it would appear, is fear – blood-thirsty and gruesome aspects of the story, such as the eating of the grandmother by the wolf, turned out to be the best preserved of all. Why are these details retained by generations of storytellers, when other features are not? Tehrani has an idea: ‘In an oral context, a story won’t survive because of one great teller. It also needs to be interesting when it’s told by someone who’s not necessarily a great storyteller.’ Maybe being swallowed whole by a wolf, then cut out of its stomach alive is so gripping that it helps the story remain popular, no matter how badly it’s told.</p>
+                    <p>Jack Zipes at the University of Minnesota, Minneapolis, is unconvinced by Tehrani’s views on fairy tales. ‘Even if they’re gruesome, they won’t stick unless they matter,’ he says. He believes the perennial theme of women as victims in stories like Little Red Riding Hood explains why they continue to feel relevant. But Tehrani points out that although this is often the case in Western versions, it is not always true elsewhere. In Chinese and Japanese versions, often known as The Tiger Grandmother, the villain is a woman, and in both Iran and Nigeria, the victim is a boy.</p>
+                    <p>Mathias Clasen at Aarhus University in Denmark isn’t surprised by Tehrani’s findings. ‘Habits and morals change, but the things that scare us, and the fact that we seek out entertainment that’s designed to scare us – those are constant,’ he says. Clasen believes that scary stories teach us what it feels like to be afraid without having to experience real danger, and so build up resistance to negative emotions.</p>
+                </div>
+            </div>
+            
+            <div class="resizer" id="resizer"></div>
+            
+            <div class="questions-panel" id="questions-panel">
+                <div id="questions-1" class="question-set">
+                    <div class="questions-container">
+                        <div class="question" data-q-start="27" data-q-end="31">
+                            <div class="question-prompt">
+                                <p><strong>Questions 27-31</strong></p>
+                                <p>Complete each sentence with the correct ending, <strong>A-F</strong>, below.</p>
+                                <p>Write the correct letter, <strong>A-F</strong>, in boxes 27-31 on your answer sheet.</p>
+                            </div>
+
+                            <div class="example-box">
+                                <p><strong>List of Endings</strong></p>
+                                <ul class="option-list">
+                                    <li><strong>A</strong> may be provided through methods used in biological research.</li>
+                                    <li><strong>B</strong> are the reason for their survival.</li>
+                                    <li><strong>C</strong> show considerable global variation.</li>
+                                    <li><strong>D</strong> contain animals which transform to become humans.</li>
+                                    <li><strong>E</strong> were originally spoken rather than written.</li>
+                                    <li><strong>F</strong> have been developed without factual basis.</li>
+                                </ul>
+                            </div>
+
+                            <div class="question-list">
+                                <div class="question-item">
+                                    <div class="question-text"><strong>27.</strong> In fairy tales, details of the plot</div>
+                                    <select class="answer-input" id="q27">
+                                        <option value=""></option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option>
+                                    </select>
+                                </div>
+                                <div class="question-item">
+                                    <div class="question-text"><strong>28.</strong> Tehrani rejects the idea that the useful lessons for life in fairy tales</div>
+                                    <select class="answer-input" id="q28">
+                                        <option value=""></option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option>
+                                    </select>
+                                </div>
+                                <div class="question-item">
+                                    <div class="question-text"><strong>29.</strong> Various theories about the social significance of fairy tales</div>
+                                    <select class="answer-input" id="q29">
+                                        <option value=""></option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option>
+                                    </select>
+                                </div>
+                                <div class="question-item">
+                                    <div class="question-text"><strong>30.</strong> Insights into the development of fairy tales</div>
+                                    <select class="answer-input" id="q30">
+                                        <option value=""></option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option>
+                                    </select>
+                                </div>
+                                <div class="question-item">
+                                    <div class="question-text"><strong>31.</strong> All the fairy tales analysed by Tehrani</div>
+                                    <select class="answer-input" id="q31">
+                                        <option value=""></option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="nav-row" aria-label="Questions">
+        <div class="footer__questionWrapper___1tZ46 selected" role="tablist">
+            <button role="tab" class="footer__questionNo___3WNct">
+                <span>
+                    <span aria-hidden="true" class="section-prefix">Questions </span>
+                    <span class="sectionNr" aria-hidden="true">27-31</span>
+                    <span class="attemptedCount" aria-hidden="true">0 of 5</span>
+                </span>
+            </button>
+            <div class="footer__subquestionWrapper___9GgoP">
+                <button class="subQuestion scorable-item" onclick="goToQuestion(27)">27</button>
+                <button class="subQuestion scorable-item" onclick="goToQuestion(28)">28</button>
+                <button class="subQuestion scorable-item" onclick="goToQuestion(29)">29</button>
+                <button class="subQuestion scorable-item" onclick="goToQuestion(30)">30</button>
+                <button class="subQuestion scorable-item" onclick="goToQuestion(31)">31</button>
+            </div>
+        </div>
+        
+        <button id="deliver-button" aria-label="Review your answers" class="footer__deliverButton___3FM07">
+            <span>Check Answers</span>
+        </button>
+    </nav>
+
+    <!-- Context Menu -->
+    <div id="contextMenu" class="context-menu">
+        <div id="menu-highlight" class="context-menu-item" onclick="highlightText()">Highlight</div>
+        <div id="menu-clear" class="context-menu-item" onclick="clearHighlight()">Clear</div>
+    </div>
+
+    <!-- Results Modal -->
+    <div id="results-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeResultsModal()">&times;</button>
+            <h2>Results</h2>
+            <div class="results-summary">
+                <p>Score: <span id="results-score"></span> / 5</p>
+            </div>
+            <div id="results-details" style="text-align: left; max-height: 300px; overflow-y: auto;"></div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- CONFIGURATION ---
+        // 27. details of the plot -> C (global variation)
+        // 28. useful lessons/cautionary messages -> B (reason for survival - he rejects this)
+        // 29. theories about social significance -> F (without factual basis/gap in knowledge)
+        // 30. Insights into development -> A (methods used in biological research)
+        // 31. All analysed by Tehrani -> E (originally spoken/oral traditions)
+        const correctAnswers = {
+            '27': 'C',
+            '28': 'B',
+            '29': 'F',
+            '30': 'A',
+            '31': 'E'
+        };
+
+        const questionIds = [27, 28, 29, 30, 31];
+        let timeInSeconds = 2400; // 40 mins
+        let timerInterval;
+        let selectedRange = null;
+
+        // --- ELEMENTS ---
+        const timerDisplay = document.querySelector('.timer-display');
+        const deliverButton = document.getElementById('deliver-button');
+        const resizer = document.getElementById('resizer');
+        const passagePanel = document.getElementById('passage-panel');
+        const contextMenu = document.getElementById('contextMenu');
+
+        // --- INITIALIZATION ---
+        function initialize() {
+            startTimer();
+            
+            // Listeners
+            deliverButton.addEventListener('click', checkAnswers);
+            document.body.addEventListener('change', updateIndicators);
+            
+            // Security
+            document.addEventListener("keydown", function (e) {
+                if (
+                    e.key === "F12" ||
+                    (e.ctrlKey && e.shiftKey && e.key === "I") ||
+                    (e.ctrlKey && e.shiftKey && e.key === "J") ||
+                    (e.ctrlKey && e.shiftKey && e.key === "C") ||
+                    (e.ctrlKey && e.key === "u") ||
+                    (e.ctrlKey && e.key === "p") ||
+                    (e.ctrlKey && e.key === "s")
+                ) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+
+            // Resizer logic
+            resizer.addEventListener('mousedown', initResize, false);
+            
+            // Context menu logic
+            initializeContextMenu();
+        }
+
+        // --- CORE LOGIC ---
+        function checkAnswers() {
+            clearInterval(timerInterval);
+            let score = 0;
+            const resultsContainer = document.getElementById('results-details');
+            resultsContainer.innerHTML = '';
+            
+            // Disable inputs
+            document.querySelectorAll('.answer-input').forEach(input => input.disabled = true);
+            deliverButton.disabled = true;
+            deliverButton.textContent = "Checked";
+
+            questionIds.forEach(id => {
+                const input = document.getElementById(`q${id}`);
+                const userAnswer = input.value;
+                const correctAnswer = correctAnswers[id];
+                const isCorrect = userAnswer === correctAnswer;
+                
+                if (isCorrect) {
+                    score++;
+                    input.classList.add('correct');
+                    // Mark nav button
+                    document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`).classList.add('correct');
+                } else {
+                    input.classList.add('incorrect');
+                    // Show correct answer
+                    const span = document.createElement('span');
+                    span.className = 'correct-answer-display';
+                    span.textContent = `✓ ${correctAnswer}`;
+                    input.parentNode.insertBefore(span, input.nextSibling);
+                    // Mark nav button
+                    document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`).classList.add('incorrect');
+                }
+            });
+
+            // Show Modal
+            document.getElementById('results-score').textContent = score;
+            document.getElementById('results-modal').classList.remove('hidden');
+        }
+
+        function updateIndicators() {
+            let answered = 0;
+            questionIds.forEach(id => {
+                const val = document.getElementById(`q${id}`).value;
+                const btn = document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`);
+                if(val) {
+                    answered++;
+                    btn.classList.add('answered');
+                } else {
+                    btn.classList.remove('answered');
+                }
+            });
+            document.querySelector('.attemptedCount').textContent = `${answered} of ${questionIds.length}`;
+        }
+
+        window.goToQuestion = (id) => {
+            const el = document.getElementById(`q${id}`);
+            if(el) {
+                el.scrollIntoView({behavior: 'smooth', block: 'center'});
+                document.querySelectorAll('.active-input').forEach(e => e.classList.remove('active-input'));
+                el.classList.add('active-input');
+                el.focus();
+                
+                // Update nav active state
+                document.querySelectorAll('.subQuestion').forEach(b => b.classList.remove('active'));
+                document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`).classList.add('active');
+            }
+        };
+
+        window.closeResultsModal = () => {
+            document.getElementById('results-modal').classList.add('hidden');
+        }
+
+        // --- UTILS (Timer, Resizer, Highlight) ---
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeInSeconds--;
+                const m = Math.floor(timeInSeconds / 60).toString().padStart(2,'0');
+                const s = (timeInSeconds % 60).toString().padStart(2,'0');
+                timerDisplay.textContent = `${m}:${s}`;
+                if(timeInSeconds <= 0) clearInterval(timerInterval);
+            }, 1000);
+        }
+
+        function initResize(e) {
+            e.preventDefault();
+            const startX = e.clientX;
+            const startWidth = passagePanel.offsetWidth;
+            const doDrag = (e) => {
+                passagePanel.style.flex = `0 0 ${startWidth + e.clientX - startX}px`;
+            };
+            const stopDrag = () => {
+                window.removeEventListener('mousemove', doDrag);
+                window.removeEventListener('mouseup', stopDrag);
+            };
+            window.addEventListener('mousemove', doDrag);
+            window.addEventListener('mouseup', stopDrag);
+        }
+
+        function initializeContextMenu() {
+            document.addEventListener('selectionchange', () => {
+                const sel = window.getSelection();
+                if(sel.toString().length > 0) selectedRange = sel.getRangeAt(0);
+            });
+            
+            document.addEventListener('contextmenu', (e) => {
+                if(e.target.closest('.passage-panel') || e.target.closest('.questions-panel')) {
+                    e.preventDefault();
+                    contextMenu.style.display = 'block';
+                    contextMenu.style.left = `${e.pageX}px`;
+                    contextMenu.style.top = `${e.pageY}px`;
+                }
+            });
+
+            document.addEventListener('click', (e) => {
+                if(!contextMenu.contains(e.target)) contextMenu.style.display = 'none';
+            });
+        }
+
+        window.highlightText = () => {
+            if(selectedRange) {
+                const span = document.createElement('span');
+                span.className = 'highlight';
+                span.appendChild(selectedRange.extractContents());
+                selectedRange.insertNode(span);
+            }
+            contextMenu.style.display = 'none';
+        };
+
+        window.clearHighlight = () => {
+             const highlights = document.querySelectorAll('.highlight');
+             highlights.forEach(h => {
+                 const parent = h.parentNode;
+                 while(h.firstChild) parent.insertBefore(h.firstChild, h);
+                 parent.removeChild(h);
+             });
+             contextMenu.style.display = 'none';
+        };
+
+        initialize();
+    });
+    </script>
+</body>
+</html>

@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>IELTS Listening Practice - Exercise 2</title>
+    <style>
+        /* --- RESET & BASIC STYLES --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            line-height: 1.6;
+            font-size: 16px;
+            color: #333;
+            -webkit-user-select: none; /* Safari */
+            -ms-user-select: none; /* IE 10 and IE 11 */
+            user-select: none; /* Standard syntax */
+        }
+
+        /* --- HEADER --- */
+        .header {
+            background-color: #ffffff;
+            padding: 12px 20px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            height: 60px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .timer-container {
+            display: flex;
+            position: relative;
+            cursor: default;
+            color: #333;
+            font-size: 18px;
+            font-weight: 600;
+            align-items: center;
+        }
+
+        .timer-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: 15px;
+        }
+
+        .timer-controls button {
+            background: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 50%;
+            padding: 0;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+
+        .timer-controls button:hover {
+            background: #e0e0e0;
+        }
+
+        .contact-link {
+            color: #4a90e2;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        /* --- MAIN LAYOUT --- */
+        .main-container {
+            margin-top: 80px; /* Space for fixed header */
+            margin-bottom: 100px; /* Space for footer */
+            display: flex;
+            justify-content: center;
+            padding: 0 20px;
+        }
+
+        .listening-panel {
+            background: #ffffff;
+            width: 100%;
+            max-width: 800px;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        /* --- AUDIO PLAYER --- */
+        .audio-player-container {
+            position: sticky;
+            top: 60px; /* Stick below header */
+            background: white;
+            padding: 15px 0;
+            z-index: 90;
+            border-bottom: 2px solid #f0f0f0;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        audio {
+            width: 100%;
+            max-width: 600px;
+            outline: none;
+        }
+
+        /* --- QUESTION STYLES --- */
+        h2.part-title {
+            font-family: 'Merriweather', serif;
+            color: #2c3e50;
+            border-bottom: 2px solid #4a90e2;
+            padding-bottom: 10px;
+            margin-bottom: 25px;
+            font-size: 24px;
+        }
+
+        .instruction {
+            font-weight: bold;
+            color: #555;
+            background: #f9f9f9;
+            padding: 15px;
+            border-left: 4px solid #4a90e2;
+            margin-bottom: 25px;
+            font-style: italic;
+        }
+
+        .question-block {
+            margin-bottom: 30px;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            font-size: 17px;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .q-num-box {
+            background: #4a90e2;
+            color: white;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .answer-input {
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 8px 12px;
+            font-size: 16px;
+            width: 300px;
+            transition: all 0.3s;
+            background-color: #fff;
+        }
+
+        .answer-input:focus {
+            border-color: #4a90e2;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+            outline: none;
+        }
+
+        /* Feedback Styles */
+        .answer-input.correct {
+            border-color: #28a745;
+            background-color: #e9f7ef;
+            color: #155724;
+        }
+
+        .answer-input.incorrect {
+            border-color: #dc3545;
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .correct-answer-display {
+            margin-left: 10px;
+            font-weight: bold;
+            color: #28a745;
+            background: #e9f7ef;
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid #c3e6cb;
+            display: inline-block;
+        }
+
+        /* --- FOOTER NAVIGATION --- */
+        .nav-row {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #ffffff;
+            border-top: 1px solid #e0e0e0;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            height: 70px;
+            z-index: 100;
+            justify-content: space-between;
+        }
+
+        .question-navigator {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 5px;
+        }
+
+        .nav-btn {
+            width: 35px;
+            height: 35px;
+            border: 1px solid #ccc;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #555;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover {
+            background-color: #f0f0f0;
+        }
+
+        .nav-btn.answered {
+            background-color: #e3f2fd;
+            border-color: #90caf9;
+            color: #1565c0;
+        }
+
+        .nav-btn.correct {
+            background-color: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+
+        .nav-btn.incorrect {
+            background-color: #dc3545;
+            color: white;
+            border-color: #dc3545;
+        }
+
+        .submit-btn {
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+
+        .submit-btn:hover {
+            background-color: #357abd;
+        }
+
+        .submit-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* --- MODAL --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .modal-close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #888;
+        }
+
+        .results-summary {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .score-circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: #4a90e2;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+            margin: 0 auto 15px;
+        }
+
+        .transcript-section {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .transcript-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .transcript-body {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .transcript-item {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px dashed #ccc;
+        }
+        
+        .transcript-item:last-child {
+            border-bottom: none;
+        }
+
+        .key-highlight {
+            color: #d35400;
+            font-weight: bold;
+        }
+        
+        .speaker-name {
+            font-weight: bold;
+            color: #2980b9;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="timer-container">
+            <i class="fa-regular fa-clock" style="margin-right: 8px;"></i>
+            <span class="timer-display">30:00</span>
+            <div class="timer-controls">
+                <button id="timer-toggle-btn" title="Pause/Resume">
+                    <i class="fa-solid fa-pause"></i>
+                </button>
+            </div>
+        </div>
+        <a href="https://www.facebook.com/DinhPhuocIELTS/" target="_blank" class="contact-link">
+            Đình Phước Edu
+        </a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <div class="listening-panel">
+            
+            <h2 class="part-title">IELTS Listening Practice - Exercise 2</h2>
+
+            <!-- Audio Player -->
+            <div class="audio-player-container">
+                <audio controls controlsList="nodownload">
+                    <source src="listening-practice-2.mp3" type="audio/mp3">
+                    Your browser does not support the audio element.
+                </audio>
+            </div>
+
+            <!-- Instructions -->
+            <div class="instruction">
+                Write NO MORE THAN THREE WORDS AND/OR A NUMBER for each answer.
+            </div>
+
+            <!-- Questions -->
+            <form id="listening-form">
+                
+                <!-- Q1 -->
+                <div class="question-block">
+                    <p class="question-text">Which floor is the library coffee shop on?</p>
+                    <div class="input-group">
+                        <div class="q-num-box">1</div>
+                        <input type="text" class="answer-input" id="q1" autocomplete="off" placeholder="Answer here...">
+                    </div>
+                </div>
+
+                <!-- Q2 -->
+                <div class="question-block">
+                    <p class="question-text">What does Sandra like to do there?</p>
+                    <div class="input-group">
+                        <div class="q-num-box">2</div>
+                        <input type="text" class="answer-input" id="q2" autocomplete="off" placeholder="Answer here...">
+                    </div>
+                </div>
+
+                <!-- Q3 -->
+                <div class="question-block">
+                    <p class="question-text">Where is the silent zone?</p>
+                    <div class="input-group">
+                        <div class="q-num-box">3</div>
+                        <input type="text" class="answer-input" id="q3" autocomplete="off" placeholder="Answer here...">
+                    </div>
+                </div>
+
+                <!-- Q4 -->
+                <div class="question-block">
+                    <p class="question-text">Where does Tom live?</p>
+                    <div class="input-group">
+                        <div class="q-num-box">4</div>
+                        <input type="text" class="answer-input" id="q4" autocomplete="off" placeholder="Answer here...">
+                    </div>
+                </div>
+
+                <!-- Q5 -->
+                <div class="question-block">
+                    <p class="question-text">How many people live in Sandra’s house?</p>
+                    <div class="input-group">
+                        <div class="q-num-box">5</div>
+                        <input type="text" class="answer-input" id="q5" autocomplete="off" placeholder="Answer here...">
+                    </div>
+                </div>
+
+                <!-- Q6 -->
+                <div class="question-block">
+                    <p class="question-text">What does Tom often do near Sandra’s house?</p>
+                    <div class="input-group">
+                        <div class="q-num-box">6</div>
+                        <input type="text" class="answer-input" id="q6" autocomplete="off" placeholder="Answer here...">
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="nav-row">
+        <div class="question-navigator">
+            <button class="nav-btn" onclick="scrollToQuestion('q1')">1</button>
+            <button class="nav-btn" onclick="scrollToQuestion('q2')">2</button>
+            <button class="nav-btn" onclick="scrollToQuestion('q3')">3</button>
+            <button class="nav-btn" onclick="scrollToQuestion('q4')">4</button>
+            <button class="nav-btn" onclick="scrollToQuestion('q5')">5</button>
+            <button class="nav-btn" onclick="scrollToQuestion('q6')">6</button>
+        </div>
+        <button id="deliver-button" class="submit-btn">
+            <i class="fa fa-check"></i> Submit Answers
+        </button>
+    </nav>
+
+    <!-- Results Modal -->
+    <div id="results-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeResultsModal()">&times;</button>
+            
+            <div class="results-summary">
+                <h2>Your Result</h2>
+                <div class="score-circle">
+                    <span id="results-score">0</span>
+                </div>
+                <p>out of 6 questions</p>
+            </div>
+
+            <div class="transcript-section">
+                <div class="transcript-title">
+                    <i class="fa-solid fa-file-lines"></i> Transcript & Explanations
+                </div>
+                <div class="transcript-body">
+                    <div class="transcript-item">
+                        <p><span class="speaker-name">Tom:</span> Hey, Sandra, how’s it going? What do you think of the campus?</p>
+                        <p><span class="speaker-name">Sandra:</span> I think it’s all fantastic. Have you been to the coffee shop in the library, yet?</p>
+                        <p><span class="speaker-name">Tom:</span> No, I haven’t. Where is it?</p>
+                        <p><span class="speaker-name">Sandra:</span> It’s <span class="key-highlight">on the ground floor</span>. You know, you can have a break without actually leaving the library. It’s really great to <span class="key-highlight">meet your friends</span> there.</p>
+                        <p><strong>(Q1 Answer: ground floor / the ground floor)</strong></p>
+                        <p><strong>(Q2 Answer: meet friends / meet your friends)</strong></p>
+                    </div>
+
+                    <div class="transcript-item">
+                        <p><span class="speaker-name">Tom:</span> Yeah. That’s an excellent idea. And it means you’ve got somewhere to chat without upsetting people who want to study. I can’t concentrate when other people are talking. I usually go upstairs to work in the silent zone, on the <span class="key-highlight">first floor</span>.</p>
+                        <p><strong>(Q3 Answer: first floor / the first floor)</strong></p>
+                    </div>
+
+                    <div class="transcript-item">
+                        <p><span class="speaker-name">Sandra:</span> Oh, do you? Is it difficult to study at home, then? Where do you live?</p>
+                        <p><span class="speaker-name">Tom:</span> I’m living in a hall of residence <span class="key-highlight">on campus</span>.</p>
+                        <p><strong>(Q4 Answer: on campus / in a hall of residence)</strong></p>
+                    </div>
+
+                    <div class="transcript-item">
+                        <p><span class="speaker-name">Sandra:</span> Oh, right. It must be tough trying to study in your room.</p>
+                        <p><span class="speaker-name">Tom:</span> Yeah … It’s pretty noisy, especially at the weekends. Are you living on campus, too?</p>
+                        <p><span class="speaker-name">Sandra:</span> Yes. I’m on campus, but there are only <span class="key-highlight">four people</span> in our house. So it tends to be a bit quieter. It’s at the end of the footpath, not far from the sports centre.</p>
+                        <p><strong>(Q5 Answer: four people / 4 people)</strong></p>
+                    </div>
+
+                    <div class="transcript-item">
+                        <p><span class="speaker-name">Tom:</span> Oh, right. I know where you mean. I <span class="key-highlight">play football</span> on the pitch next to the sports centre. I spend quite a lot of time around there.</p>
+                        <p><strong>(Q6 Answer: play football / football)</strong></p>
+                    </div>
+                    
+                    <div class="transcript-item">
+                        <p><span class="speaker-name">Sandra:</span> Well, next time you’re in that part, let me know. You can come round for coffee...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- SECURITY: PREVENT SHORTCUTS ---
+            document.addEventListener("keydown", function (e) {
+                if (
+                    e.key === "F12" ||
+                    (e.ctrlKey && e.shiftKey && e.key === "I") ||
+                    (e.ctrlKey && e.shiftKey && e.key === "J") ||
+                    (e.ctrlKey && e.shiftKey && e.key === "C") ||
+                    (e.ctrlKey && e.key === "u") ||
+                    (e.ctrlKey && e.key === "p") ||
+                    (e.ctrlKey && e.key === "s")
+                ) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+
+            // Prevent Context Menu (Right Click)
+            document.addEventListener('contextmenu', event => event.preventDefault());
+
+            // --- VARIABLES & DATA ---
+            let timeInSeconds = 1800; // 30 minutes
+            let timerInterval;
+            
+            // Acceptable answers (Variations)
+            const correctAnswers = {
+                '1': ['ground floor', 'the ground floor', 'ground', 'on the ground floor'],
+                '2': ['meet friends', 'meet her friends', 'meet your friends', 'meeting friends', 'to meet friends'],
+                '3': ['first floor', 'the first floor', '1st floor', 'on the first floor'],
+                '4': ['on campus', 'campus', 'hall of residence', 'in a hall of residence'],
+                '5': ['4', 'four', '4 people', 'four people'],
+                '6': ['play football', 'football']
+            };
+
+            // --- TIMER LOGIC ---
+            const timerDisplay = document.querySelector('.timer-display');
+            const timerToggleBtn = document.getElementById('timer-toggle-btn');
+            let isPaused = false;
+
+            function updateTimer() {
+                if(isPaused) return;
+                timeInSeconds--;
+                const minutes = Math.floor(timeInSeconds / 60);
+                const seconds = timeInSeconds % 60;
+                timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (timeInSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    checkAnswers();
+                }
+            }
+
+            timerInterval = setInterval(updateTimer, 1000);
+
+            timerToggleBtn.addEventListener('click', () => {
+                isPaused = !isPaused;
+                timerToggleBtn.innerHTML = isPaused ? '<i class="fa-solid fa-play"></i>' : '<i class="fa-solid fa-pause"></i>';
+            });
+
+            // --- TRACK ANSWERED STATE FOR NAV ---
+            const inputs = document.querySelectorAll('.answer-input');
+            inputs.forEach((input, index) => {
+                input.addEventListener('input', () => {
+                    const navBtn = document.querySelectorAll('.nav-btn')[index];
+                    if(input.value.trim() !== "") {
+                        navBtn.classList.add('answered');
+                    } else {
+                        navBtn.classList.remove('answered');
+                    }
+                });
+            });
+
+            // --- CHECK ANSWERS LOGIC ---
+            const deliverButton = document.getElementById('deliver-button');
+            
+            deliverButton.addEventListener('click', checkAnswers);
+
+            function normalizeAnswer(str) {
+                return str.trim().toLowerCase().replace(/[.,!?;:]/g, '').replace(/\s+/g, ' ');
+            }
+
+            function checkAnswers() {
+                clearInterval(timerInterval);
+                let score = 0;
+                const total = 6;
+
+                // Disable inputs
+                inputs.forEach(input => input.disabled = true);
+                deliverButton.disabled = true;
+                deliverButton.innerHTML = '<i class="fa fa-eye"></i> View Results';
+                
+                // Allow clicking button again to just show modal
+                deliverButton.removeEventListener('click', checkAnswers);
+                deliverButton.addEventListener('click', () => {
+                    document.getElementById('results-modal').classList.remove('hidden');
+                });
+
+                for (let i = 1; i <= total; i++) {
+                    const inputEl = document.getElementById(`q${i}`);
+                    const userAns = normalizeAnswer(inputEl.value);
+                    const validAnswers = correctAnswers[i.toString()].map(a => normalizeAnswer(a));
+                    const navBtn = document.querySelectorAll('.nav-btn')[i-1];
+
+                    // Strict check against valid keys
+                    let isCorrect = validAnswers.includes(userAns);
+
+                    // Apply styles
+                    if (isCorrect && userAns !== "") {
+                        score++;
+                        inputEl.classList.add('correct');
+                        navBtn.classList.remove('answered');
+                        navBtn.classList.add('correct');
+                    } else {
+                        inputEl.classList.add('incorrect');
+                        navBtn.classList.remove('answered');
+                        navBtn.classList.add('incorrect');
+                        
+                        // Show Correct Answer
+                        const displaySpan = document.createElement('span');
+                        displaySpan.className = 'correct-answer-display';
+                        displaySpan.innerHTML = `<i class="fa fa-check"></i> ${correctAnswers[i][0]}`; // Show primary answer
+                        inputEl.parentNode.appendChild(displaySpan);
+                    }
+                }
+
+                // Show Modal
+                const scoreDisplay = document.getElementById('results-score');
+                scoreDisplay.textContent = score;
+                document.getElementById('results-modal').classList.remove('hidden');
+            }
+
+            // --- HELPER FUNCTIONS ---
+            window.scrollToQuestion = function(id) {
+                const el = document.getElementById(id);
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                el.focus();
+            };
+
+            window.closeResultsModal = function() {
+                document.getElementById('results-modal').classList.add('hidden');
+            };
+        });
+    </script>
+</body>
+</html>

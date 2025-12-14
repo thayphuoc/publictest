@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@600&display=swap" rel="stylesheet">
+    <title>The robots are coming</title>
+    <style>
+        /* All CSS styles remain exactly the same as in the original code */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background-color: #ffffff; line-height: 1.4; font-size: 16px; }
+        .header { background-color: #ffffff; padding: 12px 20px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 60px; }
+        .main-container { margin-top: 60px; display: flex; flex-direction: column; background: #ffffff; height: calc(100vh - 60px); }
+        .panels-container { display: flex; flex: 1; overflow: hidden; }
+        .passage-panel { flex: 1; padding: 20px 20px 100px; overflow-y: auto; min-width: 200px; }
+        .text-center { text-align: center; }
+        .reading-passage h4 { font-family: 'Merriweather', serif; font-size: 20px; font-weight: 600; color: #2c3e50; line-height: 1.4; margin-bottom: 20px; text-align: center; border-bottom: 2px solid #4a90e2; padding-bottom: 5px; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); }
+        .reading-passage p { margin-bottom: 1.2em; text-align: justify; }
+        .questions-panel { flex: 1; padding: 20px 20px 100px; overflow-y: auto; min-width: 200px; border-left: 1px solid #e0e0e0; }
+        .resizer { width: 10px; cursor: col-resize; background-color: #f0f0f0; flex-shrink: 0; flex-grow: 0; background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="30" viewBox="0 0 10 30"><path d="M4 11h2v2H4zM4 15h2v2H4zM4 19h2v2H4z" fill="%23888"/></svg>'); background-repeat: no-repeat; background-position: center; }
+        .question-number { background: white; border: 1px solid #4a90e2; padding: 4px 8px; border-radius: 3px; font-weight: bold; font-size: 14px; color: #4a90e2; min-width: 30px; text-align: center; }
+        .question-prompt { margin-bottom: 20px; background: #f9f9f9; padding: 15px; border-radius: 5px; border-left: 4px solid #4a90e2; }
+        
+        /* Inputs */
+        .answer-input { border: 1px solid #888; border-radius: 4px; background-color: #fff; padding: 2px 5px; font-size: 16px; text-align: center; margin: 0 4px; transition: border-color 0.3s, box-shadow 0.3s; height: 32px; display: inline-block; cursor: pointer; }
+        .answer-input[type="text"] { width: 140px; cursor: text; }
+        .answer-input:focus { outline: none; }
+        .answer-input.active-input { border-color: #4a90e2; box-shadow: 0 0 3px 1px rgba(74, 144, 226, 0.5); }
+        .answer-input.correct { border-color: #28a745; background-color: #e9f7ef; color: #155724; font-weight: bold; }
+        .answer-input.incorrect { border-color: #dc3545; background-color: #f8d7da; color: #721c24; }
+        
+        .part-header { background-color: #f1f2ec; padding: 15px 20px; border: 1px solid #e0e0e0; text-align: left; margin: 10px 20px; border-radius: 5px; }
+        .example-box { border: 1px solid #ddd; background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0; font-size: 15px; }
+        .option-list { list-style: none; padding-left: 5px; }
+        .option-list li { margin-bottom: 8px; }
+        .option-list strong { color: #4a90e2; display: inline-block; width: 25px; }
+        
+        .question-item { margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; gap: 10px; border-bottom: 1px dashed #eee; padding-bottom: 10px; }
+        .question-text { flex: 1; }
+
+        .timer-container { display: flex; align-items: center; font-weight: 500; }
+        .timer-controls { display: flex; gap: 8px; margin-left: 15px; }
+        .timer-controls button { background: #f0f0f0; border: 1px solid #ccc; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        
+        .nav-row { position: fixed; bottom: 0; left: 0; right: 0; background: #ffffff; padding: 0; display: flex; align-items: center; height: 80px; z-index: 100; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
+        .footer__questionWrapper___1tZ46 { display: flex; align-items: center; margin-right: 20px; padding-left: 20px; overflow-x: auto; max-width: 80%; }
+        .footer__questionNo___3WNct { background: none; border: none; padding: 10px 15px; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+        .footer__subquestionWrapper___9GgoP { display: flex; gap: 5px; margin-left: 10px; flex-wrap: nowrap; }
+        
+        .subQuestion { width: 36px; height: 36px; border: 1px solid #ccc; background: white; color: #333; font-size: 14px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: all 0.2s; flex-shrink: 0; }
+        .subQuestion:hover { background-color: #f0f0f0; }
+        .subQuestion.active { background-color: #4a90e2; color: white; border-color: #4a90e2; }
+        .subQuestion.correct { background-color: #28a745; color: white; border-color: #28a745; }
+        .subQuestion.incorrect { background-color: #dc3545; color: white; border-color: #dc3545; }
+        .subQuestion.answered { background-color: #e9ecef; border-color: #bbb; }
+        
+        .footer__deliverButton___3FM07 { margin-left: auto; margin-right: 20px; background-color: #4a90e2; color: #fff; border: none; padding: 12px 24px; border-radius: 4px; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+        .footer__deliverButton___3FM07:hover { background-color: #357abd; }
+        .hidden { display: none !important; }
+        
+        /* Modal Styles */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); z-index: 2000; display: flex; justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 30px; border-radius: 8px; width: 90%; max-width: 500px; text-align: center; position: relative; }
+        .modal-close-btn { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 28px; cursor: pointer; color: #888; }
+        .results-summary { font-size: 20px; font-weight: bold; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+        .correct-answer-display { color: #28a745; font-weight: bold; margin-left: 5px; font-size: 14px; background: #d4edda; padding: 0 4px; border-radius: 3px; }
+        
+        /* Highlighting */
+        .highlight { background-color: #ffff00; }
+        .context-menu { position: absolute; background: white; border: 1px solid #ccc; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; display: none; min-width: 140px; }
+        .context-menu-item { padding: 12px 16px; cursor: pointer; font-size: 16px; border-bottom: 1px solid #f0f0f0; }
+        .context-menu-item:hover { background-color: #f8f9fa; }
+        
+        /* Summary styles */
+        .summary-title { font-weight: bold; font-size: 18px; margin-bottom: 15px; text-align: center; color: #333; }
+        .summary-text { line-height: 2.2; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="timer-container">
+            <span class="timer-display">20:00</span>
+            <div class="timer-controls">
+                <button id="timer-toggle-btn" title="Pause/Resume Timer">||</button>
+                <button id="timer-reset-btn" title="Reset Timer">↺</button>
+            </div>
+        </div>
+        <div style="font-weight: bold; color: #4a90e2;">Đình Phước Edu</div>
+    </div>
+
+    <div class="main-container">
+        <div id="passage-header-container">
+            <div id="part-header-1" class="part-header">
+                <p><strong>The robots are coming</strong></p>
+                <p>Read the text and answer questions 1-13.</p>
+            </div>
+        </div>
+        
+        <div class="panels-container">
+            <div class="passage-panel" id="passage-panel">
+                <div id="passage-text-1" class="reading-passage">
+                    <h4 class="text-center">The robots are coming</h4>
+                    <p style="text-align: center; font-style: italic; margin-bottom: 20px;">What is the current state of play in Artificial Intelligence?</p>
+                    
+                    <p><strong>A.</strong> Can robots advance so far that they become the ultimate threat to our existence? Some scientists say no, and dismiss the very idea of Artificial Intelligence. The human brain, they argue, is the most complicated system ever created, and any machine designed to reproduce human thought is bound to fail. Physicist Roger Penrose of Oxford University and others believe that machines are physically incapable of human thought. Colin McGinn of Rutgers University backs this up when he says that Artificial Intelligence ‘is like sheep trying to do complicated psychoanalysis. They just don’t have the conceptual equipment they need in their limited brains’.</p>
+                    <p><strong>B.</strong> Artificial Intelligence, or AI, is different from most technologies in that scientists still understand very little about how intelligence works. Physicists have a good understanding of Newtonian mechanics and the quantum theory of atoms and molecules, whereas the basic laws of intelligence remain a mystery. But a sizable number of mathematicians and computer scientists, who are specialists in the area, are optimistic about the possibilities. To them it is only a matter of time before a thinking machine walks out of the laboratory. Over the years, various problems have impeded all efforts to create robots. To attack these difficulties, researchers tried to use the ‘top-down approach’, using a computer in an attempt to program all the essential rules onto a single disc. By inserting this into a machine, it would then become self-aware and attain human-like intelligence.</p>
+                    <p><strong>C.</strong> In the 1950s and 1960s great progress was made, but the shortcomings of these prototype robots soon became clear. They were huge and took hours to navigate across a room. Meanwhile, a fruit fly, with a brain containing only a fraction of the computing power, can effortlessly navigate in three dimensions. Our brains, like the fruit fly’s, unconsciously recognize what we see by performing countless calculations. This unconscious awareness of patterns is exactly what computers are missing. The second problem is robots’ lack of common sense. Humans know that water is wet and that mothers are older than their daughters. But there is no mathematics that can express these truths. Children learn the intuitive laws of biology and physics by interacting with the real world. Robots know only what has been programmed into them.</p>
+                    <p><strong>D.</strong> Because of the limitations of the top-down approach to Artificial Intelligence, attempts have been made to use a ‘bottom-up’ approach instead – that is, to try to imitate evolution and the way a baby learns. Rodney Brooks was the director of MIT’s Artificial Intelligence laboratory, famous for its lumbering ‘top-down’ walking robots. He changed the course of research when he explored the unorthodox idea of tiny ‘insectoid’ robots that learned to walk by bumping into things instead of computing mathematically the precise position of their feet. Today many of the descendants of Brooks’ insectoid robots are on Mars gathering data for NASA (The National Aeronautics and Space Administration), running across the dusty landscape of the planet. For all their successes in mimicking the behavior of insects, however, robots using neural networks have performed miserably when their programmers have tried to duplicate in them the behavior of higher organisms such as mammals. MIT’s Marvin Minsky summarises the problems of AI: ‘The history of AI is sort of funny because the first real accomplishments were beautiful things, like a machine that could do well in a maths course. But then we started to try to make machines that could answer questions about simple children’s stories. There’s no machine today that can do that.</p>
+                    <p><strong>E.</strong> There are people who believe that eventually there will be a combination between the top-down and bottom-up, which may provide the key to Artificial Intelligence. As adults, we blend the two approaches. It has been suggested that our emotions represent the quality that most distinguishes us as human, that it is impossible for machines ever to have emotions. Computer expert Hans Moravec thinks that in the future robots will be programmed with emotions such as fear to protect themselves so that they can signal to humans when their batteries are running low, for example. Emotions are vital in decision-making. People who have suffered a certain kind of brain injury lose the ability to experience emotions and become unable to make decisions. Without emotions to guide them, they debate endlessly over their options. Moravec points out that as robots become more intelligent and are able to make choices, they could likewise become paralysed with indecision. To aid them, robots of the future might need to have emotions hardwired into their brains.</p>
+                    <p><strong>F.</strong> There is no universal consensus as to whether machines can be conscious, or even, in human terms, what consciousness means. Minsky suggests the thinking process in our brain is not localised but spread out, with different centres competing with one another at any given time. Consciousness may then be viewed as a sequence of thoughts and images issuing from these different, smaller ‘minds’, each one competing for our attention. Robots might eventually attain a ‘silicon consciousness’. Robots, in fact, might one day embody an architecture for thinking and processing information that is different from ours – but also indistinguishable. If that happens, the question of whether they really ‘understand’ becomes largely irrelevant. A robot that has perfect mastery of syntax, for all practical purposes, understands what is being said.</p>
+                </div>
+            </div>
+            
+            <div class="resizer" id="resizer"></div>
+            
+            <div class="questions-panel" id="questions-panel">
+                <div id="questions-1" class="question-set">
+                    <div class="questions-container">
+                        
+                        <!-- Questions 1-7 -->
+                        <div class="question" data-q-start="1" data-q-end="7">
+                            <div class="question-prompt">
+                                <p><strong>Questions 1-7</strong></p>
+                                <p>Reading Passage has six paragraphs <strong>A-F</strong>.</p>
+                                <p>Which paragraph contains the following information?</p>
+                                <p>Write the correct letter <strong>A-F</strong> in boxes 1-7. <em>NB You may use any letter more than once.</em></p>
+                            </div>
+
+                            <div class="question-list">
+                                <div class="question-item">
+                                    <div class="question-text"><strong>1.</strong> An insect that proves the superiority of natural intelligence over Artificial Intelligence</div>
+                                    <select class="answer-input" id="q1">
+                                        <option value=""></option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option>
+                                    </select>
+                                </div>
+                                <div class="question-item">
+                                    <div class="question-text"><strong>2.</strong> Robots being able to benefit from their mistakes</div>
+                                    <select class="answer-input" id="q2">
+                                        <option value=""></option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option>
+                                    </select>
+                                </div>
+                                <div class="question-item">
+                                    <div class="question-text"><strong>3.</strong> Many researchers not being put off believing that Artificial Intelligence will eventually be developed</div>
+                                    <select class="answer-input" id="q3">
+                                        <option value=""></option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option>
+                                    </select>
+                                </div>
+                                <div class="question-item">
+                                    <div class="question-text"><strong>4.</strong> An innovative approach that is having limited success</div>
+                                    <select class="answer-input" id="q4">
+                                        <option value=""></option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option>
+                                    </select>
+                                </div>
+                                <div class="question-item">
+                                    <div class="question-text"><strong>5.</strong> The possibility of creating Artificial Intelligence being doubted by some academics</div>
+                                    <select class="answer-input" id="q5">
+                                        <option value=""></option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option>
+                                    </select>
+                                </div>
+                                <div class="question-item">
+                                    <div class="question-text"><strong>6.</strong> No generally accepted agreement of what our brains do</div>
+                                    <select class="answer-input" id="q6">
+                                        <option value=""></option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option>
+                                    </select>
+                                </div>
+                                <div class="question-item">
+                                    <div class="question-text"><strong>7.</strong> Robots not being able to extend the intelligence in the same way as humans</div>
+                                    <select class="answer-input" id="q7">
+                                        <option value=""></option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Questions 8-10 -->
+                        <div class="question" data-q-start="8" data-q-end="10">
+                            <div class="question-prompt">
+                                <p><strong>Questions 8-10</strong></p>
+                                <p>Look at the following people and the list of statements below. Match each person with the correct statement <strong>A-E</strong>.</p>
+                            </div>
+
+                            <div class="example-box">
+                                <p><strong>List of Findings</strong></p>
+                                <ul class="option-list">
+                                    <li><strong>A.</strong> Artificial Intelligence may require something equivalent to feelings in order to succeed.</li>
+                                    <li><strong>B.</strong> Different kinds of people use different parts of the brain.</li>
+                                    <li><strong>C.</strong> Tests involving fiction have defeated Artificial Intelligence so far.</li>
+                                    <li><strong>D.</strong> People have intellectual capacities which do not exist in computers.</li>
+                                    <li><strong>E.</strong> People have no reason to be frightened of robots.</li>
+                                </ul>
+                            </div>
+
+                            <div class="question-list">
+                                <div class="question-item">
+                                    <div class="question-text"><strong>8.</strong> Colin McGinn</div>
+                                    <select class="answer-input" id="q8">
+                                        <option value=""></option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option>
+                                    </select>
+                                </div>
+                                <div class="question-item">
+                                    <div class="question-text"><strong>9.</strong> Marvin Minsky</div>
+                                    <select class="answer-input" id="q9">
+                                        <option value=""></option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option>
+                                    </select>
+                                </div>
+                                <div class="question-item">
+                                    <div class="question-text"><strong>10.</strong> Hans Moravec</div>
+                                    <select class="answer-input" id="q10">
+                                        <option value=""></option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Questions 11-13 -->
+                        <div class="question" data-q-start="11" data-q-end="13">
+                            <div class="question-prompt">
+                                <p><strong>Questions 11-13</strong></p>
+                                <p>Complete the summary below.</p>
+                                <p>Choose <strong>ONE WORD ONLY</strong> from the passage for each answer.</p>
+                            </div>
+
+                            <div class="summary-completion-container">
+                                <h3 class="summary-title">When will we have a thinking machine?</h3>
+                                <div class="summary-text">
+                                    <p>Despite some advances, the early robots had certain weaknesses. They were given the information they needed on a 
+                                    <input type="text" class="answer-input" id="q11" autocomplete="off">
+                                    . This was known as the 'top-down' approach and enabled them to do certain tasks but they were unable to recognise 
+                                    <input type="text" class="answer-input" id="q12" autocomplete="off">
+                                    nor did they have any intuition or ability to make decisions based on experience. Rodney Brooks tried a different approach. Robots similar to those invented by Brooks are to be found on 
+                                    <input type="text" class="answer-input" id="q13" autocomplete="off">
+                                    where they are collecting information.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="nav-row" aria-label="Questions">
+        <div class="footer__questionWrapper___1tZ46 selected" role="tablist">
+            <button role="tab" class="footer__questionNo___3WNct">
+                <span>
+                    <span aria-hidden="true" class="section-prefix">Questions </span>
+                    <span class="sectionNr" aria-hidden="true">1-13</span>
+                    <span class="attemptedCount" aria-hidden="true">0 of 13</span>
+                </span>
+            </button>
+            <div class="footer__subquestionWrapper___9GgoP">
+                <button class="subQuestion scorable-item" onclick="goToQuestion(1)">1</button>
+                <button class="subQuestion scorable-item" onclick="goToQuestion(2)">2</button>
+                <button class="subQuestion scorable-item" onclick="goToQuestion(3)">3</button>
+                <button class="subQuestion scorable-item" onclick="goToQuestion(4)">4</button>
+                <button class="subQuestion scorable-item" onclick="goToQuestion(5)">5</button>
+                <button class="subQuestion scorable-item" onclick="goToQuestion(6)">6</button>
+                <button class="subQuestion scorable-item" onclick="goToQuestion(7)">7</button>
+                <button class="subQuestion scorable-item" onclick="goToQuestion(8)">8</button>
+                <button class="subQuestion scorable-item" onclick="goToQuestion(9)">9</button>
+                <button class="subQuestion scorable-item" onclick="goToQuestion(10)">10</button>
+                <button class="subQuestion scorable-item" onclick="goToQuestion(11)">11</button>
+                <button class="subQuestion scorable-item" onclick="goToQuestion(12)">12</button>
+                <button class="subQuestion scorable-item" onclick="goToQuestion(13)">13</button>
+            </div>
+        </div>
+        
+        <button id="deliver-button" aria-label="Review your answers" class="footer__deliverButton___3FM07">
+            <span>Check Answers</span>
+        </button>
+    </nav>
+
+    <!-- Context Menu -->
+    <div id="contextMenu" class="context-menu">
+        <div id="menu-highlight" class="context-menu-item" onclick="highlightText()">Highlight</div>
+        <div id="menu-clear" class="context-menu-item" onclick="clearHighlight()">Clear</div>
+    </div>
+
+    <!-- Results Modal -->
+    <div id="results-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeResultsModal()">&times;</button>
+            <h2>Results</h2>
+            <div class="results-summary">
+                <p>Score: <span id="results-score"></span> / 13</p>
+            </div>
+            <div id="results-details" style="text-align: left; max-height: 300px; overflow-y: auto;"></div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- CONFIGURATION ---
+        // Q1: Insect -> Para C (fruit fly)
+        // Q2: Robots benefit from mistakes -> Para D (learned by bumping into things)
+        // Q3: Researchers not put off -> Para B (optimistic)
+        // Q4: Innovative approach limited success -> Para D (Neural networks failed high organisms)
+        // Q5: Doubted by academics -> Para A (Penrose, McGinn)
+        // Q6: No agreement on brain -> Para F (No universal consensus)
+        // Q7: Robots not extend intelligence -> Para C (Know only what programmed)
+        
+        // Q8: McGinn -> D (Intellectual capacities not in computers - sheep/psychoanalysis)
+        // Q9: Minsky -> C (Tests involving fiction - children's stories)
+        // Q10: Moravec -> A (Require feelings/emotions)
+
+        // Q11: disc (single disc)
+        // Q12: patterns (unconscious awareness of patterns)
+        // Q13: Mars (descendants on Mars)
+        const correctAnswers = {
+            '1': 'C',
+            '2': 'D',
+            '3': 'B',
+            '4': 'D',
+            '5': 'A',
+            '6': 'F',
+            '7': 'C',
+            '8': 'D',
+            '9': 'C',
+            '10': 'A',
+            '11': 'disc',
+            '12': 'patterns',
+            '13': 'Mars'
+        };
+
+        const questionIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
+        let timeInSeconds = 1200; // 20 mins
+        let timerInterval;
+        let selectedRange = null;
+
+        // --- ELEMENTS ---
+        const timerDisplay = document.querySelector('.timer-display');
+        const deliverButton = document.getElementById('deliver-button');
+        const resizer = document.getElementById('resizer');
+        const passagePanel = document.getElementById('passage-panel');
+        const contextMenu = document.getElementById('contextMenu');
+
+        // --- INITIALIZATION ---
+        function initialize() {
+            startTimer();
+            
+            // Listeners
+            deliverButton.addEventListener('click', checkAnswers);
+            document.body.addEventListener('change', updateIndicators);
+            document.body.addEventListener('input', updateIndicators); // For text inputs
+            
+            // Security
+            document.addEventListener("keydown", function (e) {
+                if (
+                    e.key === "F12" ||
+                    (e.ctrlKey && e.shiftKey && e.key === "I") ||
+                    (e.ctrlKey && e.shiftKey && e.key === "J") ||
+                    (e.ctrlKey && e.shiftKey && e.key === "C") ||
+                    (e.ctrlKey && e.key === "u") ||
+                    (e.ctrlKey && e.key === "p") ||
+                    (e.ctrlKey && e.key === "s")
+                ) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+
+            // Resizer logic
+            resizer.addEventListener('mousedown', initResize, false);
+            
+            // Context menu logic
+            initializeContextMenu();
+        }
+
+        // --- CORE LOGIC ---
+        function checkAnswers() {
+            clearInterval(timerInterval);
+            let score = 0;
+            const resultsContainer = document.getElementById('results-details');
+            resultsContainer.innerHTML = '';
+            
+            // Disable inputs
+            document.querySelectorAll('.answer-input').forEach(input => input.disabled = true);
+            deliverButton.disabled = true;
+            deliverButton.textContent = "Checked";
+
+            questionIds.forEach(id => {
+                const input = document.getElementById(`q${id}`);
+                const userAnswer = input.value.trim().toLowerCase();
+                const correctAnswer = correctAnswers[id].toLowerCase();
+                const isCorrect = userAnswer === correctAnswer;
+                
+                if (isCorrect) {
+                    score++;
+                    input.classList.add('correct');
+                    // Mark nav button
+                    document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`).classList.add('correct');
+                } else {
+                    input.classList.add('incorrect');
+                    // Show correct answer
+                    const span = document.createElement('span');
+                    span.className = 'correct-answer-display';
+                    span.textContent = `✓ ${correctAnswers[id]}`;
+                    input.parentNode.insertBefore(span, input.nextSibling);
+                    // Mark nav button
+                    document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`).classList.add('incorrect');
+                }
+            });
+
+            // Show Modal
+            document.getElementById('results-score').textContent = score;
+            document.getElementById('results-modal').classList.remove('hidden');
+        }
+
+        function updateIndicators() {
+            let answered = 0;
+            questionIds.forEach(id => {
+                const val = document.getElementById(`q${id}`).value.trim();
+                const btn = document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`);
+                if(val.length > 0) {
+                    answered++;
+                    btn.classList.add('answered');
+                } else {
+                    btn.classList.remove('answered');
+                }
+            });
+            document.querySelector('.attemptedCount').textContent = `${answered} of ${questionIds.length}`;
+        }
+
+        window.goToQuestion = (id) => {
+            const el = document.getElementById(`q${id}`);
+            if(el) {
+                el.scrollIntoView({behavior: 'smooth', block: 'center'});
+                document.querySelectorAll('.active-input').forEach(e => e.classList.remove('active-input'));
+                el.classList.add('active-input');
+                el.focus();
+                
+                // Update nav active state
+                document.querySelectorAll('.subQuestion').forEach(b => b.classList.remove('active'));
+                document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`).classList.add('active');
+            }
+        };
+
+        window.closeResultsModal = () => {
+            document.getElementById('results-modal').classList.add('hidden');
+        }
+
+        // --- UTILS (Timer, Resizer, Highlight) ---
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeInSeconds--;
+                const m = Math.floor(timeInSeconds / 60).toString().padStart(2,'0');
+                const s = (timeInSeconds % 60).toString().padStart(2,'0');
+                timerDisplay.textContent = `${m}:${s}`;
+                if(timeInSeconds <= 0) clearInterval(timerInterval);
+            }, 1000);
+        }
+
+        function initResize(e) {
+            e.preventDefault();
+            const startX = e.clientX;
+            const startWidth = passagePanel.offsetWidth;
+            const doDrag = (e) => {
+                passagePanel.style.flex = `0 0 ${startWidth + e.clientX - startX}px`;
+            };
+            const stopDrag = () => {
+                window.removeEventListener('mousemove', doDrag);
+                window.removeEventListener('mouseup', stopDrag);
+            };
+            window.addEventListener('mousemove', doDrag);
+            window.addEventListener('mouseup', stopDrag);
+        }
+
+        function initializeContextMenu() {
+            document.addEventListener('selectionchange', () => {
+                const sel = window.getSelection();
+                if(sel.toString().length > 0) selectedRange = sel.getRangeAt(0);
+            });
+            
+            document.addEventListener('contextmenu', (e) => {
+                if(e.target.closest('.passage-panel') || e.target.closest('.questions-panel')) {
+                    e.preventDefault();
+                    contextMenu.style.display = 'block';
+                    contextMenu.style.left = `${e.pageX}px`;
+                    contextMenu.style.top = `${e.pageY}px`;
+                }
+            });
+
+            document.addEventListener('click', (e) => {
+                if(!contextMenu.contains(e.target)) contextMenu.style.display = 'none';
+            });
+        }
+
+        window.highlightText = () => {
+            if(selectedRange) {
+                const span = document.createElement('span');
+                span.className = 'highlight';
+                span.appendChild(selectedRange.extractContents());
+                selectedRange.insertNode(span);
+            }
+            contextMenu.style.display = 'none';
+        };
+
+        window.clearHighlight = () => {
+             const highlights = document.querySelectorAll('.highlight');
+             highlights.forEach(h => {
+                 const parent = h.parentNode;
+                 while(h.firstChild) parent.insertBefore(h.firstChild, h);
+                 parent.removeChild(h);
+             });
+             contextMenu.style.display = 'none';
+        };
+
+        initialize();
+    });
+    </script>
+</body>
+</html>
