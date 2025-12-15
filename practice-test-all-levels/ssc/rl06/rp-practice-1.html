@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@600&display=swap" rel="stylesheet">
-    <title>Practice exercise 1 SSC6: How To Make Wise Decisions</title>
+    <title>Practice exercise 1: How To Make Wise Decisions</title>
     <style>
         /* All CSS styles remain exactly the same as in the original code */
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -20,7 +20,7 @@
         .resizer { width: 10px; cursor: col-resize; background-color: #f0f0f0; flex-shrink: 0; flex-grow: 0; background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="30" viewBox="0 0 10 30"><path d="M4 11h2v2H4zM4 15h2v2H4zM4 19h2v2H4z" fill="%23888"/></svg>'); background-repeat: no-repeat; background-position: center; }
         .question-number { background: white; border: 1px solid #4a90e2; padding: 4px 8px; border-radius: 3px; font-weight: bold; font-size: 14px; color: #4a90e2; min-width: 30px; text-align: center; }
         .question-prompt { margin-bottom: 20px; background: #f9f9f9; padding: 15px; border-radius: 5px; border-left: 4px solid #4a90e2; }
-        .answer-input { border: 1px solid #888; border-radius: 4px; background-color: #fff; padding: 2px 5px; font-size: 16px; text-align: center; margin: 0 4px; transition: border-color 0.3s, box-shadow 0.3s; height: 30px; width: 60px; display: inline-block; }
+        .answer-input { border: 1px solid #888; border-radius: 4px; background-color: #fff; padding: 2px 5px; font-size: 16px; text-align: center; margin: 0 4px; transition: border-color 0.3s, box-shadow 0.3s; height: 30px; width: 60px; display: inline-block; cursor: pointer; }
         .answer-input.active-input { border-color: #4a90e2; box-shadow: 0 0 3px 1px rgba(74, 144, 226, 0.5); }
         .answer-input.correct { border-color: #28a745; background-color: #e9f7ef; color: #155724; font-weight: bold; }
         .answer-input.incorrect { border-color: #dc3545; background-color: #f8d7da; color: #721c24; }
@@ -49,12 +49,24 @@
         .options-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin-top: 10px; }
         .option-item { background: white; padding: 5px 10px; border: 1px solid #ddd; border-radius: 3px; font-size: 14px; }
         
+        /* Explanation Button Styles */
+        .explanation-btn { font-size: 12px; background-color: #e9ecef; color: #333; padding: 2px 6px; border-radius: 4px; cursor: pointer; margin-left: 5px; border: 1px solid #ccc; display: none; vertical-align: middle; }
+        .explanation-btn:hover { background-color: #dbe0e5; }
+        .show-explanation .explanation-btn { display: inline-block; }
+
         /* Modal Styles */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); z-index: 2000; display: flex; justify-content: center; align-items: center; }
-        .modal-content { background: white; padding: 30px; border-radius: 8px; width: 90%; max-width: 500px; text-align: center; position: relative; }
+        .modal-content { background: white; padding: 30px; border-radius: 8px; width: 90%; max-width: 600px; text-align: center; position: relative; max-height: 80vh; overflow-y: auto; }
         .modal-close-btn { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 28px; cursor: pointer; color: #888; }
         .results-summary { font-size: 20px; font-weight: bold; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
         .correct-answer-display { color: #28a745; font-weight: bold; margin-left: 5px; font-size: 14px; background: #d4edda; padding: 0 4px; border-radius: 3px; }
+        .result-row { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; }
+        .result-row:hover { background-color: #f9f9f9; }
+
+        /* Explanation content styles */
+        .explanation-content { text-align: left; line-height: 1.6; font-size: 15px; color: #333; }
+        .explanation-title { font-weight: bold; font-size: 18px; margin-bottom: 10px; color: #4a90e2; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .keyword-highlight { font-weight: bold; color: #d63384; }
         
         /* Highlighting */
         .highlight { background-color: #ffff00; }
@@ -127,25 +139,30 @@
                                     <p>Igor Grossmann and colleagues have established four characteristics which enable us to make wise decisions. It is important to have a certain degree of 
                                     <select class="answer-input" id="q31">
                                         <option value=""></option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="G">G</option><option value="H">H</option><option value="I">I</option><option value="J">J</option>
-                                    </select> 
+                                    </select>
+                                    <span class="explanation-btn" onclick="showExplanation(31)">ℹ️ Xem giải thích</span>
                                     regarding the extent of our knowledge, and to take into account 
                                     <select class="answer-input" id="q32">
                                         <option value=""></option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="G">G</option><option value="H">H</option><option value="I">I</option><option value="J">J</option>
                                     </select>
+                                    <span class="explanation-btn" onclick="showExplanation(32)">ℹ️ Xem giải thích</span>
                                     which may not be the same as our own. We should also be able to take a broad 
                                     <select class="answer-input" id="q33">
                                         <option value=""></option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="G">G</option><option value="H">H</option><option value="I">I</option><option value="J">J</option>
                                     </select>
+                                    <span class="explanation-btn" onclick="showExplanation(33)">ℹ️ Xem giải thích</span>
                                     of any situation. Another key characteristic is being aware of the likelihood of alterations in the way that people relate to each other.</p>
                                     
                                     <p>Grossmann also believes that it is better to regard scenarios with 
                                     <select class="answer-input" id="q34">
                                         <option value=""></option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="G">G</option><option value="H">H</option><option value="I">I</option><option value="J">J</option>
                                     </select>
+                                    <span class="explanation-btn" onclick="showExplanation(34)">ℹ️ Xem giải thích</span>
                                     . By avoiding the first-person perspective, we focus more on 
                                     <select class="answer-input" id="q35">
                                         <option value=""></option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="G">G</option><option value="H">H</option><option value="I">I</option><option value="J">J</option>
                                     </select>
+                                    <span class="explanation-btn" onclick="showExplanation(35)">ℹ️ Xem giải thích</span>
                                     and on other moral ideals, which in turn leads to wiser decision-making.</p>
                                 </div>
                             </div>
@@ -194,14 +211,22 @@
             <div class="results-summary">
                 <p>Score: <span id="results-score"></span> / 5</p>
             </div>
+            <p style="margin-bottom: 10px; font-size: 14px; color: #666;">Click on a row to see the explanation.</p>
             <div id="results-details" style="text-align: left; max-height: 300px; overflow-y: auto;"></div>
+        </div>
+    </div>
+
+    <!-- Explanation Modal -->
+    <div id="explanation-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeExplanationModal()">&times;</button>
+            <div id="explanation-content" class="explanation-content"></div>
         </div>
     </div>
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         // --- CONFIGURATION ---
-        // Mapping Correct Answers for Questions 31-35
         // 31: humility/recognition limits -> D (modesty)
         // 32: perspectives -> A (opinions)
         // 33: expansive viewpoint -> C (view)
@@ -213,6 +238,44 @@
             '33': 'C',
             '34': 'F',
             '35': 'G'
+        };
+
+        const explanations = {
+            '31': `
+                <div class="explanation-title">Question 31: important to have a certain degree of [modesty] regarding the extent of our knowledge...</div>
+                <p><strong>Keywords:</strong> intellectual humility, recognition, limits of knowledge</p>
+                <p>In the text: "One is <span class="keyword-highlight">intellectual humility or recognition of the limits of our own knowledge</span>..."</p>
+                <p>The phrase "intellectual humility" refers to having modesty regarding what we know.</p>
+                <p>So, the answer is: <strong>D (modesty)</strong></p>
+            `,
+            '32': `
+                <div class="explanation-title">Question 32: take into account [opinions] which may not be the same as our own...</div>
+                <p><strong>Keywords:</strong> appreciation, perspectives, wider</p>
+                <p>In the text: "...and another is <span class="keyword-highlight">appreciation of perspectives wider than the issue at hand</span>."</p>
+                <p>"Perspectives" is synonymous with "opinions" or "views". In the context of options provided, "opinions" fits well.</p>
+                <p>So, the answer is: <strong>A (opinions)</strong></p>
+            `,
+            '33': `
+                <div class="explanation-title">Question 33: take a broad [view] of any situation...</div>
+                <p><strong>Keywords:</strong> broad, viewpoint, expansive</p>
+                <p>In the text: "...when we adopt a third-person, ‘observer’ viewpoint we <span class="keyword-highlight">reason more broadly</span>... Looking at problems from this <span class="keyword-highlight">more expansive viewpoint</span>..."</p>
+                <p>The text refers to an "expansive viewpoint", which corresponds to a "broad view".</p>
+                <p>So, the answer is: <strong>C (view)</strong></p>
+            `,
+            '34': `
+                <div class="explanation-title">Question 34: regard scenarios with [objectivity]...</div>
+                <p><strong>Keywords:</strong> third-party perspective, observer viewpoint</p>
+                <p>In the text: "...look at scenarios from a <span class="keyword-highlight">third-party perspective</span>, as though giving advice to a friend... adopt a third-person, <span class="keyword-highlight">‘observer’ viewpoint</span>..."</p>
+                <p>Adopting a third-party or observer perspective allows for "objectivity" (viewing things without personal bias).</p>
+                <p>So, the answer is: <strong>F (objectivity)</strong></p>
+            `,
+            '35': `
+                <div class="explanation-title">Question 35: focus more on [fairness] and on other moral ideals...</div>
+                <p><strong>Keywords:</strong> interpersonal, moral ideals, justice, impartiality</p>
+                <p>In the text: "...focus more on interpersonal and moral ideals such as <span class="keyword-highlight">justice and impartiality</span>."</p>
+                <p>"Justice and impartiality" are synonyms for "fairness".</p>
+                <p>So, the answer is: <strong>G (fairness)</strong></p>
+            `
         };
 
         const questionIds = [31, 32, 33, 34, 35];
@@ -268,6 +331,9 @@
             document.querySelectorAll('.answer-input').forEach(input => input.disabled = true);
             deliverButton.disabled = true;
             deliverButton.textContent = "Checked";
+            
+            // Enable explanation buttons
+            document.querySelector('.questions-panel').classList.add('show-explanation');
 
             questionIds.forEach(id => {
                 const input = document.getElementById(`q${id}`);
@@ -290,6 +356,17 @@
                     // Mark nav button
                     document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`).classList.add('incorrect');
                 }
+
+                // Add to results modal list
+                const row = document.createElement('div');
+                row.className = 'result-row';
+                row.innerHTML = `
+                    <span style="font-weight:bold;">Q${id}</span>
+                    <span>Your Answer: <span style="color:${isCorrect ? 'green' : 'red'}">${userAnswer || 'None'}</span></span>
+                    <span style="color:green; font-weight:bold;">Correct: ${correctAnswer}</span>
+                `;
+                row.onclick = () => showExplanation(id);
+                resultsContainer.appendChild(row);
             });
 
             // Show Modal
@@ -327,6 +404,18 @@
 
         window.closeResultsModal = () => {
             document.getElementById('results-modal').classList.add('hidden');
+        }
+
+        window.showExplanation = (id) => {
+            const content = explanations[id];
+            if (content) {
+                document.getElementById('explanation-content').innerHTML = content;
+                document.getElementById('explanation-modal').classList.remove('hidden');
+            }
+        };
+
+        window.closeExplanationModal = () => {
+            document.getElementById('explanation-modal').classList.add('hidden');
         }
 
         // --- UTILS (Timer, Resizer, Highlight) ---

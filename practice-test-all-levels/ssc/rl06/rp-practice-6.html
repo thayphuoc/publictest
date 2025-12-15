@@ -52,13 +52,23 @@
         
         .question-item { margin-bottom: 20px; display: flex; align-items: baseline; justify-content: space-between; gap: 10px; border-bottom: 1px dashed #eee; padding-bottom: 10px;}
         .question-text { flex: 1; font-weight: 500;}
+        .explanation-btn { font-size: 12px; background-color: #e9ecef; color: #333; padding: 2px 6px; border-radius: 4px; cursor: pointer; margin-left: 10px; border: 1px solid #ccc; display: none; }
+        .explanation-btn:hover { background-color: #dbe0e5; }
+        .show-explanation .explanation-btn { display: inline-block; }
         
         /* Modal Styles */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); z-index: 2000; display: flex; justify-content: center; align-items: center; }
-        .modal-content { background: white; padding: 30px; border-radius: 8px; width: 90%; max-width: 500px; text-align: center; position: relative; }
+        .modal-content { background: white; padding: 30px; border-radius: 8px; width: 90%; max-width: 600px; text-align: center; position: relative; max-height: 80vh; overflow-y: auto; }
         .modal-close-btn { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 28px; cursor: pointer; color: #888; }
         .results-summary { font-size: 20px; font-weight: bold; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
         .correct-answer-display { color: #28a745; font-weight: bold; margin-left: 5px; font-size: 14px; background: #d4edda; padding: 0 4px; border-radius: 3px; }
+        .result-row { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; }
+        .result-row:hover { background-color: #f9f9f9; }
+
+        /* Explanation content styles */
+        .explanation-content { text-align: left; line-height: 1.6; font-size: 15px; color: #333; }
+        .explanation-title { font-weight: bold; font-size: 18px; margin-bottom: 10px; color: #4a90e2; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .keyword-highlight { font-weight: bold; color: #d63384; }
         
         /* Highlighting */
         .highlight { background-color: #ffff00; }
@@ -124,7 +134,7 @@
                                     <li><strong>A</strong> show no music-brain disorders.</li>
                                     <li><strong>B</strong> indicates that medication can have varied results.</li>
                                     <li><strong>C</strong> is key for the neurological community to unravel the mysteries.</li>
-                                    <li><strong>D</strong> should not be used in isolation.</li>
+                                    <li><strong>D</strong> should not be used in Isolation.</li>
                                     <li><strong>E</strong> indicate that not everyone can receive good education.</li>
                                     <li><strong>F</strong> show a misconception that there is function centre localized in the brain.</li>
                                 </ul>
@@ -132,28 +142,32 @@
 
                             <div class="question-list">
                                 <div class="question-item">
-                                    <div class="question-text"><strong>37.</strong> The content covered dissociations in understanding between harmony and melody</div>
+                                    <div class="question-text"><strong>37.</strong> The content covered dissociations in understanding between harmony and melody.</div>
                                     <select class="answer-input" id="q37">
                                         <option value=""></option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option>
                                     </select>
+                                    <span class="explanation-btn" onclick="showExplanation(37)">ℹ️ Xem giải thích</span>
                                 </div>
                                 <div class="question-item">
-                                    <div class="question-text"><strong>38.</strong> The study of treating musical disorders</div>
+                                    <div class="question-text"><strong>38.</strong> The study of treating musical disorders.</div>
                                     <select class="answer-input" id="q38">
                                         <option value=""></option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option>
                                     </select>
+                                    <span class="explanation-btn" onclick="showExplanation(38)">ℹ️ Xem giải thích</span>
                                 </div>
                                 <div class="question-item">
-                                    <div class="question-text"><strong>39.</strong> The EEG scans of Sacks’s patients</div>
+                                    <div class="question-text"><strong>39.</strong> The EEG scans of Sacks’s patients.</div>
                                     <select class="answer-input" id="q39">
                                         <option value=""></option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option>
                                     </select>
+                                    <span class="explanation-btn" onclick="showExplanation(39)">ℹ️ Xem giải thích</span>
                                 </div>
                                 <div class="question-item">
-                                    <div class="question-text"><strong>40.</strong> Sacks believes testing based on new technologies</div>
+                                    <div class="question-text"><strong>40.</strong> Sacks believes testing based on new technologies.</div>
                                     <select class="answer-input" id="q40">
                                         <option value=""></option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option>
                                     </select>
+                                    <span class="explanation-btn" onclick="showExplanation(40)">ℹ️ Xem giải thích</span>
                                 </div>
                             </div>
                         </div>
@@ -200,22 +214,58 @@
             <div class="results-summary">
                 <p>Score: <span id="results-score"></span> / 4</p>
             </div>
-            <div id="results-details" style="text-align: left; max-height: 300px; overflow-y: auto;"></div>
+            <p style="margin-bottom: 10px; font-size: 14px; color: #666;">Click on a row to see the explanation.</p>
+            <div id="results-details" style="text-align: left;"></div>
+        </div>
+    </div>
+
+    <!-- Explanation Modal -->
+    <div id="explanation-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeExplanationModal()">&times;</button>
+            <div id="explanation-content" class="explanation-content"></div>
         </div>
     </div>
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         // --- CONFIGURATION ---
-        // 37. dissociations... indicate no music center in brain -> F (misconception of localized center)
-        // 38. treating musical disorders... medications effectiveness varies widely -> B (varied results)
-        // 39. EEG scans of patients... reported to have "normal" results -> A (show no music-brain disorders)
-        // 40. testing based on new technologies... fear "simple art of observation may be lost"... calls for both -> D (should not be used in Isolation)
         const correctAnswers = {
             '37': 'F',
             '38': 'B',
             '39': 'A',
             '40': 'D'
+        };
+
+        const explanations = {
+            '37': `
+                <div class="explanation-title">Question 37: The content covered dissociations in understanding between harmony and melody...</div>
+                <p><strong>Keywords:</strong> dissociations, understanding, harmony, melody</p>
+                <p>Paragraph H mentions: "For example, he might have noted that the many specific dissociations among components of music comprehension, such as loss of the ability to perceive harmony but not melody, indicate that there is no music center in the brain."</p>
+                <p>It implies: "<span class="keyword-highlight">Because many people who read the book are likely to believe in the brain localisation of all mental functions, this was a missed educational opportunity.</span>"</p>
+                <p>This shows a misconception that there is a function centre localized in the brain.</p>
+                <p>So, the answer is: <strong>F (show a misconception that there is function centre localized in the brain.)</strong></p>
+            `,
+            '38': `
+                <div class="explanation-title">Question 38: The study of treating musical disorders...</div>
+                <p><strong>Keywords:</strong> treating, musical disorders</p>
+                <p>Paragraph I discusses treatments: "<span class="keyword-highlight">Treatments mentioned seem to be almost exclusively antiepileptic medications... their effectiveness varies widely.</span>"</p>
+                <p>This indicates that medication can have varied results.</p>
+                <p>So, the answer is: <strong>B (indicates that medication can have varied results.)</strong></p>
+            `,
+            '39': `
+                <div class="explanation-title">Question 39: The EEG scans of Sacks’s patients...</div>
+                <p><strong>Keywords:</strong> EEG scans, Sacks’s patients</p>
+                <p>Paragraph J states: "Finally, in many of the cases described here <span class="keyword-highlight">the patient with music-brain symptoms is reported to have “normal” EEG results.</span>"</p>
+                <p>So, the answer is: <strong>A (show no music-brain disorders.)</strong></p>
+            `,
+            '40': `
+                <div class="explanation-title">Question 40: Sacks believes testing based on new technologies...</div>
+                <p><strong>Keywords:</strong> Sacks, testing, new technologies</p>
+                <p>Paragraph J states: "...Sacks expresses fear that “the simple art of observation may be lost” if we rely too much on new technologies. <span class="keyword-highlight">He does call for both approaches...</span>"</p>
+                <p>This means new technologies should not be used in isolation.</p>
+                <p>So, the answer is: <strong>D (should not be used in Isolation.)</strong></p>
+            `
         };
 
         const questionIds = [37, 38, 39, 40];
@@ -272,6 +322,9 @@
             document.querySelectorAll('.answer-input').forEach(input => input.disabled = true);
             deliverButton.disabled = true;
             deliverButton.textContent = "Checked";
+            
+            // Enable explanation buttons
+            document.querySelector('.questions-panel').classList.add('show-explanation');
 
             questionIds.forEach(id => {
                 const input = document.getElementById(`q${id}`);
@@ -294,6 +347,17 @@
                     // Mark nav button
                     document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`).classList.add('incorrect');
                 }
+
+                // Add to results modal list
+                const row = document.createElement('div');
+                row.className = 'result-row';
+                row.innerHTML = `
+                    <span style="font-weight:bold;">Q${id}</span>
+                    <span>Your Answer: <span style="color:${isCorrect ? 'green' : 'red'}">${userAnswer || 'None'}</span></span>
+                    <span style="color:green; font-weight:bold;">Correct: ${correctAnswer}</span>
+                `;
+                row.onclick = () => showExplanation(id);
+                resultsContainer.appendChild(row);
             });
 
             // Show Modal
@@ -332,6 +396,18 @@
 
         window.closeResultsModal = () => {
             document.getElementById('results-modal').classList.add('hidden');
+        }
+
+        window.showExplanation = (id) => {
+            const content = explanations[id];
+            if (content) {
+                document.getElementById('explanation-content').innerHTML = content;
+                document.getElementById('explanation-modal').classList.remove('hidden');
+            }
+        };
+
+        window.closeExplanationModal = () => {
+            document.getElementById('explanation-modal').classList.add('hidden');
         }
 
         // --- UTILS (Timer, Resizer, Highlight) ---
