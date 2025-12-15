@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intro Grammar</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+        
+        body {
+            font-family: 'Nunito', sans-serif;
+            -webkit-user-select: none; /* Safari */
+            -ms-user-select: none; /* IE 10 and IE 11 */
+            user-select: none; /* Standard syntax */
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555; 
+        }
+
+        .input-blank {
+            border-bottom: 2px dashed currentColor;
+            background: transparent;
+            padding: 0 5px;
+            text-align: center;
+            outline: none;
+            transition: all 0.3s;
+            font-weight: 600;
+            min-width: 80px;
+        }
+        .input-blank:focus {
+            border-bottom-style: solid;
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .correct-answer {
+            color: #10B981; /* Green-500 */
+            font-weight: bold;
+        }
+        .wrong-answer {
+            color: #EF4444; /* Red-500 */
+            text-decoration: line-through;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 h-screen flex flex-col md:flex-row overflow-hidden">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-full md:w-64 bg-white shadow-lg flex-shrink-0 flex flex-col z-20">
+        <div class="p-4 border-b border-gray-200 bg-indigo-600 text-white flex items-center justify-between md:justify-center">
+            <h1 class="text-xl font-bold"><i class="fas fa-book-open mr-2"></i>Đình Phước Edu</h1>
+            <button id="mobile-menu-btn" class="md:hidden text-white focus:outline-none">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        
+        <nav id="nav-menu" class="flex-1 overflow-y-auto p-2 hidden md:block transition-all duration-300">
+            <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 mt-2 px-2">Grammar tests</div>
+            <!-- Buttons will be injected here -->
+            <div id="test-buttons" class="space-y-1"></div>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col h-full relative overflow-hidden">
+        <!-- Header for current test info -->
+        <header id="main-header" class="bg-white shadow-sm p-4 flex justify-between items-center z-10 transition-colors duration-500">
+            <div>
+                <h2 id="current-test-title" class="text-2xl font-bold text-gray-800">Đề 1</h2>
+                <p class="text-sm text-gray-500">Complete the exercises below</p>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="text-right hidden sm:block">
+                    <div class="text-sm font-bold text-gray-600">Scores</div>
+                    <div id="score-display" class="text-xl font-extrabold text-gray-800">--/100</div>
+                </div>
+                <button onclick="checkAnswers()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transform transition hover:scale-105 active:scale-95 flex items-center">
+                    <i class="fas fa-check-circle mr-2"></i> Check
+                </button>
+                <button onclick="resetTest()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-full shadow transition" title="Làm lại">
+                    <i class="fas fa-redo"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Test Content Container -->
+        <div id="test-container" class="flex-1 overflow-y-auto p-4 md:p-8 transition-colors duration-500 relative">
+            <div id="content-area" class="max-w-4xl mx-auto space-y-6 pb-10">
+                <!-- Exercises will be injected here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- JavaScript Data & Logic -->
+    <script>
+        // --- DATA ---
+        // Themes for 12 tests
+        const themes = [
+            { name: "Ocean", bg: "bg-blue-50", header: "bg-blue-100", title: "text-blue-700", accent: "text-blue-600", border: "border-blue-200" },
+            { name: "Forest", bg: "bg-green-50", header: "bg-green-100", title: "text-green-700", accent: "text-green-600", border: "border-green-200" },
+            { name: "Sunset", bg: "bg-orange-50", header: "bg-orange-100", title: "text-orange-700", accent: "text-orange-600", border: "border-orange-200" },
+            { name: "Berry", bg: "bg-pink-50", header: "bg-pink-100", title: "text-pink-700", accent: "text-pink-600", border: "border-pink-200" },
+            { name: "Lavender", bg: "bg-purple-50", header: "bg-purple-100", title: "text-purple-700", accent: "text-purple-600", border: "border-purple-200" },
+            { name: "Teal", bg: "bg-teal-50", header: "bg-teal-100", title: "text-teal-700", accent: "text-teal-600", border: "border-teal-200" },
+            { name: "Lemon", bg: "bg-yellow-50", header: "bg-yellow-100", title: "text-yellow-700", accent: "text-yellow-600", border: "border-yellow-200" },
+            { name: "Sky", bg: "bg-sky-50", header: "bg-sky-100", title: "text-sky-700", accent: "text-sky-600", border: "border-sky-200" },
+            { name: "Rose", bg: "bg-rose-50", header: "bg-rose-100", title: "text-rose-700", accent: "text-rose-600", border: "border-rose-200" },
+            { name: "Indigo", bg: "bg-indigo-50", header: "bg-indigo-100", title: "text-indigo-700", accent: "text-indigo-600", border: "border-indigo-200" },
+            { name: "Emerald", bg: "bg-emerald-50", header: "bg-emerald-100", title: "text-emerald-700", accent: "text-emerald-600", border: "border-emerald-200" },
+            { name: "Slate", bg: "bg-slate-50", header: "bg-slate-100", title: "text-slate-700", accent: "text-slate-600", border: "border-slate-200" },
+        ];
+
+        // Content Data
+        const testsData = [
+            // ĐỀ 1
+            {
+                id: 1,
+                exercises: [
+                    {
+                        title: "Exercise 1. Fill in the blanks using the past continuous form of the verbs.",
+                        questions: [
+                            { pre: "At 8 PM last night, I", post: "(read) a book in my room.", answer: "was reading", explain: "I + was + Ving (hành động đang xảy ra tại thời điểm cụ thể trong QK)." },
+                            { pre: "The children", post: "(play) in the garden while their mother was cooking.", answer: "were playing", explain: "Children (số nhiều) + were + Ving." },
+                            { pre: "What", mid: "you", post: "(do) when the accident happened?", answer: "were / doing", split: true, explain: "Câu hỏi QKTD: Wh + were + S + Ving?" },
+                            { pre: "It", post: "(not/snow) when we left the house.", answer: "wasn't snowing/was not snowing", explain: "Phủ định: It + was not + Ving." }
+                        ]
+                    },
+                    {
+                        title: "Exercise 2. Complete the sentences with the appropriate quantity words (some, any, a few, a little, a lot of, much, many, how much, how many).",
+                        questions: [
+                            { pre: "I don't have", post: "friends in this city.", answer: "many/any", explain: "Câu phủ định + danh từ đếm được (friends) -> dùng many hoặc any." },
+                            { pre: "Would you like", post: "coffee?", answer: "some", explain: "Lời mời lịch sự -> dùng some." },
+                            { pre: "How", post: "apples do we need for the pie?", answer: "many", explain: "Apples đếm được -> How many." },
+                            { pre: "There is only", post: "water left in the bottle.", answer: "a little", explain: "Water không đếm được, nghĩa 'một ít' -> a little." }
+                        ]
+                    },
+                    {
+                        title: "Exercise 3. Fill in the blanks with the correct form of the adjectives in parentheses.",
+                        questions: [
+                            { pre: "This house is", post: "(big) than my old one.", answer: "bigger", explain: "So sánh hơn tính từ ngắn: big -> bigger." },
+                            { pre: "Who is the", post: "(famous) singer in your country?", answer: "most famous", explain: "So sánh nhất tính từ dài: the most famous." },
+                            { pre: "The traffic today is", post: "(bad) than usual.", answer: "worse", explain: "Bất quy tắc: bad -> worse." },
+                            { pre: "Is French", post: "(difficult) to learn than English?", answer: "more difficult", explain: "So sánh hơn tính từ dài: more difficult." }
+                        ]
+                    },
+                    {
+                        title: "Exercise 4. Choose the correct form (will or going to) to complete the sentences.",
+                        questions: [
+                            { pre: "I forgot my wallet. I", post: "(go) back and get it.", answer: "will go", explain: "Quyết định ngay lúc nói -> Will." },
+                            { pre: "Look at the traffic! We", post: "(be) late.", answer: "are going to be", explain: "Dự đoán có căn cứ (kẹt xe) -> Be going to." },
+                            { pre: "I promise I", post: "(not/tell) anyone your secret.", answer: "won't tell/will not tell", explain: "Lời hứa -> Will/Won't." },
+                            { pre: "She", post: "(travel) to Japan next month. She has bought the tickets.", answer: "is going to travel", explain: "Kế hoạch đã định sẵn (đã mua vé) -> Be going to." }
+                        ]
+                    },
+                    {
+                        title: "Exercise 5. Complete the sentences using the first conditional structure with the verbs in parentheses.",
+                        questions: [
+                            { pre: "If he", mid: "(wake) up late, he", post: "(miss) the bus.", answer: "wakes / will miss", split: true, explain: "If hiện tại đơn (he wakes), Main future (will miss)." },
+                            { pre: "I", mid: "(buy) a new car if I", post: "(save) enough money.", answer: "will buy / save", split: true, explain: "Main future (will buy), If hiện tại đơn (I save)." },
+                            { pre: "If it", mid: "(be) sunny tomorrow, we", post: "(go) to the beach.", answer: "is / will go", split: true, explain: "If hiện tại đơn (it is), Main future (will go)." },
+                            { pre: "You", mid: "(get) wet if you", post: "(not/take) an umbrella.", answer: "will get / don't take", split: true, explain: "Main future (will get), If hiện tại đơn phủ định (you don't take)." }
+                        ]
+                    }
+                ]
+            },
+            // ĐỀ 2
+            {
+                id: 2,
+                exercises: [
+                    {
+                        title: "Exercise 1. Fill in the blanks using the past continuous form of the verbs.",
+                        questions: [
+                            { pre: "We", post: "(have) dinner when the lights went out.", answer: "were having", explain: "We + were + Ving." },
+                            { pre: "", mid: "she", post: "(wear) a red dress at the party?", answer: "Was / wearing", split: true, explain: "Câu hỏi: Was + S + Ving?" },
+                            { pre: "They", post: "(not/work) on the computer when the boss arrived.", answer: "weren't working/were not working", explain: "Phủ định: They + were not + Ving." },
+                            { pre: "While I", post: "(walk) home, I saw an old friend.", answer: "was walking", explain: "I + was + Ving (hành động đang diễn ra)." }
+                        ]
+                    },
+                    {
+                        title: "Exercise 2. Complete the sentences with the appropriate quantity words (some, any, a few, a little, a lot of, much, many, how much, how many).",
+                        questions: [
+                            { pre: "There isn't", post: "milk in the fridge.", answer: "any/much", explain: "Phủ định + milk (không đếm được) -> any hoặc much." },
+                            { pre: "She has", post: "interesting books on her shelf.", answer: "a few/some/a lot of", explain: "Books đếm được -> a few/some/a lot of." },
+                            { pre: "How", post: "does this shirt cost?", answer: "much", explain: "Hỏi giá tiền -> How much." },
+                            { pre: "Can you lend me", post: "money?", answer: "some/a little", explain: "Lời đề nghị lịch sự + tiền -> some/a little." }
+                        ]
+                    },
+                    {
+                        title: "Exercise 3. Fill in the blanks with the correct form of the adjectives in parentheses.",
+                        questions: [
+                            { pre: "Summer is the", post: "(hot) season of the year.", answer: "hottest", explain: "So sánh nhất tính từ ngắn: hot -> hottest (gấp đôi phụ âm t)." },
+                            { pre: "Your bag is", post: "(heavy) than mine.", answer: "heavier", explain: "So sánh hơn y dài -> i + er." },
+                            { pre: "He is the", post: "(intelligent) student in the class.", answer: "most intelligent", explain: "So sánh nhất tính từ dài: the most intelligent." },
+                            { pre: "This exercise is", post: "(simple) than the previous one.", answer: "simpler", explain: "Simple -> simpler." }
+                        ]
+                    },
+                    {
+                        title: "Exercise 4. Choose the correct form (will or going to) to complete the sentences.",
+                        questions: [
+                            { pre: "\"The phone is ringing.\" - \"I", post: "(answer) it.\"", answer: "will answer", explain: "Quyết định tức thì -> Will." },
+                            { pre: "He", post: "(study) medicine at university next year. That's his plan.", answer: "is going to study", explain: "Plan (kế hoạch) -> Be going to." },
+                            { pre: "I think people", post: "(live) on Mars in the future.", answer: "will live", explain: "Dự đoán chủ quan (I think) -> Will." },
+                            { pre: "Watch out! You", post: "(fall).", answer: "are going to fall", explain: "Dấu hiệu hiện tại (Watch out) -> Be going to." }
+                        ]
+                    },
+                    {
+                        title: "Exercise 5. Complete the sentences using the first conditional structure with the verbs in parentheses.",
+                        questions: [
+                            { pre: "If she", mid: "(study) hard, she", post: "(get) good grades.", answer: "studies / will get", split: true, explain: "If hiện tại (studies), Main future (will get)." },
+                            { pre: "We", mid: "(not/go) out if it", post: "(rain).", answer: "won't go / rains", split: true, explain: "Main future (won't go), If hiện tại (rains)." },
+                            { pre: "If you", mid: "(eat) too much candy, your teeth", post: "(hurt).", answer: "eat / will hurt", split: true, explain: "If hiện tại (eat), Main future (will hurt)." },
+                            { pre: "What", mid: "you", mid2: "(do) if you", post: "(lose) your keys?", answer: "will / do / lose", split: true, triple: true, explain: "Wh + will + S + V, If + S + V(hiện tại)?" }
+                        ]
+                    }
+                ]
+            },
+            // ĐỀ 3
+            {
+                id: 3,
+                exercises: [
+                    { title: "Exercise 1. Fill in the blanks using the past continuous form of the verbs.", questions: [
+                        { pre: "He", post: "(drive) very fast when the police stopped him.", answer: "was driving", explain: "He + was + Ving." },
+                        { pre: "The students", post: "(not/listen) to the teacher.", answer: "weren't listening/were not listening", explain: "Students (số nhiều) + were not + Ving." },
+                        { pre: "What", mid: "you", post: "(think) about during the test?", answer: "were / thinking", split: true, explain: "Wh + were + you + Ving?" },
+                        { pre: "While Tom", mid: "(cook), Mary", post: "(read).", answer: "was cooking / was reading", split: true, explain: "Hai hành động song song: was cooking / was reading." }
+                    ]},
+                    { title: "Exercise 2. Complete the sentences with the appropriate quantity words (some, any, a few, a little, a lot of, much, many, how much, how many).", questions: [
+                        { pre: "How", post: "siblings do you have?", answer: "many", explain: "Siblings đếm được -> Many." },
+                        { pre: "Put", post: "salt in the pasta water.", answer: "a little/some", explain: "Salt không đếm được -> A little/Some." },
+                        { pre: "There aren't", post: "cars on the road today.", answer: "many", explain: "Phủ định + cars (đếm được) -> Many." },
+                        { pre: "I have", post: "questions to ask you.", answer: "a few/some", explain: "Questions đếm được -> A few/Some." }
+                    ]},
+                    { title: "Exercise 3. Fill in the blanks with the correct form of the adjectives in parentheses.", questions: [
+                        { pre: "This is the", post: "(delicious) cake I have ever tasted.", answer: "most delicious", explain: "So sánh nhất tính từ dài." },
+                        { pre: "Gold is", post: "(expensive) than silver.", answer: "more expensive", explain: "So sánh hơn tính từ dài." },
+                        { pre: "She looks", post: "(happy) today than yesterday.", answer: "happier", explain: "Happy -> Happier." },
+                        { pre: "Which is the", post: "(long) river in the world?", answer: "longest", explain: "Long -> Longest." }
+                    ]},
+                    { title: "Exercise 4. Choose the correct form (will or going to) to complete the sentences.", questions: [
+                        { pre: "My bag is so heavy. - I", post: "(carry) it for you.", answer: "will carry", explain: "Đề nghị giúp đỡ ngay lúc nói -> Will." },
+                        { pre: "Look at the sky. It", post: "(be) a beautiful day.", answer: "is going to be", explain: "Dự đoán có căn cứ (sky) -> Be going to." },
+                        { pre: "I", post: "(not/buy) that car. It's too expensive.", answer: "won't buy/am not going to buy", explain: "Quyết định hoặc ý định không mua." },
+                        { pre: "They", post: "(visit) Paris next summer.", answer: "are going to visit", explain: "Kế hoạch -> Be going to." }
+                    ]},
+                    { title: "Exercise 5. Complete the sentences using the first conditional structure with the verbs in parentheses.", questions: [
+                        { pre: "Unless you", mid: "(hurry), you", post: "(be) late.", answer: "hurry / will be", split: true, explain: "Unless = If not. Unless + hiện tại, Main future." },
+                        { pre: "If I", mid: "(see) him, I", post: "(give) him your message.", answer: "see / will give", split: true, explain: "If hiện tại, Main future." },
+                        { pre: "The dog", mid: "(bite) you if you", post: "(tease) it.", answer: "will bite / tease", split: true, explain: "Main future, If hiện tại." },
+                        { pre: "If we", mid: "(recycle) more, we", post: "(help) the environment.", answer: "recycle / will help", split: true, explain: "If hiện tại, Main future." }
+                    ]}
+                ]
+            },
+            // ĐỀ 4
+            {
+                id: 4,
+                exercises: [
+                    { title: "Exercise 1. Fill in the blanks using the past continuous form of the verbs.", questions: [
+                        { pre: "I", post: "(wait) for the bus when it started to rain.", answer: "was waiting", explain: "Hành động đang xảy ra (wait) thì hành động khác chen vào." },
+                        { pre: "They", post: "(swim) in the pool all afternoon.", answer: "were swimming", explain: "Hành động kéo dài trong quá khứ." },
+                        { pre: "", mid: "it", post: "(rain) when you went out?", answer: "Was / raining", split: true, explain: "Câu hỏi: Was it raining?" },
+                        { pre: "She", post: "(not/use) the computer, so I turned it off.", answer: "wasn't using/was not using", explain: "Phủ định: wasn't using." }
+                    ]},
+                    { title: "Exercise 2. Complete the sentences with the appropriate quantity words (some, any, a few, a little, a lot of, much, many, how much, how many).", questions: [
+                        { pre: "We need", post: "butter for this recipe.", answer: "some/a little", explain: "Butter không đếm được." },
+                        { pre: "There are too", post: "people in this room.", answer: "many", explain: "People đếm được số nhiều -> Many." },
+                        { pre: "Do you have", post: "idea how to fix this?", answer: "any", explain: "Câu hỏi -> any." },
+                        { pre: "I spend a", post: "of time on my hobbies.", answer: "lot", explain: "Cụm 'a lot of'." }
+                    ]},
+                    { title: "Exercise 3. Fill in the blanks with the correct form of the adjectives in parentheses.", questions: [
+                        { pre: "My brother is", post: "(old) than me.", answer: "older", explain: "Old -> Older." },
+                        { pre: "This is the", post: "(interesting) book in the library.", answer: "most interesting", explain: "So sánh nhất tính từ dài." },
+                        { pre: "Trains are usually", post: "(safe) than motorbikes.", answer: "safer", explain: "Safe -> Safer." },
+                        { pre: "Who is the", post: "(good) student in your class?", answer: "best", explain: "Good -> Best (bất quy tắc)." }
+                    ]},
+                    { title: "Exercise 4. Choose the correct form (will or going to) to complete the sentences.", questions: [
+                        { pre: "I think it", post: "(snow) tomorrow.", answer: "will snow", explain: "Dự đoán chủ quan (I think) -> Will." },
+                        { pre: "We", post: "(have) a party on Saturday. Would you like to come?", answer: "are going to have", explain: "Kế hoạch đã định -> Be going to." },
+                        { pre: "Don't worry, I", post: "(help) you with your homework.", answer: "will help", explain: "Lời hứa/Đề nghị -> Will." },
+                        { pre: "She", post: "(be) a doctor when she grows up.", answer: "is going to be", explain: "Dự định tương lai -> Be going to." }
+                    ]},
+                    { title: "Exercise 5. Complete the sentences using the first conditional structure with the verbs in parentheses.", questions: [
+                        { pre: "If you", mid: "(not/water) the plants, they", post: "(die).", answer: "don't water / will die", split: true, explain: "If phủ định hiện tại, Main future." },
+                        { pre: "I", mid: "(cook) dinner if you", post: "(wash) the dishes.", answer: "will cook / wash", split: true, explain: "Main future, If hiện tại." },
+                        { pre: "If the temperature", mid: "(drop), water", post: "(freeze).", answer: "drops / freezes", split: true, explain: "Sự thật hiển nhiên (Type 0 hoặc 1 đều chấp nhận, ở đây dùng freezes hoặc will freeze)." },
+                        { pre: "We", mid: "(cancel) the picnic if it", post: "(rain).", answer: "will cancel / rains", split: true, explain: "Main future, If hiện tại." }
+                    ]}
+                ]
+            },
+            // ĐỀ 5
+            {
+                id: 5,
+                exercises: [
+                    { title: "Exercise 1. Fill in the blanks using the past continuous form of the verbs.", questions: [
+                        { pre: "While I", mid: "(study), my brother", post: "(listen) to music.", answer: "was studying / was listening", split: true, explain: "Hai hành động song song trong QK." },
+                        { pre: "What", mid: "you", post: "(do) at this time yesterday?", answer: "were / doing", split: true, explain: "Thời điểm cụ thể trong QK." },
+                        { pre: "He", post: "(not/pay) attention while the teacher was explaining.", answer: "wasn't paying/was not paying", explain: "Phủ định QKTD." },
+                        { pre: "The sun", post: "(shine) when we woke up.", answer: "was shining", explain: "Mô tả bối cảnh: Sun was shining." }
+                    ]},
+                    { title: "Exercise 2. Complete the sentences with the appropriate quantity words (some, any, a few, a little, a lot of, much, many, how much, how many).", questions: [
+                        { pre: "How", post: "flour do we have?", answer: "much", explain: "Flour không đếm được -> Much." },
+                        { pre: "There are only", post: "days left until the holiday.", answer: "a few", explain: "Days đếm được + only -> A few (chỉ một vài)." },
+                        { pre: "I didn't take", post: "photos during the trip.", answer: "many/any", explain: "Phủ định + photos -> Many hoặc Any." },
+                        { pre: "She has", post: "patience with children.", answer: "a lot of/much", explain: "Patience không đếm được." }
+                    ]},
+                    { title: "Exercise 3. Fill in the blanks with the correct form of the adjectives in parentheses.", questions: [
+                        { pre: "The Pacific Ocean is", post: "(deep) than the Atlantic Ocean.", answer: "deeper", explain: "Deep -> Deeper." },
+                        { pre: "That is the", post: "(funny) joke I've heard.", answer: "funniest", explain: "Funny -> Funniest." },
+                        { pre: "Health is", post: "(important) than money.", answer: "more important", explain: "So sánh hơn tính từ dài." },
+                        { pre: "This is the", post: "(bad) restaurant in town.", answer: "worst", explain: "Bad -> Worst (bất quy tắc)." }
+                    ]},
+                    { title: "Exercise 4. Choose the correct form (will or going to) to complete the sentences.", questions: [
+                        { pre: "There's no milk left. - Okay, I", post: "(go) buy some.", answer: "will go", explain: "Quyết định tức thì -> Will." },
+                        { pre: "Why are you filling a bucket with water? - I", post: "(wash) the car.", answer: "am going to wash", explain: "Dự định có chuẩn bị -> Be going to." },
+                        { pre: "I'm sure you", post: "(pass) the exam.", answer: "will pass", explain: "I'm sure (dự đoán) -> Will." },
+                        { pre: "Be careful! You", post: "(spill) the coffee.", answer: "are going to spill", explain: "Dấu hiệu sắp xảy ra -> Be going to." }
+                    ]},
+                    { title: "Exercise 5. Complete the sentences using the first conditional structure with the verbs in parentheses.", questions: [
+                        { pre: "If he", mid: "(come), I", post: "(be) surprised.", answer: "comes / will be", split: true, explain: "If hiện tại, Main future." },
+                        { pre: "You", mid: "(lose) weight if you", post: "(exercise) regularly.", answer: "will lose / exercise", split: true, explain: "Main future, If hiện tại." },
+                        { pre: "If I", mid: "(find) your phone, I", post: "(call) you.", answer: "find / will call", split: true, explain: "If hiện tại, Main future." },
+                        { pre: "She", mid: "(not/be) happy if she", post: "(hear) the news.", answer: "won't be / hears", split: true, explain: "Main future, If hiện tại (she hears)." }
+                    ]}
+                ]
+            },
+             {
+                id: 6,
+                exercises: [
+                    { title: "Exercise 1. Fill in the blanks using the past continuous form of the verbs.", questions: [
+                        { pre: "They", post: "(argue) when I entered the room.", answer: "were arguing", explain: "They + were + Ving." },
+                        { pre: "", mid: "Tom", post: "(sleep) when you called?", answer: "Was / sleeping", split: true, explain: "Was + S + Ving?" },
+                        { pre: "We", post: "(watch) a horror movie last night.", answer: "were watching", explain: "Quá khứ tiếp diễn mô tả hành động." },
+                        { pre: "I", post: "(not/feel) well yesterday afternoon.", answer: "wasn't feeling/was not feeling", explain: "I + was not + Ving." }
+                    ]},
+                    { title: "Exercise 2. Complete the sentences with the appropriate quantity words (some, any, a few, a little, a lot of, much, many, how much, how many).", questions: [
+                        { pre: "There is too", post: "noise in here.", answer: "much", explain: "Noise không đếm được -> Much." },
+                        { pre: "We saw", post: "beautiful birds in the park.", answer: "some/a few", explain: "Birds đếm được -> Some/A few." },
+                        { pre: "Do you have", post: "questions for me?", answer: "any", explain: "Câu hỏi -> Any." },
+                        { pre: "How", post: "cups of coffee do you drink a day?", answer: "many", explain: "Cups đếm được -> Many." }
+                    ]},
+                    { title: "Exercise 3. Fill in the blanks with the correct form of the adjectives in parentheses.", questions: [
+                        { pre: "English is", post: "(easy) than Math for me.", answer: "easier", explain: "Easy -> Easier." },
+                        { pre: "He is the", post: "(rich) man in the city.", answer: "richest", explain: "Rich -> Richest." },
+                        { pre: "This chair is", post: "(comfortable) than that one.", answer: "more comfortable", explain: "So sánh hơn tính từ dài." },
+                        { pre: "It was the", post: "(happy) day of my life.", answer: "happiest", explain: "Happy -> Happiest." }
+                    ]},
+                    { title: "Exercise 4. Choose the correct form (will or going to) to complete the sentences.", questions: [
+                        { pre: "\"It's hot in here.\" - \"I", post: "(open) the window.\"", answer: "will open", explain: "Quyết định tức thì." },
+                        { pre: "We", post: "(fly) to London on Friday.", answer: "are going to fly", explain: "Kế hoạch đã định." },
+                        { pre: "I believe that everything", post: "(be) okay.", answer: "will be", explain: "I believe (tin tưởng/dự đoán) -> Will." },
+                        { pre: "Look at the queue! We", post: "(wait) for a long time.", answer: "are going to wait", explain: "Dự đoán có căn cứ (queue)." }
+                    ]},
+                    { title: "Exercise 5. Complete the sentences using the first conditional structure with the verbs in parentheses.", questions: [
+                        { pre: "If you", mid: "(mix) red and blue, you", post: "(get) purple.", answer: "mix / get", split: true, explain: "Sự thật hiển nhiên (Type 0)." },
+                        { pre: "I", mid: "(lend) you my book if you", post: "(promise) to return it.", answer: "will lend / promise", split: true, explain: "Main future, If hiện tại." },
+                        { pre: "If the weather", mid: "(not/improve), we", post: "(stay) home.", answer: "doesn't improve / will stay", split: true, explain: "If phủ định hiện tại, Main future." },
+                        { pre: "What", mid: "(happen) if we", post: "(press) this button?", answer: "will happen / press", split: true, explain: "Main future question, If hiện tại." }
+                    ]}
+                ]
+            },
+            {
+                id: 7,
+                exercises: [
+                    { title: "Exercise 1. Fill in the blanks using the past continuous form of the verbs.", questions: [
+                        { pre: "Someone stole my bag while I", post: "(look) at the shop window.", answer: "was looking", explain: "I + was + Ving." },
+                        { pre: "The birds", post: "(sing) early in the morning.", answer: "were singing", explain: "Birds + were + Ving." },
+                        { pre: "What", post: "(happening) when the alarm went off?", answer: "was happening", explain: "What + was + happening?" },
+                        { pre: "She", post: "(not/cook) dinner, she was ordering pizza.", answer: "wasn't cooking/was not cooking", explain: "She + was not + Ving." }
+                    ]},
+                    { title: "Exercise 2. Complete the sentences with the appropriate quantity words (some, any, a few, a little, a lot of, much, many, how much, how many).", questions: [
+                        { pre: "Would you like", post: "more tea?", answer: "some", explain: "Lời mời -> Some." },
+                        { pre: "There isn't", post: "sugar left.", answer: "much/any", explain: "Sugar không đếm được + phủ định -> Much/Any." },
+                        { pre: "I have visited", post: "countries in Europe.", answer: "many/a few", explain: "Countries đếm được." },
+                        { pre: "How", post: "luggage do you have?", answer: "much", explain: "Luggage không đếm được -> Much." }
+                    ]},
+                    { title: "Exercise 3. Fill in the blanks with the correct form of the adjectives in parentheses.", questions: [
+                        { pre: "The Nile is", post: "(long) than the Amazon.", answer: "longer", explain: "Long -> Longer." },
+                        { pre: "This is the", post: "(expensive) hotel in the city.", answer: "most expensive", explain: "So sánh nhất tính từ dài." },
+                        { pre: "A car is", post: "(fast) than a bicycle.", answer: "faster", explain: "Fast -> Faster." },
+                        { pre: "She is the", post: "(pretty) girl at the party.", answer: "prettiest", explain: "Pretty -> Prettiest." }
+                    ]},
+                    { title: "Exercise 4. Choose the correct form (will or going to) to complete the sentences.", questions: [
+                        { pre: "\"Did you buy bread?\" - \"Oh no, I forgot. I", post: "(buy) it now.\"", answer: "will buy", explain: "Quyết định tức thì." },
+                        { pre: "They", post: "(get) married next month.", answer: "are going to get", explain: "Kế hoạch lớn -> Be going to." },
+                        { pre: "I hope you", post: "(have) a great time.", answer: "will have", explain: "Hope -> Will." },
+                        { pre: "The sky is blue. It", post: "(not/rain).", answer: "isn't going to rain/is not going to rain", explain: "Dự đoán có căn cứ -> Be going to." }
+                    ]},
+                    { title: "Exercise 5. Complete the sentences using the first conditional structure with the verbs in parentheses.", questions: [
+                        { pre: "If I", mid: "(have) time, I", post: "(visit) the museum.", answer: "have / will visit", split: true, explain: "If hiện tại, Main future." },
+                        { pre: "You", mid: "(get) cold if you", post: "(not/wear) a coat.", answer: "will get / don't wear", split: true, explain: "Main future, If phủ định." },
+                        { pre: "If she", mid: "(pass) the interview, she", post: "(get) the job.", answer: "passes / will get", split: true, explain: "If hiện tại (passes), Main future." },
+                        { pre: "We", mid: "(be) late if the bus", post: "(not/come) soon.", answer: "will be / doesn't come", split: true, explain: "Main future, If phủ định." }
+                    ]}
+                ]
+            },
+            {
+                id: 8,
+                exercises: [
+                    { title: "Exercise 1. Fill in the blanks using the past continuous form of the verbs.", questions: [
+                        { pre: "I", mid: "(meet) my teacher while I", post: "(shop).", answer: "met / was shopping", split: true, explain: "Hành động ngắn xen vào (met), hành động dài (was shopping)." },
+                        { pre: "They", post: "(not/play) video games, they were studying.", answer: "weren't playing/were not playing", explain: "Phủ định QKTD." },
+                        { pre: "", mid: "you", post: "(watch) TV at 9 PM?", answer: "Were / watching", split: true, explain: "Were + you + Ving?" },
+                        { pre: "The wind", post: "(blow) strongly last night.", answer: "was blowing", explain: "Wind + was + Ving." }
+                    ]},
+                    { title: "Exercise 2. Complete the sentences with the appropriate quantity words (some, any, a few, a little, a lot of, much, many, how much, how many).", questions: [
+                        { pre: "There are", post: "apples on the table.", answer: "some/a few", explain: "Apples đếm được." },
+                        { pre: "Do you have", post: "advice for me?", answer: "any/some", explain: "Advice không đếm được." },
+                        { pre: "How", post: "does it cost to rent a car?", answer: "much", explain: "Hỏi giá -> How much." },
+                        { pre: "I don't have", post: "money with me right now.", answer: "much/any", explain: "Money không đếm được + phủ định." }
+                    ]},
+                    { title: "Exercise 3. Fill in the blanks with the correct form of the adjectives in parentheses.", questions: [
+                        { pre: "My new phone is", post: "(good) than the old one.", answer: "better", explain: "Good -> Better." },
+                        { pre: "That was the", post: "(sad) movie I've ever seen.", answer: "saddest", explain: "Sad -> Saddest." },
+                        { pre: "This room is", post: "(clean) than that one.", answer: "cleaner", explain: "Clean -> Cleaner." },
+                        { pre: "She is the", post: "(hard-working) employee here.", answer: "most hard-working", explain: "So sánh nhất tính từ dài." }
+                    ]},
+                    { title: "Exercise 4. Choose the correct form (will or going to) to complete the sentences.", questions: [
+                        { pre: "I've bought the paint. I", post: "(paint) my room tomorrow.", answer: "am going to paint", explain: "Có sự chuẩn bị (bought paint) -> Be going to." },
+                        { pre: "I think he", post: "(like) the present.", answer: "will like", explain: "Think -> Will." },
+                        { pre: "\"I'm thirsty.\" - \"I", post: "(get) you a glass of water.\"", answer: "will get", explain: "Quyết định tức thì." },
+                        { pre: "Watch out! That tree", post: "(fall).", answer: "is going to fall", explain: "Dấu hiệu hiện tại -> Be going to." }
+                    ]},
+                    { title: "Exercise 5. Complete the sentences using the first conditional structure with the verbs in parentheses.", questions: [
+                        { pre: "If you", mid: "(eat) junk food, you", post: "(gain) weight.", answer: "eat / will gain", split: true, explain: "If hiện tại, Main future." },
+                        { pre: "I", mid: "(not/talk) to him if he", post: "(be) rude.", answer: "won't talk / is", split: true, explain: "Main future, If hiện tại (to be)." },
+                        { pre: "If it", mid: "(be) cheap, I", post: "(buy) it.", answer: "is / will buy", split: true, explain: "If hiện tại, Main future." },
+                        { pre: "She", mid: "(stay) in London if she", post: "(find) a job.", answer: "will stay / finds", split: true, explain: "Main future, If hiện tại." }
+                    ]}
+                ]
+            },
+            {
+                id: 9,
+                exercises: [
+                    { title: "Exercise 1. Fill in the blanks using the past continuous form of the verbs.", questions: [
+                        { pre: "When I saw her, she", post: "(wear) a yellow hat.", answer: "was wearing", explain: "Mô tả trạng thái đang diễn ra trong QK." },
+                        { pre: "We", post: "(drive) to the beach when the car broke down.", answer: "were driving", explain: "Hành động dài bị cắt ngang." },
+                        { pre: "What", post: "(make) that noise last night?", answer: "was making", explain: "Chủ ngữ là What -> was making." },
+                        { pre: "They", post: "(not/laugh) at the joke.", answer: "weren't laughing/were not laughing", explain: "Phủ định QKTD." }
+                    ]},
+                    { title: "Exercise 2. Complete the sentences with the appropriate quantity words (some, any, a few, a little, a lot of, much, many, how much, how many).", questions: [
+                        { pre: "I put too", post: "sugar in my coffee.", answer: "much", explain: "Sugar không đếm được -> Much." },
+                        { pre: "Are there", post: "cookies left?", answer: "any", explain: "Câu hỏi + danh từ đếm được -> Any." },
+                        { pre: "He has", post: "good ideas for the project.", answer: "some/a few", explain: "Ideas đếm được." },
+                        { pre: "How", post: "students are in your class?", answer: "many", explain: "Students đếm được -> Many." }
+                    ]},
+                    { title: "Exercise 3. Fill in the blanks with the correct form of the adjectives in parentheses.", questions: [
+                        { pre: "This mountain is", post: "(high) than that one.", answer: "higher", explain: "High -> Higher." },
+                        { pre: "She is the", post: "(famous) actress in Hollywood.", answer: "most famous", explain: "So sánh nhất tính từ dài." },
+                        { pre: "My exam results were", post: "(bad) than I expected.", answer: "worse", explain: "Bad -> Worse." },
+                        { pre: "Is this the", post: "(short) way to the station?", answer: "shortest", explain: "Short -> Shortest." }
+                    ]},
+                    { title: "Exercise 4. Choose the correct form (will or going to) to complete the sentences.", questions: [
+                        { pre: "Look at those boys! They", post: "(break) the window.", answer: "are going to break", explain: "Dấu hiệu rõ ràng -> Be going to." },
+                        { pre: "I expect they", post: "(arrive) soon.", answer: "will arrive", explain: "Expect (kỳ vọng) -> Will." },
+                        { pre: "\"I can't do this homework.\" - \"I", post: "(help) you.\"", answer: "will help", explain: "Đề nghị giúp đỡ." },
+                        { pre: "We", post: "(visit) our cousins next weekend.", answer: "are going to visit", explain: "Kế hoạch -> Be going to." }
+                    ]},
+                    { title: "Exercise 5. Complete the sentences using the first conditional structure with the verbs in parentheses.", questions: [
+                        { pre: "If the weather", mid: "(be) bad, we", post: "(not/go) camping.", answer: "is / won't go", split: true, explain: "If hiện tại, Main future." },
+                        { pre: "He", mid: "(learn) faster if he", post: "(listen) carefully.", answer: "will learn / listens", split: true, explain: "Main future, If hiện tại." },
+                        { pre: "If you", mid: "(touch) the fire, you", post: "(burn) yourself.", answer: "touch / will burn", split: true, explain: "If hiện tại, Main future." },
+                        { pre: "I", mid: "(call) the police if you", post: "(not/leave).", answer: "will call / don't leave", split: true, explain: "Main future, If phủ định." }
+                    ]}
+                ]
+            },
+            {
+                id: 10,
+                exercises: [
+                    { title: "Exercise 1. Fill in the blanks using the past continuous form of the verbs.", questions: [
+                        { pre: "While I", post: "(cook), I cut my finger.", answer: "was cooking", explain: "Hành động dài (was cooking) bị hành động ngắn cắt ngang." },
+                        { pre: "", mid: "they", post: "(watch) the game when you arrived?", answer: "Were / watching", split: true, explain: "Were + they + Ving?" },
+                        { pre: "The baby", post: "(cry) loudly.", answer: "was crying", explain: "Baby (số ít) + was + Ving." },
+                        { pre: "It", post: "(rain) heavily, so we stayed inside.", answer: "was raining", explain: "Mô tả bối cảnh: was raining." }
+                    ]},
+                    { title: "Exercise 2. Complete the sentences with the appropriate quantity words (some, any, a few, a little, a lot of, much, many, how much, how many).", questions: [
+                        { pre: "How", post: "water should I drink a day?", answer: "much", explain: "Water không đếm được -> Much." },
+                        { pre: "I need", post: "information about the course.", answer: "some", explain: "Information không đếm được." },
+                        { pre: "There are", post: "beautiful flowers in the garden.", answer: "many/a lot of", explain: "Flowers đếm được." },
+                        { pre: "Do you have", post: "spare time?", answer: "any/much", explain: "Time không đếm được + câu hỏi -> Any/Much." }
+                    ]},
+                    { title: "Exercise 3. Fill in the blanks with the correct form of the adjectives in parentheses.", questions: [
+                        { pre: "The cheetah is the", post: "(fast) land animal.", answer: "fastest", explain: "Fast -> Fastest." },
+                        { pre: "This book is", post: "(boring) than the movie.", answer: "more boring", explain: "So sánh hơn tính từ dài." },
+                        { pre: "Who is", post: "(old), you or your sister?", answer: "older", explain: "Old -> Older." },
+                        { pre: "This is the", post: "(delicious) meal I've had in ages.", answer: "most delicious", explain: "So sánh nhất tính từ dài." }
+                    ]},
+                    { title: "Exercise 4. Choose the correct form (will or going to) to complete the sentences.", questions: [
+                        { pre: "I", post: "(turn) 25 next month.", answer: "will turn", explain: "Sự thật hiển nhiên trong tương lai -> Will." },
+                        { pre: "\"We don't have any bread.\" - \"I", post: "(get) some.\"", answer: "will get", explain: "Quyết định tức thì." },
+                        { pre: "Look! The bus", post: "(leave). Run!", answer: "is going to leave", explain: "Dấu hiệu hiện tại -> Be going to." },
+                        { pre: "He", post: "(sell) his car. He has put an ad in the paper.", answer: "is going to sell", explain: "Kế hoạch đã chuẩn bị (đăng báo) -> Be going to." }
+                    ]},
+                    { title: "Exercise 5. Complete the sentences using the first conditional structure with the verbs in parentheses.", questions: [
+                        { pre: "If you", mid: "(study), you", post: "(pass).", answer: "study / will pass", split: true, explain: "If hiện tại, Main future." },
+                        { pre: "We", mid: "(not/be) late if we", post: "(leave) now.", answer: "won't be / leave", split: true, explain: "Main future, If hiện tại." },
+                        { pre: "If she", mid: "(invite) me, I", post: "(go).", answer: "invites / will go", split: true, explain: "If hiện tại (thêm s), Main future." },
+                        { pre: "He", mid: "(be) angry if you", post: "(break) his toy.", answer: "will be / break", split: true, explain: "Main future, If hiện tại." }
+                    ]}
+                ]
+            },
+            // ĐỀ 11 (Original 1)
+            {
+                id: 11,
+                exercises: [
+                    { title: "Exercise 1. Fill in the blanks using the past continuous form of the verbs.", questions: [
+                        { pre: "I", post: "(watch) TV when my friend called me.", answer: "was watching", explain: "I + was + Ving." },
+                        { pre: "They", post: "(not/play) soccer when it started to rain.", answer: "were not playing/weren't playing", explain: "They + were not + Ving." },
+                        { pre: "What", mid: "she", post: "(do) at 5 PM yesterday?", answer: "was / doing", split: true, explain: "Was + she + doing?" },
+                        { pre: "We", post: "(not/listen) to music while they were studying.", answer: "were not listening/weren't listening", explain: "We + were not + Ving." }
+                    ]},
+                    { title: "Exercise 2. Complete the sentences with the appropriate quantity words (some, any, a few, a little, a lot of, much, many, how much, how many).", questions: [
+                        { pre: "Do you have", post: "bread left in the kitchen?", answer: "any", explain: "Câu hỏi -> Any." },
+                        { pre: "I would like", post: "sugar in my tea, please.", answer: "some/a little", explain: "Lời đề nghị -> Some/A little." },
+                        { pre: "There are", post: "students in the classroom today.", answer: "a lot of/many", explain: "Students đếm được." },
+                        { pre: "How", post: "money do you need for the trip?", answer: "much", explain: "Money không đếm được -> Much." }
+                    ]},
+                    { title: "Exercise 3. Fill in the blanks with the correct form of the adjectives in parentheses.", questions: [
+                        { pre: "This exam is", post: "(easy) than the last one.", answer: "easier", explain: "Easy -> Easier." },
+                        { pre: "She is the", post: "(tall) girl in our class.", answer: "tallest", explain: "Tall -> Tallest." },
+                        { pre: "My car is", post: "(new) than yours.", answer: "newer", explain: "New -> Newer." },
+                        { pre: "That was the", post: "(boring) movie I've ever seen.", answer: "most boring", explain: "So sánh nhất tính từ dài." }
+                    ]},
+                    { title: "Exercise 4. Choose the correct form (will or going to) to complete the sentences.", questions: [
+                        { pre: "I", post: "(visit) my grandparents this weekend.", answer: "am going to visit", explain: "Kế hoạch -> Be going to." },
+                        { pre: "She", post: "(not/go) to the concert tonight.", answer: "is not going to go/won't go", explain: "Dự định hoặc quyết định." },
+                        { pre: "They", post: "(have) a picnic if the weather is nice.", answer: "will have", explain: "Điều kiện loại 1 -> Will." },
+                        { pre: "Are you", post: "(join) us for lunch tomorrow?", answer: "going to join", explain: "Dự định tương lai -> Be going to." }
+                    ]},
+                    { title: "Exercise 5. Complete the sentences using the first conditional structure with the verbs in parentheses.", questions: [
+                        { pre: "If it", post: "(rain), I will take an umbrella.", answer: "rains", explain: "If hiện tại đơn (it rains)." },
+                        { pre: "She will be late if she", post: "(not/hurry).", answer: "doesn't hurry", explain: "If hiện tại đơn phủ định." },
+                        { pre: "If they", post: "(study) hard, they will pass the exam.", answer: "study", explain: "If hiện tại đơn." },
+                        { pre: "I will call you if I", post: "(need) help.", answer: "need", explain: "If hiện tại đơn." }
+                    ]}
+                ]
+            },
+            // ĐỀ 12 (Original 2)
+             {
+                id: 12,
+                exercises: [
+                    { title: "Exercise 1. Fill in the blanks using the past continuous form of the verbs.", questions: [
+                        { pre: "She", post: "(study) for her exam when the power went out.", answer: "was studying", explain: "She + was + Ving." },
+                        { pre: "We", post: "(not/sleep) when the phone rang.", answer: "were not sleeping/weren't sleeping", explain: "We + were not + Ving." },
+                        { pre: "What", mid: "they", post: "(discuss) at the meeting yesterday afternoon?", answer: "were / discussing", split: true, explain: "Were + they + Ving?" },
+                        { pre: "He", post: "(write) a report while his colleague was presenting.", answer: "was writing", explain: "He + was + Ving." }
+                    ]},
+                    { title: "Exercise 2. Complete the sentences with the appropriate quantity words (some, any, a few, a little, a lot of, much, many, how much, how many).", questions: [
+                        { pre: "How", post: "time do we have left before the train arrives?", answer: "much", explain: "Time không đếm được -> Much." },
+                        { pre: "She added", post: "salt to the soup, but it still tasted bland.", answer: "a little/some", explain: "Salt không đếm được." },
+                        { pre: "There are", post: "chairs available for the guests.", answer: "a few/many/some", explain: "Chairs đếm được." },
+                        { pre: "Do you know how", post: "tickets were sold for the concert?", answer: "many", explain: "Tickets đếm được -> Many." }
+                    ]},
+                    { title: "Exercise 3. Fill in the blanks with the correct form of the adjectives in parentheses.", questions: [
+                        { pre: "This problem is", post: "(difficult) than I thought it would be.", answer: "more difficult", explain: "So sánh hơn tính từ dài." },
+                        { pre: "He is one of the", post: "(smart) people I've ever met.", answer: "smartest", explain: "So sánh nhất tính từ ngắn." },
+                        { pre: "Today's weather is much", post: "(bad) than it was yesterday.", answer: "worse", explain: "Bad -> Worse." },
+                        { pre: "This road is", post: "(narrow) than the one we took last time.", answer: "narrower", explain: "Narrow -> Narrower." }
+                    ]},
+                    { title: "Exercise 4. Choose the correct form (will or going to) to complete the sentences.", questions: [
+                        { pre: "Look at those dark clouds! It", post: "(rain) soon.", answer: "is going to rain", explain: "Dấu hiệu rõ ràng -> Be going to." },
+                        { pre: "We", post: "(not/attend) the meeting tomorrow due to a scheduling conflict.", answer: "are not going to attend", explain: "Kế hoạch -> Be going to." },
+                        { pre: "I think they", post: "(win) the competition based on their performance.", answer: "will win", explain: "I think -> Will." },
+                        { pre: "Are you", post: "(buy) a new laptop this weekend?", answer: "going to buy", explain: "Dự định -> Be going to." }
+                    ]},
+                    { title: "Exercise 5. Complete the sentences using the first conditional structure with the verbs in parentheses.", questions: [
+                        { pre: "If you", mid: "(not/practice), you", post: "(not/improve) your skills.", answer: "don't practice / won't improve", split: true, explain: "If phủ định hiện tại, Main future phủ định." },
+                        { pre: "They", mid: "(miss) the flight if they", post: "(not/get) to the airport on time.", answer: "will miss / don't get", split: true, explain: "Main future, If phủ định hiện tại." },
+                        { pre: "If she", mid: "(ask) politely, he", post: "(help) her with the task.", answer: "asks / will help", split: true, explain: "If hiện tại, Main future." },
+                        { pre: "I", mid: "(feel) more confident if I", post: "(prepare) properly.", answer: "will feel / prepare", split: true, explain: "Main future, If hiện tại." }
+                    ]}
+                ]
+            },
+        ];
+
+        // --- APP STATE ---
+        let currentTestId = 1;
+
+        // --- DOM ELEMENTS ---
+        const testButtonsContainer = document.getElementById('test-buttons');
+        const contentArea = document.getElementById('content-area');
+        const headerTitle = document.getElementById('current-test-title');
+        const headerElement = document.getElementById('main-header');
+        const testContainerElement = document.getElementById('test-container');
+        const scoreDisplay = document.getElementById('score-display');
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const navMenu = document.getElementById('nav-menu');
+
+        // --- FUNCTIONS ---
+
+        // Initialize App
+        function init() {
+            renderButtons();
+            loadTest(1);
+        }
+
+        // Render Sidebar Buttons
+        function renderButtons() {
+            testButtonsContainer.innerHTML = '';
+            testsData.forEach((test, index) => {
+                const theme = themes[index % themes.length];
+                const btn = document.createElement('button');
+                btn.className = `w-full text-left px-4 py-3 rounded-lg mb-2 transition-all duration-200 flex items-center font-semibold text-sm ${test.id === currentTestId ? 'bg-indigo-600 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100'}`;
+                btn.innerHTML = `<span class="w-6 h-6 rounded-full ${test.id === currentTestId ? 'bg-white text-indigo-600' : 'bg-gray-200 text-gray-500'} flex items-center justify-center text-xs mr-3 font-bold">${test.id}</span> Đề ${test.id}`;
+                btn.onclick = () => loadTest(test.id);
+                testButtonsContainer.appendChild(btn);
+            });
+        }
+
+        // Load and Render Test Content
+        function loadTest(id) {
+            currentTestId = id;
+            const data = testsData.find(t => t.id === id);
+            const theme = themes[(id - 1) % themes.length];
+            
+            // Update UI Colors
+            headerElement.className = `${theme.header} shadow-sm p-4 flex justify-between items-center z-10 transition-colors duration-500 border-b ${theme.border}`;
+            headerTitle.className = `text-2xl font-bold ${theme.title}`;
+            testContainerElement.className = `flex-1 overflow-y-auto p-4 md:p-8 transition-colors duration-500 relative ${theme.bg}`;
+            scoreDisplay.textContent = "--/100";
+            scoreDisplay.className = `text-xl font-extrabold ${theme.accent}`;
+
+            // Update Header Title
+            headerTitle.innerText = `Đề ${id}`;
+
+            // Update Sidebar Active State
+            renderButtons();
+
+            // Clear and Render Exercises
+            contentArea.innerHTML = '';
+            contentArea.classList.remove('fade-in');
+            void contentArea.offsetWidth; // trigger reflow
+            contentArea.classList.add('fade-in');
+
+            data.exercises.forEach((ex, exIndex) => {
+                const exDiv = document.createElement('div');
+                exDiv.className = `bg-white rounded-xl shadow-md p-6 border-l-4 ${theme.border.replace('border-', 'border-l-')}`;
+                exDiv.style.borderColor = theme.accent.replace('text-', ''); // Hack for border color
+
+                let html = `<h3 class="font-bold text-lg mb-4 ${theme.accent}">${ex.title}</h3><div class="space-y-4">`;
+
+                ex.questions.forEach((q, qIndex) => {
+                    const uniqueId = `t${id}_e${exIndex}_q${qIndex}`;
+                    
+                    html += `<div class="question-block pb-4 border-b border-gray-100 last:border-0">`;
+                    html += `<div class="text-gray-800 text-lg leading-loose">`;
+                    html += `<span class="font-bold mr-2 text-gray-400">${qIndex + 1}.</span>`;
+                    html += `${q.pre} `;
+
+                    if (q.split) {
+                        // Two inputs
+                        html += `<input type="text" id="${uniqueId}_1" class="input-blank ${theme.accent}" autocomplete="off">`;
+                        if (q.mid) html += ` ${q.mid} `;
+                        html += `<input type="text" id="${uniqueId}_2" class="input-blank ${theme.accent}" autocomplete="off">`;
+                        if(q.triple) {
+                             html += ` ${q.mid2 || ''} `; // mid2 not used yet but structure ready
+                             html += `<input type="text" id="${uniqueId}_3" class="input-blank ${theme.accent}" autocomplete="off">`;
+                        }
+                    } else {
+                        // One input
+                        html += `<input type="text" id="${uniqueId}" class="input-blank ${theme.accent}" autocomplete="off">`;
+                    }
+                    
+                    html += ` ${q.post || ''}`;
+                    html += `</div>`;
+                    
+                    // Feedback area (Hidden initially)
+                    html += `<div id="feedback_${uniqueId}" class="mt-2 hidden text-sm bg-gray-50 p-3 rounded-lg"></div>`;
+                    html += `</div>`;
+                });
+
+                html += `</div>`;
+                exDiv.innerHTML = html;
+                contentArea.appendChild(exDiv);
+            });
+
+            // Mobile menu close
+            if(window.innerWidth < 768) {
+                navMenu.classList.add('hidden');
+            }
+        }
+
+        // Check Answers Logic
+        function checkAnswers() {
+            const data = testsData.find(t => t.id === currentTestId);
+            let totalQuestions = 0;
+            let correctCount = 0;
+
+            data.exercises.forEach((ex, exIndex) => {
+                ex.questions.forEach((q, qIndex) => {
+                    const uniqueId = `t${currentTestId}_e${exIndex}_q${qIndex}`;
+                    const feedbackEl = document.getElementById(`feedback_${uniqueId}`);
+                    let isCorrect = false;
+                    let userAnswerStr = "";
+
+                    if (q.split) {
+                        const input1 = document.getElementById(`${uniqueId}_1`);
+                        const input2 = document.getElementById(`${uniqueId}_2`);
+                        const val1 = input1.value.trim().toLowerCase();
+                        const val2 = input2.value.trim().toLowerCase();
+                        userAnswerStr = `${val1} ... ${val2}`;
+                        
+                        let input3, val3;
+                        if(q.triple) {
+                            input3 = document.getElementById(`${uniqueId}_3`);
+                            val3 = input3.value.trim().toLowerCase();
+                            userAnswerStr += ` ... ${val3}`;
+                        }
+
+                        // Check answer
+                        const correctParts = q.answer.toLowerCase().split('/').map(s => s.trim());
+                        
+                        if (q.triple) {
+                             if (val1 === correctParts[0] && val2 === correctParts[1] && val3 === correctParts[2]) isCorrect = true;
+                        } else {
+                            if (val1 === correctParts[0] && val2 === correctParts[1]) isCorrect = true;
+                        }
+
+                    } else {
+                        const input = document.getElementById(`${uniqueId}`);
+                        const val = input.value.trim().toLowerCase();
+                        userAnswerStr = input.value;
+                        
+                        // Handle multiple correct options separated by '/' in data key (e.g. "some/a little")
+                        const possibleAnswers = q.answer.toLowerCase().split('/');
+                        if (possibleAnswers.includes(val)) {
+                            isCorrect = true;
+                        }
+                    }
+
+                    if (isCorrect) {
+                        correctCount++;
+                        feedbackEl.innerHTML = `<span class="correct-answer"><i class="fas fa-check"></i> Chính xác!</span> <span class="text-gray-600 block mt-1">${q.explain}</span>`;
+                        feedbackEl.classList.remove('bg-red-50');
+                        feedbackEl.classList.add('bg-green-50');
+                    } else {
+                        feedbackEl.innerHTML = `<span class="wrong-answer mr-2"><i class="fas fa-times"></i> ${userAnswerStr || '(trống)'}</span> <span class="correct-answer">Đáp án: ${q.answer}</span> <span class="text-gray-600 block mt-1">${q.explain}</span>`;
+                        feedbackEl.classList.remove('bg-green-50');
+                        feedbackEl.classList.add('bg-red-50');
+                    }
+                    
+                    feedbackEl.classList.remove('hidden');
+                    feedbackEl.classList.add('fade-in');
+                    totalQuestions++;
+                });
+            });
+
+            // Calculate Score
+            const score = Math.round((correctCount / totalQuestions) * 100);
+            scoreDisplay.textContent = `${score}/100`;
+
+            // Alert for perfect score
+            if (score === 100) {
+                setTimeout(() => alert("Xuất sắc! Bạn đã làm đúng tuyệt đối!"), 500);
+            }
+        }
+
+        function resetTest() {
+            if(confirm("Bạn muốn làm lại đề này?")) {
+                loadTest(currentTestId);
+            }
+        }
+
+        // Mobile Menu Toggle
+        mobileMenuBtn.onclick = () => {
+            navMenu.classList.toggle('hidden');
+        };
+
+        
+        document.addEventListener("keydown", function (e) {
+            if (
+                e.key === "F12" ||
+                (e.ctrlKey && e.shiftKey && e.key === "I") ||
+                (e.ctrlKey && e.shiftKey && e.key === "J") ||
+                (e.ctrlKey && e.shiftKey && e.key === "C") ||
+                (e.ctrlKey && e.key === "u") ||
+                (e.ctrlKey && e.key === "p") ||
+                (e.ctrlKey && e.key === "s")
+            ) {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        // Start
+        init();
+
+    </script>
+</body>
+</html>
