@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Description Challenge</title>
+    <style>
+        :root {
+            --primary: #2980b9; /* Intro - Xanh đậm */
+            --week1-color: #3498db; /* Blue */
+            --week2-color: #27ae60; /* Green */
+            --week3-color: #e67e22; /* Orange */
+            --week4-color: #8e44ad; /* Purple */
+            --bg: #f4f6f8;
+            --text: #2c3e50;
+            --white: #ffffff;
+            --footer-bg: #f1f2f6;
+            --footer-text: #95a5a6;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            padding-bottom: 60px;
+            line-height: 1.6;
+        }
+
+        /* HEADER */
+        header {
+            background: linear-gradient(135deg, #2c3e50, #4ca1af);
+            color: var(--white);
+            padding: 40px 20px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.2em;
+            font-weight: 800;
+        }
+
+        header p {
+            margin-top: 10px;
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        /* TABS NAVIGATION */
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+            padding: 0 10px;
+            flex-wrap: wrap;
+            position: sticky;
+            top: 0;
+            background: var(--bg);
+            z-index: 100;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            background-color: #dfe6e9;
+            color: #7f8c8d;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .tab-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .tab-btn.active {
+            color: var(--white);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        /* Tab Colors */
+        .tab-btn[data-target="intro"] { --btn-color: #34495e; }
+        .tab-btn[data-target="intro"].active { background-color: #34495e; }
+
+        .tab-btn[data-target="week1"] { --btn-color: var(--week1-color); }
+        .tab-btn[data-target="week1"].active { background-color: var(--week1-color); }
+
+        .tab-btn[data-target="week2"] { --btn-color: var(--week2-color); }
+        .tab-btn[data-target="week2"].active { background-color: var(--week2-color); }
+
+        .tab-btn[data-target="week3"] { --btn-color: var(--week3-color); }
+        .tab-btn[data-target="week3"].active { background-color: var(--week3-color); }
+
+        .tab-btn[data-target="week4"] { --btn-color: var(--week4-color); }
+        .tab-btn[data-target="week4"].active { background-color: var(--week4-color); }
+
+
+        /* CONTENT CONTAINER */
+        .content-container {
+            max-width: 900px;
+            margin: 0 auto 40px auto;
+            padding: 0 20px;
+        }
+
+        .topic-section {
+            display: none;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        .topic-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* CARD STYLES */
+        .card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 1px solid #eee;
+            border-top: 5px solid #ccc; /* Default */
+        }
+
+        /* Theme colors per week for Cards */
+        #intro .card { border-top-color: #34495e; }
+        #week1 .card { border-top-color: var(--week1-color); }
+        #week2 .card { border-top-color: var(--week2-color); }
+        #week3 .card { border-top-color: var(--week3-color); }
+        #week4 .card { border-top-color: var(--week4-color); }
+
+        .card h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f1f2f6;
+            color: #333;
+        }
+
+        /* Dynamic H2 colors */
+        #week1 h2 { color: var(--week1-color); }
+        #week2 h2 { color: var(--week2-color); }
+        #week3 h2 { color: var(--week3-color); }
+        #week4 h2 { color: var(--week4-color); }
+
+        .section-title {
+            background-color: #f0f2f5;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        /* Dynamic Section Title borders */
+        #week1 .section-title { border-left: 4px solid var(--week1-color); color: var(--week1-color); }
+        #week2 .section-title { border-left: 4px solid var(--week2-color); color: var(--week2-color); }
+        #week3 .section-title { border-left: 4px solid var(--week3-color); color: var(--week3-color); }
+        #week4 .section-title { border-left: 4px solid var(--week4-color); color: var(--week4-color); }
+
+        /* GRID LAYOUTS */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 768px) {
+            .grid-2 { grid-template-columns: 1fr; }
+        }
+
+        /* VOCAB BOXES */
+        .vocab-box {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        .vocab-box h4 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 1em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #555;
+            border-bottom: 1px dashed #ccc;
+            padding-bottom: 5px;
+        }
+        .vocab-list li {
+            margin-bottom: 8px;
+            font-size: 0.95em;
+            list-style: none;
+        }
+        .vocab-list li strong {
+            color: #2c3e50;
+        }
+
+        /* SPEAKING STRUCTURE STEPS */
+        .step-box {
+            margin-bottom: 15px;
+            padding-left: 15px;
+            border-left: 3px solid #ddd;
+        }
+        #week1 .step-box { border-left-color: var(--week1-color); }
+        #week2 .step-box { border-left-color: var(--week2-color); }
+        #week3 .step-box { border-left-color: var(--week3-color); }
+        #week4 .step-box { border-left-color: var(--week4-color); }
+
+        .step-title {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .key-phrase {
+            background-color: #fff9c4;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            color: #d35400;
+        }
+
+        /* IMAGE AREA */
+        .image-container {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .image-box {
+            flex: 1;
+            min-width: 250px;
+            height: 220px;
+            background-color: #ecf0f1;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #95a5a6;
+            font-weight: bold;
+            border: 2px dashed #bdc3c7;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .image-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block; 
+        }
+
+        /* MODEL ANSWER */
+        .model-answer-section {
+            background-color: #fafafa;
+            border: 1px solid #eee;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .answer-part {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .answer-part:last-child { border-bottom: none; }
+
+        .part-label {
+            font-size: 0.8em;
+            text-transform: uppercase;
+            font-weight: bold;
+            color: #999;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .english-text {
+            font-size: 1.05em;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        /* Highlight classes for vocab in model answers */
+        .hl-w1 { color: var(--week1-color); font-weight: 700; }
+        .hl-w2 { color: var(--week2-color); font-weight: 700; }
+        .hl-w3 { color: var(--week3-color); font-weight: 700; }
+        .hl-w4 { color: var(--week4-color); font-weight: 700; }
+
+        /* TRANSLATION */
+        .trans-btn {
+            background: none;
+            border: none;
+            color: #7f8c8d;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-top: 8px;
+            padding: 0;
+            display: inline-block;
+        }
+        .trans-btn:hover { color: #333; }
+
+        .vietnamese-text {
+            display: none;
+            margin-top: 10px;
+            padding: 10px 15px;
+            background-color: #fff;
+            border-left: 3px solid #bdc3c7;
+            color: #666;
+            font-style: italic;
+            font-size: 0.95em;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* FOOTER */
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--footer-bg);
+            color: var(--footer-text);
+            text-align: center;
+            padding: 10px 0;
+            font-size: 0.9em;
+            border-top: 1px solid #e0e0e0;
+            font-weight: 600;
+            z-index: 1000;
+        }
+        
+        /* Intro Structure grid */
+        .structure-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .structure-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 5px solid #34495e;
+        }
+        .structure-item strong { display: block; margin-bottom: 5px; color: #c0392b; }
+
+        @media (max-width: 600px) {
+            header h1 { font-size: 1.8em; }
+            .tabs { gap: 5px; }
+            .tab-btn { padding: 8px 12px; font-size: 0.85em; }
+            .image-box { min-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Photo Description SP2</h1>
+    <p>Intro class with Mr. Phuoc</p>
+</header>
+
+<div class="tabs">
+    <button class="tab-btn active" data-target="intro">📚 Useful structures</button>
+    <button class="tab-btn" data-target="week1">Tuần 1: Classroom</button>
+    <button class="tab-btn" data-target="week2">Tuần 2: Traffic</button>
+    <button class="tab-btn" data-target="week3">Tuần 3: Seasons</button>
+    <button class="tab-btn" data-target="week4">Tuần 4: Lifestyle</button>
+</div>
+
+<div class="content-container">
+
+    <!-- FOUNDATIONS / CẤU TRÚC -->
+    <div id="intro" class="topic-section active">
+        <div class="card">
+            <h2>Các Cấu Trúc Cần Ghi Nhớ</h2>
+            <div class="structure-grid">
+                <div class="structure-item">
+                    <strong>1. Điểm tương đồng (Similarities)</strong>
+                    <ul>
+                        <li>The common theme in the photos is...</li>
+                        <li>Both photos show...</li>
+                        <li>In both photos there are...</li>
+                        <li>You can see... in both photos.</li>
+                    </ul>
+                </div>
+                <div class="structure-item">
+                    <strong>2. Sự khác biệt (Differences)</strong>
+                    <ul>
+                        <li>The first photo shows [A], whereas the second photo shows [B].</li>
+                        <li>Unlike the first photo, the second photo shows...</li>
+                        <li>In contrast to the first photo, the second photo...</li>
+                        <li>One obvious difference is (that)...</li>
+                        <li>Another difference is that...</li>
+                    </ul>
+                </div>
+                <div class="structure-item">
+                    <strong>3. Suy đoán (Speculation)</strong>
+                    <ul>
+                        <li>It/They must be... (Chắc hẳn là...)</li>
+                        <li>It/They can't be... (Không thể nào là...)</li>
+                        <li>Judging by... (Dựa trên...)</li>
+                        <li>It seems to me that...</li>
+                    </ul>
+                </div>
+                <div class="structure-item">
+                    <strong>4. Bố cục bài nói (Structure)</strong>
+                    <ul>
+                        <li>I'd like to start by looking at...</li>
+                        <li>First of all,... Second,... Finally,...</li>
+                        <li>Moving on to...</li>
+                        <li>To sum up... / In conclusion...</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WEEK 1: RURAL VS MODERN CLASSROOM -->
+    <div id="week1" class="topic-section">
+        <div class="card">
+            <h2>Week 1: Rural vs. Modern Classroom</h2>
+            
+            <div class="image-container">
+                <div class="image-box">
+                    <img src="week1_rural.jpg" alt="Ảnh lớp học nông thôn">
+                </div>
+                <div class="image-box">
+                    <img src="week1_modern.jpg" alt="Ảnh lớp học hiện đại">
+                </div>
+            </div>
+
+            <div class="section-title">📖 TỪ VỰNG CHỦ ĐỀ GIÁO DỤC</div>
+            <div class="grid-2">
+                <div class="vocab-box">
+                    <h4>1. Mô tả lớp học đơn sơ</h4>
+                    <ul class="vocab-list">
+                        <li><strong>Wooden desks and benches:</strong> Bàn ghế gỗ dài.</li>
+                        <li><strong>Chalkboard / Blackboard:</strong> Bảng phấn đen/xanh.</li>
+                        <li><strong>Peeling paint / Old walls:</strong> Tường cũ / bong tróc sơn.</li>
+                        <li><strong>Basic / Simple facilities:</strong> Cơ sở vật chất cơ bản/đơn sơ.</li>
+                        <li><strong>Remote area / Underprivileged:</strong> Vùng sâu vùng xa / Thiếu thốn.</li>
+                    </ul>
+                </div>
+                <div class="vocab-box">
+                    <h4>2. Mô tả lớp học hiện đại</h4>
+                    <ul class="vocab-list">
+                        <li><strong>Interactive whiteboard / Smartboard:</strong> Bảng tương tác thông minh.</li>
+                        <li><strong>State-of-the-art facilities:</strong> Cơ sở vật chất hiện đại bậc nhất.</li>
+                        <li><strong>Group arrangement:</strong> Sắp xếp bàn ghế theo nhóm.</li>
+                        <li><strong>Spacious and bright:</strong> Rộng rãi và sáng sủa.</li>
+                        <li><strong>Well-equipped:</strong> Được trang bị đầy đủ.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section-title">📋 BỐ CỤC BÀI NÓI</div>
+            <div class="vocab-box">
+                <div class="step-box">
+                    <span class="step-title">Bước 1: Giới thiệu (Introduction)</span>
+                    Chủ đề chung: Giáo dục / Môi trường học tập.<br>
+                    <span class="key-phrase">Key phrase: "The common theme in the photos is education and the learning environment."</span>
+                </div>
+                <div class="step-box">
+                    <span class="step-title">Bước 2: So sánh sự khác biệt về cơ sở vật chất (Facilities)</span>
+                    So sánh bàn ghế, bảng, ánh sáng. Dùng cấu trúc: <em>Whereas, In contrast to.</em><br>
+                    Ví dụ: Bảng phấn vs. Bảng thông minh; Bàn ghế cũ vs. Bàn ghế mới.
+                </div>
+                <div class="step-box">
+                    <span class="step-title">Bước 3: So sánh về phương pháp học & Học sinh</span>
+                    Ảnh 1: Học sinh ngồi theo hàng truyền thống. Ảnh 2: Học sinh ngồi theo nhóm.<br>
+                    <span class="key-phrase">Key phrase: "The first photo shows a traditional teaching style...", "The second photo encourages teamwork..."</span>
+                </div>
+                <div class="step-box">
+                    <span class="step-title">Bước 4: Suy đoán & Kết luận</span>
+                    Cảm nhận về điều kiện học tập? Sự công bằng trong giáo dục?<br>
+                    <span class="key-phrase">Key phrase: "The students in the second photo seem to be very lucky..."</span>
+                </div>
+            </div>
+
+            <div class="section-title">🗣️ BÀI TRẢ LỜI MẪU</div>
+            <div class="model-answer-section">
+                <div class="answer-part">
+                    <span class="part-label">Introduction</span>
+                    <div class="english-text">I’d like to start by looking at the <span class="hl-w1">common theme</span>, which is <span class="hl-w1">education</span>. Both photos show young students inside a classroom, but the <span class="hl-w1">learning conditions</span> are completely different.</div>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="vietnamese-text">Tôi muốn bắt đầu bằng việc nhìn vào chủ đề chung, đó là giáo dục. Cả hai ảnh đều cho thấy các học sinh nhỏ trong lớp, nhưng điều kiện học tập thì hoàn toàn khác nhau.</div>
+                </div>
+
+                <div class="answer-part">
+                    <span class="part-label">Differences - Facilities</span>
+                    <div class="english-text">The first photo shows a classroom in a <span class="hl-w1">remote area</span>. The facilities look quite old and basic. You can see <span class="hl-w1">wooden desks</span>, a traditional <span class="hl-w1">chalkboard</span>, and the walls look a bit <span class="hl-w1">worn out</span>. <br>In contrast to the first photo, the second photo shows a very modern classroom, possibly in an international school. It is <span class="hl-w1">well-equipped</span> with bright lights, colorful furniture, and a large <span class="hl-w1">interactive smartboard</span> on the wall.</div>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="vietnamese-text">Bức ảnh đầu cho thấy một lớp học ở vùng nông thôn hoặc vùng sâu. Cơ sở vật chất trông khá cũ và cơ bản. Bạn có thể thấy bàn gỗ, bảng phấn truyền thống và tường hơi cũ nát. Trái ngược với ảnh đầu, ảnh hai cho thấy một lớp học rất hiện đại, có thể là trường quốc tế. Nó được trang bị tốt với đèn sáng, nội thất nhiều màu và bảng tương tác thông minh lớn trên tường.</div>
+                </div>
+
+                <div class="answer-part">
+                    <span class="part-label">Differences - Methods</span>
+                    <div class="english-text">Another difference is the teaching style. In the first picture, the students are <span class="hl-w1">sitting in rows</span> facing the teacher, which is a very traditional way of learning. <br>Unlike the first photo, the students in the second photo are <span class="hl-w1">sitting in groups</span>. This suggests that their learning method focuses more on <span class="hl-w1">teamwork</span>.</div>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="vietnamese-text">Một điểm khác biệt nữa là phương pháp dạy. Ở ảnh 1, học sinh ngồi theo hàng hướng về giáo viên, đây là cách học rất truyền thống. Không giống ảnh 1, học sinh ở ảnh 2 ngồi theo nhóm. Điều này gợi ý rằng phương pháp học của họ tập trung hơn vào tương tác và làm việc nhóm.</div>
+                </div>
+
+                <div class="answer-part">
+                    <span class="part-label">Conclusion</span>
+                    <div class="english-text">Judging by the environment, the students in the second photo must have access to <span class="hl-w1">better resources</span>. However, it seems to me that the students in the first photo are also very eager to learn. To sum up, while good <span class="hl-w1">facilities</span> can make learning easier, I believe the most important thing is the students' attitude.</div>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="vietnamese-text">Đánh giá qua môi trường, học sinh ở ảnh 2 chắc hẳn được tiếp cận tài nguyên tốt hơn. Tuy nhiên, với tôi dường như các học sinh ở ảnh 1 cũng rất ham học. Tóm lại, dù cơ sở vật chất tốt giúp việc học dễ dàng hơn, tôi tin điều quan trọng nhất vẫn là thái độ của học sinh.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WEEK 2: COUNTRYSIDE VS CITY TRAFFIC -->
+    <div id="week2" class="topic-section">
+        <div class="card">
+            <h2>Week 2: Countryside vs. City Traffic</h2>
+            <div class="image-container">
+                <div class="image-box">
+                    <img src="week2_countryside.jpg" alt="Ảnh nông thôn">
+                </div>
+                <div class="image-box">
+                    <img src="week2_citytraffic.jpg" alt="Ảnh giao thông phố">
+                </div>
+            </div>
+
+            <!-- Added Vocab Section to match Week 1 -->
+            <div class="section-title">📖 TỪ VỰNG CHỦ ĐỀ GIAO THÔNG & MÔI TRƯỜNG</div>
+            <div class="grid-2">
+                <div class="vocab-box">
+                    <h4>1. Mô tả nông thôn (Countryside)</h4>
+                    <ul class="vocab-list">
+                        <li><strong>Peaceful scene:</strong> Khung cảnh yên bình.</li>
+                        <li><strong>Dirt path:</strong> Đường đất.</li>
+                        <li><strong>Surrounded by greenery:</strong> Bao quanh bởi cây xanh.</li>
+                        <li><strong>Fresh air:</strong> Không khí trong lành.</li>
+                        <li><strong>Slow-paced lifestyle:</strong> Lối sống chậm rãi.</li>
+                    </ul>
+                </div>
+                <div class="vocab-box">
+                    <h4>2. Mô tả thành phố (City Traffic)</h4>
+                    <ul class="vocab-list">
+                        <li><strong>Traffic jam / Congestion:</strong> Tắc đường / Kẹt xe.</li>
+                        <li><strong>Exhaust fumes / Smoke:</strong> Khói thải.</li>
+                        <li><strong>Polluted air:</strong> Không khí ô nhiễm.</li>
+                        <li><strong>Hustle and bustle:</strong> Sự xô bồ, hối hả.</li>
+                        <li><strong>Stuck in traffic:</strong> Bị kẹt xe.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section-title">📋 BỐ CỤC BÀI NÓI LOGIC</div>
+            <div class="vocab-box">
+                <div class="step-box" style="border-left-color: var(--week2-color);">
+                    <span class="step-title">Bước 1: Giới thiệu (Introduction)</span>
+                    Nêu chủ đề chung: Môi trường (Environment) và Cách di chuyển (Travel).<br>
+                    <span class="key-phrase">Key phrase: "The common theme in the photos is the environment and how people travel."</span>
+                </div>
+                <div class="step-box" style="border-left-color: var(--week2-color);">
+                    <span class="step-title">Bước 2: So sánh chính (Main Comparison)</span>
+                    Yên bình vs. Ồn ào / Không khí trong lành vs. Ô nhiễm.<br>
+                    <span class="key-phrase">Key phrase: "The first photo shows a peaceful scene, whereas the second photo shows..."</span>
+                </div>
+                <div class="step-box" style="border-left-color: var(--week2-color);">
+                    <span class="step-title">Bước 3: Suy đoán (Speculation)</span>
+                    Cảm xúc của con người? (Thư giãn vs. Căng thẳng)<br>
+                    <span class="key-phrase">Key phrase: "The man must be feeling relaxed...", "The drivers must be feeling stressed..."</span>
+                </div>
+                <div class="step-box" style="border-left-color: var(--week2-color);">
+                    <span class="step-title">Bước 4: Kết luận (Conclusion)</span>
+                    Sở thích cá nhân: Bạn thích sống ở đâu hơn?
+                </div>
+            </div>
+
+            <div class="section-title">🗣️ BÀI TRẢ LỜI MẪU</div>
+            <div class="model-answer-section">
+                <div class="answer-part">
+                    <span class="part-label">Introduction</span>
+                    <div class="english-text">I’d like to start by saying that the <span class="hl-w2">common theme</span> in the photos is the environment and how people travel. Both photos show people moving from one place to another, but in <span class="hl-w2">completely different settings</span>.</div>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="vietnamese-text">Tôi muốn bắt đầu bằng việc nói rằng chủ đề chung là môi trường và cách mọi người di chuyển. Cả hai ảnh đều cho thấy sự di chuyển, nhưng ở bối cảnh hoàn toàn khác nhau.</div>
+                </div>
+
+                <div class="answer-part">
+                    <span class="part-label">Differences</span>
+                    <div class="english-text">The first photo shows a <span class="hl-w2">peaceful countryside scene</span>, whereas the second photo shows a <span class="hl-w2">busy city street</span>. <br>One obvious difference is the level of <span class="hl-w2">pollution</span>. In the first photo, there is a man walking alone on a <span class="hl-w2">dirt path</span> surrounded by <span class="hl-w2">green grass</span> and <span class="hl-w2">fresh air</span>. In contrast to the first photo, the second photo is full of cars stuck in a <span class="hl-w2">traffic jam</span>. You can see thick white smoke coming from the cars, which means the air must be very <span class="hl-w2">polluted</span>.</div>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="vietnamese-text">Bức ảnh đầu là cảnh nông thôn yên bình, trong khi bức ảnh hai là đường phố đông đúc. Một sự khác biệt rõ ràng là mức độ ô nhiễm. Ở ảnh 1, có người đàn ông đi bộ một mình giữa cỏ xanh và không khí trong lành. Trái ngược lại, ảnh 2 toàn là xe cộ kẹt cứng. Bạn có thể thấy khói trắng dày đặc, nghĩa là không khí chắc chắn rất ô nhiễm.</div>
+                </div>
+
+                <div class="answer-part">
+                    <span class="part-label">Speculation</span>
+                    <div class="english-text">Judging by the green grass and the blue sky in the first photo, it looks like a <span class="hl-w2">warm summer</span>. The man must be feeling very <span class="hl-w2">relaxed</span>. <br>Unlike the first photo, the second photo looks <span class="hl-w2">cold and grey</span>. I imagine that the drivers must be feeling <span class="hl-w2">stressed</span> or <span class="hl-w2">impatient</span> because of the traffic and the noise.</div>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="vietnamese-text">Đánh giá dựa trên cỏ xanh và trời xanh ở ảnh 1, có vẻ như là mùa hè hoặc xuân. Người đàn ông chắc hẳn rất thư giãn. Không giống ảnh 1, ảnh 2 trông lạnh lẽo và xám xịt. Tôi tưởng tượng rằng các tài xế chắc hẳn rất căng thẳng hoặc mất kiên nhẫn vì kẹt xe và tiếng ồn.</div>
+                </div>
+
+                <div class="answer-part">
+                    <span class="part-label">Conclusion</span>
+                    <div class="english-text">To sum up, the first picture represents a <span class="hl-w2">slow and healthy lifestyle</span>, while the second picture represents the <span class="hl-w2">busy, polluted reality</span> of modern city life. Personally, I would prefer to be in the place shown in the first photo.</div>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="vietnamese-text">Tóm lại, bức ảnh đầu đại diện cho lối sống chậm và lành mạnh, trong khi bức ảnh hai đại diện cho thực tế bận rộn, ô nhiễm của đô thị hiện đại. Cá nhân tôi thích ở nơi như bức ảnh đầu tiên hơn.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WEEK 3: PARIS IN WINTER VS SUMMER -->
+    <div id="week3" class="topic-section">
+        <div class="card">
+            <h2>Week 3: Paris in Winter vs. Summer</h2>
+            
+            <div class="image-container">
+                <div class="image-box">
+                    <img src="week3_winter.jpg" alt="Paris Winter">
+                </div>
+                <div class="image-box">
+                    <img src="week3_summer.jpg" alt="Paris Summer">
+                </div>
+            </div>
+
+            <div class="section-title">📖 TỪ VỰNG CHỦ ĐỀ THỜI TIẾT & MÙA</div>
+            <div class="grid-2">
+                <div class="vocab-box">
+                    <h4>1. Từ vựng mô tả (Weather & Clothes)</h4>
+                    <ul class="vocab-list">
+                        <li><strong>Seasons:</strong> Winter (Mùa đông), Summer (Mùa hè).</li>
+                        <li><strong>Weather:</strong> Snowy, Freezing, Overcast, Sunny, Warm, Pleasant.</li>
+                        <li><strong>Clothes:</strong> Winter coats, Scarves, Gloves, Light clothes.</li>
+                        <li><strong>Activities:</strong> Building a snowman, Picnicking, Sunbathing.</li>
+                    </ul>
+                </div>
+                <div class="vocab-box">
+                    <h4>2. Cấu trúc so sánh (Comparison)</h4>
+                    <ul class="vocab-list">
+                        <li><strong>The common theme in the photos is...</strong> (Chủ đề chung là...)</li>
+                        <li><strong>In contrast to...</strong> (Trái ngược với...)</li>
+                        <li><strong>Whereas / While...</strong> (Trong khi...)</li>
+                        <li><strong>One obvious difference is...</strong> (Một điểm khác biệt rõ là...)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section-title">📋 BỐ CỤC BÀI NÓI</div>
+            <div class="vocab-box">
+                <div class="step-box" style="border-left-color: var(--week3-color);">
+                    <span class="step-title">Bước 1: Giới thiệu (Introduction)</span>
+                    Nhận diện địa điểm: Cả hai đều chụp tháp Eiffel (Paris).<br>
+                    Nêu chủ đề chung: Cùng một địa điểm nhưng thời gian/mùa khác nhau.
+                </div>
+                <div class="step-box" style="border-left-color: var(--week3-color);">
+                    <span class="step-title">Bước 2: So sánh chi tiết (Detailed Comparison)</span>
+                    <strong>Thời tiết & Màu sắc:</strong> Ảnh 1 trắng xóa/lạnh vs Ảnh 2 xanh lá/ấm.<br>
+                    <strong>Con người & Hoạt động:</strong> Ảnh 1 trẻ em chơi tuyết, đồ dày vs Ảnh 2 thư giãn, picnic, đồ mỏng.
+                </div>
+                <div class="step-box" style="border-left-color: var(--week3-color);">
+                    <span class="step-title">Bước 3: Suy đoán (Speculation)</span>
+                    Dùng <em>must be / can't be / looks like</em>.<br>
+                    <span class="key-phrase">Key phrase: "It must be very cold in the first photo..."</span>
+                </div>
+                <div class="step-box" style="border-left-color: var(--week3-color);">
+                    <span class="step-title">Bước 4: Kết luận (Conclusion)</span>
+                    Bạn thích đi du lịch vào mùa nào hơn? Tại sao?
+                </div>
+            </div>
+
+            <div class="section-title">🗣️ BÀI TRẢ LỜI MẪU</div>
+            <div class="model-answer-section">
+                <div class="answer-part">
+                    <span class="part-label">Introduction</span>
+                    <div class="english-text">I’d like to start by saying that the <span class="hl-w3">common theme</span> in the photos is the location. Both photos show the famous Eiffel Tower in Paris, but they were taken in <span class="hl-w3">completely different seasons</span>.</div>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="vietnamese-text">Tôi muốn bắt đầu bằng việc nói rằng chủ đề chung là địa điểm. Cả hai ảnh đều chụp tháp Eiffel nổi tiếng ở Paris, nhưng được chụp vào những mùa hoàn toàn khác nhau.</div>
+                </div>
+
+                <div class="answer-part">
+                    <span class="part-label">Differences - Weather</span>
+                    <div class="english-text">The first photo shows a <span class="hl-w3">cold winter day</span>, whereas the second photo shows a beautiful, <span class="hl-w3">sunny day</span>. <br>One obvious difference is the color. In the first photo, everything is covered in <span class="hl-w3">white snow</span> and the sky looks <span class="hl-w3">overcast</span>. In contrast to the first photo, the second photo is full of bright colors, with <span class="hl-w3">green grass</span> and trees.</div>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="vietnamese-text">Bức ảnh đầu là ngày đông lạnh, trong khi bức ảnh hai là ngày nắng đẹp. Một khác biệt rõ ràng là màu sắc. Ở ảnh 1, mọi thứ phủ tuyết trắng và trời trông xám xịt. Trái ngược lại, ảnh 2 tràn ngập màu sắc tươi sáng với cỏ cây xanh mướt.</div>
+                </div>
+
+                <div class="answer-part">
+                    <span class="part-label">Differences - Activities</span>
+                    <div class="english-text">Because of the weather, people are doing different things. In the first picture, I can see some children <span class="hl-w3">building a snowman</span>. They are wearing heavy <span class="hl-w3">winter coats</span>, <span class="hl-w3">scarves</span>, and gloves. <br>Unlike the first photo, the people in the second photo are <span class="hl-w3">relaxing</span> on the grass. Some are having <span class="hl-w3">picnics</span>. They are wearing <span class="hl-w3">light clothes</span> like T-shirts.</div>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="vietnamese-text">Vì thời tiết, mọi người làm những việc khác nhau. Ở ảnh 1, tôi thấy vài đứa trẻ đang đắp người tuyết. Chúng mặc áo khoác dày, đội mũ và đi ủng để giữ ấm. Không giống ảnh 1, mọi người ở ảnh 2 đang thư giãn trên cỏ. Một số đang dã ngoại. Họ mặc đồ mỏng như áo thun.</div>
+                </div>
+
+                <div class="answer-part">
+                    <span class="part-label">Speculation & Conclusion</span>
+                    <div class="english-text">Judging by the snow, it <span class="hl-w3">must be freezing</span> in the first photo, but the children look like they are having fun. In the second photo, the atmosphere seems very <span class="hl-w3">peaceful</span>. <br>Personally, I prefer the scene in the second photo because I love sitting outdoors and <span class="hl-w3">enjoying the sun</span> rather than being in the cold.</div>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="vietnamese-text">Đánh giá qua lượng tuyết, ảnh 1 chắc hẳn lạnh cóng, nhưng lũ trẻ trông rất vui. Ở ảnh 2, không khí dường như rất yên bình. Cá nhân tôi thích khung cảnh ở bức ảnh thứ hai hơn vì tôi thích ngồi ngoài trời tận hưởng ánh nắng hơn là chịu lạnh.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WEEK 4: MODERN CITY VS RURAL LIFE -->
+    <div id="week4" class="topic-section">
+        <div class="card">
+            <h2>Week 4: Modern City vs. Rural Life</h2>
+            
+            <div class="image-container">
+                <div class="image-box">
+                    <img src="week4_city.jpg" alt="Modern City">
+                </div>
+                <div class="image-box">
+                    <img src="week4_rural.jpg" alt="Rural Life">
+                </div>
+            </div>
+
+            <div class="section-title">📖 TỪ VỰNG CHỦ ĐỀ LỐI SỐNG</div>
+            <div class="grid-2">
+                <div class="vocab-box">
+                    <h4>1. Mô tả thành phố (Modern City)</h4>
+                    <ul class="vocab-list">
+                        <li><strong>Skyscrapers:</strong> Các tòa nhà chọc trời.</li>
+                        <li><strong>Highways / Interchanges:</strong> Đường cao tốc.</li>
+                        <li><strong>Artificial / Neon lights:</strong> Ánh sáng nhân tạo.</li>
+                        <li><strong>Bustling / Hectic:</strong> Nhộn nhịp, hối hả.</li>
+                        <li><strong>Traffic trails:</strong> Vệt sáng do đèn xe.</li>
+                    </ul>
+                </div>
+                <div class="vocab-box">
+                    <h4>2. Mô tả nông thôn (Rural Life)</h4>
+                    <ul class="vocab-list">
+                        <li><strong>Terraced fields:</strong> Ruộng bậc thang.</li>
+                        <li><strong>Water buffalo:</strong> Con trâu nước.</li>
+                        <li><strong>Mist / Fog:</strong> Sương mù.</li>
+                        <li><strong>Sunrise / Golden hour:</strong> Bình minh.</li>
+                        <li><strong>Tranquil / Serene:</strong> Yên bình.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section-title">📋 BỐ CỤC BÀI NÓI</div>
+            <div class="vocab-box">
+                <div class="step-box" style="border-left-color: var(--week4-color);">
+                    <span class="step-title">Bước 1: Giới thiệu (Introduction)</span>
+                    Nêu chủ đề chung: Sự tương phản về lối sống (Lifestyles) hoặc Môi trường sống (Living environments).<br>
+                    <span class="key-phrase">Key phrase: "The common theme in the photos is different living environments."</span>
+                </div>
+                <div class="step-box" style="border-left-color: var(--week4-color);">
+                    <span class="step-title">Bước 2: So sánh sự đối lập (Contrast)</span>
+                    Ánh sáng: Đèn điện (nhân tạo) vs. Mặt trời (tự nhiên).<br>
+                    Kiến trúc: Bê tông cốt thép vs. Đồi núi, ruộng đồng.<br>
+                    Tốc độ: Xe chạy vùn vụt vs. Người và trâu đi bộ chậm rãi.
+                </div>
+                <div class="step-box" style="border-left-color: var(--week4-color);">
+                    <span class="step-title">Bước 3: Suy đoán (Speculation)</span>
+                    Cảm giác của người sống ở đó?<br>
+                    <span class="key-phrase">Key phrase: "Life in the city must be fast and stressful", "The farmer seems to be starting a hard working day".</span>
+                </div>
+                <div class="step-box" style="border-left-color: var(--week4-color);">
+                    <span class="step-title">Bước 4: Kết luận (Conclusion)</span>
+                    Bạn thích sự tiện nghi hay sự yên bình?
+                </div>
+            </div>
+
+            <div class="section-title">🗣️ BÀI TRẢ LỜI MẪU</div>
+            <div class="model-answer-section">
+                <div class="answer-part">
+                    <span class="part-label">Introduction</span>
+                    <div class="english-text">I’d like to start by saying that these two photos show a <span class="hl-w4">dramatic contrast</span>. The common theme is human settlement, but the <span class="hl-w4">lifestyles</span> shown are completely opposite.</div>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="vietnamese-text">Tôi muốn bắt đầu bằng việc nói rằng hai bức ảnh này cho thấy sự tương phản kịch tính giữa hai thế giới. Chủ đề chung là nơi cư trú của con người, nhưng lối sống thì hoàn toàn đối lập.</div>
+                </div>
+
+                <div class="answer-part">
+                    <span class="part-label">Differences - Visuals & Pace</span>
+                    <div class="english-text">The first photo shows a <span class="hl-w4">modern city</span> at night, filled with <span class="hl-w4">skyscrapers</span> and bright <span class="hl-w4">neon lights</span>. Whereas the second photo shows a traditional rural scene with <span class="hl-w4">terraced fields</span> and <span class="hl-w4">mist</span> covering the hills. <br>One obvious difference is the light. In the first photo, the light is <span class="hl-w4">artificial</span>. In contrast, the second photo is lit by the <span class="hl-w4">sunrise</span>. <br>Another difference is the pace of life. In the city, you see <span class="hl-w4">traffic trails</span>, meaning life must be <span class="hl-w4">hectic</span>. Unlike the first photo, the second photo shows a farmer walking slowly with his <span class="hl-w4">water buffalo</span>. It suggests a <span class="hl-w4">tranquil</span> way of life.</div>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="vietnamese-text">Bức ảnh đầu là thành phố hiện đại về đêm, đầy những tòa nhà chọc trời và đèn neon. Trong khi đó bức ảnh hai là cảnh nông thôn truyền thống với ruộng bậc thang và sương mù bao phủ đồi. Một sự khác biệt rõ ràng là ánh sáng. Ảnh 1 là ánh sáng nhân tạo. Trái ngược lại, ảnh 2 được chiếu sáng bởi bình minh. Một điểm khác biệt nữa là nhịp sống. Ở thành phố, bạn thấy các vệt sáng xe, nghĩa là cuộc sống rất hối hả. Không giống ảnh đầu, ảnh hai cho thấy người nông dân đi chậm rãi cùng con trâu. Nó gợi ý một lối sống yên bình.</div>
+                </div>
+
+                <div class="answer-part">
+                    <span class="part-label">Speculation & Conclusion</span>
+                    <div class="english-text">Judging by the <span class="hl-w4">infrastructure</span>, the people in the first photo probably rely on technology. On the other hand, the man in the second photo must be a hard-working <span class="hl-w4">farmer</span>. <br>Personally, I admire the beauty of the countryside, but I think I would find it easier to live in the modern city with all its conveniences.</div>
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="vietnamese-text">Đánh giá qua cơ sở hạ tầng, người ở ảnh 1 có lẽ phụ thuộc công nghệ. Mặt khác, người đàn ông ở ảnh 2 chắc hẳn là nông dân chăm chỉ. Cá nhân tôi ngưỡng mộ vẻ đẹp nông thôn, nhưng tôi nghĩ mình sẽ thấy dễ sống hơn ở thành phố hiện đại với mọi tiện nghi của nó.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Footer -->
+<footer>
+    Đình Phước Edu
+</footer>
+
+<script>
+    // Tab switching logic
+    const tabs = document.querySelectorAll('.tab-btn');
+    const sections = document.querySelectorAll('.topic-section');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            // Remove active class from all
+            tabs.forEach(t => t.classList.remove('active'));
+            sections.forEach(s => s.classList.remove('active'));
+
+            // Add active class to clicked
+            tab.classList.add('active');
+            const targetId = tab.getAttribute('data-target');
+            document.getElementById(targetId).classList.add('active');
+            
+            // Scroll to top of content smoothly
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    });
+ document.addEventListener("keydown", function (e) {
+                if (
+                    e.key === "F12" ||
+                    (e.ctrlKey && e.shiftKey && e.key === "I") ||
+                    (e.ctrlKey && e.shiftKey && e.key === "J") ||
+                    (e.ctrlKey && e.shiftKey && e.key === "C") ||
+                    (e.ctrlKey && e.key === "u") ||
+                    (e.ctrlKey && e.key === "p") ||
+                    (e.ctrlKey && e.key === "s")
+                ) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+    // Translation toggle logic
+    function toggleTrans(btn) {
+        const transText = btn.nextElementSibling;
+        
+        if (transText.style.display === "block") {
+            transText.style.display = "none";
+            btn.textContent = "Xem bản dịch";
+        } else {
+            transText.style.display = "block";
+            btn.textContent = "Ẩn bản dịch";
+        }
+    }
+</script>
+
+</body>
+</html>

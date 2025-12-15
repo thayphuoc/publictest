@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INTRO Writing Classes</title>
+    <style>
+        :root {
+            --intro-color: #34495e;
+            --week1-color: #27ae60; /* Green */
+            --week2-color: #e67e22; /* Orange */
+            --week3-color: #c0392b; /* Red */
+            --week4-color: #8e44ad; /* Purple */
+            --bg: #f4f7f6;
+            --text: #2c3e50;
+            --white: #ffffff;
+            --footer-bg: #ecf0f1;
+            --footer-text: #7f8c8d;
+        }
+
+        body {
+            /* Changed to Arial as requested for consistency */
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            padding-bottom: 60px;
+            line-height: 1.6;
+        }
+
+        /* HEADER */
+        header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: var(--white);
+            padding: 40px 20px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        header p {
+            margin-top: 10px;
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        /* TABS NAVIGATION */
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+            padding: 0 10px;
+            flex-wrap: wrap;
+            position: sticky;
+            top: 0;
+            background: var(--bg);
+            z-index: 100;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            background-color: #dfe6e9;
+            color: #7f8c8d;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .tab-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .tab-btn.active {
+            color: var(--white);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        /* Tab Colors */
+        .tab-btn[data-target="intro"] { --btn-color: var(--intro-color); }
+        .tab-btn[data-target="intro"].active { background-color: var(--intro-color); }
+
+        .tab-btn[data-target="week1"] { --btn-color: var(--week1-color); }
+        .tab-btn[data-target="week1"].active { background-color: var(--week1-color); }
+
+        .tab-btn[data-target="week2"] { --btn-color: var(--week2-color); }
+        .tab-btn[data-target="week2"].active { background-color: var(--week2-color); }
+
+        .tab-btn[data-target="week3"] { --btn-color: var(--week3-color); }
+        .tab-btn[data-target="week3"].active { background-color: var(--week3-color); }
+
+        .tab-btn[data-target="week4"] { --btn-color: var(--week4-color); }
+        .tab-btn[data-target="week4"].active { background-color: var(--week4-color); }
+
+
+        /* CONTENT CONTAINER */
+        .content-container {
+            max-width: 800px;
+            margin: 0 auto 40px auto;
+            padding: 0 20px;
+        }
+
+        .topic-section {
+            display: none;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        .topic-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* CARD STYLES */
+        .card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 1px solid #eee;
+            border-top: 5px solid #ccc;
+        }
+
+        /* Theme colors per week for Cards */
+        #intro .card { border-top-color: var(--intro-color); }
+        #week1 .card { border-top-color: var(--week1-color); }
+        #week2 .card { border-top-color: var(--week2-color); }
+        #week3 .card { border-top-color: var(--week3-color); }
+        #week4 .card { border-top-color: var(--week4-color); }
+
+        .card h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f1f2f6;
+            color: #333;
+        }
+        
+        #intro h2 { color: var(--intro-color); }
+        #week1 h2 { color: var(--week1-color); }
+        #week2 h2 { color: var(--week2-color); }
+        #week3 h2 { color: var(--week3-color); }
+        #week4 h2 { color: var(--week4-color); }
+
+        .instruction-box {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-left: 4px solid #ccc;
+            margin-bottom: 20px;
+            border-radius: 0 5px 5px 0;
+            font-size: 0.95em;
+        }
+        
+        .instruction-box ul {
+            padding-left: 20px;
+            margin-bottom: 0;
+        }
+        
+        .instruction-box li {
+            margin-bottom: 5px;
+        }
+        
+        #week1 .instruction-box { border-left-color: var(--week1-color); }
+        #week2 .instruction-box { border-left-color: var(--week2-color); }
+        #week3 .instruction-box { border-left-color: var(--week3-color); }
+        #week4 .instruction-box { border-left-color: var(--week4-color); }
+
+        /* SAMPLES SECTION TOGGLE */
+        .samples-container {
+            display: none; /* Hidden by default */
+            margin-top: 20px;
+        }
+        
+        .toggle-samples-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #eee;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            color: #555;
+            cursor: pointer;
+            text-align: center;
+            transition: background 0.3s;
+            margin-bottom: 15px;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        
+        .toggle-samples-btn:hover {
+            background-color: #e0e0e0;
+            color: #333;
+        }
+
+        /* SAMPLE ITEM - Consistent Font */
+        .sample-item {
+            background-color: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 30px; 
+            margin-bottom: 20px;
+            position: relative;
+            /* Removed Georgia/Serif to keep consistent with user request "All use font" */
+        }
+        
+        /* PARAGRAPH SPACING FIX */
+        .sample-content p {
+            margin-bottom: 15px; 
+            text-align: justify;
+        }
+        .sample-content p:last-child {
+            margin-bottom: 0;
+        }
+        
+        .sample-badge {
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            background-color: #333;
+            color: #fff;
+            padding: 4px 12px;
+            font-size: 0.8em;
+            border-radius: 4px;
+            font-weight: bold;
+            z-index: 2;
+        }
+        
+        /* Highlight classes */
+        .hl-w1 { color: var(--week1-color); font-weight: 700; background-color: rgba(39, 174, 96, 0.1); padding: 0 2px; border-radius: 3px; }
+        .hl-w2 { color: var(--week2-color); font-weight: 700; background-color: rgba(230, 126, 34, 0.1); padding: 0 2px; border-radius: 3px; }
+        .hl-w3 { color: var(--week3-color); font-weight: 700; background-color: rgba(192, 57, 43, 0.1); padding: 0 2px; border-radius: 3px; }
+        .hl-w4 { color: var(--week4-color); font-weight: 700; background-color: rgba(142, 68, 173, 0.1); padding: 0 2px; border-radius: 3px; }
+        
+        /* TRANSLATION */
+        .trans-btn {
+            background: none;
+            border: none;
+            color: #7f8c8d;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-top: 15px;
+            padding: 0;
+            display: inline-block;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        .trans-btn:hover { color: #333; }
+
+        .vietnamese-text {
+            display: none;
+            margin-top: 15px;
+            padding: 20px;
+            background-color: #fafafa;
+            border-left: 3px solid #bdc3c7;
+            color: #555;
+            font-size: 0.95em;
+            line-height: 1.6;
+            animation: slideDown 0.3s ease-out;
+            border-radius: 0 5px 5px 0;
+        }
+        
+        .vietnamese-text p {
+            margin-bottom: 10px;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* GRID FOR STRUCTURES */
+        .structure-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .structure-box {
+            background: #fdfdfd;
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+        }
+        .structure-box h3 {
+            margin-top: 0;
+            color: var(--intro-color);
+            border-bottom: 1px dashed #ccc;
+            padding-bottom: 5px;
+            font-size: 1.1em;
+        }
+
+        /* FOOTER */
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--footer-bg);
+            color: var(--footer-text);
+            text-align: center;
+            padding: 10px 0;
+            font-size: 0.9em;
+            border-top: 1px solid #e0e0e0;
+            font-weight: 600;
+            z-index: 1000;
+        }
+
+        @media (max-width: 700px) {
+            .structure-grid { grid-template-columns: 1fr; }
+            .tabs { gap: 5px; }
+            .tab-btn { padding: 8px 12px; font-size: 0.85em; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>INTRO Writing classes</h1>
+    <p>Intro class with Mr. Phuoc</p>
+</header>
+
+<div class="tabs">
+    <button class="tab-btn active" data-target="intro">📚 Structures</button>
+    <button class="tab-btn" data-target="week1">Week 1: Health & Public</button>
+    <button class="tab-btn" data-target="week2">Week 2: Culture & Inquiry</button>
+    <button class="tab-btn" data-target="week3">Week 3: Crime & Complaint</button>
+    <button class="tab-btn" data-target="week4">Week 4: Hobby & Job</button>
+</div>
+
+<div class="content-container">
+
+    <!-- INTRO: STRUCTURES -->
+    <div id="intro" class="topic-section active">
+        <div class="card">
+            <h2>A. Informal Email - Describing a Crime/Event</h2>
+            <div class="structure-grid">
+                <div class="structure-box">
+                    <h3>1. Structure</h3>
+                    <p><strong>Opening:</strong> "Hope you are well." / "Guess what happened..."</p>
+                    <p><strong>Body (Narrative):</strong> Set the scene -> The Incident -> Reaction.</p>
+                    <p><strong>Closing:</strong> "Write back soon." / "Best wishes,"</p>
+                </div>
+                <div class="structure-box">
+                    <h3>2. Key Vocabulary (Sequencing)</h3>
+                    <ul style="padding-left: 20px;">
+                        <li><strong>Start:</strong> At first... / While we were...</li>
+                        <li><strong>Middle:</strong> Suddenly, Just then, At once.</li>
+                        <li><strong>Time passes:</strong> A short while later, After a while.</li>
+                        <li><strong>End:</strong> In the end, Finally.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>B. Formal Letter - Complaint/Report</h2>
+            <div class="structure-grid">
+                <div class="structure-box">
+                    <h3>1. Structure</h3>
+                    <p><strong>Salutation:</strong> Dear Sir or Madam (Yours faithfully) / Dear Mr. X (Yours sincerely).</p>
+                    <p><strong>Para 1:</strong> Reason for writing ("I am writing to express my disappointment at...")</p>
+                    <p><strong>Para 2:</strong> Main Reason/Details ("My main reason for objecting is...")</p>
+                    <p><strong>Para 3:</strong> Concession ("I realize that... However...")</p>
+                    <p><strong>Para 4:</strong> Conclusion ("Unless... / All in all...")</p>
+                </div>
+                <div class="structure-box">
+                    <h3>2. Key Vocabulary (Linking)</h3>
+                    <ul style="padding-left: 20px;">
+                        <li><strong>Reason:</strong> Since, As, Because.</li>
+                        <li><strong>Condition:</strong> Unless (Trừ khi).</li>
+                        <li><strong>Preference:</strong> Rather than.</li>
+                        <li><strong>Contrast:</strong> However, Though.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WEEK 1 -->
+    <div id="week1" class="topic-section">
+        <!-- Topic 1 -->
+        <div class="card">
+            <h2>Topic 1: Email - Advice on Healthy Living</h2>
+            <div class="instruction-box">
+                <p><strong>Subject:</strong> Advice on healthy living</p>
+                <p><strong>Instructions:</strong> Your friend has written to you saying they feel tired and unhealthy lately. Write an email giving them advice. Include the following points:</p>
+                <ul>
+                    <li><strong>Express sympathy:</strong> Say that you are sorry to hear they are not feeling well.</li>
+                    <li><strong>Dietary advice:</strong> Suggest changes they can make to what they eat or drink.</li>
+                    <li><strong>Exercise tips:</strong> Recommend simple physical activities they can do daily.</li>
+                    <li><strong>Encouragement:</strong> Offer words of support to help them stay motivated.</li>
+                </ul>
+            </div>
+            
+            <button class="toggle-samples-btn" onclick="toggleSamples(this)">👁️ Xem Bài Mẫu (View Samples)</button>
+            <div class="samples-container">
+                <!-- Sample 1 -->
+                <div class="sample-item">
+                    <span class="sample-badge">Sample 1</span>
+                    <div class="sample-content">
+                        <p>Hi Sarah,</p>
+                        <p>Hope you’re doing okay. I was really sorry to hear that you’ve been feeling tired and unhealthy lately. Don't worry, we all go through <span class="hl-w1">phases like this</span>!</p>
+                        <p>First, you should look at your diet. You should try to eat more vegetables and <span class="hl-w1">cut down on sugar</span>. <strong>Since</strong> you often skip breakfast, try to eat something small in the morning to give you energy.</p>
+                        <p>Regarding exercise, why don't you try walking to school <strong>rather than</strong> taking the bus? It’s simple but very effective. You could also do some yoga at home. <strong>Although</strong> it might be hard at first, you will get used to it.</p>
+                        <p><span class="hl-w1">Keep your chin up</span>! I’m sure you’ll feel better soon.</p>
+                        <p>Best wishes,</p>
+                        <p>Anna</p>
+                    </div>
+                    
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="vietnamese-text">
+                        <p>Chào Sarah,</p>
+                        <p>Hy vọng cậu vẫn ổn. Tớ rất tiếc khi nghe tin gần đây cậu thấy mệt mỏi và không khỏe. Đừng lo, chúng ta ai cũng trải qua những <span class="hl-w1">giai đoạn như thế này</span>!</p>
+                        <p>Đầu tiên, cậu nên xem lại chế độ ăn uống. Cậu nên thử ăn nhiều rau hơn và <span class="hl-w1">cắt giảm lượng đường</span>. <strong>Vì (Since)</strong> cậu hay bỏ bữa sáng, hãy cố ăn chút gì đó vào buổi sáng để có năng lượng.</p>
+                        <p>Về tập luyện, sao cậu không thử đi bộ đến trường <strong>thay vì (rather than)</strong> đi xe buýt? Nó đơn giản nhưng rất hiệu quả. Cậu cũng có thể tập yoga tại nhà. <strong>Mặc dù (Although)</strong> lúc đầu có thể khó, cậu sẽ quen thôi.</p>
+                        <p><span class="hl-w1">Hãy lạc quan lên</span>! Tớ chắc chắn cậu sẽ sớm cảm thấy tốt hơn thôi.</p>
+                        <p>Thân ái,</p>
+                        <p>Anna</p>
+                    </div>
+                </div>
+
+                <!-- Sample 2 -->
+                <div class="sample-item">
+                    <span class="sample-badge">Sample 2</span>
+                    <div class="sample-content">
+                        <p>Dear Tom,</p>
+                        <p>How are things? I’m sorry you’re having a <span class="hl-w1">tough time</span> with your health right now.</p>
+                        <p>I think you should change what you eat slightly. Instead of snacks, try eating more fruit <strong>as</strong> it contains more vitamins. Also, <span class="hl-w1">avoid caffeine</span> in the evening <strong>so</strong> you can sleep better.</p>
+                        <p>For exercise, have you thought about swimming? It’s great for the whole body. <strong>Unless</strong> you start moving more, you will continue to feel tired.</p>
+                        <p><span class="hl-w1">Stay motivated</span>! You can do this.</p>
+                        <p>Bye for now,</p>
+                        <p>Mike</p>
+                    </div>
+                    
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="vietnamese-text">
+                        <p>Chào Tom,</p>
+                        <p>Mọi việc thế nào? Tớ rất tiếc vì cậu đang trải qua <span class="hl-w1">thời gian khó khăn</span> với sức khỏe.</p>
+                        <p>Tớ nghĩ cậu nên thay đổi cách ăn uống một chút. Thay vì ăn vặt, hãy thử ăn nhiều trái cây hơn <strong>vì (as)</strong> nó chứa nhiều vitamin. Ngoài ra, <span class="hl-w1">tránh caffeine</span> vào buổi tối <strong>để (so)</strong> ngủ ngon hơn.</p>
+                        <p>Về tập luyện, cậu đã nghĩ đến việc bơi lội chưa? Nó rất tốt cho toàn bộ cơ thể. <strong>Trừ khi (Unless)</strong> cậu bắt đầu vận động nhiều hơn, cậu sẽ tiếp tục thấy mệt mỏi đấy.</p>
+                        <p><span class="hl-w1">Hãy giữ vững động lực</span>! Cậu làm được mà.</p>
+                        <p>Tạm biệt nhé,</p>
+                        <p>Mike</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Topic 2 -->
+        <div class="card">
+            <h2>Topic 2: Formal Letter - Dirty Park</h2>
+            <div class="instruction-box">
+                <p><strong>Scenario:</strong> The public park in your neighborhood is very dirty and the equipment is broken. You are writing to the City Council to report this issue.</p>
+                <p><strong>Instructions:</strong> Write a formal letter that includes the following points:</p>
+                <ul>
+                    <li><strong>Explain why you are writing:</strong> Identify the specific park and the reason for your letter.</li>
+                    <li><strong>Describe the condition:</strong> Give details about the rubbish and the broken equipment.</li>
+                    <li><strong>Explain the impact:</strong> Describe how this affects the children and residents who want to use the park.</li>
+                    <li><strong>Call to action:</strong> Suggest what the Council should do to fix the problem (e.g., more bins, repairs).</li>
+                </ul>
+            </div>
+
+            <button class="toggle-samples-btn" onclick="toggleSamples(this)">👁️ Xem Bài Mẫu (View Samples)</button>
+            <div class="samples-container">
+                <!-- Sample 1 -->
+                <div class="sample-item">
+                    <span class="sample-badge">Sample 1</span>
+                    <div class="sample-content">
+                        <p>Dear Sir or Madam,</p>
+                        <p>I am writing to report the <span class="hl-w1">terrible condition</span> of Greenleaf Park. I visit this park regularly, and I am <span class="hl-w1">extremely disappointed</span> with its current state.</p>
+                        <p>My main reason for writing is that the playground equipment is broken, which is dangerous for children. Furthermore, the bins are <span class="hl-w1">overflowing</span>. <strong>Since</strong> many families live here, this is a serious issue.</p>
+                        <p>I realize the Council has a limited budget. <strong>However</strong>, <span class="hl-w1">maintaining public safety</span> should be a priority. We should be encouraging children to play outside <strong>rather than</strong> staying indoors.</p>
+                        <p>All in all, I suggest that the Council repairs the equipment immediately. <strong>Unless</strong> action is taken, accidents will happen.</p>
+                        <p>Yours faithfully,</p>
+                        <p>John Smith</p>
+                    </div>
+                    
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="vietnamese-text">
+                        <p>Thưa Ông/Bà,</p>
+                        <p>Tôi viết thư này để báo cáo về <span class="hl-w1">tình trạng tồi tệ</span> của công viên Greenleaf. Tôi ghé thăm công viên này thường xuyên và tôi <span class="hl-w1">vô cùng thất vọng</span> với hiện trạng của nó.</p>
+                        <p>Lý do chính tôi viết thư là thiết bị sân chơi bị hỏng, rất nguy hiểm cho trẻ em. Hơn nữa, các thùng rác đang <span class="hl-w1">tràn ra ngoài</span>. <strong>Vì (Since)</strong> nhiều gia đình sống ở đây, đây là một vấn đề nghiêm trọng.</p>
+                        <p>Tôi nhận thấy Hội đồng có ngân sách hạn hẹp. <strong>Tuy nhiên</strong>, việc <span class="hl-w1">duy trì an toàn công cộng</span> nên là ưu tiên hàng đầu. Chúng ta nên khuyến khích trẻ em chơi ngoài trời <strong>thay vì (rather than)</strong> ở trong nhà.</p>
+                        <p>Tóm lại, tôi đề nghị Hội đồng sửa chữa thiết bị ngay lập tức. <strong>Trừ khi (Unless)</strong> có hành động được thực hiện, tai nạn sẽ xảy ra.</p>
+                        <p>Trân trọng,</p>
+                        <p>John Smith</p>
+                    </div>
+                </div>
+                
+                <!-- Sample 2 -->
+                <div class="sample-item">
+                    <span class="sample-badge">Sample 2</span>
+                    <div class="sample-content">
+                        <p>Dear Sir or Madam,</p>
+                        <p>I am writing to express my concern regarding the <span class="hl-w1">lack of maintenance</span> at Riverside Park. It used to be a beautiful place, but recently it has been neglected.</p>
+                        <p>The swings are broken, and there is glass on the grass. <strong>As</strong> it is difficult for parents to spot the glass, children are at risk of injury. Because of this, many residents are avoiding the park.</p>
+                        <p><strong>Unless</strong> the Council <span class="hl-w1">takes action</span> soon, the park will become a <span class="hl-w1">health hazard</span>. I believe cleaning the park is a better use of funds <strong>than</strong> some other projects.</p>
+                        <p>I hope you will address this issue promptly.</p>
+                        <p>Yours faithfully,</p>
+                        <p>Emily Davis</p>
+                    </div>
+                    
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="vietnamese-text">
+                        <p>Thưa Ông/Bà,</p>
+                        <p>Tôi viết thư này để bày tỏ lo ngại về việc <span class="hl-w1">thiếu bảo trì</span> tại công viên Riverside. Nó từng là một nơi đẹp đẽ, nhưng gần đây đã bị bỏ bê.</p>
+                        <p>Xích đu bị hỏng và có mảnh kính trên cỏ. <strong>Vì (As)</strong> rất khó để phụ huynh nhìn thấy mảnh kính, trẻ em có nguy cơ bị thương. Vì điều này, nhiều cư dân đang tránh xa công viên.</p>
+                        <p><strong>Trừ khi (Unless)</strong> Hội đồng <span class="hl-w1">hành động</span> sớm, công viên sẽ trở thành một <span class="hl-w1">mối nguy hại cho sức khỏe</span>. Tôi tin rằng việc dọn dẹp công viên là cách sử dụng ngân sách tốt hơn <strong>so với</strong> một số dự án khác.</p>
+                        <p>Tôi hy vọng ông/bà sẽ giải quyết vấn đề này ngay lập tức.</p>
+                        <p>Trân trọng,</p>
+                        <p>Emily Davis</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WEEK 2 -->
+    <div id="week2" class="topic-section">
+        <!-- Topic 1 -->
+        <div class="card">
+            <h2>Topic 1: Email - Local Festival</h2>
+            <div class="instruction-box">
+                <p><strong>Subject:</strong> A local festival or event</p>
+                <p><strong>Instructions:</strong> Write an email to a foreign friend telling them about a traditional festival or event in your country. Include the following points:</p>
+                <ul>
+                    <li><strong>What the festival is:</strong> Give the name of the festival and when it takes place.</li>
+                    <li><strong>What happens there:</strong> Describe the main activities, food, or customs associated with it.</li>
+                    <li><strong>Why it is special:</strong> Explain why this festival is important to you or your community.</li>
+                    <li><strong>Invitation:</strong> Invite your friend to come and visit during this time next year.</li>
+                </ul>
+            </div>
+
+            <button class="toggle-samples-btn" onclick="toggleSamples(this)">👁️ Xem Bài Mẫu (View Samples)</button>
+            <div class="samples-container">
+                <div class="sample-item">
+                    <span class="sample-badge">Sample 1</span>
+                    <div class="sample-content">
+                        <p>Hi Peter,</p>
+                        <p>Hope you are well! Last week, we celebrated a special event called the Mid-Autumn Festival. It happens every year on the 15th day of the 8th <span class="hl-w2">lunar month</span>.</p>
+                        <p><strong>While</strong> we were eating mooncakes in the garden, we saw a lion dance parade pass by. Children were carrying colorful <span class="hl-w2">lanterns</span>. <strong>Just then</strong>, the drums started beating loudly, and the atmosphere was amazing.</p>
+                        <p>It is special to me because it’s a time for <span class="hl-w2">family reunions</span>. You absolutely must come and visit next year!</p>
+                        <p>Write back soon,</p>
+                        <p>Lan</p>
+                    </div>
+                    
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="vietnamese-text">
+                        <p>Chào Peter,</p>
+                        <p>Hy vọng cậu vẫn khỏe! Tuần trước, bọn tớ đã tổ chức một sự kiện đặc biệt gọi là Tết Trung Thu. Nó diễn ra hàng năm vào ngày 15 <span class="hl-w2">tháng 8 âm lịch</span>.</p>
+                        <p><strong>Trong khi (While)</strong> bọn tớ đang ăn bánh trung thu ngoài vườn, bọn tớ thấy một đoàn múa lân đi qua. Trẻ con rước những chiếc <span class="hl-w2">đèn lồng</span> rực rỡ. <strong>Ngay lúc đó (Just then)</strong>, tiếng trống bắt đầu vang lên rộn rã, và bầu không khí thật tuyệt vời.</p>
+                        <p>Nó đặc biệt với tớ vì đây là thời gian để <span class="hl-w2">sum họp gia đình</span>. Cậu nhất định phải đến chơi vào năm sau nhé!</p>
+                        <p>Hồi âm sớm nha,</p>
+                        <p>Lan</p>
+                    </div>
+                </div>
+
+                <div class="sample-item">
+                    <span class="sample-badge">Sample 2</span>
+                    <div class="sample-content">
+                        <p>Dear Jessica,</p>
+                        <p>How are you? I want to tell you about Tet, our Lunar New Year. It usually takes place in late January.</p>
+                        <p>Before the festival, everyone cleans their house. During Tet, we eat traditional foods and <span class="hl-w2">receive lucky money</span>. <strong>Suddenly</strong>, at midnight on New Year's Eve, <span class="hl-w2">fireworks</span> lit up the sky everywhere. It was beautiful.</p>
+                        <p>It is important because it <span class="hl-w2">marks a fresh start</span>. I would love for you to come and stay with me for the next Tet holiday.</p>
+                        <p>Best wishes,</p>
+                        <p>Minh</p>
+                    </div>
+                    
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="vietnamese-text">
+                        <p>Chào Jessica,</p>
+                        <p>Cậu khỏe không? Tớ muốn kể cho cậu về Tết, năm mới âm lịch của tớ. Nó thường diễn ra vào cuối tháng Một.</p>
+                        <p>Trước lễ hội, mọi người dọn dẹp nhà cửa. Trong dịp Tết, bọn tớ ăn các món truyền thống và <span class="hl-w2">nhận tiền lì xì</span>. <strong>Đột nhiên (Suddenly)</strong>, vào nửa đêm Giao thừa, <span class="hl-w2">pháo hoa</span> thắp sáng bầu trời khắp nơi. Cảnh tượng thật đẹp.</p>
+                        <p>Nó quan trọng vì nó <span class="hl-w2">đánh dấu một khởi đầu mới</span>. Tớ rất muốn cậu đến và ở lại với tớ vào kỳ nghỉ Tết tới.</p>
+                        <p>Thân ái,</p>
+                        <p>Minh</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Topic 2 -->
+        <div class="card">
+            <h2>Topic 2: Formal Letter - Course Inquiry</h2>
+            <div class="instruction-box">
+                <p><strong>Scenario:</strong> You are interested in a computer course at a local training center, but you need more information before registering.</p>
+                <p><strong>Instructions:</strong> Write a formal letter of inquiry to the center manager. Include the following points:</p>
+                <ul>
+                    <li><strong>Explain why you are writing:</strong> State your interest in the specific course.</li>
+                    <li><strong>Your background:</strong> Briefly mention your current level of knowledge or why you need this skill.</li>
+                    <li><strong>Request information:</strong> Ask specific questions regarding the schedule, fees, and certificate provided.</li>
+                    <li><strong>Closing:</strong> Request a brochure or a meeting and thank them for their assistance.</li>
+                </ul>
+            </div>
+
+            <button class="toggle-samples-btn" onclick="toggleSamples(this)">👁️ Xem Bài Mẫu (View Samples)</button>
+            <div class="samples-container">
+                <div class="sample-item">
+                    <span class="sample-badge">Sample 1</span>
+                    <div class="sample-content">
+                        <p>Dear Sir or Madam,</p>
+                        <p>I am writing to <span class="hl-w2">inquire about</span> the Python Programming course at your center. I saw your advertisement in the newspaper.</p>
+                        <p><strong>Since</strong> I am a high school student preparing for university, I need to learn programming. Could you please provide me with more details?</p>
+                        <p>Specifically, I would like to know the class schedule and the total <span class="hl-w2">tuition fees</span>. Also, do you provide a <span class="hl-w2">certificate</span> upon completion?</p>
+                        <p>I would appreciate it if you could send me a brochure.</p>
+                        <p>Yours faithfully,</p>
+                        <p>David Nguyen</p>
+                    </div>
+                    
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="vietnamese-text">
+                        <p>Thưa Ông/Bà,</p>
+                        <p>Tôi viết thư để <span class="hl-w2">hỏi thông tin về</span> khóa học Lập trình Python tại trung tâm. Tôi đã thấy quảng cáo của quý vị trên báo.</p>
+                        <p><strong>Vì (Since)</strong> tôi là học sinh trung học đang chuẩn bị vào đại học, tôi cần học lập trình. Ông/bà có thể cung cấp thêm chi tiết không?</p>
+                        <p>Cụ thể, tôi muốn biết lịch học và tổng <span class="hl-w2">học phí</span>. Ngoài ra, quý vị có cấp <span class="hl-w2">chứng chỉ</span> sau khi hoàn thành không?</p>
+                        <p>Tôi rất cảm kích nếu ông/bà gửi cho tôi tờ rơi thông tin.</p>
+                        <p>Trân trọng,</p>
+                        <p>David Nguyen</p>
+                    </div>
+                </div>
+
+                <div class="sample-item">
+                    <span class="sample-badge">Sample 2</span>
+                    <div class="sample-content">
+                        <p>Dear Center Manager,</p>
+                        <p>I am writing to request information regarding the Graphic Design course. I wish to improve my digital skills to <span class="hl-w2">pursue a career</span> in design.</p>
+                        <p>I have a few questions. First, what are the dates for the next <span class="hl-w2">intake</span>? Second, do you offer an <span class="hl-w2">internationally recognized</span> certificate?</p>
+                        <p><strong>Although</strong> I have some experience with drawing, I am a beginner at using software. Is this course suitable for me?</p>
+                        <p>I look forward to hearing from you.</p>
+                        <p>Yours faithfully,</p>
+                        <p>Sarah Le</p>
+                    </div>
+                    
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="vietnamese-text">
+                        <p>Thưa Quản lý Trung tâm,</p>
+                        <p>Tôi viết thư để yêu cầu thông tin về khóa học Thiết kế Đồ họa. Tôi muốn cải thiện kỹ năng kỹ thuật số để <span class="hl-w2">theo đuổi sự nghiệp</span> thiết kế.</p>
+                        <p>Tôi có vài câu hỏi. Đầu tiên, ngày cho đợt <span class="hl-w2">tuyển sinh</span> tiếp theo là bao giờ? Thứ hai, ông/bà có cung cấp chứng chỉ được <span class="hl-w2">công nhận quốc tế</span> không?</p>
+                        <p><strong>Mặc dù (Although)</strong> tôi có chút kinh nghiệm vẽ, tôi là người mới bắt đầu sử dụng phần mềm. Khóa học này có phù hợp với tôi không?</p>
+                        <p>Tôi mong nhận được hồi âm.</p>
+                        <p>Trân trọng,</p>
+                        <p>Sarah Le</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WEEK 3 -->
+    <div id="week3" class="topic-section">
+        <!-- Topic 1 -->
+        <div class="card">
+            <h2>Topic 1: Email - Crime in Community</h2>
+            <div class="instruction-box">
+                <p><strong>Subject:</strong> Crime in your community</p>
+                <p><strong>Instructions:</strong> Write an email to a friend or relative describing a recent event. Include the following points:</p>
+                <ul>
+                    <li><strong>What the crime is:</strong> Describe a recent crime that occurred in your community.</li>
+                    <li><strong>Why it is concerning:</strong> Explain why this crime has impacted residents and how it makes people feel.</li>
+                    <li><strong>How you learned about it:</strong> Share how you found out about the crime.</li>
+                    <li><strong>Any suggestions for improvement:</strong> Offer ideas on how to make the community safer.</li>
+                </ul>
+            </div>
+
+            <button class="toggle-samples-btn" onclick="toggleSamples(this)">👁️ Xem Bài Mẫu (View Samples)</button>
+            <div class="samples-container">
+                <div class="sample-item">
+                    <span class="sample-badge">Sample 1</span>
+                    <div class="sample-content">
+                        <p>Hi Sam,</p>
+                        <p>Hope you’re okay. I’m writing to tell you about a <span class="hl-w3">robbery</span> at the local store yesterday.</p>
+                        <p><strong>While</strong> I was walking past the shop, a man ran out wearing a mask. <strong>Just then</strong>, the shop owner shouted for help. <strong>A short while later</strong>, the police arrived with <span class="hl-w3">sirens blaring</span>.</p>
+                        <p>It is concerning because <span class="hl-w3">residents feel anxious</span> walking alone. <strong>In the end</strong>, the police didn't catch him immediately, but they are checking CCTV.</p>
+                        <p>I think the council should <span class="hl-w3">install more street lights</span> to make the area safer.</p>
+                        <p>Stay safe,</p>
+                        <p>Tuan</p>
+                    </div>
+                    
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="vietnamese-text">
+                        <p>Chào Sam,</p>
+                        <p>Hy vọng cậu vẫn ổn. Tớ viết để kể cho cậu về một <span class="hl-w3">vụ cướp</span> tại cửa hàng địa phương hôm qua.</p>
+                        <p><strong>Trong khi (While)</strong> tớ đang đi qua cửa hàng, một người đàn ông đeo mặt nạ chạy ra. <strong>Ngay lúc đó (Just then)</strong>, chủ cửa hàng hét lên kêu cứu. <strong>Một lúc sau (A short while later)</strong>, cảnh sát đến với <span class="hl-w3">còi hụ inh ỏi</span>.</p>
+                        <p>Điều này đáng lo vì <span class="hl-w3">cư dân cảm thấy lo lắng</span> khi đi bộ một mình. <strong>Cuối cùng (In the end)</strong>, cảnh sát không bắt được hắn ngay lập tức, nhưng họ đang kiểm tra camera.</p>
+                        <p>Tớ nghĩ hội đồng nên <span class="hl-w3">lắp thêm đèn đường</span> để làm khu vực này an toàn hơn.</p>
+                        <p>Giữ an toàn nhé,</p>
+                        <p>Tuấn</p>
+                    </div>
+                </div>
+
+                <div class="sample-item">
+                    <span class="sample-badge">Sample 2</span>
+                    <div class="sample-content">
+                        <p>Dear Alex,</p>
+                        <p>How are things? You won't believe what happened. A motorbike was <span class="hl-w3">stolen</span> right outside my house!</p>
+                        <p>I was watching TV when I heard a loud noise. <strong>At once</strong>, I looked out the window and saw two men <span class="hl-w3">breaking the lock</span>. <strong>Suddenly</strong>, they started the engine and <span class="hl-w3">sped off</span> before I could call the police.</p>
+                        <p>This crime is worrying. To improve the situation, I suggest that we should set up a <span class="hl-w3">neighborhood watch group</span>.</p>
+                        <p>Write soon,</p>
+                        <p>Mai</p>
+                    </div>
+                    
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="vietnamese-text">
+                        <p>Chào Alex,</p>
+                        <p>Mọi việc thế nào? Cậu sẽ không tin chuyện gì đã xảy ra đâu. Một chiếc xe máy đã bị <span class="hl-w3">trộm</span> ngay bên ngoài nhà tớ!</p>
+                        <p>Tớ đang xem TV thì nghe thấy tiếng ồn lớn. <strong>Ngay lập tức (At once)</strong>, tớ nhìn ra cửa sổ và thấy hai gã đang <span class="hl-w3">phá khóa</span>. <strong>Đột nhiên (Suddenly)</strong>, họ nổ máy và <span class="hl-w3">phóng đi</span> trước khi tớ kịp gọi cảnh sát.</p>
+                        <p>Tội phạm này thật đáng lo. Để cải thiện tình hình, tớ đề nghị chúng ta nên lập một <span class="hl-w3">nhóm tuần tra khu phố</span>.</p>
+                        <p>Viết lại sớm nhé,</p>
+                        <p>Mai</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Topic 2 -->
+        <div class="card">
+            <h2>Topic 2: Formal Letter - Supermarket Complaint</h2>
+            <div class="instruction-box">
+                <p><strong>Scenario:</strong> You are writing to a local supermarket to complain about a recent experience you had with their customer service.</p>
+                <p><strong>Instructions:</strong> Write a formal letter that includes the following points:</p>
+                <ul>
+                    <li><strong>Explain why you are writing:</strong> Clearly state the purpose of your letter.</li>
+                    <li><strong>Describe what happened:</strong> Detail the incident and explain how it made you feel.</li>
+                    <li><strong>Offer ideas for improvement:</strong> Suggest specific ways they can enhance their customer service.</li>
+                    <li><strong>Closing:</strong> Thank them for their attention and express your hope for a resolution.</li>
+                </ul>
+            </div>
+
+            <button class="toggle-samples-btn" onclick="toggleSamples(this)">👁️ Xem Bài Mẫu (View Samples)</button>
+            <div class="samples-container">
+                <div class="sample-item">
+                    <span class="sample-badge">Sample 1</span>
+                    <div class="sample-content">
+                        <p>Dear Sir or Madam,</p>
+                        <p>I am writing to complain about a recent experience I had at your supermarket. I was <span class="hl-w3">extremely dissatisfied</span> with the customer service.</p>
+                        <p>When I asked a staff member for help, he was rude and <span class="hl-w3">ignored me</span>. Furthermore, the cashier was on her phone. This made me feel <span class="hl-w3">undervalued</span> as a customer.</p>
+                        <p>I understand that staff can be tired. <strong>However</strong>, <span class="hl-w3">unprofessional behavior</span> is unacceptable. I suggest you train your staff better in customer care.</p>
+                        <p><strong>Unless</strong> you improve your service, I will shop elsewhere.</p>
+                        <p>Yours faithfully,</p>
+                        <p>Robert Chen</p>
+                    </div>
+                    
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="vietnamese-text">
+                        <p>Thưa Ông/Bà,</p>
+                        <p>Tôi viết thư để phàn nàn về trải nghiệm gần đây của tôi tại siêu thị của quý vị. Tôi <span class="hl-w3">cực kỳ không hài lòng</span> với dịch vụ khách hàng.</p>
+                        <p>Khi tôi nhờ một nhân viên giúp đỡ, anh ta đã thô lỗ và <span class="hl-w3">phớt lờ tôi</span>. Hơn nữa, thu ngân thì đang dùng điện thoại. Điều này khiến tôi cảm thấy bị <span class="hl-w3">coi thường</span> với tư cách là khách hàng.</p>
+                        <p>Tôi hiểu rằng nhân viên có thể mệt mỏi. <strong>Tuy nhiên</strong>, <span class="hl-w3">hành vi thiếu chuyên nghiệp</span> là không thể chấp nhận được. Tôi đề nghị quý vị đào tạo nhân viên tốt hơn về chăm sóc khách hàng.</p>
+                        <p><strong>Trừ khi (Unless)</strong> quý vị cải thiện dịch vụ, tôi sẽ mua sắm ở nơi khác.</p>
+                        <p>Trân trọng,</p>
+                        <p>Robert Chen</p>
+                    </div>
+                </div>
+
+                <div class="sample-item">
+                    <span class="sample-badge">Sample 2</span>
+                    <div class="sample-content">
+                        <p>Dear Store Manager,</p>
+                        <p>I am writing to express my disappointment regarding your electronics department.</p>
+                        <p>I bought a toaster that was <span class="hl-w3">faulty</span>. When I tried to return it, the assistant <span class="hl-w3">refused to give me a refund</span> and was very <span class="hl-w3">impolite</span>.</p>
+                        <p><strong>Since</strong> your supermarket has a reputation for quality, I expected better treatment. <strong>Unless</strong> you improve your staff training, you will lose customers.</p>
+                        <p>Overall, I believe your team needs to learn how to <span class="hl-w3">handle complaints</span> politely.</p>
+                        <p>Yours faithfully,</p>
+                        <p>Lisa Pham</p>
+                    </div>
+                    
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="vietnamese-text">
+                        <p>Thưa Quản lý Cửa hàng,</p>
+                        <p>Tôi viết thư để bày tỏ sự thất vọng về bộ phận điện tử của quý vị.</p>
+                        <p>Tôi đã mua một cái máy nướng bánh mì bị <span class="hl-w3">lỗi</span>. Khi tôi cố gắng trả lại, người trợ lý <span class="hl-w3">từ chối hoàn tiền</span> cho tôi và rất <span class="hl-w3">bất lịch sự</span>.</p>
+                        <p><strong>Vì (Since)</strong> siêu thị của ông có tiếng về chất lượng, tôi đã mong đợi sự đối đãi tốt hơn. <strong>Trừ khi (Unless)</strong> ông cải thiện việc đào tạo nhân viên, ông sẽ mất khách hàng.</p>
+                        <p>Tóm lại, tôi tin rằng đội ngũ của ông cần học cách <span class="hl-w3">xử lý khiếu nại</span> một cách lịch sự.</p>
+                        <p>Trân trọng,</p>
+                        <p>Lisa Pham</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WEEK 4 -->
+    <div id="week4" class="topic-section">
+        <!-- Topic 1 -->
+        <div class="card">
+            <h2>Topic 1: Email - New Hobby</h2>
+            <div class="instruction-box">
+                <p><strong>Subject:</strong> A new hobby or interest</p>
+                <p><strong>Instructions:</strong> You have recently started a new hobby (e.g., painting, learning a language, a sport). Write an email to a friend sharing this news. Include the following points:</p>
+                <ul>
+                    <li><strong>What the hobby is:</strong> Describe your new activity and when you started it.</li>
+                    <li><strong>Why you chose it:</strong> Explain what motivated you to try this new activity.</li>
+                    <li><strong>How it makes you feel:</strong> Describe your enjoyment or the challenges you face.</li>
+                    <li><strong>Suggestion:</strong> Suggest that your friend tries it too or ask about their current hobbies.</li>
+                </ul>
+            </div>
+
+            <button class="toggle-samples-btn" onclick="toggleSamples(this)">👁️ Xem Bài Mẫu (View Samples)</button>
+            <div class="samples-container">
+                <div class="sample-item">
+                    <span class="sample-badge">Sample 1</span>
+                    <div class="sample-content">
+                        <p>Hi Tom,</p>
+                        <p>Hope you are well! I have recently started learning guitar. I started about two weeks ago.</p>
+                        <p>It’s actually quite difficult! My fingers hurt a lot, but <strong>after a while</strong>, I started to <span class="hl-w4">get the hang of it</span>. It makes me feel proud when I learn a <span class="hl-w4">new chord</span>.</p>
+                        <p>You should try it too! Maybe we can start a band?</p>
+                        <p>Best wishes,</p>
+                        <p>Huy</p>
+                    </div>
+                    
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="vietnamese-text">
+                        <p>Chào Tom,</p>
+                        <p>Hy vọng cậu vẫn khỏe! Gần đây tớ bắt đầu học guitar. Tớ bắt đầu khoảng hai tuần trước.</p>
+                        <p>Nó thực sự khá khó! Ngón tay tớ đau lắm, nhưng <strong>sau một thời gian (after a while)</strong>, tớ bắt đầu <span class="hl-w4">quen dần với nó</span>. Tớ cảm thấy tự hào khi học được một <span class="hl-w4">hợp âm mới</span>.</p>
+                        <p>Cậu cũng nên thử đi! Biết đâu chúng ta có thể lập ban nhạc?</p>
+                        <p>Thân ái,</p>
+                        <p>Huy</p>
+                    </div>
+                </div>
+
+                <div class="sample-item">
+                    <span class="sample-badge">Sample 2</span>
+                    <div class="sample-content">
+                        <p>Dear Mary,</p>
+                        <p>How’s life? I’m writing to share my new hobby: painting <span class="hl-w4">watercolours</span>. I started taking a class last month because I needed a way to relax.</p>
+                        <p>Sometimes I make mistakes, but <strong>in the end</strong>, the pictures look quite <span class="hl-w4">artistic</span>. It makes me feel <span class="hl-w4">creative and calm</span>.</p>
+                        <p>Why don't you try painting? I remember you used to be good at drawing.</p>
+                        <p>Write back soon,</p>
+                        <p>Vy</p>
+                    </div>
+                    
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="vietnamese-text">
+                        <p>Chào Mary,</p>
+                        <p>Cuộc sống thế nào? Tớ viết để chia sẻ sở thích mới: vẽ <span class="hl-w4">màu nước</span>. Tớ bắt đầu đi học tháng trước vì tớ cần một cách để thư giãn.</p>
+                        <p>Đôi khi tớ mắc lỗi, nhưng <strong>cuối cùng (in the end)</strong>, các bức tranh trông khá <span class="hl-w4">nghệ thuật</span>. Nó khiến tớ thấy <span class="hl-w4">sáng tạo và bình tâm</span>.</p>
+                        <p>Sao cậu không thử vẽ nhỉ? Tớ nhớ cậu từng vẽ rất giỏi.</p>
+                        <p>Hồi âm sớm nhé,</p>
+                        <p>Vy</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Topic 2 -->
+        <div class="card">
+            <h2>Topic 2: Formal Letter - Job Application</h2>
+            <div class="instruction-box">
+                <p><strong>Scenario:</strong> You saw an advertisement in the newspaper for a volunteer position at a local animal shelter. You would like to apply for the role.</p>
+                <p><strong>Instructions:</strong> Write a formal letter of application. Include the following points:</p>
+                <ul>
+                    <li><strong>Explain why you are writing:</strong> State clearly which position you are applying for and where you saw the ad.</li>
+                    <li><strong>Your qualifications/experience:</strong> Describe any relevant skills or past experience you have with animals.</li>
+                    <li><strong>Why you are a good fit:</strong> Explain your personal qualities (e.g., patience, hard work) that make you suitable.</li>
+                    <li><strong>Availability:</strong> State when you are available for an interview or to start work.</li>
+                </ul>
+            </div>
+
+            <button class="toggle-samples-btn" onclick="toggleSamples(this)">👁️ Xem Bài Mẫu (View Samples)</button>
+            <div class="samples-container">
+                <div class="sample-item">
+                    <span class="sample-badge">Sample 1</span>
+                    <div class="sample-content">
+                        <p>Dear Sir or Madam,</p>
+                        <p>I am writing to <span class="hl-w4">apply for</span> the volunteer position at the animal shelter. I saw your advertisement in the Daily News yesterday.</p>
+                        <p><strong>Since</strong> I have always loved animals, I have some <span class="hl-w4">relevant experience</span>. Last summer, I volunteered at a dog rescue center.</p>
+                        <p>I believe I am a good fit because I am <span class="hl-w4">patient, hardworking</span>, and reliable. I am available for an interview any weekday afternoon.</p>
+                        <p>Yours faithfully,</p>
+                        <p>Kevin Hoang</p>
+                    </div>
+                    
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="vietnamese-text">
+                        <p>Thưa Ông/Bà,</p>
+                        <p>Tôi viết thư để <span class="hl-w4">ứng tuyển vào</span> vị trí tình nguyện viên tại trạm cứu hộ động vật. Tôi thấy quảng cáo của quý vị trên tờ Daily News hôm qua.</p>
+                        <p><strong>Vì (Since)</strong> tôi luôn yêu động vật, tôi có một số <span class="hl-w4">kinh nghiệm liên quan</span>. Mùa hè năm ngoái, tôi đã tình nguyện tại trung tâm cứu hộ chó.</p>
+                        <p>Tôi tin mình phù hợp vì tôi <span class="hl-w4">kiên nhẫn, chăm chỉ</span>, và đáng tin cậy. Tôi có thể tham gia phỏng vấn vào bất kỳ buổi chiều nào trong tuần.</p>
+                        <p>Trân trọng,</p>
+                        <p>Kevin Hoàng</p>
+                    </div>
+                </div>
+
+                <div class="sample-item">
+                    <span class="sample-badge">Sample 2</span>
+                    <div class="sample-content">
+                        <p>Dear Sir or Madam,</p>
+                        <p>I am writing to <span class="hl-w4">submit my application</span> for the volunteer role.</p>
+                        <p>Regarding my qualifications, I have grown up with pets. I feel I am suitable for this position <strong>as</strong> I am <span class="hl-w4">compassionate</span> and <span class="hl-w4">eager to learn</span>.</p>
+                        <p>I want to help animals find new homes. I am available for an interview on weekends. Thank you for considering my application.</p>
+                        <p>Yours faithfully,</p>
+                        <p>Jenny Tran</p>
+                    </div>
+                    
+                    <button class="trans-btn" onclick="toggleTrans(this)">Xem bản dịch</button>
+                    <div class="vietnamese-text">
+                        <p>Thưa Ông/Bà,</p>
+                        <p>Tôi viết thư để <span class="hl-w4">nộp đơn ứng tuyển</span> cho vai trò tình nguyện viên.</p>
+                        <p>Về năng lực, tôi lớn lên cùng thú cưng. Tôi cảm thấy mình phù hợp với vị trí này <strong>vì (as)</strong> tôi <span class="hl-w4">giàu lòng trắc ẩn</span> và <span class="hl-w4">ham học hỏi</span>.</p>
+                        <p>Tôi muốn giúp động vật tìm được mái nhà mới. Tôi rảnh để phỏng vấn vào cuối tuần. Cảm ơn ông/bà đã xem xét đơn của tôi.</p>
+                        <p>Trân trọng,</p>
+                        <p>Jenny Trần</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Footer -->
+<footer>
+    Đình Phước Edu
+</footer>
+
+<script>
+    // Tab switching logic
+    const tabs = document.querySelectorAll('.tab-btn');
+    const sections = document.querySelectorAll('.topic-section');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            sections.forEach(s => s.classList.remove('active'));
+            tab.classList.add('active');
+            const targetId = tab.getAttribute('data-target');
+            document.getElementById(targetId).classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    });
+
+    // Toggle Samples Logic
+    function toggleSamples(btn) {
+        const container = btn.nextElementSibling;
+        if (container.style.display === "block") {
+            container.style.display = "none";
+            btn.textContent = "👁️ Xem Bài Mẫu (View Samples)";
+        } else {
+            container.style.display = "block";
+            btn.textContent = "🔒 Ẩn Bài Mẫu (Hide Samples)";
+        }
+    }
+ document.addEventListener("keydown", function (e) {
+                if (
+                    e.key === "F12" ||
+                    (e.ctrlKey && e.shiftKey && e.key === "I") ||
+                    (e.ctrlKey && e.shiftKey && e.key === "J") ||
+                    (e.ctrlKey && e.shiftKey && e.key === "C") ||
+                    (e.ctrlKey && e.key === "u") ||
+                    (e.ctrlKey && e.key === "p") ||
+                    (e.ctrlKey && e.key === "s")
+                ) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+    // Toggle Translation Logic
+    function toggleTrans(btn) {
+        const transText = btn.nextElementSibling;
+        if (transText.style.display === "block") {
+            transText.style.display = "none";
+            btn.textContent = "Xem bản dịch";
+        } else {
+            transText.style.display = "block";
+            btn.textContent = "Ẩn bản dịch";
+        }
+    }
+</script>
+
+</body>
+</html>
