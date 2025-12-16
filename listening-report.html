@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nhật Ký Học Tập Kỹ Năng Nghe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+
+        /* Tùy chỉnh checkbox to hơn cho dễ tick */
+        input[type="checkbox"] {
+            width: 1.25rem;
+            height: 1.25rem;
+            cursor: pointer;
+            accent-color: #2563eb;
+        }
+
+        /* Ô nhập liệu tự động giãn dòng - giống dòng kẻ vở */
+        textarea.auto-expand {
+            field-sizing: content; /* Trình duyệt mới hỗ trợ */
+            min-height: 1.5rem;
+            resize: none;
+            overflow: hidden;
+            background: transparent;
+            border: none;
+            border-bottom: 1px dashed #9ca3af;
+            width: 100%;
+            padding: 2px 0;
+            outline: none;
+            line-height: 1.5;
+        }
+        
+        textarea.auto-expand:focus {
+            border-bottom: 1px solid #2563eb;
+            background-color: #eff6ff;
+        }
+
+        /* Định dạng bảng */
+        .log-table th, .log-table td {
+            border: 1px solid #d1d5db;
+            padding: 0.5rem;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .log-table th {
+            background-color: #e5e7eb;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        /* Cấu hình khi IN ẤN (Print/PDF) */
+        @media print {
+            body {
+                background-color: white;
+                font-size: 12px; /* Thu nhỏ chữ một chút để vừa A4 */
+            }
+            .no-print {
+                display: none !important;
+            }
+            .page-container {
+                box-shadow: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+            /* Đảm bảo màu nền được in ra (cho tiêu đề bảng) */
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            /* Tránh ngắt trang giữa chừng bảng nếu có thể */
+            tr {
+                break-inside: avoid;
+            }
+            textarea {
+                border-bottom: 1px solid #ccc !important;
+            }
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <!-- Action Buttons -->
+    <div class="fixed bottom-4 right-4 flex gap-2 no-print z-50">
+        <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full shadow-lg flex items-center gap-2 transition transform hover:scale-105">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            </svg>
+            Lưu PDF / In Báo Cáo
+        </button>
+    </div>
+
+    <!-- Main Document Container -->
+    <div class="page-container max-w-[210mm] mx-auto bg-white shadow-2xl p-8 rounded-lg min-h-screen">
+        
+        <!-- Header -->
+        <div class="text-center mb-6 border-b-2 border-gray-800 pb-4">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800 uppercase mb-2">Nhật Ký Học Tập & Báo Cáo Tiến Độ</h1>
+            <p class="text-gray-500 italic">Mẫu dành cho học sinh tự học và báo cáo giáo viên hàng tuần</p>
+        </div>
+
+        <!-- Student Info -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-1">Họ và tên học sinh:</label>
+                <textarea class="auto-expand text-lg font-medium" rows="1" placeholder="Nhập họ tên..."></textarea>
+            </div>
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-1">Lớp:</label>
+                <textarea class="auto-expand text-lg" rows="1" placeholder="Nhập tên lớp..."></textarea>
+            </div>
+            <!-- Đã bỏ phần Link Folder -->
+        </div>
+
+        <!-- Section I: Rules -->
+        <div class="mb-8 bg-blue-50 p-4 rounded-lg border border-blue-100">
+            <h2 class="text-lg font-bold text-blue-800 mb-2 border-b border-blue-200 pb-1">I. QUY TRÌNH HỌC TẬP 11 BƯỚC (BẮT BUỘC)</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm text-gray-700">
+                <div class="flex items-center gap-2"><span class="bg-blue-200 text-blue-800 px-2 rounded text-xs font-bold">1</span> Dịch Transcript</div>
+                <div class="flex items-center gap-2"><span class="bg-blue-200 text-blue-800 px-2 rounded text-xs font-bold">2</span> Chép vào vở</div>
+                <div class="flex items-center gap-2"><span class="bg-blue-200 text-blue-800 px-2 rounded text-xs font-bold">3</span> Chụp ảnh bài dịch</div>
+                <div class="flex items-center gap-2"><span class="bg-blue-200 text-blue-800 px-2 rounded text-xs font-bold">4</span> Nghe + Nhìn</div>
+                <div class="flex items-center gap-2"><span class="bg-blue-200 text-blue-800 px-2 rounded text-xs font-bold">5</span> Nghe Chay (Hiểu)</div>
+                <div class="flex items-center gap-2"><span class="bg-blue-200 text-blue-800 px-2 rounded text-xs font-bold">6</span> Làm bài Test</div>
+                <div class="flex items-center gap-2"><span class="bg-blue-200 text-blue-800 px-2 rounded text-xs font-bold">7</span> Chụp Kết quả</div>
+                <div class="flex items-center gap-2"><span class="bg-blue-200 text-blue-800 px-2 rounded text-xs font-bold">8</span> Viết Nhật ký</div>
+                <div class="flex items-center gap-2"><span class="bg-blue-200 text-blue-800 px-2 rounded text-xs font-bold">9</span> Gửi Folder</div>
+                <div class="flex items-center gap-2"><span class="bg-blue-200 text-blue-800 px-2 rounded text-xs font-bold">10</span> Tick Hoàn thành</div>
+                <div class="flex items-center gap-2 col-span-2"><span class="bg-blue-200 text-blue-800 px-2 rounded text-xs font-bold">11</span> Ôn tập lại nhiều lần</div>
+            </div>
+        </div>
+
+        <!-- Section II: Weekly Diary -->
+        <div class="mb-8">
+            <div class="flex flex-col md:flex-row justify-between items-end md:items-center mb-4 border-b-2 border-gray-200 pb-1">
+                <h2 class="text-lg font-bold text-gray-800">II. BÁO CÁO CHI TIẾT TUẦN</h2>
+                <div class="flex items-center gap-2 text-sm font-medium">
+                    <span>Tuần học từ:</span>
+                    <input type="date" class="border rounded px-1 text-gray-700">
+                    <span>đến</span>
+                    <input type="date" class="border rounded px-1 text-gray-700">
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full log-table text-xs md:text-sm">
+                    <thead>
+                        <tr>
+                            <th class="w-10">Thứ</th>
+                            <th class="w-32">Tên Bài<br><span class="font-normal text-xs">(VD: MPC 1)</span></th>
+                            <th>Dịch &<br>Chép</th>
+                            <th>Chụp<br>Dịch</th>
+                            <th>Nghe +<br>Nhìn</th>
+                            <th>Nghe<br>Chay</th>
+                            <th>Làm<br>Test</th>
+                            <th>Chụp<br>KQ</th>
+                            <th>Up<br>Folder</th>
+                            <th>Nghe<br>Lại</th>
+                        </tr>
+                    </thead>
+                    <tbody id="weeklyBody">
+                        <!-- Script will generate rows or use hardcoded for stability -->
+                        <!-- Monday -->
+                        <tr class="bg-gray-50">
+                            <td rowspan="3" class="font-bold">T2</td>
+                            <td><textarea class="auto-expand text-center" rows="1" placeholder="Bài 1..."></textarea></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                        </tr>
+                        <tr class="bg-gray-50">
+                            <td><textarea class="auto-expand text-center" rows="1" placeholder="Bài 2..."></textarea></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                        </tr>
+                        <tr class="bg-gray-50 border-b-2 border-gray-300">
+                            <td><textarea class="auto-expand text-center" rows="1" placeholder="Bài 3..."></textarea></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                        </tr>
+
+                        <!-- Tuesday -->
+                        <tr>
+                            <td rowspan="3" class="font-bold">T3</td>
+                            <td><textarea class="auto-expand text-center" rows="1" placeholder="Bài 1..."></textarea></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                        </tr>
+                        <tr>
+                            <td><textarea class="auto-expand text-center" rows="1" placeholder="Bài 2..."></textarea></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                        </tr>
+                        <tr class="border-b-2 border-gray-300">
+                            <td><textarea class="auto-expand text-center" rows="1" placeholder="Bài 3..."></textarea></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                        </tr>
+
+                        <!-- Wednesday -->
+                        <tr class="bg-gray-50">
+                            <td rowspan="3" class="font-bold">T4</td>
+                            <td><textarea class="auto-expand text-center" rows="1" placeholder="Bài 1..."></textarea></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                        </tr>
+                        <tr class="bg-gray-50">
+                            <td><textarea class="auto-expand text-center" rows="1" placeholder="Bài 2..."></textarea></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                        </tr>
+                        <tr class="bg-gray-50 border-b-2 border-gray-300">
+                            <td><textarea class="auto-expand text-center" rows="1" placeholder="Bài 3..."></textarea></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                        </tr>
+
+                        <!-- Thursday -->
+                        <tr>
+                            <td rowspan="3" class="font-bold">T5</td>
+                            <td><textarea class="auto-expand text-center" rows="1" placeholder="Bài 1..."></textarea></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                        </tr>
+                        <tr>
+                            <td><textarea class="auto-expand text-center" rows="1" placeholder="Bài 2..."></textarea></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                        </tr>
+                        <tr class="border-b-2 border-gray-300">
+                            <td><textarea class="auto-expand text-center" rows="1" placeholder="Bài 3..."></textarea></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                        </tr>
+
+                         <!-- Friday -->
+                         <tr class="bg-gray-50">
+                            <td rowspan="3" class="font-bold">T6</td>
+                            <td><textarea class="auto-expand text-center" rows="1" placeholder="Bài 1..."></textarea></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                        </tr>
+                        <tr class="bg-gray-50">
+                            <td><textarea class="auto-expand text-center" rows="1" placeholder="Bài 2..."></textarea></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                        </tr>
+                        <tr class="bg-gray-50 border-b-2 border-gray-300">
+                            <td><textarea class="auto-expand text-center" rows="1" placeholder="Bài 3..."></textarea></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                        </tr>
+
+                         <!-- Saturday -->
+                         <tr>
+                            <td rowspan="3" class="font-bold">T7</td>
+                            <td><textarea class="auto-expand text-center" rows="1" placeholder="Bài 1..."></textarea></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                        </tr>
+                        <tr>
+                            <td><textarea class="auto-expand text-center" rows="1" placeholder="Bài 2..."></textarea></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                        </tr>
+                        <tr class="border-b-2 border-gray-300">
+                            <td><textarea class="auto-expand text-center" rows="1" placeholder="Bài 3..."></textarea></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                        </tr>
+
+                         <!-- Sunday -->
+                         <tr class="bg-gray-50">
+                            <td rowspan="3" class="font-bold">CN</td>
+                            <td><textarea class="auto-expand text-center" rows="1" placeholder="Bài 1..."></textarea></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                        </tr>
+                        <tr class="bg-gray-50">
+                            <td><textarea class="auto-expand text-center" rows="1" placeholder="Bài 2..."></textarea></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                        </tr>
+                        <tr class="bg-gray-50 border-b-2 border-gray-300">
+                            <td><textarea class="auto-expand text-center" rows="1" placeholder="Bài 3..."></textarea></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Footer: Reflection -->
+        <div class="mb-8">
+            <h2 class="text-lg font-bold text-gray-800 mb-4 border-b-2 border-gray-200 pb-1">III. NHẬT KÝ CẢM NHẬN & TỰ ĐÁNH GIÁ</h2>
+            
+            <div class="mb-4">
+                <label class="block font-bold text-gray-700 mb-1">1. Từ vựng/cấu trúc hay đã học được:</label>
+                <textarea class="auto-expand w-full bg-blue-50 border-b border-blue-200 p-2 rounded" rows="3" placeholder="- Viết từ vựng...&#10;- Viết cấu trúc..."></textarea>
+            </div>
+
+            <div class="mb-4">
+                <label class="block font-bold text-gray-700 mb-1">2. Khó khăn gặp phải (Tốc độ, từ mới...):</label>
+                <textarea class="auto-expand w-full bg-red-50 border-b border-red-200 p-2 rounded" rows="2" placeholder="Ghi lại khó khăn..."></textarea>
+            </div>
+
+            <div class="flex flex-col md:flex-row gap-8 items-start">
+                <div class="flex-1 w-full">
+                    <label class="block font-bold text-gray-700 mb-1">3. Tự đánh giá mức độ nghe hiểu (1-10):</label>
+                    <div class="flex items-center gap-2">
+                        <textarea class="auto-expand text-center font-bold text-xl w-16" rows="1" placeholder="..."></textarea>
+                        <span class="text-lg">/ 10 điểm</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Script for Auto-expanding Textareas -->
+    <script>
+        // Hàm tự động giãn dòng cho textarea
+        function autoExpand(field) {
+            // Reset chiều cao để tính toán lại chính xác khi xóa bớt chữ
+            field.style.height = 'inherit';
+
+            // Lấy computed style
+            const computed = window.getComputedStyle(field);
+            
+            // Tính toán chiều cao cần thiết
+            // Nếu là trình duyệt hỗ trợ field-sizing: content thì CSS lo
+            // Fallback cho trình duyệt cũ
+            const height = field.scrollHeight;
+            field.style.height = height + 'px';
+        }
+
+        document.addEventListener('input', function (event) {
+            if (event.target.tagName.toLowerCase() !== 'textarea') return;
+            if (event.target.classList.contains('auto-expand')) {
+                autoExpand(event.target);
+            }
+        }, false);
+    </script>
+</body>
+</html>

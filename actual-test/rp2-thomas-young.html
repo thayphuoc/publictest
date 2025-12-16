@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@600&display=swap" rel="stylesheet">
+    <title>Thomas Young - The Last True Know-It-All</title>
+    <style>
+        /* Base Styles */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background-color: #ffffff; line-height: 1.4; font-size: 16px; }
+        
+        /* Header */
+        .header { background-color: #ffffff; padding: 12px 20px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 60px; }
+        .timer-container { display: flex; align-items: center; font-weight: 500; }
+        .timer-controls { display: flex; gap: 8px; margin-left: 15px; }
+        .timer-controls button { background: #f0f0f0; border: 1px solid #ccc; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        
+        /* Main Layout */
+        .main-container { margin-top: 60px; display: flex; flex-direction: column; background: #ffffff; height: calc(100vh - 60px); }
+        .passage-header-container { background-color: #f1f2ec; padding: 15px 20px; border-bottom: 1px solid #e0e0e0; }
+        .panels-container { display: flex; flex: 1; overflow: hidden; }
+        
+        /* Passage Panel */
+        .passage-panel { flex: 1; padding: 20px 20px 100px; overflow-y: auto; min-width: 200px; }
+        .reading-passage h4 { font-family: 'Merriweather', serif; font-size: 22px; font-weight: 600; color: #2c3e50; line-height: 1.4; margin-bottom: 20px; text-align: center; border-bottom: 2px solid #4a90e2; padding-bottom: 5px; }
+        .reading-passage p { margin-bottom: 1.2em; text-align: justify; }
+        .reading-passage strong { color: #2c3e50; }
+        
+        /* Resizer */
+        .resizer { width: 10px; cursor: col-resize; background-color: #f0f0f0; flex-shrink: 0; flex-grow: 0; background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="30" viewBox="0 0 10 30"><path d="M4 11h2v2H4zM4 15h2v2H4zM4 19h2v2H4z" fill="%23888"/></svg>'); background-repeat: no-repeat; background-position: center; }
+        
+        /* Questions Panel */
+        .questions-panel { flex: 1; padding: 20px 20px 100px; overflow-y: auto; min-width: 200px; border-left: 1px solid #e0e0e0; }
+        .question-set { margin-bottom: 30px; }
+        .question-prompt { margin-bottom: 20px; background: #f9f9f9; padding: 15px; border-radius: 5px; border-left: 4px solid #4a90e2; }
+        
+        /* Question Items */
+        .question-item { margin-bottom: 20px; border-bottom: 1px dashed #eee; padding-bottom: 15px; }
+        .question-text { margin-bottom: 10px; font-weight: 500; }
+        
+        /* T/F/NG Radio Options */
+        .tf-options { display: flex; gap: 15px; margin-top: 5px; }
+        .tf-option { cursor: pointer; display: flex; align-items: center; font-size: 14px; }
+        .tf-option input { margin-right: 5px; cursor: pointer; }
+        .tf-option.correct { color: #155724; font-weight: bold; }
+        .tf-option.incorrect { color: #721c24; text-decoration: line-through; }
+        .tf-option.correct-answer-highlight { background-color: #d4edda; padding: 2px 5px; border-radius: 3px; border: 1px solid #c3e6cb; }
+
+        /* Short Answer Inputs */
+        .answer-input { border: 1px solid #888; border-radius: 4px; background-color: #fff; padding: 4px 8px; font-size: 16px; width: 200px; transition: border-color 0.3s; }
+        .answer-input:focus { outline: none; border-color: #4a90e2; box-shadow: 0 0 3px rgba(74, 144, 226, 0.5); }
+        .answer-input.correct { border-color: #28a745; background-color: #e9f7ef; color: #155724; font-weight: bold; }
+        .answer-input.incorrect { border-color: #dc3545; background-color: #f8d7da; color: #721c24; }
+
+        /* Explanation Button */
+        .explanation-btn { font-size: 12px; background-color: #e9ecef; color: #333; padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-left: 10px; border: 1px solid #ccc; display: none; vertical-align: middle; }
+        .explanation-btn:hover { background-color: #dbe0e5; }
+        .show-explanation .explanation-btn { display: inline-block; }
+
+        /* Correct Answer Display (for text inputs) */
+        .correct-answer-display { color: #28a745; font-weight: bold; margin-left: 10px; font-size: 14px; background: #d4edda; padding: 2px 6px; border-radius: 3px; border: 1px solid #c3e6cb; }
+
+        /* Footer Nav */
+        .nav-row { position: fixed; bottom: 0; left: 0; right: 0; background: #ffffff; padding: 0; display: flex; align-items: center; height: 80px; z-index: 100; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
+        .footer__questionWrapper { display: flex; align-items: center; padding: 0 20px; overflow-x: auto; flex: 1; }
+        .footer__subquestionWrapper { display: flex; gap: 5px; }
+        .subQuestion { width: 36px; height: 36px; border: 1px solid #ccc; background: white; color: #333; font-size: 14px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: all 0.2s; flex-shrink: 0; }
+        .subQuestion:hover { background-color: #f0f0f0; }
+        .subQuestion.active { background-color: #4a90e2; color: white; border-color: #4a90e2; }
+        .subQuestion.correct { background-color: #28a745; color: white; border-color: #28a745; }
+        .subQuestion.incorrect { background-color: #dc3545; color: white; border-color: #dc3545; }
+        .subQuestion.answered { background-color: #e9ecef; border-color: #bbb; }
+        
+        .footer__deliverButton { margin-right: 20px; background-color: #4a90e2; color: #fff; border: none; padding: 12px 24px; border-radius: 4px; font-size: 16px; font-weight: 600; cursor: pointer; }
+        .footer__deliverButton:hover { background-color: #357abd; }
+
+        /* Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); z-index: 2000; display: flex; justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 30px; border-radius: 8px; width: 90%; max-width: 600px; text-align: center; position: relative; max-height: 85vh; overflow-y: auto; }
+        .modal-close-btn { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 28px; cursor: pointer; color: #888; }
+        .results-summary { font-size: 20px; font-weight: bold; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+        .result-row { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; text-align: left; }
+        .result-row:hover { background-color: #f9f9f9; }
+        .hidden { display: none !important; }
+
+        /* Explanation Content */
+        .explanation-content { text-align: left; line-height: 1.6; font-size: 15px; color: #333; }
+        .explanation-title { font-weight: bold; font-size: 18px; margin-bottom: 10px; color: #4a90e2; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .keyword-highlight { font-weight: bold; color: #d63384; background-color: #fff0f5; padding: 0 2px; }
+        
+        /* Highlighting Context Menu */
+        .highlight { background-color: #ffff00; }
+        .context-menu { position: absolute; background: white; border: 1px solid #ccc; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; display: none; min-width: 140px; }
+        .context-menu-item { padding: 12px 16px; cursor: pointer; font-size: 16px; border-bottom: 1px solid #f0f0f0; }
+        .context-menu-item:hover { background-color: #f8f9fa; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="timer-container">
+            <span class="timer-display">40:00</span>
+            <div class="timer-controls">
+                <button id="timer-toggle-btn" title="Pause/Resume Timer">||</button>
+                <button id="timer-reset-btn" title="Reset Timer">↺</button>
+            </div>
+        </div>
+        <div style="font-weight: bold; color: #4a90e2;">Đình Phước Edu</div>
+    </div>
+
+    <div class="main-container">
+        <div class="passage-header-container">
+            <p><strong>Practice test</strong></p>
+            <p>Read the text and answer questions 14-26.</p>
+        </div>
+        
+        <div class="panels-container">
+            <div class="passage-panel" id="passage-panel">
+                <div class="reading-passage">
+                    <h4 class="text-center">THOMAS YOUNG<br>THE LAST TRUE KNOW-IT-ALL</h4>
+                    
+                    <p><strong>A</strong> Thomas Young (1773-1829) contributed 63 articles to the Encyclopedia Britannica, including 46 biographical entries (mostly on scientists and classicists) and substantial essays on "Bridge," "Chromatics," "Egypt," "Languages" and "Tides". Was someone who could write authoritatively about so many subjects a polymath, a genius or a dilettante? In an ambitious new biography, Andrew Robinson argues that Young is a good contender for the epitaph "the last man who knew everything." Young has competition, however: The phrase, which Robinson takes for his title, also serves as the subtitle of two other recent biographies: Leonard Warren's 1998 life of paleontologist Joseph Leidy (1823-1891) and Paula Findlen's 2004 book on Athanasius Kircher (1602-1680), another polymath.</p>
+                    
+                    <p><strong>B</strong> Young, of course, did more than write encyclopedia entries. He presented his first paper to the Royal Society of London at the age of 20 and was elected a Fellow a week after his 21st birthday. In the paper, Young explained the process of accommodation in the human eye —on how the eye focuses properly on objects at varying distances. Young hypothesized that this was achieved by changes in the shape of the lens. Young also theorized that light traveled in waves and ho believed that, to account for the ability to see in color, there must be three receptors in the eye corresponding to the three "principal colors" to which the retina could respond: red, green, violet. All these hypotheses were subsequently proved to be correct.</p>
+                    
+                    <p><strong>C</strong> Later in his life, when he was in his forties, Young was instrumental in cracking the code that unlocked the unknown script on the Rosetta Stone, a tablet that was "found" in Egypt by the Napoleonic army in 1799. The stone contains text in three alphabets: Greek, something unrecognizable and Egyptian hieroglyphs. The unrecognizable script is now known as demotic and, as Young deduced, is related directly to hieroglyphic. His initial work on this appeared in his Britannica entry on Egypt. In another entry, he coined the term Indo-European to describe the family of languages spoken throughout most of Europe and northern India. These are the landmark achievements of a man who was a child prodigy and who, unlike many remarkable children, did not disappear into oblivion as an adult.</p>
+                    
+                    <p><strong>D</strong> Born in 1773 in Somerset in England, Young lived from an early age with his maternal grandfather, eventually leaving to attend boarding school. He had devoured books from the age of two, and through his own initiative, he excelled at Latin, Greek, mathematics and natural philosophy. After leaving school, he was greatly encouraged by his mother's uncle, Richard Brocklesby, a physician and Fellow of the Royal Society. Following Brocklesby's lead, Young decided to pursue a career in medicine.</p>
+                    <p>He studied in London, following the medical circuit, and then moved on to more formal education in Edinburgh, Gottingen and Cambridge. After completing his medical training at the University of Cambridge in 1808, Young set up practice as a physician in London. He soon became a Fellow of the Royal College of Physicians and a few years later was appointed physician at St. George's Hospital.</p>
+                    
+                    <p><strong>E</strong> Young's skill as a physician, however, did not equal his skill as a scholar of natural philosophy or linguistics. Earlier, in 1801, he had been appointed to a professorship of natural philosophy at the Royal Institution, where he delivered as many as 60 lectures in a year. These were published in two volumes in 1807. In 1804 Young had become secretary to the Royal Society, a post he would hold until his death. His opinions were sought on civic and national matters, such as the introduction of gas lighting to London and methods of ship construction. From 1819 he was superintendent of the Nautical Almanac and secretary to the Board of Longitude. From 1824 to 1829 he was physician to and inspector of calculations for the Palladian Insurance Company. Between 1816 and 1825 he contributed his many and various entries to the Encyclopedia Britannica, and throughout his career, he authored numerous books, essays and papers.</p>
+                    
+                    <p><strong>F</strong> Young is a perfect subject for a biography - perfect, but daunting. Few men contributed so much to so many technical fields. Robinson's aim is to introduce non-scientists to Young's work and life. He succeeds, providing clear expositions of the technical material (especially that on optics and Egyptian hieroglyphs). Some readers of this book will, like Robinson, find Young's accomplishments impressive; others will see him as some historians have —as a dilettante. Yet despite the rich material presented in this book, readers will not end up knowing Young personally. We catch glimpses of a playful Young, doodling Greek and Latin phrases in his notes on medical lectures and translating the verses that a young lady had written on the walls of a summerhouse into Greek elegiacs. Young was introduced into elite society, attended the theatre and learned to dance and play the flute. In addition, he was an accomplished horseman. However, his personal life looks pale next to his vibrant career and studies.</p>
+                    
+                    <p><strong>G</strong> Young married Eliza Maxwell in 1804, and according to Robinson, "their marriage was a happy one and she appreciated his work," Almost all we know about her is that she sustained her husband through some rancorous disputes about optics and that she worried about money when his medical career was slow to take off. Very little evidence survives about the complexities of Young's relationships with his mother and father. Robinson does not credit them, or anyone else, with shaping Young's extraordinary mind. Despite the lack of details concerning Young's relationships, however, anyone interested in what it means to be a genius should read this book.</p>
+                </div>
+            </div>
+            
+            <div class="resizer" id="resizer"></div>
+            
+            <div class="questions-panel" id="questions-panel">
+                <!-- Group 1: T/F/NG -->
+                <div id="questions-group-1" class="question-set">
+                    <div class="question-prompt">
+                        <p><strong>Questions 14-20</strong></p>
+                        <p>Do the following statements agree with the information given in Reading Passage 1? In boxes 14-20 on your answer sheet, write:</p>
+                        <p><strong>TRUE</strong> if the statement agrees with the information</p>
+                        <p><strong>FALSE</strong> if the statement contradicts the information</p>
+                        <p><strong>NOT GIVEN</strong> if there is no information on this</p>
+                    </div>
+
+                    <div class="question-item" id="q14-container">
+                        <div class="question-text"><strong>14.</strong> 'The last man who knew everything' has also been claimed to other people. <span class="explanation-btn" onclick="showExplanation(14)">ℹ️ Xem giải thích</span></div>
+                        <div class="tf-options">
+                            <label class="tf-option"><input type="radio" name="q14" value="TRUE"> TRUE</label>
+                            <label class="tf-option"><input type="radio" name="q14" value="FALSE"> FALSE</label>
+                            <label class="tf-option"><input type="radio" name="q14" value="NOT GIVEN"> NOT GIVEN</label>
+                        </div>
+                    </div>
+
+                    <div class="question-item" id="q15-container">
+                        <div class="question-text"><strong>15.</strong> All Young's articles were published in Encyclopedia Britannica. <span class="explanation-btn" onclick="showExplanation(15)">ℹ️ Xem giải thích</span></div>
+                        <div class="tf-options">
+                            <label class="tf-option"><input type="radio" name="q15" value="TRUE"> TRUE</label>
+                            <label class="tf-option"><input type="radio" name="q15" value="FALSE"> FALSE</label>
+                            <label class="tf-option"><input type="radio" name="q15" value="NOT GIVEN"> NOT GIVEN</label>
+                        </div>
+                    </div>
+
+                    <div class="question-item" id="q16-container">
+                        <div class="question-text"><strong>16.</strong> Like others, Young wasn't so brilliant when growing up. <span class="explanation-btn" onclick="showExplanation(16)">ℹ️ Xem giải thích</span></div>
+                        <div class="tf-options">
+                            <label class="tf-option"><input type="radio" name="q16" value="TRUE"> TRUE</label>
+                            <label class="tf-option"><input type="radio" name="q16" value="FALSE"> FALSE</label>
+                            <label class="tf-option"><input type="radio" name="q16" value="NOT GIVEN"> NOT GIVEN</label>
+                        </div>
+                    </div>
+
+                    <div class="question-item" id="q17-container">
+                        <div class="question-text"><strong>17.</strong> Young's talent as a doctor surpassed his other skills. <span class="explanation-btn" onclick="showExplanation(17)">ℹ️ Xem giải thích</span></div>
+                        <div class="tf-options">
+                            <label class="tf-option"><input type="radio" name="q17" value="TRUE"> TRUE</label>
+                            <label class="tf-option"><input type="radio" name="q17" value="FALSE"> FALSE</label>
+                            <label class="tf-option"><input type="radio" name="q17" value="NOT GIVEN"> NOT GIVEN</label>
+                        </div>
+                    </div>
+
+                    <div class="question-item" id="q18-container">
+                        <div class="question-text"><strong>18.</strong> Young's advice was sought by people responsible for local and national issues. <span class="explanation-btn" onclick="showExplanation(18)">ℹ️ Xem giải thích</span></div>
+                        <div class="tf-options">
+                            <label class="tf-option"><input type="radio" name="q18" value="TRUE"> TRUE</label>
+                            <label class="tf-option"><input type="radio" name="q18" value="FALSE"> FALSE</label>
+                            <label class="tf-option"><input type="radio" name="q18" value="NOT GIVEN"> NOT GIVEN</label>
+                        </div>
+                    </div>
+
+                    <div class="question-item" id="q19-container">
+                        <div class="question-text"><strong>19.</strong> Young took part in various social pastimes. <span class="explanation-btn" onclick="showExplanation(19)">ℹ️ Xem giải thích</span></div>
+                        <div class="tf-options">
+                            <label class="tf-option"><input type="radio" name="q19" value="TRUE"> TRUE</label>
+                            <label class="tf-option"><input type="radio" name="q19" value="FALSE"> FALSE</label>
+                            <label class="tf-option"><input type="radio" name="q19" value="NOT GIVEN"> NOT GIVEN</label>
+                        </div>
+                    </div>
+
+                    <div class="question-item" id="q20-container">
+                        <div class="question-text"><strong>20.</strong> Young suffered from a disease in his later years. <span class="explanation-btn" onclick="showExplanation(20)">ℹ️ Xem giải thích</span></div>
+                        <div class="tf-options">
+                            <label class="tf-option"><input type="radio" name="q20" value="TRUE"> TRUE</label>
+                            <label class="tf-option"><input type="radio" name="q20" value="FALSE"> FALSE</label>
+                            <label class="tf-option"><input type="radio" name="q20" value="NOT GIVEN"> NOT GIVEN</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Group 2: Short Answers -->
+                <div id="questions-group-2" class="question-set">
+                    <div class="question-prompt">
+                        <p><strong>Questions 21-26</strong></p>
+                        <p>Answer the questions below.</p>
+                        <p>Choose <strong>NO MORE THAN THREE WORDS AND/OR A NUMBER</strong> from the passage for each answer.</p>
+                    </div>
+
+                    <div class="question-item">
+                        <div class="question-text"><strong>21.</strong> How many life stories did Young write for the Encyclopedia Britannica? <span class="explanation-btn" onclick="showExplanation(21)">ℹ️ Xem giải thích</span></div>
+                        <input type="text" class="answer-input" id="q21" autocomplete="off">
+                    </div>
+
+                    <div class="question-item">
+                        <div class="question-text"><strong>22.</strong> What aspect of scientific research did Young focus on in his first academic paper? <span class="explanation-btn" onclick="showExplanation(22)">ℹ️ Xem giải thích</span></div>
+                        <input type="text" class="answer-input" id="q22" autocomplete="off">
+                    </div>
+
+                    <div class="question-item">
+                        <div class="question-text"><strong>23.</strong> What name did Young introduce to refer to a group of languages? <span class="explanation-btn" onclick="showExplanation(23)">ℹ️ Xem giải thích</span></div>
+                        <input type="text" class="answer-input" id="q23" autocomplete="off">
+                    </div>
+
+                    <div class="question-item">
+                        <div class="question-text"><strong>24.</strong> Who inspired Young to start his medical studies? <span class="explanation-btn" onclick="showExplanation(24)">ℹ️ Xem giải thích</span></div>
+                        <input type="text" class="answer-input" id="q24" autocomplete="off">
+                    </div>
+
+                    <div class="question-item">
+                        <div class="question-text"><strong>25.</strong> Where did Young get a teaching position? <span class="explanation-btn" onclick="showExplanation(25)">ℹ️ Xem giải thích</span></div>
+                        <input type="text" class="answer-input" id="q25" autocomplete="off">
+                    </div>
+
+                    <div class="question-item">
+                        <div class="question-text"><strong>26.</strong> What contribution did Young make to London? <span class="explanation-btn" onclick="showExplanation(26)">ℹ️ Xem giải thích</span></div>
+                        <input type="text" class="answer-input" id="q26" autocomplete="off">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="nav-row" aria-label="Questions">
+        <div class="footer__questionWrapper">
+            <div class="footer__subquestionWrapper">
+                <button class="subQuestion" onclick="goToQuestion(14)">14</button>
+                <button class="subQuestion" onclick="goToQuestion(15)">15</button>
+                <button class="subQuestion" onclick="goToQuestion(16)">16</button>
+                <button class="subQuestion" onclick="goToQuestion(17)">17</button>
+                <button class="subQuestion" onclick="goToQuestion(18)">18</button>
+                <button class="subQuestion" onclick="goToQuestion(19)">19</button>
+                <button class="subQuestion" onclick="goToQuestion(20)">20</button>
+                <button class="subQuestion" onclick="goToQuestion(21)">21</button>
+                <button class="subQuestion" onclick="goToQuestion(22)">22</button>
+                <button class="subQuestion" onclick="goToQuestion(23)">23</button>
+                <button class="subQuestion" onclick="goToQuestion(24)">24</button>
+                <button class="subQuestion" onclick="goToQuestion(25)">25</button>
+                <button class="subQuestion" onclick="goToQuestion(26)">26</button>
+            </div>
+        </div>
+        <button id="deliver-button" class="footer__deliverButton">Check Answers</button>
+    </nav>
+
+    <!-- Context Menu -->
+    <div id="contextMenu" class="context-menu">
+        <div id="menu-highlight" class="context-menu-item" onclick="highlightText()">Highlight</div>
+        <div id="menu-clear" class="context-menu-item" onclick="clearHighlight()">Clear</div>
+    </div>
+
+    <!-- Results Modal -->
+    <div id="results-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeResultsModal()">&times;</button>
+            <h2>Results</h2>
+            <div class="results-summary">Score: <span id="results-score"></span> / 13</div>
+            <p style="margin-bottom: 15px; color: #666; font-size: 14px;">Click on any row to see the explanation.</p>
+            <div id="results-details"></div>
+        </div>
+    </div>
+
+    <!-- Explanation Modal -->
+    <div id="explanation-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeExplanationModal()">&times;</button>
+            <div id="explanation-content" class="explanation-content"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DATA ---
+            const correctAnswers = {
+                '14': 'TRUE',
+                '15': 'FALSE',
+                '16': 'FALSE',
+                '17': 'FALSE',
+                '18': 'TRUE',
+                '19': 'TRUE',
+                '20': 'NOT GIVEN',
+                '21': ['46', '46 biographical entries'],
+                '22': ['accommodation', 'human eye accommodation'],
+                '23': 'Indo-European',
+                '24': ['Richard Brocklesby', 'Brocklesby'],
+                '25': 'Royal Institution',
+                '26': 'gas lighting'
+            };
+
+            const explanations = {
+                '14': `
+                    <div class="explanation-title">Q14: 'The last man who knew everything' has also been claimed to other people.</div>
+                    <p><strong>Keyword:</strong> last man who knew everything, other people</p>
+                    <p>In Paragraph A, it states: "The phrase... also serves as the subtitle of two other recent biographies: Leonard Warren's 1998 life of paleontologist Joseph Leidy... and Paula Findlen's 2004 book on Athanasius Kircher..."</p>
+                    <p>This means the title has been claimed for others.</p>
+                    <p><strong>Answer: TRUE</strong></p>
+                `,
+                '15': `
+                    <div class="explanation-title">Q15: All Young's articles were published in Encyclopedia Britannica.</div>
+                    <p><strong>Keyword:</strong> All, articles, Encyclopedia Britannica</p>
+                    <p>Paragraph A says he contributed 63 articles to the Encyclopedia. However, Paragraph E mentions: "throughout his career, he authored <span class="keyword-highlight">numerous books, essays and papers</span>." and Paragraph B says he presented papers to the Royal Society.</p>
+                    <p>Therefore, not *all* his work was in the Encyclopedia.</p>
+                    <p><strong>Answer: FALSE</strong></p>
+                `,
+                '16': `
+                    <div class="explanation-title">Q16: Like others, Young wasn't so brilliant when growing up.</div>
+                    <p><strong>Keyword:</strong> brilliant, growing up</p>
+                    <p>Paragraph C states: "These are the landmark achievements of a man who was a <span class="keyword-highlight">child prodigy</span> and who, unlike many remarkable children, did not disappear into oblivion as an adult."</p>
+                    <p>He was a child prodigy, meaning he was brilliant growing up.</p>
+                    <p><strong>Answer: FALSE</strong></p>
+                `,
+                '17': `
+                    <div class="explanation-title">Q17: Young's talent as a doctor surpassed his other skills.</div>
+                    <p><strong>Keyword:</strong> doctor, surpassed, other skills</p>
+                    <p>Paragraph E states: "Young's skill as a physician, however, <span class="keyword-highlight">did not equal his skill as a scholar of natural philosophy or linguistics</span>."</p>
+                    <p>This means his other skills were actually better than his doctoring skills.</p>
+                    <p><strong>Answer: FALSE</strong></p>
+                `,
+                '18': `
+                    <div class="explanation-title">Q18: Young's advice was sought by people responsible for local and national issues.</div>
+                    <p><strong>Keyword:</strong> advice, sought, local and national issues</p>
+                    <p>Paragraph E mentions: "His opinions were sought on <span class="keyword-highlight">civic and national matters</span>, such as the introduction of gas lighting to London..."</p>
+                    <p><strong>Answer: TRUE</strong></p>
+                `,
+                '19': `
+                    <div class="explanation-title">Q19: Young took part in various social pastimes.</div>
+                    <p><strong>Keyword:</strong> social pastimes</p>
+                    <p>Paragraph F describes his personal life: "...attended the theatre and learned to <span class="keyword-highlight">dance and play the flute</span>. In addition, he was an accomplished <span class="keyword-highlight">horseman</span>."</p>
+                    <p><strong>Answer: TRUE</strong></p>
+                `,
+                '20': `
+                    <div class="explanation-title">Q20: Young suffered from a disease in his later years.</div>
+                    <p><strong>Keyword:</strong> disease, later years</p>
+                    <p>The text mentions he held posts until his death, but there is no specific information about him suffering from a specific disease in his later years.</p>
+                    <p><strong>Answer: NOT GIVEN</strong></p>
+                `,
+                '21': `
+                    <div class="explanation-title">Q21: How many life stories did Young write for the Encyclopedia Britannica?</div>
+                    <p><strong>Keyword:</strong> how many, life stories</p>
+                    <p>Paragraph A: "...including <span class="keyword-highlight">46 biographical entries</span> (mostly on scientists and classicists)..."</p>
+                    <p>"Biographical entries" are "life stories".</p>
+                    <p><strong>Answer: 46</strong></p>
+                `,
+                '22': `
+                    <div class="explanation-title">Q22: What aspect of scientific research did Young focus on in his first academic paper?</div>
+                    <p><strong>Keyword:</strong> first academic paper, focus</p>
+                    <p>Paragraph B: "In the paper, Young explained the process of <span class="keyword-highlight">accommodation</span> in the human eye..."</p>
+                    <p><strong>Answer: accommodation</strong></p>
+                `,
+                '23': `
+                    <div class="explanation-title">Q23: What name did Young introduce to refer to a group of languages?</div>
+                    <p><strong>Keyword:</strong> name, group of languages</p>
+                    <p>Paragraph C: "In another entry, he coined the term <span class="keyword-highlight">Indo-European</span> to describe the family of languages..."</p>
+                    <p><strong>Answer: Indo-European</strong></p>
+                `,
+                '24': `
+                    <div class="explanation-title">Q24: Who inspired Young to start his medical studies?</div>
+                    <p><strong>Keyword:</strong> inspired, start medical studies</p>
+                    <p>Paragraph D: "Following <span class="keyword-highlight">Brocklesby's</span> lead, Young decided to pursue a career in medicine." (Referring to Richard Brocklesby).</p>
+                    <p><strong>Answer: Richard Brocklesby</strong></p>
+                `,
+                '25': `
+                    <div class="explanation-title">Q25: Where did Young get a teaching position?</div>
+                    <p><strong>Keyword:</strong> where, teaching position</p>
+                    <p>Paragraph E: "...appointed to a professorship of natural philosophy at the <span class="keyword-highlight">Royal Institution</span>..."</p>
+                    <p><strong>Answer: Royal Institution</strong></p>
+                `,
+                '26': `
+                    <div class="explanation-title">Q26: What contribution did Young make to London?</div>
+                    <p><strong>Keyword:</strong> contribution, London</p>
+                    <p>Paragraph E: "...such as the introduction of <span class="keyword-highlight">gas lighting</span> to London..."</p>
+                    <p><strong>Answer: gas lighting</strong></p>
+                `
+            };
+
+            const questionIds = [14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26];
+            let timeInSeconds = 2400; // 40 mins
+            let timerInterval;
+            let selectedRange = null;
+
+            // --- DOM ELEMENTS ---
+            const timerDisplay = document.querySelector('.timer-display');
+            const deliverButton = document.getElementById('deliver-button');
+            const resizer = document.getElementById('resizer');
+            const passagePanel = document.getElementById('passage-panel');
+            const contextMenu = document.getElementById('contextMenu');
+
+            // --- INITIALIZATION ---
+            function initialize() {
+                startTimer();
+                
+                deliverButton.addEventListener('click', checkAnswers);
+                document.body.addEventListener('change', updateIndicators);
+                document.body.addEventListener('input', updateIndicators);
+                
+                // Security
+                document.addEventListener("keydown", function (e) {
+                    if (
+                        e.key === "F12" ||
+                        (e.ctrlKey && e.shiftKey && e.key === "I") ||
+                        (e.ctrlKey && e.shiftKey && e.key === "J") ||
+                        (e.ctrlKey && e.shiftKey && e.key === "C") ||
+                        (e.ctrlKey && e.key === "u") ||
+                        (e.ctrlKey && e.key === "p") ||
+                        (e.ctrlKey && e.key === "s")
+                    ) {
+                        e.preventDefault();
+                        return false;
+                    }
+                });
+
+                // Resizer
+                resizer.addEventListener('mousedown', initResize, false);
+                
+                // Context Menu
+                initializeContextMenu();
+            }
+
+            // --- CORE LOGIC ---
+            function checkAnswers() {
+                clearInterval(timerInterval);
+                let score = 0;
+                const resultsContainer = document.getElementById('results-details');
+                resultsContainer.innerHTML = '';
+                
+                // Disable inputs
+                document.querySelectorAll('input').forEach(input => input.disabled = true);
+                deliverButton.disabled = true;
+                deliverButton.textContent = "Checked";
+                
+                // Show explanation buttons
+                document.querySelector('.questions-panel').classList.add('show-explanation');
+
+                questionIds.forEach(id => {
+                    let isCorrect = false;
+                    let userAnswer = '';
+                    let correctAnswerDisplay = '';
+
+                    // Logic for Radio Buttons (14-20)
+                    if (id <= 20) {
+                        const selectedOption = document.querySelector(`input[name="q${id}"]:checked`);
+                        userAnswer = selectedOption ? selectedOption.value : 'Not Answered';
+                        const correctAnswer = correctAnswers[id];
+                        isCorrect = userAnswer === correctAnswer;
+                        correctAnswerDisplay = correctAnswer;
+
+                        // UI Updates
+                        const container = document.getElementById(`q${id}-container`);
+                        if (selectedOption) {
+                            const label = selectedOption.parentElement;
+                            if (isCorrect) label.classList.add('correct');
+                            else label.classList.add('incorrect');
+                        }
+                        // Highlight correct answer if wrong
+                        if (!isCorrect) {
+                            const correctInput = document.querySelector(`input[name="q${id}"][value="${correctAnswer}"]`);
+                            if (correctInput) correctInput.parentElement.classList.add('correct-answer-highlight');
+                        }
+                    } 
+                    // Logic for Text Inputs (21-26)
+                    else {
+                        const input = document.getElementById(`q${id}`);
+                        userAnswer = input.value.trim();
+                        const correctArr = Array.isArray(correctAnswers[id]) ? correctAnswers[id] : [correctAnswers[id]];
+                        isCorrect = correctArr.some(ans => ans.toLowerCase() === userAnswer.toLowerCase());
+                        correctAnswerDisplay = correctArr[0];
+
+                        // UI Updates
+                        if (isCorrect) input.classList.add('correct');
+                        else {
+                            input.classList.add('incorrect');
+                            // Show correct text next to input
+                            const span = document.createElement('span');
+                            span.className = 'correct-answer-display';
+                            span.textContent = `✓ ${correctAnswerDisplay}`;
+                            input.parentNode.insertBefore(span, input.nextSibling);
+                        }
+                    }
+
+                    if (isCorrect) {
+                        score++;
+                        const navBtn = document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`);
+                        if(navBtn) navBtn.classList.add('correct');
+                    } else {
+                        const navBtn = document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`);
+                        if(navBtn) navBtn.classList.add('incorrect');
+                    }
+
+                    // Add to Results Modal
+                    const row = document.createElement('div');
+                    row.className = 'result-row';
+                    row.innerHTML = `
+                        <span style="font-weight:bold;">Q${id}</span>
+                        <span>Your Answer: <span style="color:${isCorrect ? 'green' : 'red'}">${userAnswer}</span></span>
+                        <span style="color:green; font-weight:bold;">Correct: ${correctAnswerDisplay}</span>
+                    `;
+                    row.onclick = () => showExplanation(id);
+                    resultsContainer.appendChild(row);
+                });
+
+                document.getElementById('results-score').textContent = score;
+                document.getElementById('results-modal').classList.remove('hidden');
+            }
+
+            function updateIndicators() {
+                let answered = 0;
+                questionIds.forEach(id => {
+                    let hasAnswer = false;
+                    if (id <= 20) {
+                        if (document.querySelector(`input[name="q${id}"]:checked`)) hasAnswer = true;
+                    } else {
+                        if (document.getElementById(`q${id}`).value.trim() !== '') hasAnswer = true;
+                    }
+
+                    const btn = document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`);
+                    if (hasAnswer) {
+                        answered++;
+                        btn.classList.add('answered');
+                    } else {
+                        btn.classList.remove('answered');
+                    }
+                });
+                // Attempted count not displayed in this simplified footer, but logic remains valid
+            }
+
+            window.goToQuestion = (id) => {
+                let el;
+                if(id <= 20) el = document.getElementById(`q${id}-container`);
+                else el = document.getElementById(`q${id}`).parentElement; // Wrapper div
+
+                if(el) {
+                    el.scrollIntoView({behavior: 'smooth', block: 'center'});
+                    // Update active nav
+                    document.querySelectorAll('.subQuestion').forEach(b => b.classList.remove('active'));
+                    document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`).classList.add('active');
+                }
+            };
+
+            window.closeResultsModal = () => document.getElementById('results-modal').classList.add('hidden');
+            
+            window.showExplanation = (id) => {
+                const content = explanations[id];
+                if(content) {
+                    document.getElementById('explanation-content').innerHTML = content;
+                    document.getElementById('explanation-modal').classList.remove('hidden');
+                }
+            };
+            
+            window.closeExplanationModal = () => document.getElementById('explanation-modal').classList.add('hidden');
+
+            // --- UTILS ---
+            function startTimer() {
+                timerInterval = setInterval(() => {
+                    timeInSeconds--;
+                    const m = Math.floor(timeInSeconds / 60).toString().padStart(2,'0');
+                    const s = (timeInSeconds % 60).toString().padStart(2,'0');
+                    timerDisplay.textContent = `${m}:${s}`;
+                    if(timeInSeconds <= 0) clearInterval(timerInterval);
+                }, 1000);
+            }
+
+            function initResize(e) {
+                e.preventDefault();
+                const startX = e.clientX;
+                const startWidth = passagePanel.offsetWidth;
+                const doDrag = (e) => { passagePanel.style.flex = `0 0 ${startWidth + e.clientX - startX}px`; };
+                const stopDrag = () => {
+                    window.removeEventListener('mousemove', doDrag);
+                    window.removeEventListener('mouseup', stopDrag);
+                };
+                window.addEventListener('mousemove', doDrag);
+                window.addEventListener('mouseup', stopDrag);
+            }
+
+            function initializeContextMenu() {
+                document.addEventListener('selectionchange', () => {
+                    const sel = window.getSelection();
+                    if(sel.toString().length > 0) selectedRange = sel.getRangeAt(0);
+                });
+                document.addEventListener('contextmenu', (e) => {
+                    if(e.target.closest('.passage-panel') || e.target.closest('.questions-panel')) {
+                        e.preventDefault();
+                        contextMenu.style.display = 'block';
+                        contextMenu.style.left = `${e.pageX}px`;
+                        contextMenu.style.top = `${e.pageY}px`;
+                    }
+                });
+                document.addEventListener('click', (e) => {
+                    if(!contextMenu.contains(e.target)) contextMenu.style.display = 'none';
+                });
+            }
+
+            window.highlightText = () => {
+                if(selectedRange) {
+                    const span = document.createElement('span');
+                    span.className = 'highlight';
+                    span.appendChild(selectedRange.extractContents());
+                    selectedRange.insertNode(span);
+                }
+                contextMenu.style.display = 'none';
+            };
+
+            window.clearHighlight = () => {
+                const highlights = document.querySelectorAll('.highlight');
+                highlights.forEach(h => {
+                    const parent = h.parentNode;
+                    while(h.firstChild) parent.insertBefore(h.firstChild, h);
+                    parent.removeChild(h);
+                });
+                contextMenu.style.display = 'none';
+            };
+
+            initialize();
+        });
+    </script>
+</body>
+</html>
