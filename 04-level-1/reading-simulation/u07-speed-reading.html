@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@600&display=swap" rel="stylesheet">
+    <title>Practice test: Speed Reading</title>
+    <style>
+        /* Base Styles */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background-color: #ffffff; line-height: 1.5; font-size: 16px; color: #333; }
+        .header { background-color: #ffffff; padding: 12px 20px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 60px; }
+        .timer-container { display: flex; align-items: center; font-weight: 500; font-size: 18px; }
+        .timer-controls { display: flex; gap: 8px; margin-left: 15px; }
+        .timer-controls button { background: #f0f0f0; border: 1px solid #ccc; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .main-container { margin-top: 60px; display: flex; flex-direction: column; background: #ffffff; height: calc(100vh - 60px); }
+        .passage-header-container { background-color: #f1f2ec; padding: 15px 20px; border-bottom: 1px solid #e0e0e0; font-size: 15px; }
+        .panels-container { display: flex; flex: 1; overflow: hidden; }
+        .passage-panel { flex: 1; padding: 30px 40px 100px; overflow-y: auto; min-width: 300px; background-color: #fff; }
+        .reading-passage h4 { font-family: 'Merriweather', serif; font-size: 24px; font-weight: 600; color: #2c3e50; line-height: 1.4; margin-bottom: 25px; text-align: center; border-bottom: 3px solid #d9534f; padding-bottom: 10px; }
+        .reading-passage p { margin-bottom: 1.4em; text-align: justify; font-size: 17px; line-height: 1.6; }
+        .resizer { width: 12px; cursor: col-resize; background-color: #f0f0f0; flex-shrink: 0; flex-grow: 0; border-left: 1px solid #ddd; border-right: 1px solid #ddd; }
+        .questions-panel { flex: 1; padding: 30px 40px 100px; overflow-y: auto; min-width: 300px; background-color: #fafafa; }
+        .question-set { margin-bottom: 40px; background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #eee; }
+        .question-prompt { margin-bottom: 20px; background: #eaf4fc; padding: 15px; border-radius: 5px; border-left: 4px solid #4a90e2; color: #333; }
+        .question-item { margin-bottom: 25px; border-bottom: 1px dashed #eee; padding-bottom: 20px; }
+        .answer-input { border: 1px solid #ccc; border-radius: 4px; padding: 6px 10px; font-size: 16px; width: 100px; text-align: center; font-weight: bold; }
+        .answer-input.correct { border-color: #28a745; background-color: #e9f7ef; color: #155724; }
+        .answer-input.incorrect { border-color: #dc3545; background-color: #f8d7da; color: #721c24; }
+        .explanation-btn { font-size: 12px; background-color: #6c757d; color: white; padding: 3px 8px; border-radius: 12px; cursor: pointer; margin-left: 10px; display: none; }
+        .show-explanation .explanation-btn { display: inline-block; }
+        .nav-row { position: fixed; bottom: 0; left: 0; right: 0; background: #ffffff; padding: 0; display: flex; align-items: center; height: 70px; z-index: 100; border-top: 1px solid #eee; }
+        .footer__questionWrapper { display: flex; align-items: center; padding: 0 20px; overflow-x: auto; flex: 1; }
+        .subQuestion { width: 40px; height: 40px; border: 1px solid #dfe1e5; background: white; color: #5f6368; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 4px; margin-right: 5px; }
+        .subQuestion.active { background-color: #e8f0fe; color: #1a73e8; border-color: #1a73e8; font-weight: bold; }
+        .subQuestion.correct { background-color: #28a745; color: white; border-color: #28a745; }
+        .subQuestion.incorrect { background-color: #dc3545; color: white; border-color: #dc3545; }
+        .footer__deliverButton { margin-right: 30px; background-color: #1a73e8; color: #fff; border: none; padding: 12px 24px; border-radius: 4px; font-size: 16px; font-weight: 600; cursor: pointer; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 2000; display: flex; justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 700px; max-height: 85vh; overflow-y: auto; position: relative; }
+        .modal-close-btn { position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 28px; cursor: pointer; }
+        .hidden { display: none !important; }
+        .keyword-highlight { font-weight: bold; color: #d93025; background-color: #fce8e6; padding: 2px 4px; border-radius: 2px; }
+        .result-row { display: flex; justify-content: space-between; padding: 12px 15px; border-bottom: 1px solid #f0f0f0; cursor: pointer; }
+        
+        /* Table Styles */
+        .question-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .question-table th, .question-table td { border: 1px solid #ddd; padding: 12px; text-align: left; vertical-align: top; }
+        .question-table th { background-color: #f2f2f2; font-weight: bold; }
+        .question-table input { width: 100%; min-width: 100px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="timer-container">
+            <span class="timer-display">40:00</span>
+            <div class="timer-controls"><button id="timer-toggle-btn">||</button><button id="timer-reset-btn">↺</button></div>
+        </div>
+        <div style="font-weight: bold; color: #1a73e8; font-size: 20px;">Đình Phước Edu</div>
+    </div>
+
+    <div class="main-container">
+        <div class="passage-header-container">
+            <p><strong>Practice test: Speed Reading</strong></p>
+            <p>Read the text and answer questions 1-13.</p>
+        </div>
+        
+        <div class="panels-container">
+            <div class="passage-panel" id="passage-panel">
+                <div class="reading-passage">
+                    <h4 class="text-center">SPEED READING</h4>
+                    <p class="text-center">What is speed reading, and why do we need it?</p>
+                    <p><strong>A</strong> Speed reading is not just about reading fast. It is also about how much information you can remember when you have finished reading. The World Championship Speed-Reading Competition says that its top competitors average between 1,000 and 2,000 words a minute. But they must remember at least 50 percent of this in order to qualify for the competition.</p>
+                    <p><strong>B</strong> Nowadays, speed reading has become an essential skill in any environment where people have to master a large volume of information. Professional workers need reading skills to help them get through many documents every day, while students under pressure to deal with assignments may feel they have to read more and read faster all the time.</p>
+                    <p><strong>C</strong> Although there are various methods to increase reading speed, the trick is deciding what information you want first. For example, if you only want a rough outline of an issue, then you can skim the material quickly and extract the key facts. However, if you need to understand every detail in a document, then you must read it slowly enough to understand this.</p>
+                    <p><strong>D</strong> Even when you know how to ignore irrelevant detail, there are other improvements you can make to your reading style which will increase your speed. For example, most people can read much faster if they read silently. Reading each word aloud takes time for the information to make a complete circuit in your brain before being pronounced. Some researchers believe that as long as the first and last letters are in place, the brain can still understand the arrangement of the other letters in the word because it logically puts each piece into place.</p>
+                    <p><strong>E</strong> Chunking is another important method. Most people learn to read either letter by letter or word by word. As you improve, this changes. You will probably find that you are fixing your eyes on a block of words, then moving your eyes to the next block of words, and so on. You are reading blocks of words at a time, not individual words one by one. You may also notice that you do not always go from one block to the next: sometimes you may move back to a previous block if you are unsure about something.</p>
+                    <p><strong>F</strong> A skilled reader will read a lot of words in each block. He or she will only look at each block for an instant and will then move on. Only rarely will the reader’s eyes skip back to a previous block of words. This reduces the amount of work that the reader’s eyes have to do. It also increases the volume of information that can be taken in over a given period of time.</p>
+                    <p><strong>G</strong> On the other hand, a slow reader will spend a lot of time reading small blocks of words. He or she will skip back often, losing the flow and structure of the text, and muddling their overall understanding of the subject. This irregular eye movement quickly makes the reader tired. Poor readers tend to dislike reading because they feel it is difficult to concentrate and comprehend written information.</p>
+                    <p><strong>H</strong> The best tip anyone can have to improve their reading speed is to practise. In order to do this effectively, a person must be engaged in the material and want to know more. If you find yourself constantly having to re-read the same paragraph, you may want to switch to reading material that grabs your attention. If you enjoy what you are reading, you will make quicker progress.</p>
+                </div>
+            </div>
+            
+            <div class="resizer" id="resizer"></div>
+            
+            <div class="questions-panel" id="questions-panel">
+                <div id="questions-group-1" class="question-set">
+                    <div class="question-prompt">
+                        <p><strong>Questions 1-6</strong></p>
+                        <p>The reading passage has seven paragraphs, <strong>A-H</strong>. Which paragraph contains the following information?</p>
+                        <p>Write the correct letter, <strong>A-H</strong>.</p>
+                    </div>
+                    <div class="question-item">1. the types of people who need to read more quickly <input type="text" class="answer-input" id="q1" maxlength="1"> <span class="explanation-btn" onclick="showExplanation(1)">ℹ️</span></div>
+                    <div class="question-item">2. the fastest reading speeds <input type="text" class="answer-input" id="q2" maxlength="1"> <span class="explanation-btn" onclick="showExplanation(2)">ℹ️</span></div>
+                    <div class="question-item">3. how a reader can become confused <input type="text" class="answer-input" id="q3" maxlength="1"> <span class="explanation-btn" onclick="showExplanation(3)">ℹ️</span></div>
+                    <div class="question-item">4. why reading material should be interesting <input type="text" class="answer-input" id="q4" maxlength="1"> <span class="explanation-btn" onclick="showExplanation(4)">ℹ️</span></div>
+                    <div class="question-item">5. a definition of speed reading <input type="text" class="answer-input" id="q5" maxlength="1"> <span class="explanation-btn" onclick="showExplanation(5)">ℹ️</span></div>
+                    <div class="question-item">6. what you should consider before you start reading <input type="text" class="answer-input" id="q6" maxlength="1"> <span class="explanation-btn" onclick="showExplanation(6)">ℹ️</span></div>
+                </div>
+
+                <div id="questions-group-2" class="question-set">
+                    <div class="question-prompt">
+                        <p><strong>Questions 7-13</strong></p>
+                        <p>Complete the table below. Choose <strong>NO MORE THAN TWO WORDS</strong> from the passage for each answer.</p>
+                    </div>
+                    <h3>Chunking</h3>
+                    <table class="question-table">
+                        <thead>
+                            <tr>
+                                <th>Type of reader</th>
+                                <th>Reading method</th>
+                                <th>Effect of method on reader</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td rowspan="2">skilled reader</td>
+                                <td>many <strong>7</strong> <input type="text" class="answer-input" id="q7"> <span class="explanation-btn" onclick="showExplanation(7)">ℹ️</span> in a block</td>
+                                <td>reader’s <strong>8</strong> <input type="text" class="answer-input" id="q8"> <span class="explanation-btn" onclick="showExplanation(8)">ℹ️</span> do less work</td>
+                            </tr>
+                            <tr>
+                                <td>reader hardly ever goes back</td>
+                                <td>more <strong>9</strong> <input type="text" class="answer-input" id="q9"> <span class="explanation-btn" onclick="showExplanation(9)">ℹ️</span> is processed</td>
+                            </tr>
+                            <tr>
+                                <td rowspan="2"><strong>10</strong> <input type="text" class="answer-input" id="q10"> <span class="explanation-btn" onclick="showExplanation(10)">ℹ️</span></td>
+                                <td>small blocks</td>
+                                <td>reader easily gets <strong>12</strong> <input type="text" class="answer-input" id="q12"> <span class="explanation-btn" onclick="showExplanation(12)">ℹ️</span></td>
+                            </tr>
+                            <tr>
+                                <td>reader <strong>11</strong> <input type="text" class="answer-input" id="q11"> <span class="explanation-btn" onclick="showExplanation(11)">ℹ️</span> goes back</td>
+                                <td>finds it hard to <strong>13</strong> <input type="text" class="answer-input" id="q13"> <span class="explanation-btn" onclick="showExplanation(13)">ℹ️</span> on passage</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="nav-row">
+        <div class="footer__questionWrapper">
+            <button class="subQuestion" onclick="goToQuestion(1)">1</button>
+            <button class="subQuestion" onclick="goToQuestion(2)">2</button>
+            <button class="subQuestion" onclick="goToQuestion(3)">3</button>
+            <button class="subQuestion" onclick="goToQuestion(4)">4</button>
+            <button class="subQuestion" onclick="goToQuestion(5)">5</button>
+            <button class="subQuestion" onclick="goToQuestion(6)">6</button>
+            <button class="subQuestion" onclick="goToQuestion(7)">7</button>
+            <button class="subQuestion" onclick="goToQuestion(8)">8</button>
+            <button class="subQuestion" onclick="goToQuestion(9)">9</button>
+            <button class="subQuestion" onclick="goToQuestion(10)">10</button>
+            <button class="subQuestion" onclick="goToQuestion(11)">11</button>
+            <button class="subQuestion" onclick="goToQuestion(12)">12</button>
+            <button class="subQuestion" onclick="goToQuestion(13)">13</button>
+        </div>
+        <button id="deliver-button" class="footer__deliverButton">Check Answers</button>
+    </nav>
+
+    <div id="results-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeResultsModal()">×</button>
+            <h2>Results</h2>
+            <div class="results-summary">Score: <span id="results-score"></span> / 13</div>
+            <div id="results-details"></div>
+        </div>
+    </div>
+    <div id="explanation-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeExplanationModal()">×</button>
+            <div id="explanation-content" class="explanation-content"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const correctAnswers = {
+                '1': 'B', '2': 'A', '3': 'G', '4': 'H', '5': 'A', '6': 'C',
+                '7': 'words', '8': 'eyes', '9': 'information', '10': 'slow reader', '11': 'often', '12': 'tired', '13': 'concentrate'
+            };
+            const explanations = {
+                '1': '<strong>Answer: B</strong><br>Paragraph B mentions "Professional workers" and "students under pressure".',
+                '2': '<strong>Answer: A</strong><br>Paragraph A mentions "average between 1,000 and 2,000 words a minute".',
+                '3': '<strong>Answer: G</strong><br>Paragraph G describes a slow reader skipping back and "muddling their overall understanding" (becoming confused).',
+                '4': '<strong>Answer: H</strong><br>Paragraph H says "If you enjoy what you are reading, you will make quicker progress." indicating material should be interesting/grabbing attention.',
+                '5': '<strong>Answer: A</strong><br>Paragraph A defines speed reading: "Speed reading is not just about reading fast. It is also about how much information you can remember..."',
+                '6': '<strong>Answer: C</strong><br>Paragraph C says "the trick is deciding what information you want first" (consider before reading).',
+                '7': '<strong>Answer: words</strong><br>Para F: "A skilled reader will read a lot of <span class="keyword-highlight">words</span> in each block."',
+                '8': '<strong>Answer: eyes</strong><br>Para F: "This reduces the amount of work that the reader’s <span class="keyword-highlight">eyes</span> have to do."',
+                '9': '<strong>Answer: information</strong><br>Para F: "It also increases the volume of <span class="keyword-highlight">information</span> that can be taken in..."',
+                '10': '<strong>Answer: slow reader</strong><br>Para G starts with "On the other hand, a <span class="keyword-highlight">slow reader</span>..."',
+                '11': '<strong>Answer: often</strong><br>Para G: "He or she will skip back <span class="keyword-highlight">often</span>..."',
+                '12': '<strong>Answer: tired</strong><br>Para G: "This irregular eye movement quickly makes the reader <span class="keyword-highlight">tired</span>."',
+                '13': '<strong>Answer: concentrate</strong><br>Para G: "...difficult to <span class="keyword-highlight">concentrate</span> and comprehend..."'
+            };
+            
+            // Shared Logic (similar to Manatees)
+            const questionIds = Object.keys(correctAnswers);
+            let timeInSeconds = 2400; let timerInterval;
+            
+            function checkAnswers() {
+                clearInterval(timerInterval);
+                let score = 0;
+                document.getElementById('results-details').innerHTML = '';
+                document.querySelectorAll('input').forEach(input => input.disabled = true);
+                document.getElementById('deliver-button').disabled = true;
+                document.querySelector('.questions-panel').classList.add('show-explanation');
+
+                questionIds.forEach(id => {
+                    const input = document.getElementById('q' + id);
+                    const val = input.value.trim().toLowerCase();
+                    const correct = correctAnswers[id].toLowerCase();
+                    const isCorrect = val === correct;
+                    if(isCorrect) { score++; input.classList.add('correct'); document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`).classList.add('correct'); }
+                    else { input.classList.add('incorrect'); document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`).classList.add('incorrect'); }
+                    
+                    const row = document.createElement('div');
+                    row.className = 'result-row';
+                    row.innerHTML = `<span>Q${id}</span> <span>Your: ${input.value}</span> <span style="color:green">Correct: ${correctAnswers[id]}</span>`;
+                    row.onclick = () => showExplanation(id);
+                    document.getElementById('results-details').appendChild(row);
+                });
+                document.getElementById('results-score').textContent = score;
+                document.getElementById('results-modal').classList.remove('hidden');
+            }
+
+            window.goToQuestion = (id) => document.getElementById('q' + id).scrollIntoView({behavior: 'smooth', block: 'center'});
+            window.showExplanation = (id) => { document.getElementById('explanation-content').innerHTML = explanations[id]; document.getElementById('explanation-modal').classList.remove('hidden'); };
+            window.closeResultsModal = () => document.getElementById('results-modal').classList.add('hidden');
+            window.closeExplanationModal = () => document.getElementById('explanation-modal').classList.add('hidden');
+            
+            // Timer & Init logic
+            function startTimer() { timerInterval = setInterval(() => { timeInSeconds--; const m = Math.floor(timeInSeconds/60).toString().padStart(2,'0'); const s = (timeInSeconds%60).toString().padStart(2,'0'); document.querySelector('.timer-display').textContent = `${m}:${s}`; if(timeInSeconds<=0) checkAnswers(); }, 1000); }
+            document.getElementById('timer-toggle-btn').onclick = () => { if(timerInterval) { clearInterval(timerInterval); timerInterval=null; } else startTimer(); };
+            document.getElementById('timer-reset-btn').onclick = () => { clearInterval(timerInterval); timeInSeconds=2400; startTimer(); };
+            document.getElementById('deliver-button').onclick = checkAnswers;
+            
+            // Resizer
+            const resizer = document.getElementById('resizer'); const panel = document.getElementById('passage-panel');
+            resizer.addEventListener('mousedown', (e) => { e.preventDefault(); window.addEventListener('mousemove', resize); window.addEventListener('mouseup', stopResize); });
+            function resize(e) { panel.style.flex = `0 0 ${e.clientX}px`; }
+            function stopResize() { window.removeEventListener('mousemove', resize); window.removeEventListener('mouseup', stopResize); }
+
+            startTimer();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@600&display=swap" rel="stylesheet">
+    <title>Practice test: On the trail of the honey badger</title>
+    <style>
+        /* [Same CSS as above, omitted for brevity but fully functional in rendering] */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background-color: #ffffff; line-height: 1.5; font-size: 16px; color: #333; }
+        .header { background-color: #ffffff; padding: 12px 20px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 60px; }
+        .timer-container { display: flex; align-items: center; font-weight: 500; font-size: 18px; }
+        .timer-controls { display: flex; gap: 8px; margin-left: 15px; }
+        .timer-controls button { background: #f0f0f0; border: 1px solid #ccc; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .main-container { margin-top: 60px; display: flex; flex-direction: column; background: #ffffff; height: calc(100vh - 60px); }
+        .passage-header-container { background-color: #f1f2ec; padding: 15px 20px; border-bottom: 1px solid #e0e0e0; font-size: 15px; }
+        .panels-container { display: flex; flex: 1; overflow: hidden; }
+        .passage-panel { flex: 1; padding: 30px 40px 100px; overflow-y: auto; min-width: 300px; background-color: #fff; }
+        .reading-passage h4 { font-family: 'Merriweather', serif; font-size: 24px; font-weight: 600; color: #2c3e50; line-height: 1.4; margin-bottom: 25px; text-align: center; border-bottom: 3px solid #d9534f; padding-bottom: 10px; }
+        .reading-passage p { margin-bottom: 1.4em; text-align: justify; font-size: 17px; line-height: 1.6; }
+        .resizer { width: 12px; cursor: col-resize; background-color: #f0f0f0; flex-shrink: 0; flex-grow: 0; border-left: 1px solid #ddd; border-right: 1px solid #ddd; }
+        .questions-panel { flex: 1; padding: 30px 40px 100px; overflow-y: auto; min-width: 300px; background-color: #fafafa; }
+        .question-set { margin-bottom: 40px; background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #eee; }
+        .question-prompt { margin-bottom: 20px; background: #eaf4fc; padding: 15px; border-radius: 5px; border-left: 4px solid #4a90e2; color: #333; }
+        .question-item { margin-bottom: 25px; border-bottom: 1px dashed #eee; padding-bottom: 20px; }
+        .question-text { font-weight: 600; color: #444; font-size: 16px; margin-bottom: 10px; }
+        .checkbox-options { display: flex; flex-direction: column; gap: 10px; }
+        .option-label { cursor: pointer; display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 4px; transition: background 0.2s; }
+        .option-label:hover { background-color: #f5f5f5; }
+        .option-label input { width: 18px; height: 18px; }
+        .option-label.correct { color: #155724; font-weight: bold; background-color: #d4edda; border: 1px solid #c3e6cb; }
+        .option-label.incorrect { color: #721c24; text-decoration: line-through; opacity: 0.7; }
+        .option-label.missed-correct { background-color: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; font-weight: bold; }
+        .explanation-btn { font-size: 12px; background-color: #6c757d; color: white; padding: 3px 8px; border-radius: 12px; cursor: pointer; margin-left: 10px; display: none; }
+        .show-explanation .explanation-btn { display: inline-block; }
+        .nav-row { position: fixed; bottom: 0; left: 0; right: 0; background: #ffffff; padding: 0; display: flex; align-items: center; height: 70px; z-index: 100; border-top: 1px solid #eee; }
+        .footer__questionWrapper { display: flex; align-items: center; padding: 0 20px; overflow-x: auto; flex: 1; }
+        .subQuestion { width: 40px; height: 40px; border: 1px solid #dfe1e5; background: white; color: #5f6368; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 4px; margin-right: 5px; }
+        .subQuestion.active { background-color: #e8f0fe; color: #1a73e8; border-color: #1a73e8; font-weight: bold; }
+        .subQuestion.correct { background-color: #28a745; color: white; border-color: #28a745; }
+        .subQuestion.incorrect { background-color: #dc3545; color: white; border-color: #dc3545; }
+        .footer__deliverButton { margin-right: 30px; background-color: #1a73e8; color: #fff; border: none; padding: 12px 24px; border-radius: 4px; cursor: pointer; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 2000; display: flex; justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 700px; max-height: 85vh; overflow-y: auto; position: relative;}
+        .modal-close-btn { position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 28px; cursor: pointer; }
+        .result-row { display: flex; justify-content: space-between; padding: 12px 15px; border-bottom: 1px solid #f0f0f0; cursor: pointer; }
+        .hidden { display: none !important; }
+        .keyword-highlight { font-weight: bold; color: #d93025; background-color: #fce8e6; padding: 2px 4px; border-radius: 2px; }
+        .highlight { background-color: #fffac1; }
+        .context-menu { position: absolute; background: white; border: 1px solid #ccc; border-radius: 6px; z-index: 1000; display: none; }
+        .context-menu-item { padding: 10px 16px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="timer-container">
+            <span class="timer-display">40:00</span>
+            <div class="timer-controls">
+                <button id="timer-toggle-btn">||</button>
+                <button id="timer-reset-btn">↺</button>
+            </div>
+        </div>
+        <div style="font-weight: bold; color: #1a73e8; font-size: 20px;">Đình Phước Edu</div>
+    </div>
+
+    <div class="main-container">
+        <div class="passage-header-container">
+            <p><strong>Practice test: On the trail of the honey badger</strong></p>
+            <p>Read the text and answer questions 1-5.</p>
+        </div>
+        
+        <div class="panels-container">
+            <div class="passage-panel" id="passage-panel">
+                <div class="reading-passage">
+                    <h4 class="text-center">On the trail of the honey badger</h4>
+                    <p>On a recent field trip to the Kalahari Desert, a team of researchers learnt a lot more about honey badgers. They were rewarded with a detailed insight into how these fascinating creatures live and hunt.</p>
+                    <p>The team employed a local wildlife expert, Kitso Khama, to help them locate and follow the badgers across the desert. Their main aim was to study the badgers' movements and behaviour as discreetly as possible, without frightening them away or causing them to change their natural behaviour. They also planned to trap a few and study them close up before releasing them. In view of the animal's reputation, this was something that even Khama was reluctant to do.</p>
+                    <p>'The problem with honey badgers is they are naturally curious animals, especially when they see something new,' he says. 'That, combined with their unpredictable nature, can be a dangerous mixture. If they sense you have food, for example, they won't be shy about coming right up to you for something to eat. They're actually quite sociable creatures around humans, but as soon as they feel they might be in danger, they can become extremely vicious. Fortunately, this is rare, but it does happen.'</p>
+                    <p>The research confirmed many things that were already known. As expected, honey badgers ate any creatures they could catch and kill. Even poisonous snakes, feared and avoided by most other animals, were not safe from them. The researchers were surprised, however, by the animal's fondness for local melons, probably because of their high water content. Previously researchers thought that the animal got all of its liquid requirements from its prey. The team also learnt that, contrary to previous research findings, the badgers occasionally formed loose family groups. They were also able to confirm certain results from previous research, including the fact that female badgers never socialised with each other.</p>
+                    <p>Following some of the male badgers was a challenge, since they can cover large distances in a short space of time. Some hunting territories cover more than 500 square kilometres. Although they seem happy to share these territories with other males, there are occasional fights over an important food source, and male badgers can be as aggressive towards each other as they are towards other species.</p>
+                    <p>As the badgers became accustomed to the presence of people, it gave the team the chance to get up close to them without being the subject of the animals' curiosity - or their sudden aggression. The badgers' eating patterns, which had been disrupted, returned to normal. It also allowed the team to observe more closely some of the other creatures that form working associations with the honey badger, as these seemed to adopt the badgers' relaxed attitude when near humans.</p>
+                </div>
+            </div>
+            
+            <div class="resizer" id="resizer"></div>
+            
+            <div class="questions-panel" id="questions-panel">
+                <div class="question-set">
+                    <div class="question-prompt">
+                        <p><strong>Questions 1-5</strong></p>
+                        <p>Choose the correct letter, <strong>A-E</strong>. Choose <strong>TWO</strong> answers for each question.</p>
+                    </div>
+
+                    <div class="question-item" id="q1-container">
+                        <div class="question-text">1. Why did the wildlife experts visit the Kalahari desert? <span class="explanation-btn" onclick="showExplanation(1)">ℹ️</span></div>
+                        <div class="checkbox-options">
+                            <label class="option-label"><input type="checkbox" name="q1" value="A"> A. To find where honey badgers live.</label>
+                            <label class="option-label"><input type="checkbox" name="q1" value="B"> B. To observe how honey badgers behave.</label>
+                            <label class="option-label"><input type="checkbox" name="q1" value="C"> C. To try to change the way honey badgers behave.</label>
+                            <label class="option-label"><input type="checkbox" name="q1" value="D"> D. To temporarily catch some honey badgers.</label>
+                            <label class="option-label"><input type="checkbox" name="q1" value="E"> E. To find out why honey badgers have such a bad reputation.</label>
+                        </div>
+                    </div>
+
+                    <div class="question-item" id="q2-container">
+                        <div class="question-text">2. What two things does Kitso Khama say about honey badgers? <span class="explanation-btn" onclick="showExplanation(2)">ℹ️</span></div>
+                        <div class="checkbox-options">
+                            <label class="option-label"><input type="checkbox" name="q2" value="A"> A. They show interest in things they are not familiar with.</label>
+                            <label class="option-label"><input type="checkbox" name="q2" value="B"> B. It's hard to tell how they will behave.</label>
+                            <label class="option-label"><input type="checkbox" name="q2" value="C"> C. They are always looking for food.</label>
+                            <label class="option-label"><input type="checkbox" name="q2" value="D"> D. They do not enjoy human company.</label>
+                            <label class="option-label"><input type="checkbox" name="q2" value="E"> E. It is common for them to attack people.</label>
+                        </div>
+                    </div>
+
+                    <div class="question-item" id="q3-container">
+                        <div class="question-text">3. What two things did the team find out about honey badgers? <span class="explanation-btn" onclick="showExplanation(3)">ℹ️</span></div>
+                        <div class="checkbox-options">
+                            <label class="option-label"><input type="checkbox" name="q3" value="A"> A. There are some creatures they will not eat.</label>
+                            <label class="option-label"><input type="checkbox" name="q3" value="B"> B. They were afraid of poisonous creatures.</label>
+                            <label class="option-label"><input type="checkbox" name="q3" value="C"> C. They may get some of the water they need from fruit.</label>
+                            <label class="option-label"><input type="checkbox" name="q3" value="D"> D. They do not always live alone.</label>
+                            <label class="option-label"><input type="checkbox" name="q3" value="E"> E. Female badgers do not mix with male badgers.</label>
+                        </div>
+                    </div>
+
+                    <div class="question-item" id="q4-container">
+                        <div class="question-text">4. According to the passage, which of these two features are typical of male badgers? <span class="explanation-btn" onclick="showExplanation(4)">ℹ️</span></div>
+                        <div class="checkbox-options">
+                            <label class="option-label"><input type="checkbox" name="q4" value="A"> A. They don't run very quickly.</label>
+                            <label class="option-label"><input type="checkbox" name="q4" value="B"> B. They hunt over a very large area.</label>
+                            <label class="option-label"><input type="checkbox" name="q4" value="C"> C. They defend their territory from other badgers.</label>
+                            <label class="option-label"><input type="checkbox" name="q4" value="D"> D. They sometimes fight each other.</label>
+                            <label class="option-label"><input type="checkbox" name="q4" value="E"> E. They are more aggressive than females.</label>
+                        </div>
+                    </div>
+
+                    <div class="question-item" id="q5-container">
+                        <div class="question-text">5. What two things happened when the honey badgers got used to humans being around them? <span class="explanation-btn" onclick="showExplanation(5)">ℹ️</span></div>
+                        <div class="checkbox-options">
+                            <label class="option-label"><input type="checkbox" name="q5" value="A"> A. The badgers lost interest in people.</label>
+                            <label class="option-label"><input type="checkbox" name="q5" value="B"> B. The badgers became less aggressive towards other creatures.</label>
+                            <label class="option-label"><input type="checkbox" name="q5" value="C"> C. The badgers started eating more.</label>
+                            <label class="option-label"><input type="checkbox" name="q5" value="D"> D. Other animals started working with the badgers.</label>
+                            <label class="option-label"><input type="checkbox" name="q5" value="E"> E. Other animals near them became more relaxed.</label>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="nav-row">
+        <div class="footer__questionWrapper">
+            <button class="subQuestion" onclick="goToQuestion(1)">1</button>
+            <button class="subQuestion" onclick="goToQuestion(2)">2</button>
+            <button class="subQuestion" onclick="goToQuestion(3)">3</button>
+            <button class="subQuestion" onclick="goToQuestion(4)">4</button>
+            <button class="subQuestion" onclick="goToQuestion(5)">5</button>
+        </div>
+        <button id="deliver-button" class="footer__deliverButton">Check Answers</button>
+    </nav>
+
+    <!-- Modals (Result & Explanation) -->
+    <div id="results-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeResultsModal()">&times;</button>
+            <h2>Results</h2>
+            <div class="results-summary">Score: <span id="results-score"></span> / 5</div>
+            <div id="results-details"></div>
+        </div>
+    </div>
+    <div id="explanation-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeExplanationModal()">&times;</button>
+            <div id="explanation-content" class="explanation-content"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const correctAnswers = {
+                '1': ['B', 'D'],
+                '2': ['A', 'B'],
+                '3': ['C', 'D'],
+                '4': ['B', 'D'],
+                '5': ['A', 'E']
+            };
+
+            const explanations = {
+                '1': '<strong>Answers: B, D</strong><br>Paragraph 2: "study the badgers\' movements... planned to trap a few".',
+                '2': '<strong>Answers: A, B</strong><br>Paragraph 3: "naturally curious... unpredictable nature".',
+                '3': '<strong>Answers: C, D</strong><br>Paragraph 4: "fondness for local melons... badgers occasionally formed loose family groups".',
+                '4': '<strong>Answers: B, D</strong><br>Paragraph 5: "cover large distances... occasional fights".',
+                '5': '<strong>Answers: A, E</strong><br>Paragraph 6: "without being the subject of the animals\' curiosity... other creatures... adopt the badgers\' relaxed attitude".'
+            };
+
+            const questionIds = [1, 2, 3, 4, 5];
+            let timeInSeconds = 2400; let timerInterval;
+            const timerDisplay = document.querySelector('.timer-display');
+            const deliverButton = document.getElementById('deliver-button');
+            const resizer = document.getElementById('resizer');
+            const passagePanel = document.getElementById('passage-panel');
+
+            function initialize() {
+                startTimer();
+                deliverButton.addEventListener('click', checkAnswers);
+                resizer.addEventListener('mousedown', initResize, false);
+                document.body.addEventListener('change', updateIndicators);
+                document.getElementById('timer-toggle-btn').addEventListener('click', toggleTimer);
+                document.getElementById('timer-reset-btn').addEventListener('click', resetTimer);
+            }
+
+            let isTimerRunning = true;
+            function toggleTimer() { if(isTimerRunning){ clearInterval(timerInterval); isTimerRunning=false;} else { startTimer(); isTimerRunning=true; }}
+            function resetTimer() { clearInterval(timerInterval); timeInSeconds = 2400; updateTimerDisplay(); startTimer(); isTimerRunning=true; }
+            function updateTimerDisplay() { const m = Math.floor(timeInSeconds / 60).toString().padStart(2,'0'); const s = (timeInSeconds % 60).toString().padStart(2,'0'); timerDisplay.textContent = `${m}:${s}`; }
+            function startTimer() { clearInterval(timerInterval); timerInterval = setInterval(() => { timeInSeconds--; updateTimerDisplay(); if(timeInSeconds <= 0) { clearInterval(timerInterval); checkAnswers(); } }, 1000); }
+
+            function checkAnswers() {
+                clearInterval(timerInterval); isTimerRunning=false;
+                let score = 0;
+                const resultsContainer = document.getElementById('results-details');
+                resultsContainer.innerHTML = '';
+                document.querySelectorAll('input').forEach(input => input.disabled = true);
+                deliverButton.disabled = true; deliverButton.textContent = "Checked";
+                document.querySelector('.questions-panel').classList.add('show-explanation');
+
+                questionIds.forEach(id => {
+                    const selected = Array.from(document.querySelectorAll(`input[name="q${id}"]:checked`)).map(cb => cb.value);
+                    const correct = correctAnswers[id];
+                    // Score is 1 if both correct, or we can be generous. Standard behavior is 1 point per question block here.
+                    // We will check if sorted arrays match.
+                    const isCorrect = JSON.stringify(selected.sort()) === JSON.stringify(correct.sort());
+                    
+                    if(isCorrect) { score++; document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`).classList.add('correct'); }
+                    else { document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`).classList.add('incorrect'); }
+
+                    // Highlight UI
+                    document.querySelectorAll(`input[name="q${id}"]`).forEach(cb => {
+                        const label = cb.parentElement;
+                        if(correct.includes(cb.value)) {
+                            if(cb.checked) label.classList.add('correct');
+                            else label.classList.add('missed-correct');
+                        } else if(cb.checked) {
+                            label.classList.add('incorrect');
+                        }
+                    });
+
+                    const row = document.createElement('div'); row.className = 'result-row';
+                    row.innerHTML = `<span style="font-weight:bold;">Q${id}</span><span>Your: ${selected.join(', ')}</span><span style="color:green">Correct: ${correct.join(', ')}</span>`;
+                    row.onclick = () => showExplanation(id); resultsContainer.appendChild(row);
+                });
+                document.getElementById('results-score').textContent = score;
+                document.getElementById('results-modal').classList.remove('hidden');
+            }
+
+            function updateIndicators() {
+                questionIds.forEach(id => {
+                    const checked = document.querySelectorAll(`input[name="q${id}"]:checked`);
+                    const btn = document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`);
+                    if(checked.length > 0) btn.classList.add('answered'); else btn.classList.remove('answered');
+                });
+            }
+
+            window.goToQuestion = (id) => { document.getElementById(`q${id}-container`).scrollIntoView({behavior: 'smooth', block: 'center'}); };
+            window.closeResultsModal = () => document.getElementById('results-modal').classList.add('hidden');
+            window.showExplanation = (id) => { document.getElementById('explanation-content').innerHTML = explanations[id]; document.getElementById('explanation-modal').classList.remove('hidden'); };
+            window.closeExplanationModal = () => document.getElementById('explanation-modal').classList.add('hidden');
+
+            function initResize(e) { e.preventDefault(); const startX = e.clientX; const startWidth = passagePanel.offsetWidth; const doDrag = (e) => { passagePanel.style.flex = `0 0 ${startWidth + e.clientX - startX}px`; }; const stopDrag = () => { window.removeEventListener('mousemove', doDrag); window.removeEventListener('mouseup', stopDrag); }; window.addEventListener('mousemove', doDrag); window.addEventListener('mouseup', stopDrag); }
+
+            initialize();
+        });
+    </script>
+</body>
+</html>

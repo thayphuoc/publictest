@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Practice test: Holidays with a difference</title>
+    <!-- [CSS Omitted] -->
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background-color: #ffffff; line-height: 1.5; font-size: 16px; color: #333; }
+        .header { background-color: #ffffff; padding: 12px 20px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 60px; }
+        .timer-container { display: flex; align-items: center; font-weight: 500; font-size: 18px; }
+        .timer-controls { display: flex; gap: 8px; margin-left: 15px; }
+        .timer-controls button { background: #f0f0f0; border: 1px solid #ccc; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .main-container { margin-top: 60px; display: flex; flex-direction: column; background: #ffffff; height: calc(100vh - 60px); }
+        .passage-header-container { background-color: #f1f2ec; padding: 15px 20px; border-bottom: 1px solid #e0e0e0; font-size: 15px; }
+        .panels-container { display: flex; flex: 1; overflow: hidden; }
+        .passage-panel { flex: 1; padding: 30px 40px 100px; overflow-y: auto; min-width: 300px; background-color: #fff; }
+        .questions-panel { flex: 1; padding: 30px 40px 100px; overflow-y: auto; min-width: 300px; background-color: #fafafa; }
+        .reading-passage h4 { font-family: 'Times New Roman', serif; font-size: 24px; font-weight: 600; text-align: center; color: #2c3e50; }
+        .reading-passage p { margin-bottom: 1.4em; text-align: justify; line-height: 1.6; }
+        .resizer { width: 12px; cursor: col-resize; background: #f0f0f0; border-left: 1px solid #ddd; border-right: 1px solid #ddd; }
+        .question-item { margin-bottom: 25px; border-bottom: 1px dashed #eee; padding-bottom: 20px; }
+        .answer-input { border: 1px solid #ccc; border-radius: 4px; padding: 6px 10px; font-size: 16px; width: 150px; text-align: center; font-weight: bold; }
+        .answer-input.correct { border-color: #28a745; background-color: #e9f7ef; color: #155724; }
+        .answer-input.incorrect { border-color: #dc3545; background-color: #f8d7da; color: #721c24; }
+        .explanation-btn { font-size: 12px; background: #6c757d; color: white; padding: 2px 8px; border-radius: 10px; display: none; margin-left: 10px; cursor: pointer; }
+        .show-explanation .explanation-btn { display: inline-block; }
+        .nav-row { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 10px; border-top: 1px solid #eee; display: flex; justify-content: space-between; }
+        .footer__questionWrapper { display: flex; gap: 5px; overflow-x: auto; }
+        .subQuestion { width: 40px; height: 40px; border: 1px solid #ccc; background: white; cursor: pointer; border-radius: 4px; }
+        .subQuestion.active { background: #e8f0fe; border-color: #1a73e8; color: #1a73e8; font-weight: bold; }
+        .subQuestion.correct { background: #28a745; color: white; }
+        .subQuestion.incorrect { background: #dc3545; color: white; }
+        .footer__deliverButton { background: #1a73e8; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 2000; }
+        .modal-content { background: white; padding: 30px; border-radius: 8px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto; position: relative; }
+        .hidden { display: none !important; }
+        .keyword-highlight { font-weight: bold; color: #d93025; background-color: #fce8e6; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="timer-container">
+            <span class="timer-display">40:00</span>
+            <div class="timer-controls"><button id="timer-toggle-btn">||</button><button id="timer-reset-btn">↺</button></div>
+        </div>
+        <div style="font-weight: bold; color: #1a73e8;">Đình Phước Edu</div>
+    </div>
+
+    <div class="main-container">
+        <div class="passage-header-container">
+            <p><strong>Practice test: Holidays with a difference</strong></p>
+            <p>Read the text and answer questions 1-13.</p>
+        </div>
+        
+        <div class="panels-container">
+            <div class="passage-panel" id="passage-panel">
+                <div class="reading-passage">
+                    <h4 class="text-center">Holidays with a difference</h4>
+                    <p class="text-center">Tribal tourism is becoming more popular. But at what cost to the locals?</p>
+                    <p>Tribal tourism is a relatively new type of tourism. It involves travellers going to remote destinations, staying with local people and learning about their culture and way of life. They stay in local accommodation, share facilities with local people, and join in with meals and celebrations. At the moment, less than one percent of holidays are tribal tourism holidays, but this is set to change.</p>
+                    <p>Tribal tourism is often compared with foreign exchange visits. However, a foreign exchange involves staying with people who often share the same values. Tribal tourism takes visitors to places where the lifestyle is very different from that in their home location. Those who have been on a tribal holiday explain that experiencing this lifestyle is the main attraction. They say that it offers them the chance to live in a way they never have before.</p>
+                    <p>Not everyone is convinced that tribal tourism is a good thing, and opinions are divided. The argument is about whether or not it helps the local population, or whether it exploits them. The main problem is that, because tribal tourism is relatively new, the long-term effects on local populations have not been studied in much detail. Where studies have been carried out, the effects have been found to be negative.</p>
+                    <p>Travel writer Ian Coleman recalls a recent trip to Guatemala, where he saw an example of this. 'There is a village with a statue of a man called Maximon, who has a special spiritual meaning for the local tribe,' he explains. 'The statue is kept indoors, and once a year the locals bring him out and carry him around the village. However, visitors now pay money for them to bring the statue out and carry it around, while they take photographs. As a result, Maximon has lost his original meaning, and is now just another tourist attraction'</p>
+                    <p>So, is it possible to experience an exotic culture without harming it in some way? 'With a bit of thought, we can maximise the positive impacts and minimise the negative,' says travel company director Hilary Waterhouse. 'Remember that you are there not only to experience a different culture, but to help it in some way. Tourists bring money to the community, which the community can invest in local projects. However, this does not mean you can act the way you might do back home. The most important thing is to show respect, learn about, and be aware of, local customs and traditions. Always remember you're a guest.'</p>
+                    <p>Dawn Baker, manager of travel company Footprints, runs tours to tribal areas in Peru. 'Good companies specialising in tribal tours are very careful about who they allow on their tours,' she says. 'They won't take anyone they feel is unsuitable' Baker offers reading recommendations so that visitors can read about the country and its cultures. 'The rewards of a trip to this country are priceless, and the more you know in advance, the more priceless they are.'</p>
+                    <p>Tribal tourism travellers are often surprised at how basic their facilities are when they get there. 'It's not for everyone, but for me was all part of the experience,' says Jamie White, who has recently returned from a trip to Borneo. 'We stayed in the same huts that everyone was living in, with no running water and no electricity. It was basic, but it was an ethical way to travel. Being comfortable means you use more local resources and so have more of an environmental impact'.</p>
+                </div>
+            </div>
+            <div class="resizer" id="resizer"></div>
+            <div class="questions-panel" id="questions-panel">
+                <div class="question-set">
+                    <p><strong>Questions 1-8</strong>: Complete the summary below (NO MORE THAN TWO WORDS AND/OR A NUMBER).</p>
+                    <div style="background:#f9f9f9; padding:15px; border-radius:5px;">
+                        <h4>Tribal tourism</h4>
+                        <p>People who take a tribal tourism holiday visit places that are <strong>1</strong> <input type="text" class="answer-input" id="q1"> <span class="explanation-btn" onclick="showExplanation(1)">ℹ️</span>. When they are there, they find out about the local <strong>2</strong> <input type="text" class="answer-input" id="q2"> <span class="explanation-btn" onclick="showExplanation(2)">ℹ️</span> and how people live. Currently, tribal tourism accounts for less than <strong>3</strong> <input type="text" class="answer-input" id="q3"> <span class="explanation-btn" onclick="showExplanation(3)">ℹ️</span> of the tourism industry. Tribal tourism holidays are different from foreign exchange visits because the travellers and the people they meet have different <strong>4</strong> <input type="text" class="answer-input" id="q4"> <span class="explanation-btn" onclick="showExplanation(4)">ℹ️</span>.</p>
+                        <p>Tribal tourism travellers experience a <strong>5</strong> <input type="text" class="answer-input" id="q5"> <span class="explanation-btn" onclick="showExplanation(5)">ℹ️</span> that they are not familiar with. For them, this is its <strong>6</strong> <input type="text" class="answer-input" id="q6"> <span class="explanation-btn" onclick="showExplanation(6)">ℹ️</span>. However, some people argue that <strong>7</strong> <input type="text" class="answer-input" id="q7"> <span class="explanation-btn" onclick="showExplanation(7)">ℹ️</span> do not benefit from this kind of tourism. <strong>8</strong> <input type="text" class="answer-input" id="q8"> <span class="explanation-btn" onclick="showExplanation(8)">ℹ️</span> show that the effects of tribal tourism are not good.</p>
+                    </div>
+                </div>
+                <div class="question-set">
+                    <p><strong>Questions 9-13</strong>: Match each statement with the correct person, <strong>A-D</strong>.</p>
+                    <p><strong>List of People</strong><br>A. Ian Coleman<br>B. Hilary Waterhouse<br>C. Dawn Baker<br>D. Jamie White</p>
+                    <div class="question-item">9. Travellers may need to change the way they behave. <input type="text" class="answer-input" id="q9" maxlength="1"> <span class="explanation-btn" onclick="showExplanation(9)">ℹ️</span></div>
+                    <div class="question-item">10. Some travellers would not enjoy living the way that the local people do. <input type="text" class="answer-input" id="q10" maxlength="1"> <span class="explanation-btn" onclick="showExplanation(10)">ℹ️</span></div>
+                    <div class="question-item">11. Tribal tourism can have benefits for local people. <input type="text" class="answer-input" id="q11" maxlength="1"> <span class="explanation-btn" onclick="showExplanation(11)">ℹ️</span></div>
+                    <div class="question-item">12. Some travellers make local people do things that they would not normally do. <input type="text" class="answer-input" id="q12" maxlength="1"> <span class="explanation-btn" onclick="showExplanation(12)">ℹ️</span></div>
+                    <div class="question-item">13. Learning about a place before you go there makes your trip much more satisfying. <input type="text" class="answer-input" id="q13" maxlength="1"> <span class="explanation-btn" onclick="showExplanation(13)">ℹ️</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <nav class="nav-row"><div class="footer__questionWrapper"><button class="subQuestion" onclick="goToQuestion(1)">1</button><button class="subQuestion" onclick="goToQuestion(2)">2</button><button class="subQuestion" onclick="goToQuestion(3)">3</button><button class="subQuestion" onclick="goToQuestion(4)">4</button><button class="subQuestion" onclick="goToQuestion(5)">5</button><button class="subQuestion" onclick="goToQuestion(6)">6</button><button class="subQuestion" onclick="goToQuestion(7)">7</button><button class="subQuestion" onclick="goToQuestion(8)">8</button><button class="subQuestion" onclick="goToQuestion(9)">9</button><button class="subQuestion" onclick="goToQuestion(10)">10</button><button class="subQuestion" onclick="goToQuestion(11)">11</button><button class="subQuestion" onclick="goToQuestion(12)">12</button><button class="subQuestion" onclick="goToQuestion(13)">13</button></div><button id="deliver-button" class="footer__deliverButton">Check Answers</button></nav>
+    <div id="results-modal" class="modal-overlay hidden"><div class="modal-content"><button class="modal-close-btn" onclick="closeResultsModal()">×</button><h2>Results</h2><div class="results-summary">Score: <span id="results-score"></span> / 13</div><div id="results-details"></div></div></div>
+    <div id="explanation-modal" class="modal-overlay hidden"><div class="modal-content"><button class="modal-close-btn" onclick="closeExplanationModal()">×</button><div id="explanation-content" class="explanation-content"></div></div></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const correctAnswers = {
+                '1': 'remote destinations', '2': 'culture', '3': 'one percent', '4': 'values', '5': 'lifestyle',
+                '6': 'main attraction', '7': 'local population', '8': 'studies', '9': 'B', '10': 'D', '11': 'B', '12': 'A', '13': 'C'
+            };
+            const explanations = {
+                '1': '<strong>Answer: remote destinations</strong><br>Para 1: "going to <span class="keyword-highlight">remote destinations</span>"',
+                '2': '<strong>Answer: culture</strong><br>Para 1: "learning about their <span class="keyword-highlight">culture</span>"',
+                '3': '<strong>Answer: one percent</strong><br>Para 1: "less than <span class="keyword-highlight">one percent</span> of holidays"',
+                '4': '<strong>Answer: values</strong><br>Para 2: "people who often share the same <span class="keyword-highlight">values</span>"',
+                '5': '<strong>Answer: lifestyle</strong><br>Para 2: "where the <span class="keyword-highlight">lifestyle</span> is very different"',
+                '6': '<strong>Answer: main attraction</strong><br>Para 2: "experiencing this lifestyle is the <span class="keyword-highlight">main attraction</span>"',
+                '7': '<strong>Answer: local population</strong><br>Para 3: "whether or not it helps the <span class="keyword-highlight">local population</span>"',
+                '8': '<strong>Answer: studies</strong><br>Para 3: "Where <span class="keyword-highlight">studies</span> have been carried out, the effects have been found to be negative."',
+                '9': '<strong>Answer: B</strong><br>Hilary Waterhouse says: "does not mean you can act the way you might do back home." (Change behaviour)',
+                '10': '<strong>Answer: D</strong><br>Jamie White says: "It\'s not for everyone... no running water and no electricity."',
+                '11': '<strong>Answer: B</strong><br>Hilary Waterhouse says: "Tourists bring money... invest in local projects."',
+                '12': '<strong>Answer: A</strong><br>Ian Coleman recalls the story of Maximon where locals bring statue out for money (not normal custom).',
+                '13': '<strong>Answer: C</strong><br>Dawn Baker says: "the more you know in advance, the more priceless they are."'
+            };
+            
+            let questionIds = Object.keys(correctAnswers); let timeInSeconds = 2400; let timerInterval;
+            function checkAnswers() {
+                clearInterval(timerInterval); let score = 0; document.getElementById('results-details').innerHTML = '';
+                document.querySelectorAll('input').forEach(input => input.disabled = true);
+                document.getElementById('deliver-button').disabled = true;
+                document.querySelector('.questions-panel').classList.add('show-explanation');
+                questionIds.forEach(id => {
+                    const input = document.getElementById('q'+id); const val = input.value.trim().toLowerCase();
+                    const correct = correctAnswers[id].toLowerCase();
+                    let isCorrect = val === correct || (id==='1' && val==='remote') || (id==='3' && val==='1 percent') || (id==='7' && val==='locals');
+                    if(isCorrect) { score++; input.classList.add('correct'); document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`).classList.add('correct'); }
+                    else { input.classList.add('incorrect'); document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`).classList.add('incorrect'); }
+                    const row = document.createElement('div'); row.className = 'result-row';
+                    row.innerHTML = `<span>Q${id}</span> <span>Your: ${input.value}</span> <span style="color:green">Correct: ${correctAnswers[id]}</span>`;
+                    row.onclick = () => showExplanation(id); document.getElementById('results-details').appendChild(row);
+                });
+                document.getElementById('results-score').textContent = score; document.getElementById('results-modal').classList.remove('hidden');
+            }
+            window.goToQuestion = (id) => document.getElementById('q'+id).scrollIntoView({behavior:'smooth',block:'center'});
+            window.showExplanation = (id) => { document.getElementById('explanation-content').innerHTML = explanations[id]; document.getElementById('explanation-modal').classList.remove('hidden'); };
+            window.closeResultsModal = () => document.getElementById('results-modal').classList.add('hidden');
+            window.closeExplanationModal = () => document.getElementById('explanation-modal').classList.add('hidden');
+            
+            function startTimer() { timerInterval = setInterval(() => { timeInSeconds--; const m = Math.floor(timeInSeconds/60).toString().padStart(2,'0'); const s = (timeInSeconds%60).toString().padStart(2,'0'); document.querySelector('.timer-display').textContent = `${m}:${s}`; if(timeInSeconds<=0) checkAnswers(); }, 1000); }
+            document.getElementById('timer-toggle-btn').onclick = () => { if(timerInterval) { clearInterval(timerInterval); timerInterval=null; } else startTimer(); };
+            document.getElementById('timer-reset-btn').onclick = () => { clearInterval(timerInterval); timeInSeconds=2400; startTimer(); };
+            document.getElementById('deliver-button').onclick = checkAnswers;
+            
+            const resizer = document.getElementById('resizer'); const panel = document.getElementById('passage-panel');
+            resizer.addEventListener('mousedown', (e) => { e.preventDefault(); window.addEventListener('mousemove', resize); window.addEventListener('mouseup', stopResize); });
+            function resize(e) { panel.style.flex = `0 0 ${e.clientX}px`; }
+            function stopResize() { window.removeEventListener('mousemove', resize); window.removeEventListener('mouseup', stopResize); }
+            startTimer();
+        });
+    </script>
+</body>
+</html>

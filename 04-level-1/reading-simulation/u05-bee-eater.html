@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Practice test: The life of the European bee-eater</title>
+    <!-- [Standard CSS from previous examples] -->
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background-color: #ffffff; line-height: 1.5; font-size: 16px; color: #333; }
+        .header { background-color: #ffffff; padding: 12px 20px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 60px; }
+        .timer-container { display: flex; align-items: center; font-weight: 500; font-size: 18px; }
+        .timer-controls { display: flex; gap: 8px; margin-left: 15px; }
+        .timer-controls button { background: #f0f0f0; border: 1px solid #ccc; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .main-container { margin-top: 60px; display: flex; flex-direction: column; background: #ffffff; height: calc(100vh - 60px); }
+        .passage-header-container { background-color: #f1f2ec; padding: 15px 20px; border-bottom: 1px solid #e0e0e0; font-size: 15px; }
+        .panels-container { display: flex; flex: 1; overflow: hidden; }
+        .passage-panel { flex: 1; padding: 30px 40px 100px; overflow-y: auto; min-width: 300px; background-color: #fff; }
+        .questions-panel { flex: 1; padding: 30px 40px 100px; overflow-y: auto; min-width: 300px; background-color: #fafafa; }
+        .reading-passage h4 { font-family: 'Times New Roman', serif; font-size: 24px; font-weight: 600; text-align: center; color: #2c3e50; }
+        .reading-passage p { margin-bottom: 1.4em; text-align: justify; line-height: 1.6; }
+        .resizer { width: 12px; cursor: col-resize; background: #f0f0f0; border-left: 1px solid #ddd; border-right: 1px solid #ddd; }
+        .answer-input { border: 1px solid #ccc; border-radius: 4px; padding: 6px 10px; font-size: 16px; width: 180px; text-align: center; font-weight: bold; }
+        .answer-input.correct { border-color: #28a745; background-color: #e9f7ef; color: #155724; }
+        .answer-input.incorrect { border-color: #dc3545; background-color: #f8d7da; color: #721c24; }
+        .explanation-btn { font-size: 12px; background: #6c757d; color: white; padding: 2px 8px; border-radius: 10px; display: none; margin-left: 10px; cursor: pointer; }
+        .show-explanation .explanation-btn { display: inline-block; }
+        .nav-row { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 10px; border-top: 1px solid #eee; display: flex; justify-content: space-between; }
+        .footer__questionWrapper { display: flex; gap: 5px; overflow-x: auto; }
+        .subQuestion { width: 40px; height: 40px; border: 1px solid #ccc; background: white; cursor: pointer; border-radius: 4px; }
+        .subQuestion.active { background: #e8f0fe; border-color: #1a73e8; color: #1a73e8; font-weight: bold; }
+        .subQuestion.correct { background: #28a745; color: white; }
+        .subQuestion.incorrect { background: #dc3545; color: white; }
+        .footer__deliverButton { background: #1a73e8; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 2000; }
+        .modal-content { background: white; padding: 30px; border-radius: 8px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto; position: relative; }
+        .hidden { display: none !important; }
+        .keyword-highlight { font-weight: bold; color: #d93025; background-color: #fce8e6; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="timer-container">
+            <span class="timer-display">40:00</span>
+            <div class="timer-controls"><button id="timer-toggle-btn">||</button><button id="timer-reset-btn">↺</button></div>
+        </div>
+        <div style="font-weight: bold; color: #1a73e8;">Đình Phước Edu</div>
+    </div>
+
+    <div class="main-container">
+        <div class="passage-header-container">
+            <p><strong>Practice test: The life of the European bee-eater</strong></p>
+            <p>Read the text and answer questions 1-8.</p>
+        </div>
+        
+        <div class="panels-container">
+            <div class="passage-panel" id="passage-panel">
+                <div class="reading-passage">
+                    <h4 class="text-center">The life of the European bee-eater</h4>
+                    <p>A brilliant movement of colour as it catches its food in the air, the European bee-eater moves between three continents.</p>
+                    <p>True to their name, bee-eaters eat bees (though their diet includes just about any flying insects). When the bird catches a bee, it returns to its tree to get rid of the bee’s poison, which it does very efficiently. It hits the insect's head on one side of the branch, then rubs its body on the other. The rubbing makes its prey harmless.</p>
+                    <p>European bee-eaters (<em>Merops apiaster</em>) form families that breed in the spring and summer across an area that extends from Spain to Kazakhstan. Farmland and river valleys provide huge numbers of insects. Flocks of bee-eaters follow tractors as they work fields. When the birds come upon a beehive, they eat well - a researcher once found a hundred bees in the stomach of a bee-eater near a hive.</p>
+                    <p>European bees pass the winter by sleeping in their hives, which cuts off the bee-eater's main source of food. So, in late summer, bee-eaters begin a long, dangerous journey. Massive flocks from Spain, France and northern Italy cross the Sahara Desert to their wintering grounds in West Africa. Bee-eaters from Hungary and other parts of Central and Eastern Europe cross the Mediterranean Sea and Arabian Desert to winter in southern Africa. 'It's an extremely risky stratagem, this migration,' says C. Hilary Fry, a British ornithologist who has studied European bee-eaters for more than 45 years.</p>
+                    <p>'At least 30 percent of the birds will be killed by predators before they make it back to Europe the following spring.'</p>
+                    <p>In April, they return to Europe. Birds build nests by digging tunnels in riverbanks. They work for up to 20 days. By the end of the job, they've moved 15 to 26 pounds of soil - more than 80 times their weight.</p>
+                    <p>The nesting season is a time when families help each other, and sons or uncles help feed their father's or brother's chicks as soon as they come out of their eggs. The helpers benefit, too: parents with helpers can provide more food for chicks to continue the family line.</p>
+                    <p>It's a short, spectacular life. European bee-eaters live for five to six years. The difficulties of migration and avoiding predators along the way affect every bird. Bee-eaters today also find it harder to find food, as there are fewer insects around as a result of pesticides. Breeding sites are also disappearing, as rivers are turned into concrete-walled canals.</p>
+                </div>
+            </div>
+            
+            <div class="resizer" id="resizer"></div>
+            
+            <div class="questions-panel" id="questions-panel">
+                <div class="question-prompt">
+                    <p><strong>Questions 1-8</strong></p>
+                    <p>Write <strong>NO MORE THAN TWO WORDS</strong> from the passage for each answer.</p>
+                </div>
+                
+                <div class="question-item" id="q1-container">
+                    <p>1. Bee-eaters’ prey are bees and other <input type="text" class="answer-input" id="q1" autocomplete="off">. <span class="explanation-btn" onclick="showExplanation(1)">ℹ️</span></p>
+                </div>
+                <div class="question-item" id="q2-container">
+                    <p>2. Bee-eaters need to remove the <input type="text" class="answer-input" id="q2" autocomplete="off"> from bees before eating them. <span class="explanation-btn" onclick="showExplanation(2)">ℹ️</span></p>
+                </div>
+                <div class="question-item" id="q3-container">
+                    <p>3. There is plenty of food for bee-eaters on agricultural land and in <input type="text" class="answer-input" id="q3" autocomplete="off">. <span class="explanation-btn" onclick="showExplanation(3)">ℹ️</span></p>
+                </div>
+                <div class="question-item" id="q4-container">
+                    <p>4. Bee-eaters migrate to spend the winter in different parts of <input type="text" class="answer-input" id="q4" autocomplete="off">. <span class="explanation-btn" onclick="showExplanation(4)">ℹ️</span></p>
+                </div>
+                <div class="question-item" id="q5-container">
+                    <p>5. Because of <input type="text" class="answer-input" id="q5" autocomplete="off">, almost one-third of bee-eaters do not survive migration. <span class="explanation-btn" onclick="showExplanation(5)">ℹ️</span></p>
+                </div>
+                <div class="question-item" id="q6-container">
+                    <p>6. Bee-eaters make nests in <input type="text" class="answer-input" id="q6" autocomplete="off">, which they build themselves. <span class="explanation-btn" onclick="showExplanation(6)">ℹ️</span></p>
+                </div>
+                <div class="question-item" id="q7-container">
+                    <p>7. When nesting, the <input type="text" class="answer-input" id="q7" autocomplete="off"> receive food from different family members. <span class="explanation-btn" onclick="showExplanation(7)">ℹ️</span></p>
+                </div>
+                <div class="question-item" id="q8-container">
+                    <p>8. One problem for bee-eaters is <input type="text" class="answer-input" id="q8" autocomplete="off">, which have reduced the amount of food available. <span class="explanation-btn" onclick="showExplanation(8)">ℹ️</span></p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <nav class="nav-row">
+        <div class="footer__questionWrapper">
+            <button class="subQuestion" onclick="goToQuestion(1)">1</button>
+            <button class="subQuestion" onclick="goToQuestion(2)">2</button>
+            <button class="subQuestion" onclick="goToQuestion(3)">3</button>
+            <button class="subQuestion" onclick="goToQuestion(4)">4</button>
+            <button class="subQuestion" onclick="goToQuestion(5)">5</button>
+            <button class="subQuestion" onclick="goToQuestion(6)">6</button>
+            <button class="subQuestion" onclick="goToQuestion(7)">7</button>
+            <button class="subQuestion" onclick="goToQuestion(8)">8</button>
+        </div>
+        <button id="deliver-button" class="footer__deliverButton">Check Answers</button>
+    </nav>
+
+    <!-- Modals -->
+    <div id="results-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeResultsModal()">x</button>
+            <h2>Results</h2>
+            <div class="results-summary">Score: <span id="results-score"></span> / 8</div>
+            <div id="results-details"></div>
+        </div>
+    </div>
+    <div id="explanation-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeExplanationModal()">x</button>
+            <div id="explanation-content" class="explanation-content"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const correctAnswers = {
+                '1': 'flying insects',
+                '2': 'poison',
+                '3': 'river valleys',
+                '4': 'Africa',
+                '5': 'predators',
+                '6': 'tunnels',
+                '7': 'chicks',
+                '8': 'pesticides'
+            };
+
+            const explanations = {
+                '1': '<strong>Answer: flying insects</strong><br>Paragraph 2: "just about any <span class="keyword-highlight">flying insects</span>".',
+                '2': '<strong>Answer: poison</strong><br>Paragraph 2: "get rid of the bee’s <span class="keyword-highlight">poison</span>".',
+                '3': '<strong>Answer: river valleys</strong><br>Paragraph 3: "Farmland and <span class="keyword-highlight">river valleys</span> provide huge numbers of insects."',
+                '4': '<strong>Answer: Africa</strong><br>Paragraph 4: "wintering grounds in West <span class="keyword-highlight">Africa</span>... winter in southern <span class="keyword-highlight">Africa</span>."',
+                '5': '<strong>Answer: predators</strong><br>Paragraph 5: "killed by <span class="keyword-highlight">predators</span> before they make it back".',
+                '6': '<strong>Answer: tunnels</strong><br>Paragraph 6: "build nests by digging <span class="keyword-highlight">tunnels</span> in riverbanks."',
+                '7': '<strong>Answer: chicks</strong><br>Paragraph 7: "feed their father\'s or brother\'s <span class="keyword-highlight">chicks</span>".',
+                '8': '<strong>Answer: pesticides</strong><br>Paragraph 8: "fewer insects around as a result of <span class="keyword-highlight">pesticides</span>."'
+            };
+
+            const questionIds = [1, 2, 3, 4, 5, 6, 7, 8];
+            let timeInSeconds = 2400; let timerInterval;
+            const timerDisplay = document.querySelector('.timer-display');
+            const deliverButton = document.getElementById('deliver-button');
+            const resizer = document.getElementById('resizer');
+            const passagePanel = document.getElementById('passage-panel');
+
+            function initialize() {
+                startTimer();
+                deliverButton.addEventListener('click', checkAnswers);
+                resizer.addEventListener('mousedown', initResize, false);
+                document.body.addEventListener('input', updateIndicators);
+                document.getElementById('timer-toggle-btn').addEventListener('click', toggleTimer);
+                document.getElementById('timer-reset-btn').addEventListener('click', resetTimer);
+            }
+
+            let isTimerRunning = true;
+            function toggleTimer() { if(isTimerRunning){ clearInterval(timerInterval); isTimerRunning=false;} else { startTimer(); isTimerRunning=true; }}
+            function resetTimer() { clearInterval(timerInterval); timeInSeconds = 2400; updateTimerDisplay(); startTimer(); isTimerRunning=true; }
+            function updateTimerDisplay() { const m = Math.floor(timeInSeconds / 60).toString().padStart(2,'0'); const s = (timeInSeconds % 60).toString().padStart(2,'0'); timerDisplay.textContent = `${m}:${s}`; }
+            function startTimer() { clearInterval(timerInterval); timerInterval = setInterval(() => { timeInSeconds--; updateTimerDisplay(); if(timeInSeconds <= 0) { clearInterval(timerInterval); checkAnswers(); } }, 1000); }
+
+            function checkAnswers() {
+                clearInterval(timerInterval); isTimerRunning=false;
+                let score = 0;
+                const resultsContainer = document.getElementById('results-details');
+                resultsContainer.innerHTML = '';
+                document.querySelectorAll('input').forEach(input => input.disabled = true);
+                deliverButton.disabled = true; deliverButton.textContent = "Checked";
+                document.querySelector('.questions-panel').classList.add('show-explanation');
+
+                questionIds.forEach(id => {
+                    const input = document.getElementById(`q${id}`);
+                    const val = input.value.trim().toLowerCase();
+                    const correct = correctAnswers[id].toLowerCase();
+                    const isCorrect = val === correct;
+                    
+                    if(isCorrect) { score++; input.classList.add('correct'); document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`).classList.add('correct'); }
+                    else { 
+                        input.classList.add('incorrect'); 
+                        document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`).classList.add('incorrect');
+                        const span = document.createElement('span'); span.style.color = '#155724'; span.style.fontWeight='bold'; span.style.marginLeft='10px'; span.textContent = `✓ ${correctAnswers[id]}`;
+                        input.parentNode.insertBefore(span, input.nextSibling);
+                    }
+
+                    const row = document.createElement('div'); row.className = 'result-row'; // Simplified result row
+                    row.innerHTML = `<span style="font-weight:bold;">Q${id}</span><span>Your: <span style="color:${isCorrect?'green':'red'}">${input.value}</span></span><span style="color:green">Correct: ${correctAnswers[id]}</span>`;
+                    row.onclick = () => showExplanation(id); resultsContainer.appendChild(row);
+                });
+                document.getElementById('results-score').textContent = score;
+                document.getElementById('results-modal').classList.remove('hidden');
+            }
+
+            function updateIndicators() {
+                questionIds.forEach(id => {
+                    const input = document.getElementById(`q${id}`);
+                    const btn = document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`);
+                    if(input.value.trim() !== '') btn.classList.add('answered'); else btn.classList.remove('answered');
+                });
+            }
+
+            window.goToQuestion = (id) => { document.getElementById(`q${id}-container`).scrollIntoView({behavior: 'smooth', block: 'center'}); };
+            window.closeResultsModal = () => document.getElementById('results-modal').classList.add('hidden');
+            window.showExplanation = (id) => { document.getElementById('explanation-content').innerHTML = explanations[id]; document.getElementById('explanation-modal').classList.remove('hidden'); };
+            window.closeExplanationModal = () => document.getElementById('explanation-modal').classList.add('hidden');
+
+            function initResize(e) { e.preventDefault(); const startX = e.clientX; const startWidth = passagePanel.offsetWidth; const doDrag = (e) => { passagePanel.style.flex = `0 0 ${startWidth + e.clientX - startX}px`; }; const stopDrag = () => { window.removeEventListener('mousemove', doDrag); window.removeEventListener('mouseup', stopDrag); }; window.addEventListener('mousemove', doDrag); window.addEventListener('mouseup', stopDrag); }
+
+            initialize();
+        });
+    </script>
+</body>
+</html>

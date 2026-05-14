@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Practice test: Reducing errors in memory</title>
+    <!-- [Include CSS Block Here - Identical to previous files] -->
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background-color: #ffffff; line-height: 1.5; font-size: 16px; color: #333; }
+        .header { background-color: #ffffff; padding: 12px 20px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 60px; }
+        .timer-container { display: flex; align-items: center; font-weight: 500; font-size: 18px; }
+        .timer-controls { display: flex; gap: 8px; margin-left: 15px; }
+        .timer-controls button { background: #f0f0f0; border: 1px solid #ccc; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .main-container { margin-top: 60px; display: flex; flex-direction: column; background: #ffffff; height: calc(100vh - 60px); }
+        .passage-header-container { background-color: #f1f2ec; padding: 15px 20px; border-bottom: 1px solid #e0e0e0; font-size: 15px; }
+        .panels-container { display: flex; flex: 1; overflow: hidden; }
+        .passage-panel { flex: 1; padding: 30px 40px 100px; overflow-y: auto; min-width: 300px; background-color: #fff; }
+        .questions-panel { flex: 1; padding: 30px 40px 100px; overflow-y: auto; min-width: 300px; background-color: #fafafa; }
+        .reading-passage h4 { font-family: 'Times New Roman', serif; font-size: 24px; font-weight: 600; text-align: center; color: #2c3e50; }
+        .reading-passage p { margin-bottom: 1.4em; text-align: justify; line-height: 1.6; }
+        .resizer { width: 12px; cursor: col-resize; background: #f0f0f0; border-left: 1px solid #ddd; border-right: 1px solid #ddd; }
+        .answer-input { border: 1px solid #ccc; border-radius: 4px; padding: 6px 10px; font-size: 16px; width: 60px; text-align: center; font-weight: bold; text-transform: uppercase; }
+        .answer-input.correct { border-color: #28a745; background-color: #e9f7ef; color: #155724; }
+        .answer-input.incorrect { border-color: #dc3545; background-color: #f8d7da; color: #721c24; }
+        .explanation-btn { font-size: 12px; background: #6c757d; color: white; padding: 2px 8px; border-radius: 10px; display: none; margin-left: 10px; cursor: pointer; }
+        .show-explanation .explanation-btn { display: inline-block; }
+        .nav-row { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 10px; border-top: 1px solid #eee; display: flex; justify-content: space-between; }
+        .footer__questionWrapper { display: flex; gap: 5px; overflow-x: auto; }
+        .subQuestion { width: 40px; height: 40px; border: 1px solid #ccc; background: white; cursor: pointer; border-radius: 4px; }
+        .subQuestion.active { background: #e8f0fe; border-color: #1a73e8; color: #1a73e8; font-weight: bold; }
+        .subQuestion.correct { background: #28a745; color: white; }
+        .subQuestion.incorrect { background: #dc3545; color: white; }
+        .footer__deliverButton { background: #1a73e8; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 2000; }
+        .modal-content { background: white; padding: 30px; border-radius: 8px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto; position: relative; }
+        .hidden { display: none !important; }
+        .keyword-highlight { font-weight: bold; color: #d93025; background-color: #fce8e6; }
+        .matching-box { background: #f9f9f9; border: 1px solid #ddd; padding: 15px; margin-bottom: 20px; border-radius: 4px; }
+        .matching-options-list { list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .matching-option { padding: 4px 8px; background: #fff; border: 1px solid #eee; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="timer-container">
+            <span class="timer-display">40:00</span>
+            <div class="timer-controls"><button id="timer-toggle-btn">||</button><button id="timer-reset-btn">↺</button></div>
+        </div>
+        <div style="font-weight: bold; color: #1a73e8;">Đình Phước Edu</div>
+    </div>
+
+    <div class="main-container">
+        <div class="passage-header-container">
+            <p><strong>Practice test: Reducing errors in memory</strong></p>
+            <p>Read the text and answer questions 1-5.</p>
+        </div>
+        
+        <div class="panels-container">
+            <div class="passage-panel" id="passage-panel">
+                <div class="reading-passage">
+                    <h4 class="text-center">Reducing errors in memory</h4>
+                    <p>Sleep may reduce mistakes in memory, according to a first-of-its-kind study led by a scientist at Michigan State University.</p>
+                    <p>The findings, which appear in the September issue of the journal <em>Learning El Memory</em>, have practical implications for many people, from students doing multiple-choice tests to elderly people confusing their medicine, says Kimberly Fenn, principal investigator and assistant professor of psychology.</p>
+                    <p>‘It’s easy to muddle things in your mind,’ Fenn says. This research suggests that after sleep, you’re better able to pick out the incorrect parts of that memory.’ Fenn and colleagues from the University of Chicago and Washington University in St Louis studied the presence of incorrect or false memory in groups of college students. While previous research has shown that sleep improves memory, this study is the first one that looks at errors in memory, she said.</p>
+                    <p>Study participants were ‘trained’ by being shown or listening to lists of words. Then, twelve hours later, they were shown individual words and asked to identify which words they had seen or heard in the earlier session. One group of students was trained at 10 a.m. and tested at 10 p.m. after the course of a normal sleepless day. Another group was trained at night and tested twelve hours later in the morning, after about six hours of sleep. Three experiments were conducted. In each experiment, the results showed that students who had slept did not have as many problems with false memory and chose fewer incorrect words.</p>
+                    <p>How does sleep help? The answer isn’t known, Fenn said, but she suspects it may be due to sleep strengthening the source of the memory. The source, or context in which the information is acquired, is a vital element of the memory process.</p>
+                    <p>In other words, it may be easier to remember something if you can also remember where you first heard or saw it. Or perhaps the people who didn’t sleep as much during the study received so much other information during the day that this affected their memory ability, Fenn said.</p>
+                    <p>Further research is needed, she said, adding that she plans to study different population groups, particularly the elderly. ‘We know older individuals generally have worse memory performance than younger individuals. We also know from other research that elderly individuals tend to be more prone to false memories,’ Fenn said. ‘Given the work we’ve done, it’s possible that sleep may actually help them to reject this false information. And potentially this could help to improve their quality of life.’</p>
+                </div>
+            </div>
+            
+            <div class="resizer" id="resizer"></div>
+            
+            <div class="questions-panel" id="questions-panel">
+                <div class="question-prompt">
+                    <p><strong>Questions 1-5</strong></p>
+                    <p>Complete the summary using the list of words and phrases, <strong>A-J</strong>, below.</p>
+                </div>
+
+                <div class="matching-box">
+                    <ul class="matching-options-list">
+                        <li class="matching-option"><strong>A</strong> more</li>
+                        <li class="matching-option"><strong>B</strong> complex</li>
+                        <li class="matching-option"><strong>C</strong> 12</li>
+                        <li class="matching-option"><strong>D</strong> six</li>
+                        <li class="matching-option"><strong>E</strong> less</li>
+                        <li class="matching-option"><strong>F</strong> ten</li>
+                        <li class="matching-option"><strong>G</strong> different</li>
+                        <li class="matching-option"><strong>H</strong> no</li>
+                        <li class="matching-option"><strong>I</strong> fewer</li>
+                        <li class="matching-option"><strong>J</strong> the same</li>
+                    </ul>
+                </div>
+
+                <div style="background:#f9f9f9; padding:20px; border-radius:5px; border:1px solid #ddd; line-height:2;">
+                    <h4 style="text-align:center; margin-bottom:15px;">Fenn’s Memory Experiments</h4>
+                    <p>
+                        The groups in the study saw or heard lists of words at <strong>1</strong> <input type="text" class="answer-input" id="q1" maxlength="1" autocomplete="off"> <span class="explanation-btn" onclick="showExplanation(1)">ℹ️</span> times of the day. 
+                        After <strong>2</strong> <input type="text" class="answer-input" id="q2" maxlength="1" autocomplete="off"> <span class="explanation-btn" onclick="showExplanation(2)">ℹ️</span> hours, the groups tried to identify these words correctly in a test. 
+                        Before the test, one group had <strong>3</strong> <input type="text" class="answer-input" id="q3" maxlength="1" autocomplete="off"> <span class="explanation-btn" onclick="showExplanation(3)">ℹ️</span> sleep and chose the words in the evening. 
+                        The other group had their test in the morning.
+                        In three experiments, the results were <strong>4</strong> <input type="text" class="answer-input" id="q4" maxlength="1" autocomplete="off"> <span class="explanation-btn" onclick="showExplanation(4)">ℹ️</span> the groups that had slept during the experiment remembered <strong>5</strong> <input type="text" class="answer-input" id="q5" maxlength="1" autocomplete="off"> <span class="explanation-btn" onclick="showExplanation(5)">ℹ️</span> words correctly than the other groups.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="nav-row">
+        <div class="footer__questionWrapper">
+            <button class="subQuestion" onclick="goToQuestion(1)">1</button>
+            <button class="subQuestion" onclick="goToQuestion(2)">2</button>
+            <button class="subQuestion" onclick="goToQuestion(3)">3</button>
+            <button class="subQuestion" onclick="goToQuestion(4)">4</button>
+            <button class="subQuestion" onclick="goToQuestion(5)">5</button>
+        </div>
+        <button id="deliver-button" class="footer__deliverButton">Check Answers</button>
+    </nav>
+
+    <!-- Modals -->
+    <div id="results-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeResultsModal()">x</button>
+            <h2>Results</h2>
+            <div class="results-summary">Score: <span id="results-score"></span> / 5</div>
+            <div id="results-details"></div>
+        </div>
+    </div>
+    <div id="explanation-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeExplanationModal()">x</button>
+            <div id="explanation-content" class="explanation-content"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const correctAnswers = {
+                '1': 'G',
+                '2': 'C',
+                '3': 'H',
+                '4': 'J',
+                '5': 'A'
+            };
+
+            const explanations = {
+                '1': '<strong>Answer: G (different)</strong><br>Paragraph 4: "One group... trained at 10 a.m.... Another group... trained at night". These are different times.',
+                '2': '<strong>Answer: C (12)</strong><br>Paragraph 4: "Then, <span class="keyword-highlight">twelve hours later</span>, they were shown individual words..."',
+                '3': '<strong>Answer: H (no)</strong><br>Paragraph 4: "...tested at 10 p.m. after the course of a normal <span class="keyword-highlight">sleepless</span> day." (Sleepless = no sleep)',
+                '4': '<strong>Answer: J (the same)</strong><br>Paragraph 4: "<span class="keyword-highlight">In each experiment, the results showed</span>..." implies consistency across the three experiments.',
+                '5': '<strong>Answer: A (more)</strong><br>Paragraph 4: "...students who had slept did not have as many problems with false memory and <span class="keyword-highlight">chose fewer incorrect words</span>." Fewer incorrect words means remembering <strong>more</strong> words correctly.'
+            };
+
+            const questionIds = [1, 2, 3, 4, 5];
+            let timeInSeconds = 2400; let timerInterval;
+            const timerDisplay = document.querySelector('.timer-display');
+            const deliverButton = document.getElementById('deliver-button');
+            const resizer = document.getElementById('resizer');
+            const passagePanel = document.getElementById('passage-panel');
+
+            function initialize() {
+                startTimer();
+                deliverButton.addEventListener('click', checkAnswers);
+                resizer.addEventListener('mousedown', initResize, false);
+                document.body.addEventListener('input', updateIndicators);
+                document.getElementById('timer-toggle-btn').addEventListener('click', toggleTimer);
+                document.getElementById('timer-reset-btn').addEventListener('click', resetTimer);
+            }
+
+            let isTimerRunning = true;
+            function toggleTimer() { if(isTimerRunning){ clearInterval(timerInterval); isTimerRunning=false;} else { startTimer(); isTimerRunning=true; }}
+            function resetTimer() { clearInterval(timerInterval); timeInSeconds = 2400; updateTimerDisplay(); startTimer(); isTimerRunning=true; }
+            function updateTimerDisplay() { const m = Math.floor(timeInSeconds / 60).toString().padStart(2,'0'); const s = (timeInSeconds % 60).toString().padStart(2,'0'); timerDisplay.textContent = `${m}:${s}`; }
+            function startTimer() { clearInterval(timerInterval); timerInterval = setInterval(() => { timeInSeconds--; updateTimerDisplay(); if(timeInSeconds <= 0) { clearInterval(timerInterval); checkAnswers(); } }, 1000); }
+
+            function checkAnswers() {
+                clearInterval(timerInterval); isTimerRunning=false;
+                let score = 0;
+                const resultsContainer = document.getElementById('results-details');
+                resultsContainer.innerHTML = '';
+                document.querySelectorAll('input').forEach(input => input.disabled = true);
+                deliverButton.disabled = true; deliverButton.textContent = "Checked";
+                document.querySelector('.questions-panel').classList.add('show-explanation');
+
+                questionIds.forEach(id => {
+                    const input = document.getElementById(`q${id}`);
+                    const val = input.value.trim().toUpperCase();
+                    const correct = correctAnswers[id];
+                    const isCorrect = val === correct;
+                    
+                    if(isCorrect) { score++; input.classList.add('correct'); document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`).classList.add('correct'); }
+                    else { 
+                        input.classList.add('incorrect'); 
+                        document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`).classList.add('incorrect');
+                        const span = document.createElement('span'); span.style.color = '#155724'; span.style.fontWeight='bold'; span.style.marginLeft='5px'; span.textContent = `✓ ${correct}`;
+                        input.parentNode.insertBefore(span, input.nextSibling);
+                    }
+
+                    const row = document.createElement('div'); row.className = 'result-row';
+                    row.innerHTML = `<span style="font-weight:bold;">Q${id}</span><span>Your: <span style="color:${isCorrect?'green':'red'}">${val}</span></span><span style="color:green">Correct: ${correct}</span>`;
+                    row.onclick = () => showExplanation(id); resultsContainer.appendChild(row);
+                });
+                document.getElementById('results-score').textContent = score;
+                document.getElementById('results-modal').classList.remove('hidden');
+            }
+
+            function updateIndicators() {
+                questionIds.forEach(id => {
+                    const input = document.getElementById(`q${id}`);
+                    const btn = document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`);
+                    if(input.value.trim() !== '') btn.classList.add('answered'); else btn.classList.remove('answered');
+                });
+            }
+
+            window.goToQuestion = (id) => { document.getElementById(`q${id}`).closest('div').scrollIntoView({behavior: 'smooth', block: 'center'}); };
+            window.closeResultsModal = () => document.getElementById('results-modal').classList.add('hidden');
+            window.showExplanation = (id) => { document.getElementById('explanation-content').innerHTML = explanations[id]; document.getElementById('explanation-modal').classList.remove('hidden'); };
+            window.closeExplanationModal = () => document.getElementById('explanation-modal').classList.add('hidden');
+
+            function initResize(e) { e.preventDefault(); const startX = e.clientX; const startWidth = passagePanel.offsetWidth; const doDrag = (e) => { passagePanel.style.flex = `0 0 ${startWidth + e.clientX - startX}px`; }; const stopDrag = () => { window.removeEventListener('mousemove', doDrag); window.removeEventListener('mouseup', stopDrag); }; window.addEventListener('mousemove', doDrag); window.addEventListener('mouseup', stopDrag); }
+
+            initialize();
+        });
+    </script>
+</body>
+</html>

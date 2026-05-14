@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grammar practice for beginners</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap');
+        body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; }
+        .tab-btn.active { background-color: #3b82f6; color: white; border-color: #3b82f6; }
+        .correct-input { border-color: #10b981 !important; background-color: #d1fae5 !important; color: #065f46 !important; }
+        .incorrect-input { border-color: #ef4444 !important; background-color: #fee2e2 !important; color: #991b1b !important; text-decoration: line-through; }
+        .explanation-box { display: none; animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+        input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center">
+            <h1 class="text-xl md:text-2xl font-bold text-gray-800 mb-2 md:mb-0">
+                <i class="fas fa-book-reader text-blue-500 mr-2"></i>Grammar practice
+            </h1>
+            
+            <div id="status-bar" class="flex items-center space-x-4 hidden">
+                <div class="flex items-center bg-gray-100 px-4 py-2 rounded-lg">
+                    <i class="fas fa-clock text-gray-600 mr-2"></i>
+                    <span id="timer" class="font-mono font-bold text-xl text-blue-600">20:00</span>
+                </div>
+                <div class="flex items-center bg-gray-100 px-4 py-2 rounded-lg">
+                    <i class="fas fa-star text-yellow-500 mr-2"></i>
+                    <span id="score-display" class="font-bold text-xl text-gray-700">--/10</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow container mx-auto px-4 py-6 flex flex-col md:flex-row gap-6">
+        
+        <aside class="w-full md:w-1/4 lg:w-1/5">
+            <div class="bg-white rounded-xl shadow-sm p-4 sticky top-24">
+                <h2 class="text-lg font-bold text-gray-700 mb-4 border-b pb-2">Danh sách Đề thi</h2>
+                <div class="grid grid-cols-2 md:grid-cols-1 gap-2" id="tabs-container">
+                </div>
+            </div>
+        </aside>
+
+        <section class="w-full md:w-3/4 lg:w-4/5">
+            <div id="welcome-screen" class="bg-white rounded-xl shadow-sm p-8 text-center">
+                <img src="https://img.freepik.com/free-vector/studying-concept-illustration_114360-1200.jpg?w=740" alt="Study" class="w-64 mx-auto mb-6 opacity-80">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">Chào mừng các em đến với bài luyện tập!</h2>
+                <p class="text-gray-600 mb-6 text-lg">
+                    Chọn một đề thi từ danh sách bên trái để bắt đầu.<br>
+                    Mỗi đề có <strong>20 câu hỏi</strong> và thời gian làm bài là <strong>20 phút</strong>.
+                </p>
+                <div class="inline-block bg-blue-50 text-blue-700 px-6 py-3 rounded-lg border border-blue-200">
+                    <i class="fas fa-info-circle mr-2"></i> Chúc các em làm bài tốt!
+                </div>
+            </div>
+
+            <div id="test-container" class="hidden bg-white rounded-xl shadow-sm p-6 md:p-8">
+                <div class="flex justify-between items-center border-b pb-4 mb-6">
+                    <h2 id="test-title" class="text-2xl font-bold text-gray-800">Test 1</h2>
+                    <button id="submit-btn" onclick="submitTest()" class="hidden bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-lg transition duration-200 shadow-md transform hover:scale-105">
+                        <i class="fas fa-check-circle mr-2"></i>Nộp bài
+                    </button>
+                </div>
+
+                <div id="start-screen" class="text-center py-10">
+                    <div class="text-6xl text-blue-200 mb-4"><i class="fas fa-hourglass-start"></i></div>
+                    <h3 class="text-xl font-bold text-gray-700 mb-2">Đề thi đã sẵn sàng</h3>
+                    <p class="text-gray-500 mb-6">Thời gian làm bài: 20 phút. Tổng điểm: 10.</p>
+                    <button onclick="startTest()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full text-lg shadow-lg transition duration-200 transform hover:-translate-y-1">
+                        Bắt đầu làm bài
+                    </button>
+                </div>
+
+                <div id="questions-area" class="hidden space-y-8">
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-white border-t mt-auto py-6">
+        <div class="container mx-auto px-4 text-center text-gray-500 text-sm">
+            &copy; <span id="copyright-year"></span> Dinh Phuoc EdTech. All rights reserved.
+        </div>
+    </footer>
+
+    <script>
+        const instructions = {
+            ex1: "Complete the sentences with the verbs in brackets. Use the affirmative, negative or interrogative form of Present Simple",
+            ex2: "Complete the sentences with the verbs in brackets. Use the affirmative, negative or interrogative form of Present Continuous",
+            ex3: "Complete the sentences with the verbs in brackets. Use the affirmative, negative or interrogative form of Past Simple",
+            ex4: "Complete the sentences with the correct comparative or superlative form of the adjectives in brackets"
+        };
+
+        const testData = [
+            {
+                id: 1,
+                title: "Test 1",
+                exercises: [
+                    {
+                        title: "Exercise 1",
+                        instruction: instructions.ex1,
+                        questions: [
+                            { q: "My father [1] (drink) tea every morning.", a: ["drinks"], hint: "Dấu hiệu 'every morning' (thói quen) -> Hiện tại đơn. Chủ ngữ 'My father' số ít nên động từ thêm 's'." },
+                            { q: "They [1] (not / live) in a big city.", a: ["don't live", "do not live"], hint: "Hiện tại đơn thể phủ định với chủ ngữ số nhiều 'They' -> dùng trợ động từ 'don't'." },
+                            { q: "[1] you [2] (walk) to school every day?", a: ["Do", "walk"], hint: "Câu hỏi Hiện tại đơn với 'you' -> dùng trợ động từ 'Do' đảo lên đầu." },
+                            { q: "The sun [1] (rise) in the East.", a: ["rises"], hint: "Sự thật hiển nhiên -> Hiện tại đơn. 'The sun' số ít nên động từ thêm 's'." },
+                            { q: "She [1] (not / watch) TV during the week.", a: ["doesn't watch", "does not watch"], hint: "Hiện tại đơn thể phủ định với chủ ngữ số ít 'She' -> dùng 'doesn't'." }
+                        ]
+                    },
+                    {
+                        title: "Exercise 2",
+                        instruction: instructions.ex2,
+                        questions: [
+                            { q: "Look! The birds [1] (fly) in the sky.", a: ["are flying"], hint: "Dấu hiệu 'Look!' -> Đang xảy ra. 'Birds' số nhiều dùng 'are flying'." },
+                            { q: "[1] he [2] (sleep) in his room right now?", a: ["Is", "sleeping"], hint: "Dấu hiệu 'right now'. Câu hỏi tiếp diễn với 'he' dùng trợ động từ 'Is'." },
+                            { q: "We [1] (not / play) football at the moment.", a: ["aren't playing", "are not playing"], hint: "Dấu hiệu 'at the moment'. Phủ định dùng 'aren't playing'." },
+                            { q: "Listen! The baby [1] (cry).", a: ["is crying"], hint: "Dấu hiệu 'Listen!' -> Đang xảy ra. 'Baby' số ít dùng 'is crying'." },
+                            { q: "[1] they [2] (wait) for the bus?", a: ["Are", "waiting"], hint: "Câu hỏi tiếp diễn với 'they' dùng trợ động từ 'Are'." }
+                        ]
+                    },
+                    {
+                        title: "Exercise 3",
+                        instruction: instructions.ex3,
+                        questions: [
+                            { q: "I [1] (not / finish) my homework last night.", a: ["didn't finish", "did not finish"], hint: "Dấu hiệu 'last night' -> Quá khứ đơn. Phủ định dùng 'didn't + V nguyên thể'." },
+                            { q: "We [1] (visit) Paris two years ago.", a: ["visited"], hint: "Dấu hiệu 'ago' -> Quá khứ đơn. Động từ có quy tắc thêm 'ed'." },
+                            { q: "[1] you [2] (meet) John yesterday?", a: ["Did", "meet"], hint: "Dấu hiệu 'yesterday'. Câu hỏi quá khứ dùng trợ động từ 'Did'." },
+                            { q: "She [1] (buy) a new car last week.", a: ["bought"], hint: "Dấu hiệu 'last week'. 'Buy' là động từ bất quy tắc -> 'bought'." },
+                            { q: "[1] he [2] (send) you the email?", a: ["Did", "send"], hint: "Câu hỏi quá khứ đơn dùng 'Did', động từ chính giữ nguyên." }
+                        ]
+                    },
+                    {
+                        title: "Exercise 4",
+                        instruction: instructions.ex4,
+                        questions: [
+                            { q: "An elephant is [1] (heavy) than a horse.", a: ["heavier"], hint: "Có 'than' -> So sánh hơn. 'Heavy' tận cùng 'y' đổi thành 'i' rồi thêm 'er'." },
+                            { q: "This is the [1] (interesting) book I have ever read.", a: ["most interesting"], hint: "Có 'the' -> So sánh nhất. Tính từ dài 'interesting' dùng 'most'." },
+                            { q: "Your room is [1] (clean) than mine.", a: ["cleaner"], hint: "Có 'than' -> So sánh hơn. Tính từ ngắn 'clean' thêm 'er'." },
+                            { q: "Who is the [1] (rich) person in the world?", a: ["richest"], hint: "Có 'the' -> So sánh nhất. Tính từ ngắn 'rich' thêm 'est'." },
+                            { q: "Health is [1] (important) than money.", a: ["more important"], hint: "Có 'than' -> So sánh hơn. Tính từ dài 'important' dùng 'more'." }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 2,
+                title: "Test 2",
+                exercises: [
+                    {
+                        title: "Exercise 1",
+                        instruction: instructions.ex1,
+                        questions: [
+                            { q: "Cats [1] (hate) water.", a: ["hate"], hint: "Sự thật hiển nhiên. 'Cats' số nhiều nên động từ giữ nguyên." },
+                            { q: "He [1] (not / play) the guitar very well.", a: ["doesn't play", "does not play"], hint: "Hiện tại đơn. Chủ ngữ 'He' số ít dùng trợ động từ phủ định 'doesn't'." },
+                            { q: "[1] your mother [2] (cook) dinner every night?", a: ["Does", "cook"], hint: "Dấu hiệu 'every night'. Câu hỏi với 'your mother' (số ít) dùng 'Does'." },
+                            { q: "The train [1] (leave) at 8:00 AM.", a: ["leaves"], hint: "Lịch trình tàu xe -> Hiện tại đơn. 'The train' số ít thêm 's'." },
+                            { q: "We [1] (not / need) any help right now.", a: ["don't need", "do not need"], hint: "Động từ trạng thái 'need' thường chia ở hiện tại đơn dù có 'right now'." }
+                        ]
+                    },
+                    {
+                        title: "Exercise 2",
+                        instruction: instructions.ex2,
+                        questions: [
+                            { q: "Please be quiet. The students [1] (take) a test.", a: ["are taking"], hint: "Dấu hiệu 'Please be quiet' -> Hành động đang diễn ra. Số nhiều dùng 'are taking'." },
+                            { q: "[1] you [2] (use) the computer now?", a: ["Are", "using"], hint: "Dấu hiệu 'now'. Câu hỏi tiếp diễn với 'you' dùng 'Are'." },
+                            { q: "It [1] (not / rain) outside anymore.", a: ["isn't raining", "is not raining"], hint: "Hiện tại tiếp diễn. 'It' số ít dùng 'isn't raining'." },
+                            { q: "Look! The dog [1] (chase) the cat.", a: ["is chasing"], hint: "Dấu hiệu 'Look!'. 'The dog' số ít dùng 'is chasing'." },
+                            { q: "[1] she [2] (wear) a blue dress today?", a: ["Is", "wearing"], hint: "Dấu hiệu 'today' (chỉ sự tạm thời). Câu hỏi với 'she' dùng 'Is'." }
+                        ]
+                    },
+                    {
+                        title: "Exercise 3",
+                        instruction: instructions.ex3,
+                        questions: [
+                            { q: "They [1] (not / go) to the party last Sunday.", a: ["didn't go", "did not go"], hint: "Dấu hiệu 'last Sunday'. Phủ định quá khứ dùng 'didn't go'." },
+                            { q: "I [1] (lose) my keys yesterday morning.", a: ["lost"], hint: "Dấu hiệu 'yesterday'. 'Lose' là động từ bất quy tắc -> 'lost'." },
+                            { q: "[1] the movie [2] (start) on time?", a: ["Did", "start"], hint: "Câu hỏi quá khứ đơn (hỏi về sự việc đã qua) dùng 'Did'." },
+                            { q: "We [1] (swim) in the ocean last summer.", a: ["swam"], hint: "Dấu hiệu 'last summer'. 'Swim' bất quy tắc -> 'swam'." },
+                            { q: "[1] you [2] (understand) the lesson?", a: ["Did", "understand"], hint: "Câu hỏi quá khứ đơn (hỏi về việc đã hiểu chưa) dùng 'Did'." }
+                        ]
+                    },
+                    {
+                        title: "Exercise 4",
+                        instruction: instructions.ex4,
+                        questions: [
+                            { q: "Winter is [1] (cold) than summer.", a: ["colder"], hint: "So sánh hơn (than) với tính từ ngắn 'cold' -> 'colder'." },
+                            { q: "She is the [1] (beautiful) girl in the class.", a: ["most beautiful"], hint: "So sánh nhất (the) với tính từ dài 'beautiful' -> 'most beautiful'." },
+                            { q: "My handwriting is [1] (bad) than yours.", a: ["worse"], hint: "So sánh hơn. 'Bad' là tính từ bất quy tắc -> 'worse'." },
+                            { q: "This is the [1] (dangerous) animal in the jungle.", a: ["most dangerous"], hint: "So sánh nhất (the) với tính từ dài 'dangerous' -> 'most dangerous'." },
+                            { q: "A plane is [1] (fast) than a train.", a: ["faster"], hint: "So sánh hơn (than) với tính từ ngắn 'fast' -> 'faster'." }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 3,
+                title: "Test 3",
+                exercises: [
+                    {
+                        title: "Exercise 1",
+                        instruction: instructions.ex1,
+                        questions: [
+                            { q: "Water [1] (boil) at 100 degrees Celsius.", a: ["boils"], hint: "Sự thật hiển nhiên (chân lý). 'Water' không đếm được (số ít) -> 'boils'." },
+                            { q: "My brother [1] (not / tidy) his room often.", a: ["doesn't tidy", "does not tidy"], hint: "Dấu hiệu 'often' (thói quen). Chủ ngữ số ít dùng 'doesn't'." },
+                            { q: "[1] you [2] (believe) in ghosts?", a: ["Do", "believe"], hint: "Động từ 'believe' chỉ trạng thái/niềm tin -> dùng hiện tại đơn." },
+                            { q: "She usually [1] (wear) glasses.", a: ["wears"], hint: "Dấu hiệu 'usually'. Chủ ngữ 'She' -> 'wears'." },
+                            { q: "I [1] (not / remember) his name.", a: ["don't remember", "do not remember"], hint: "Động từ tri giác 'remember' dùng hiện tại đơn. 'I' dùng 'don't'." }
+                        ]
+                    },
+                    {
+                        title: "Exercise 2",
+                        instruction: instructions.ex2,
+                        questions: [
+                            { q: "Right now, we [1] (learn) English grammar.", a: ["are learning"], hint: "Dấu hiệu 'Right now'. 'We' số nhiều dùng 'are learning'." },
+                            { q: "[1] Tom [2] (fix) his bike in the garage?", a: ["Is", "fixing"], hint: "Hỏi về hành động đang làm. Tom (số ít) dùng 'Is'." },
+                            { q: "The children [1] (not / laugh); they are crying.", a: ["aren't laughing", "are not laughing"], hint: "Hành động đang diễn ra. 'Children' (số nhiều) dùng 'aren't'." },
+                            { q: "Smell this! My mom [1] (bake) cookies.", a: ["is baking"], hint: "Dấu hiệu 'Smell this!' -> Đang xảy ra. 'My mom' số ít dùng 'is baking'." },
+                            { q: "[1] the phone [2] (ring)?", a: ["Is", "ringing"], hint: "Hỏi về sự việc đang xảy ra. Phone (số ít) dùng 'Is'." }
+                        ]
+                    },
+                    {
+                        title: "Exercise 3",
+                        instruction: instructions.ex3,
+                        questions: [
+                            { q: "He [1] (not / clean) the house last weekend.", a: ["didn't clean", "did not clean"], hint: "Dấu hiệu 'last weekend'. Phủ định quá khứ -> 'didn't clean'." },
+                            { q: "Mozart [1] (write) more than 600 pieces of music.", a: ["wrote"], hint: "Mozart là nhân vật lịch sử (đã mất) -> hành động đã kết thúc -> Quá khứ đơn 'wrote'." },
+                            { q: "[1] you [2] (sleep) well last night?", a: ["Did", "sleep"], hint: "Dấu hiệu 'last night'. Câu hỏi quá khứ -> 'Did... sleep'." },
+                            { q: "They [1] (build) this bridge in 1995.", a: ["built"], hint: "Dấu hiệu 'in 1995'. 'Build' bất quy tắc -> 'built'." },
+                            { q: "[1] she [2] (drink) all the milk?", a: ["Did", "drink"], hint: "Hỏi về việc đã xảy ra -> 'Did... drink'." }
+                        ]
+                    },
+                    {
+                        title: "Exercise 4",
+                        instruction: instructions.ex4,
+                        questions: [
+                            { q: "Gold is [1] (expensive) than silver.", a: ["more expensive"], hint: "So sánh hơn với tính từ dài 'expensive' -> 'more expensive'." },
+                            { q: "This is the [1] (easy) exercise in the book.", a: ["easiest"], hint: "So sánh nhất. 'Easy' tận cùng 'y' -> 'easiest'." },
+                            { q: "The Nile is the [1] (long) river in the world.", a: ["longest"], hint: "So sánh nhất. Tính từ ngắn 'long' -> 'longest'." },
+                            { q: "My new laptop is [1] (good) than my old one.", a: ["better"], hint: "So sánh hơn. 'Good' bất quy tắc -> 'better'." },
+                            { q: "Watching TV is [1] (boring) than reading a book.", a: ["more boring"], hint: "So sánh hơn với tính từ dài 'boring' -> 'more boring'." }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 4,
+                title: "Test 4",
+                exercises: [
+                    {
+                        title: "Exercise 1",
+                        instruction: instructions.ex1,
+                        questions: [
+                            { q: "The library [1] (open) at 9 AM.", a: ["opens"], hint: "Lịch trình cố định của thư viện -> Hiện tại đơn. Chủ ngữ số ít -> 'opens'." },
+                            { q: "Vegetarians [1] (not / eat) meat.", a: ["don't eat", "do not eat"], hint: "Sự thật về người ăn chay. Chủ ngữ số nhiều 'Vegetarians' -> 'don't eat'." },
+                            { q: "[1] she [2] (know) the answer?", a: ["Does", "know"], hint: "Động từ 'know' (tri giác) dùng hiện tại đơn. Câu hỏi với 'she' -> 'Does'." },
+                            { q: "I often [1] (listen) to music in the evening.", a: ["listen"], hint: "Dấu hiệu 'often'. Chủ ngữ 'I' giữ nguyên động từ." },
+                            { q: "They [1] (not / agree) with our plan.", a: ["don't agree", "do not agree"], hint: "Động từ 'agree' (ý kiến) dùng hiện tại đơn. Phủ định với 'They' -> 'don't'." }
+                        ]
+                    },
+                    {
+                        title: "Exercise 2",
+                        instruction: instructions.ex2,
+                        questions: [
+                            { q: "Look at the sky! It [1] (get) dark.", a: ["is getting"], hint: "Dấu hiệu 'Look...' và diễn tả sự thay đổi đang diễn ra -> 'is getting'." },
+                            { q: "[1] you [2] (plan) your holiday?", a: ["Are", "planning"], hint: "Hỏi về kế hoạch đang thực hiện. 'You' dùng 'Are'." },
+                            { q: "He [1] (not / work) today; he is on vacation.", a: ["isn't working", "is not working"], hint: "Dấu hiệu 'today' (tạm thời khác thường lệ) -> Tiếp diễn. 'isn't working'." },
+                            { q: "The population of the world [1] (increase) rapidly.", a: ["is increasing"], hint: "Diễn tả xu hướng đang thay đổi -> 'is increasing'." },
+                            { q: "[1] they [2] (move) to a new house?", a: ["Are", "moving"], hint: "Hỏi về hành động đang diễn ra -> 'Are... moving'." }
+                        ]
+                    },
+                    {
+                        title: "Exercise 3",
+                        instruction: instructions.ex3,
+                        questions: [
+                            { q: "I [1] (not / want) to disturb you yesterday.", a: ["didn't want", "did not want"], hint: "Dấu hiệu 'yesterday'. Phủ định quá khứ -> 'didn't want'." },
+                            { q: "The bird [1] (fly) away when I opened the window.", a: ["flew"], hint: "Kể lại sự việc đã xảy ra. 'Fly' bất quy tắc -> 'flew'." },
+                            { q: "[1] you [2] (tell) him the truth?", a: ["Did", "tell"], hint: "Câu hỏi về sự việc đã qua -> 'Did... tell'." },
+                            { q: "We [1] (drive) to the beach last Friday.", a: ["drove"], hint: "Dấu hiệu 'last Friday'. 'Drive' bất quy tắc -> 'drove'." },
+                            { q: "[1] the teacher [2] (give) you a lot of homework?", a: ["Did", "give"], hint: "Câu hỏi quá khứ -> 'Did... give'." }
+                        ]
+                    },
+                    {
+                        title: "Exercise 4",
+                        instruction: instructions.ex4,
+                        questions: [
+                            { q: "Physics is [1] (hard) than History for me.", a: ["harder"], hint: "So sánh hơn (than). Tính từ ngắn 'hard' -> 'harder'." },
+                            { q: "Jupiter is the [1] (large) planet in our solar system.", a: ["largest"], hint: "So sánh nhất (the). Tính từ 'large' tận cùng 'e' chỉ thêm 'st' -> 'largest'." },
+                            { q: "Your bag is [1] (light) than mine.", a: ["lighter"], hint: "So sánh hơn. Tính từ ngắn 'light' -> 'lighter'." },
+                            { q: "He is the [1] (funny) person I know.", a: ["funniest"], hint: "So sánh nhất. 'Funny' tận cùng 'y' -> 'funniest'." },
+                            { q: "This road is [1] (narrow) than the highway.", a: ["narrower"], hint: "So sánh hơn. 'Narrow' (tính từ 2 âm tiết nhưng tận cùng 'ow') thêm 'er' -> 'narrower'." }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 5,
+                title: "Test 5",
+                exercises: [
+                    {
+                        title: "Exercise 1",
+                        instruction: instructions.ex1,
+                        questions: [
+                            { q: "Nurses [1] (look) after patients in hospitals.", a: ["look"], hint: "Sự thật về nghề nghiệp. 'Nurses' số nhiều -> giữ nguyên 'look'." },
+                            { q: "It [1] (not / snow) in summer here.", a: ["doesn't snow", "does not snow"], hint: "Sự thật hiển nhiên về thời tiết. 'It' số ít -> 'doesn't snow'." },
+                            { q: "[1] you [2] (speak) French?", a: ["Do", "speak"], hint: "Hỏi về khả năng/sự thật. Dùng 'Do' với 'you'." },
+                            { q: "My dog [1] (bark) loudly at strangers.", a: ["barks"], hint: "Thói quen của con chó. Số ít -> 'barks'." },
+                            { q: "We [1] (not / have) time for lunch.", a: ["don't have", "do not have"], hint: "Hiện tại đơn với động từ 'have'. 'We' -> 'don't have'." }
+                        ]
+                    },
+                    {
+                        title: "Exercise 2",
+                        instruction: instructions.ex2,
+                        questions: [
+                            { q: "The chef [1] (cut) the vegetables right now.", a: ["is cutting"], hint: "Dấu hiệu 'right now'. Chef số ít -> 'is cutting' (gấp đôi t)." },
+                            { q: "[1] Anna [2] (paint) a picture?", a: ["Is", "painting"], hint: "Hỏi về hành động đang làm. Anna số ít -> 'Is'." },
+                            { q: "I [1] (not / feel) very well today.", a: ["am not feeling", "m not feeling"], hint: "Dấu hiệu 'today' + tình trạng sức khỏe tạm thời -> 'am not feeling'." },
+                            { q: "Hurry up! The bus [1] (come).", a: ["is coming"], hint: "Dấu hiệu 'Hurry up!' -> xe đang tới -> 'is coming'." },
+                            { q: "[1] the boys [2] (fight) outside?", a: ["Are", "fighting"], hint: "Hỏi về hành động đang xảy ra. Boys số nhiều -> 'Are'." }
+                        ]
+                    },
+                    {
+                        title: "Exercise 3",
+                        instruction: instructions.ex3,
+                        questions: [
+                            { q: "She [1] (not / say) goodbye before she left.", a: ["didn't say", "did not say"], hint: "Kể lại quá khứ. Phủ định -> 'didn't say'." },
+                            { q: "I [1] (run) 5 kilometers yesterday morning.", a: ["ran"], hint: "Dấu hiệu 'yesterday'. 'Run' bất quy tắc -> 'ran'." },
+                            { q: "[1] you [2] (sell) your old phone?", a: ["Did", "sell"], hint: "Câu hỏi quá khứ -> 'Did... sell'." },
+                            { q: "They [1] (stand) in the rain for an hour.", a: ["stood"], hint: "Sự việc đã xảy ra. 'Stand' bất quy tắc -> 'stood'." },
+                            { q: "[1] he [2] (cut) his finger?", a: ["Did", "cut"], hint: "Câu hỏi quá khứ. 'Did... cut'." }
+                        ]
+                    },
+                    {
+                        title: "Exercise 4",
+                        instruction: instructions.ex4,
+                        questions: [
+                            { q: "A tortoise is [1] (slow) than a rabbit.", a: ["slower"], hint: "So sánh hơn. Tính từ ngắn 'slow' -> 'slower'." },
+                            { q: "Russia is the [1] (big) country in the world.", a: ["biggest"], hint: "So sánh nhất. 'Big' (nguyên âm giữa 2 phụ âm) gấp đôi 'g' -> 'biggest'." },
+                            { q: "This chair is [1] (comfortable) than that bench.", a: ["more comfortable"], hint: "So sánh hơn. Tính từ dài 'comfortable' -> 'more comfortable'." },
+                            { q: "Who is the [1] (old) member of your family?", a: ["oldest"], hint: "So sánh nhất. Tính từ ngắn 'old' -> 'oldest'." },
+                            { q: "The weather is getting [1] (warm).", a: ["warmer"], hint: "Cấu trúc 'get + so sánh hơn' (trở nên...). 'Warm' -> 'warmer'." }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 6,
+                title: "Test 6",
+                exercises: [
+                    {
+                        title: "Exercise 1",
+                        instruction: instructions.ex1,
+                        questions: [
+                            { q: "Trees [1] (lose) their leaves in autumn.", a: ["lose"], hint: "Sự thật hiển nhiên. 'Trees' số nhiều -> giữ nguyên 'lose'." },
+                            { q: "That shop [1] (not / sell) fresh fruit.", a: ["doesn't sell", "does not sell"], hint: "Sự thật. Shop số ít -> 'doesn't sell'." },
+                            { q: "[1] he [2] (drive) to work?", a: ["Does", "drive"], hint: "Hỏi về thói quen đi làm. He -> 'Does'." },
+                            { q: "We [1] (study) Spanish twice a week.", a: ["study"], hint: "Dấu hiệu 'twice a week' (tần suất) -> Hiện tại đơn." },
+                            { q: "The internet [1] (not / work) properly today.", a: ["doesn't work", "isn't working"], hint: "Ở đây có thể dùng 'doesn't work' (như một sự thật cho hôm nay) hoặc 'isn't working' (tình trạng tạm thời). Đáp án đề xuất: 'isn't working' hoặc 'doesn't work'." }
+                        ]
+                    },
+                    {
+                        title: "Exercise 2",
+                        instruction: instructions.ex2,
+                        questions: [
+                            { q: "My dad [1] (wash) the car at the moment.", a: ["is washing"], hint: "Dấu hiệu 'at the moment'. Dad số ít -> 'is washing'." },
+                            { q: "[1] you [2] (shop) for clothes?", a: ["Are", "shopping"], hint: "Hỏi hành động đang làm. You -> 'Are... shopping'." },
+                            { q: "They [1] (not / listen) to the teacher.", a: ["aren't listening", "are not listening"], hint: "Hành động đang diễn ra (trong lớp). They -> 'aren't listening'." },
+                            { q: "The sun [1] (shine) brightly today.", a: ["is shining"], hint: "Mô tả thời tiết đang diễn ra hôm nay -> 'is shining'." },
+                            { q: "[1] the water [2] (boil)?", a: ["Is", "boiling"], hint: "Hỏi xem nước có đang sôi không -> 'Is... boiling'." }
+                        ]
+                    },
+                    {
+                        title: "Exercise 3",
+                        instruction: instructions.ex3,
+                        questions: [
+                            { q: "I [1] (not / choose) this color.", a: ["didn't choose", "did not choose"], hint: "Phủ định quá khứ -> 'didn't choose'." },
+                            { q: "She [1] (sing) a beautiful song at the contest.", a: ["sang"], hint: "Sự việc đã qua. 'Sing' bất quy tắc -> 'sang'." },
+                            { q: "[1] you [2] (spend) a lot of money?", a: ["Did", "spend"], hint: "Câu hỏi quá khứ -> 'Did... spend'." },
+                            { q: "The wind [1] (blow) strongly last night.", a: ["blew"], hint: "Dấu hiệu 'last night'. 'Blow' bất quy tắc -> 'blew'." },
+                            { q: "[1] they [2] (grow) these vegetables?", a: ["Did", "grow"], hint: "Câu hỏi quá khứ -> 'Did... grow'." }
+                        ]
+                    },
+                    {
+                        title: "Exercise 4",
+                        instruction: instructions.ex4,
+                        questions: [
+                            { q: "Your hair is [1] (short) than mine.", a: ["shorter"], hint: "So sánh hơn (than). 'Short' -> 'shorter'." },
+                            { q: "This is the [1] (cheap) hotel in town.", a: ["cheapest"], hint: "So sánh nhất (the). 'Cheap' -> 'cheapest'." },
+                            { q: "A city is [1] (noisy) than a village.", a: ["noisier"], hint: "So sánh hơn. 'Noisy' (tận cùng y) -> 'noisier'." },
+                            { q: "Mount Everest is the [1] (high) mountain on Earth.", a: ["highest"], hint: "So sánh nhất. 'High' -> 'highest'." },
+                            { q: "I am [1] (busy) today than I was yesterday.", a: ["busier"], hint: "So sánh hơn. 'Busy' -> 'busier'." }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 7,
+                title: "Test 7",
+                exercises: [
+                    {
+                        title: "Exercise 1",
+                        instruction: instructions.ex1,
+                        questions: [
+                            { q: "A mechanic [1] (fix) cars.", a: ["fixes"], hint: "Sự thật về nghề nghiệp. Mechanic số ít -> 'fixes'." },
+                            { q: "You [1] (not / look) happy.", a: ["don't look", "do not look"], hint: "Nhận xét ở hiện tại. You -> 'don't look'." },
+                            { q: "[1] this train [2] (stop) at York?", a: ["Does", "stop"], hint: "Hỏi về lịch trình. Train số ít -> 'Does'." },
+                            { q: "Children usually [1] (like) sweets.", a: ["like"], hint: "Dấu hiệu 'usually'. Children số nhiều -> giữ nguyên 'like'." },
+                            { q: "My phone [1] (not / take) good photos.", a: ["doesn't take", "does not take"], hint: "Sự thật về chiếc điện thoại. Số ít -> 'doesn't take'." }
+                        ]
+                    },
+                    {
+                        title: "Exercise 2",
+                        instruction: instructions.ex2,
+                        questions: [
+                            { q: "Look! The snow [1] (fall).", a: ["is falling"], hint: "Dấu hiệu 'Look!' -> 'is falling'." },
+                            { q: "[1] they [2] (travel) to London now?", a: ["Are", "traveling", "Are", "travelling"], hint: "Dấu hiệu 'now'. They -> 'Are... traveling'." },
+                            { q: "He [1] (not / answer) his phone.", a: ["isn't answering", "is not answering"], hint: "Hành động đang xảy ra (anh ấy không bắt máy). -> 'isn't answering'." },
+                            { q: "My sister [1] (practice) the piano.", a: ["is practicing", "is practising"], hint: "Hành động đang tập luyện. Sister số ít -> 'is practicing'." },
+                            { q: "[1] you [2] (search) for your keys?", a: ["Are", "searching"], hint: "Hỏi về hành động đang làm -> 'Are... searching'." }
+                        ]
+                    },
+                    {
+                        title: "Exercise 3",
+                        instruction: instructions.ex3,
+                        questions: [
+                            { q: "We [1] (not / understand) the question.", a: ["didn't understand", "did not understand"], hint: "Sự việc quá khứ. Phủ định -> 'didn't understand'." },
+                            { q: "He [1] (fall) off the ladder yesterday.", a: ["fell"], hint: "Dấu hiệu 'yesterday'. 'Fall' bất quy tắc -> 'fell'." },
+                            { q: "[1] you [2] (keep) the secret?", a: ["Did", "keep"], hint: "Câu hỏi quá khứ -> 'Did... keep'." },
+                            { q: "I [1] (read) an interesting article last night.", a: ["read"], hint: "Dấu hiệu 'last night'. 'Read' viết giống nhau nhưng đọc là /red/ -> 'read'." },
+                            { q: "[1] the dog [2] (bite) you?", a: ["Did", "bite"], hint: "Câu hỏi quá khứ (con chó có cắn bạn không?) -> 'Did... bite'." }
+                        ]
+                    },
+                    {
+                        title: "Exercise 4",
+                        instruction: instructions.ex4,
+                        questions: [
+                            { q: "Chinese is [1] (difficult) to learn than English.", a: ["more difficult"], hint: "So sánh hơn (than). Tính từ dài 'difficult' -> 'more difficult'." },
+                            { q: "She is the [1] (smart) student in the school.", a: ["smartest"], hint: "So sánh nhất (the). 'Smart' -> 'smartest'." },
+                            { q: "My suitcase is [1] (small) than yours.", a: ["smaller"], hint: "So sánh hơn. 'Small' -> 'smaller'." },
+                            { q: "This is the [1] (hot) day of the year.", a: ["hottest"], hint: "So sánh nhất. 'Hot' (nguyên âm kẹp giữa) -> 'hottest'." },
+                            { q: "Fruits are [1] (healthy) than candy.", a: ["healthier"], hint: "So sánh hơn. 'Healthy' (tận cùng y) -> 'healthier'." }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 8,
+                title: "Test 8",
+                exercises: [
+                    {
+                        title: "Exercise 1",
+                        instruction: instructions.ex1,
+                        questions: [
+                            { q: "The Earth [1] (go) around the Sun.", a: ["goes"], hint: "Sự thật hiển nhiên. Earth số ít -> 'goes'." },
+                            { q: "I [1] (not / drink) coffee in the evening.", a: ["don't drink", "do not drink"], hint: "Thói quen. I -> 'don't drink'." },
+                            { q: "[1] he [2] (play) video games every day?", a: ["Does", "play"], hint: "Dấu hiệu 'every day'. He -> 'Does'." },
+                            { q: "Birds [1] (build) nests in trees.", a: ["build"], hint: "Sự thật về loài chim. Birds số nhiều -> giữ nguyên 'build'." },
+                            { q: "She [1] (not / have) a bicycle.", a: ["doesn't have", "does not have"], hint: "Sự thật (sở hữu). She -> 'doesn't have'." }
+                        ]
+                    },
+                    {
+                        title: "Exercise 2",
+                        instruction: instructions.ex2,
+                        questions: [
+                            { q: "Be quiet! The baby [1] (sleep).", a: ["is sleeping"], hint: "Dấu hiệu 'Be quiet!'. Baby đang ngủ -> 'is sleeping'." },
+                            { q: "[1] you [2] (enjoy) the movie?", a: ["Are", "enjoying"], hint: "Hỏi về cảm nhận ngay lúc đang xem -> 'Are... enjoying'." },
+                            { q: "They [1] (not / talk) to each other right now.", a: ["aren't talking", "are not talking"], hint: "Dấu hiệu 'right now'. They -> 'aren't talking'." },
+                            { q: "The fire [1] (burn) brightly.", a: ["is burning"], hint: "Mô tả sự việc đang diễn ra trước mắt -> 'is burning'." },
+                            { q: "[1] John [2] (run) in the marathon?", a: ["Is", "runing", "Is", "running"], hint: "Hỏi về hành động đang tham gia. -> 'Is... running'." }
+                        ]
+                    },
+                    {
+                        title: "Exercise 3",
+                        instruction: instructions.ex3,
+                        questions: [
+                            { q: "I [1] (not / think) it was a good idea.", a: ["didn't think", "did not think"], hint: "Suy nghĩ trong quá khứ (was). -> 'didn't think'." },
+                            { q: "She [1] (bring) a gift for us yesterday.", a: ["brought"], hint: "Dấu hiệu 'yesterday'. 'Bring' bất quy tắc -> 'brought'." },
+                            { q: "[1] you [2] (pay) the bill?", a: ["Did", "pay"], hint: "Câu hỏi quá khứ -> 'Did... pay'." },
+                            { q: "We [1] (sit) on the beach and watched the sunset.", a: ["sat"], hint: "Kể lại chuỗi hành động (watched). 'Sit' bất quy tắc -> 'sat'." },
+                            { q: "[1] he [2] (hurt) his leg?", a: ["Did", "hurt"], hint: "Câu hỏi quá khứ. 'Hurt' 3 cột giống nhau -> 'Did... hurt'." }
+                        ]
+                    },
+                    {
+                        title: "Exercise 4",
+                        instruction: instructions.ex4,
+                        questions: [
+                            { q: "A shark is [1] (scary) than a dolphin.", a: ["scarier"], hint: "So sánh hơn. 'Scary' (tận cùng y) -> 'scarier'." },
+                            { q: "This is the [1] (bad) movie I have ever seen.", a: ["worst"], hint: "So sánh nhất (the). 'Bad' bất quy tắc -> 'worst'." },
+                            { q: "Today is [1] (cloudy) than yesterday.", a: ["cloudier"], hint: "So sánh hơn. 'Cloudy' (tận cùng y) -> 'cloudier'." },
+                            { q: "She is the [1] (famous) singer in the country.", a: ["most famous"], hint: "So sánh nhất. Tính từ dài 'famous' -> 'most famous'." },
+                            { q: "Silver is [1] (cheap) than gold.", a: ["cheaper"], hint: "So sánh hơn. 'Cheap' -> 'cheaper'." }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 9,
+                title: "Test 9",
+                exercises: [
+                    {
+                        title: "Exercise 1",
+                        instruction: instructions.ex1,
+                        questions: [
+                            { q: "He always [1] (try) his best.", a: ["tries"], hint: "Dấu hiệu 'always'. He -> 'tries' (y thành ies)." },
+                            { q: "We [1] (not / belong) to this club.", a: ["don't belong", "do not belong"], hint: "Sự thật. We -> 'don't belong'." },
+                            { q: "[1] it [2] (take) long to get there?", a: ["Does", "take"], hint: "Hỏi về thời gian (sự thật/lịch trình). It -> 'Does'." },
+                            { q: "The shops [1] (close) at 6 PM.", a: ["close"], hint: "Lịch trình. Shops số nhiều -> 'close' (nguyên mẫu)." },
+                            { q: "You [1] (not / seem) very interested.", a: ["don't seem", "do not seem"], hint: "Động từ trạng thái 'seem'. You -> 'don't seem'." }
+                        ]
+                    },
+                    {
+                        title: "Exercise 2",
+                        instruction: instructions.ex2,
+                        questions: [
+                            { q: "I [1] (write) an email to my boss.", a: ["am writing"], hint: "Hành động đang làm. I -> 'am writing'." },
+                            { q: "[1] the children [2] (hide) in the garden?", a: ["Are", "hiding"], hint: "Hỏi hành động đang làm. Children số nhiều -> 'Are'." },
+                            { q: "She [1] (not / wear) her glasses today.", a: ["isn't wearing", "is not wearing"], hint: "Dấu hiệu 'today'. She -> 'isn't wearing'." },
+                            { q: "The leaves [1] (turn) brown.", a: ["are turning"], hint: "Sự thay đổi đang diễn ra -> 'are turning'." },
+                            { q: "[1] we [2] (go) the right way?", a: ["Are", "going"], hint: "Hỏi đường (đang đi) -> 'Are... going'." }
+                        ]
+                    },
+                    {
+                        title: "Exercise 3",
+                        instruction: instructions.ex3,
+                        questions: [
+                            { q: "They [1] (not / win) the game.", a: ["didn't win", "did not win"], hint: "Sự việc đã qua. Phủ định -> 'didn't win'." },
+                            { q: "He [1] (teach) Math for 20 years (retired now).", a: ["taught"], hint: "Sự việc đã kết thúc (đã nghỉ hưu). 'Teach' -> 'taught'." },
+                            { q: "[1] you [2] (forget) my birthday?", a: ["Did", "forget"], hint: "Câu hỏi quá khứ -> 'Did... forget'." },
+                            { q: "The glass [1] (break) when I dropped it.", a: ["broke"], hint: "Sự việc xảy ra tức thì trong quá khứ. 'Break' -> 'broke'." },
+                            { q: "[1] she [2] (catch) the ball?", a: ["Did", "catch"], hint: "Câu hỏi quá khứ -> 'Did... catch'." }
+                        ]
+                    },
+                    {
+                        title: "Exercise 4",
+                        instruction: instructions.ex4,
+                        questions: [
+                            { q: "This problem is [1] (simple) than the last one.", a: ["simpler"], hint: "So sánh hơn. 'Simple' (tận cùng le) -> 'simpler'." },
+                            { q: "He is the [1] (lucky) man alive.", a: ["luckiest"], hint: "So sánh nhất. 'Lucky' (tận cùng y) -> 'luckiest'." },
+                            { q: "Your voice is [1] (loud) than mine.", a: ["louder"], hint: "So sánh hơn. 'Loud' -> 'louder'." },
+                            { q: "This is the [1] (useful) tool in the box.", a: ["most useful"], hint: "So sánh nhất. 'Useful' là tính từ dài (2 âm tiết nhưng không tận cùng y/ow/le/er) -> 'most useful'." },
+                            { q: "My computer is [1] (modern) than yours.", a: ["more modern"], hint: "So sánh hơn. 'Modern' (2 âm tiết) -> 'more modern'." }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 10,
+                title: "Test 10",
+                exercises: [
+                    {
+                        title: "Exercise 1",
+                        instruction: instructions.ex1,
+                        questions: [
+                            { q: "My parents [1] (save) money for a new house.", a: ["save"], hint: "Hành động/kế hoạch lâu dài. Parents số nhiều -> 'save'." },
+                            { q: "This car [1] (not / cost) a lot of money.", a: ["doesn't cost", "does not cost"], hint: "Sự thật. Car số ít -> 'doesn't cost'." },
+                            { q: "[1] you [2] (prefer) tea or coffee?", a: ["Do", "prefer"], hint: "Hỏi sở thích. You -> 'Do'." },
+                            { q: "He [1] (miss) the bus often.", a: ["misses"], hint: "Dấu hiệu 'often'. He -> 'misses' (thêm es)." },
+                            { q: "I [1] (not / own) a car.", a: ["don't own", "do not own"], hint: "Sự thật. I -> 'don't own'." }
+                        ]
+                    },
+                    {
+                        title: "Exercise 2",
+                        instruction: instructions.ex2,
+                        questions: [
+                            { q: "The wind [1] (blow) very hard now.", a: ["is blowing"], hint: "Dấu hiệu 'now'. Wind số ít -> 'is blowing'." },
+                            { q: "[1] you [2] (prepare) for the exam?", a: ["Are", "preparing"], hint: "Hỏi hành động đang làm. You -> 'Are'." },
+                            { q: "We [1] (not / stay) at a hotel; we are camping.", a: ["aren't staying", "are not staying"], hint: "Hành động tạm thời. We -> 'aren't staying'." },
+                            { q: "Someone [1] (knock) on the door.", a: ["is knocking"], hint: "Hành động đang xảy ra (có tiếng gõ). -> 'is knocking'." },
+                            { q: "[1] the company [2] (grow) fast?", a: ["Is", "growing"], hint: "Hỏi về xu hướng phát triển -> 'Is... growing'." }
+                        ]
+                    },
+                    {
+                        title: "Exercise 3",
+                        instruction: instructions.ex3,
+                        questions: [
+                            { q: "I [1] (not / feel) hungry this morning.", a: ["didn't feel", "did not feel"], hint: "Kể về sáng nay (đã qua). -> 'didn't feel'." },
+                            { q: "She [1] (leave) the keys on the table.", a: ["left"], hint: "Sự việc đã xảy ra. 'Leave' bất quy tắc -> 'left'." },
+                            { q: "[1] you [2] (find) your wallet?", a: ["Did", "find"], hint: "Câu hỏi quá khứ -> 'Did... find'." },
+                            { q: "We [1] (hold) a meeting yesterday.", a: ["held"], hint: "Dấu hiệu 'yesterday'. 'Hold' bất quy tắc -> 'held'." },
+                            { q: "[1] they [2] (build) that house themselves?", a: ["Did", "build"], hint: "Câu hỏi quá khứ -> 'Did... build'." }
+                        ]
+                    },
+                    {
+                        title: "Exercise 4",
+                        instruction: instructions.ex4,
+                        questions: [
+                            { q: "The countryside is [1] (peaceful) than the city.", a: ["more peaceful"], hint: "So sánh hơn. Tính từ dài 'peaceful' -> 'more peaceful'." },
+                            { q: "That was the [1] (sad) ending to a movie.", a: ["saddest"], hint: "So sánh nhất. 'Sad' (nhân đôi d) -> 'saddest'." },
+                            { q: "A car is [1] (safe) than a motorbike.", a: ["safer"], hint: "So sánh hơn. 'Safe' (tận cùng e) -> 'safer'." },
+                            { q: "This is the [1] (tall) building in New York.", a: ["tallest"], hint: "So sánh nhất. 'Tall' -> 'tallest'." },
+                            { q: "I feel [1] (tired) today than usual.", a: ["more tired"], hint: "So sánh hơn. 'Tired' là tính từ dài -> 'more tired'." }
+                        ]
+                    }
+                ]
+            }
+        ];
+
+        let currentTestId = null;
+        let timerInterval = null;
+        let timeLeft = 20 * 60;
+        let isTestActive = false;
+        let isTestSubmitted = false;
+
+        function init() {
+            renderTabs();
+            document.getElementById('copyright-year').textContent = new Date().getFullYear();
+        }
+
+        function renderTabs() {
+            const container = document.getElementById('tabs-container');
+            container.innerHTML = '';
+            testData.forEach(test => {
+                const btn = document.createElement('button');
+                btn.className = 'tab-btn w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-blue-50 transition duration-150 flex justify-between items-center';
+                btn.innerHTML = `<span><i class="fas fa-file-alt mr-2 text-gray-400"></i>${test.title}</span> <i class="fas fa-chevron-right text-xs text-gray-300"></i>`;
+                btn.onclick = () => selectTest(test.id);
+                btn.dataset.id = test.id;
+                container.appendChild(btn);
+            });
+        }
+
+        function selectTest(id) {
+            clearInterval(timerInterval);
+            isTestActive = false;
+            isTestSubmitted = false;
+            currentTestId = id;
+            timeLeft = 20 * 60;
+
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                b.classList.remove('active', 'border-blue-500', 'bg-blue-500', 'text-white');
+                b.classList.add('border-gray-200', 'hover:bg-blue-50');
+                b.querySelector('i.fa-file-alt').classList.remove('text-white');
+                b.querySelector('i.fa-file-alt').classList.add('text-gray-400');
+            });
+            
+            const activeBtn = document.querySelector(`.tab-btn[data-id="${id}"]`);
+            activeBtn.classList.add('active', 'border-blue-500');
+            activeBtn.classList.remove('hover:bg-blue-50', 'border-gray-200');
+            activeBtn.querySelector('i.fa-file-alt').classList.add('text-white');
+            activeBtn.querySelector('i.fa-file-alt').classList.remove('text-gray-400');
+
+            document.getElementById('welcome-screen').classList.add('hidden');
+            document.getElementById('test-container').classList.remove('hidden');
+            document.getElementById('start-screen').classList.remove('hidden');
+            document.getElementById('questions-area').classList.add('hidden');
+            document.getElementById('submit-btn').classList.add('hidden');
+            document.getElementById('status-bar').classList.add('hidden');
+
+            const test = testData.find(t => t.id === id);
+            document.getElementById('test-title').textContent = test.title;
+            
+            renderQuestions(test);
+        }
+
+        function renderQuestions(test) {
+            const area = document.getElementById('questions-area');
+            area.innerHTML = '';
+
+            test.exercises.forEach((ex, exIndex) => {
+                const exDiv = document.createElement('div');
+                exDiv.className = 'bg-gray-50 p-6 rounded-lg border border-gray-100';
+                
+                let html = `<h4 class="font-bold text-lg text-blue-800 mb-2">${ex.title}</h4>`;
+                if(ex.instruction) html += `<p class="text-sm text-gray-500 italic mb-4">${ex.instruction}</p>`;
+                
+                html += `<div class="space-y-4">`;
+                
+                ex.questions.forEach((q, qIndex) => {
+                    let questionText = q.q;
+                    questionText = questionText.replace('[1]', `<input type="text" data-ex="${exIndex}" data-q="${qIndex}" data-part="0" class="input-field border border-gray-300 rounded px-2 py-1 mx-1 w-32 focus:ring-2 focus:ring-blue-400 text-center" autocomplete="off">`);
+                    questionText = questionText.replace('[2]', `<input type="text" data-ex="${exIndex}" data-q="${qIndex}" data-part="1" class="input-field border border-gray-300 rounded px-2 py-1 mx-1 w-32 focus:ring-2 focus:ring-blue-400 text-center" autocomplete="off">`);
+
+                    html += `
+                        <div class="question-block" id="q-${exIndex}-${qIndex}">
+                            <div class="flex items-center flex-wrap">
+                                <span class="font-bold text-gray-400 mr-2">${qIndex + 1}.</span>
+                                <span class="text-gray-800 text-lg leading-loose">${questionText}</span>
+                            </div>
+                            <div class="explanation-box mt-2 ml-8 p-3 bg-blue-50 text-blue-900 rounded-lg text-sm border-l-4 border-blue-400 cursor-pointer" onclick="toggleDetail(this)">
+                                <div class="font-bold mb-1"><i class="fas fa-lightbulb text-yellow-500 mr-1"></i> Giải thích:</div>
+                                <div class="text-gray-700">${generateExplanation(ex.title, q.a, q.hint)}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += `</div>`;
+                exDiv.innerHTML = html;
+                area.appendChild(exDiv);
+            });
+        }
+
+        function startTest() {
+            isTestActive = true;
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('questions-area').classList.remove('hidden');
+            document.getElementById('submit-btn').classList.remove('hidden');
+            document.getElementById('status-bar').classList.remove('hidden');
+            
+            updateTimerDisplay();
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                if (timeLeft <= 0) {
+                    submitTest(true);
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const m = Math.floor(timeLeft / 60);
+            const s = timeLeft % 60;
+            document.getElementById('timer').textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            
+            if(timeLeft < 60) {
+                document.getElementById('timer').classList.add('text-red-600');
+                document.getElementById('timer').classList.remove('text-blue-600');
+            } else {
+                document.getElementById('timer').classList.remove('text-red-600');
+                document.getElementById('timer').classList.add('text-blue-600');
+            }
+        }
+
+        function submitTest(auto = false) {
+            if (isTestSubmitted) return;
+            
+            if (!auto) {
+                if(!confirm("Bạn có chắc chắn muốn nộp bài không?")) return;
+            }
+
+            clearInterval(timerInterval);
+            isTestActive = false;
+            isTestSubmitted = true;
+            
+            checkAnswers();
+            
+            document.getElementById('submit-btn').classList.add('opacity-50', 'cursor-not-allowed');
+            document.getElementById('submit-btn').textContent = "Đã nộp bài";
+            document.querySelectorAll('input').forEach(i => i.disabled = true);
+            
+            document.querySelectorAll('.explanation-box').forEach(box => {
+                box.style.display = 'block';
+            });
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function checkAnswers() {
+            const test = testData.find(t => t.id === currentTestId);
+            let correctCount = 0;
+            let totalQuestions = 20;
+
+            const inputs = document.querySelectorAll('#questions-area input');
+            
+            test.exercises.forEach((ex, exIdx) => {
+                ex.questions.forEach((q, qIdx) => {
+                    const input1 = document.querySelector(`input[data-ex="${exIdx}"][data-q="${qIdx}"][data-part="0"]`);
+                    const input2 = document.querySelector(`input[data-ex="${exIdx}"][data-q="${qIdx}"][data-part="1"]`);
+                    
+                    let userAns = [];
+                    if (input1) userAns.push(input1.value.trim());
+                    if (input2) userAns.push(input2.value.trim());
+
+                    const correctAns = q.a; 
+                    
+                    let isCorrect = false;
+
+                    if (input2) {
+                        if (userAns.length === 2 && 
+                            userAns[0].toLowerCase() === correctAns[0].toLowerCase() && 
+                            userAns[1].toLowerCase() === correctAns[1].toLowerCase()) {
+                            isCorrect = true;
+                        }
+                    } else {
+                        if (correctAns.some(ans => ans.toLowerCase() === userAns[0]?.toLowerCase())) {
+                            isCorrect = true;
+                        }
+                    }
+
+                    if (isCorrect) {
+                        correctCount++;
+                        if(input1) input1.classList.add('correct-input');
+                        if(input2) input2.classList.add('correct-input');
+                    } else {
+                        if(input1) input1.classList.add('incorrect-input');
+                        if(input2) input2.classList.add('incorrect-input');
+                        
+                        const displayAns = input2 ? `${correctAns[0]} ... ${correctAns[1]}` : correctAns[0];
+                        const container = document.getElementById(`q-${exIdx}-${qIdx}`);
+                        const ansSpan = document.createElement('span');
+                        ansSpan.className = 'text-green-600 font-bold ml-2 text-sm';
+                        ansSpan.innerHTML = `<i class="fas fa-check"></i> Đáp án: ${displayAns}`;
+                        container.querySelector('.flex').appendChild(ansSpan);
+                    }
+                });
+            });
+
+            const score = (correctCount * 0.5).toFixed(1);
+            const scoreDisplay = document.getElementById('score-display');
+            scoreDisplay.textContent = `${score}/10`;
+            scoreDisplay.classList.add('text-blue-600', 'scale-110');
+            
+            setTimeout(() => {
+                alert(`Kết thúc! Bạn đạt ${score}/10 điểm.`);
+            }, 500);
+        }
+
+        function generateExplanation(exTitle, answers, hint) {
+            let base = "";
+            if (hint) {
+                base = `<span class="text-indigo-600 font-medium">${hint}</span><br>`;
+            }
+            
+            let ansText = answers.length > 1 && answers[1].length < 15 ? `${answers[0]} ... ${answers[1]}` : answers[0];
+            if (!answers[1] || answers[1].includes(' ')) {
+                 if(answers.length === 2 && answers[0].length < 10 && answers[1].length < 10 && exTitle.includes('?')) {
+                     ansText = `${answers[0]} ... ${answers[1]}`;
+                 } else {
+                     ansText = answers[0];
+                 }
+            }
+
+            return `${base} Đáp án đúng là: <strong>${ansText}</strong>.`;
+        }
+
+        init();
+
+    </script>
+</body>
+</html>

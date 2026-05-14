@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@600&display=swap" rel="stylesheet">
+    <title>Practice test: The Honey Badger</title>
+    <style>
+        /* Base Styles */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background-color: #ffffff; line-height: 1.5; font-size: 16px; color: #333; }
+        
+        /* Header */
+        .header { background-color: #ffffff; padding: 12px 20px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 60px; }
+        .timer-container { display: flex; align-items: center; font-weight: 500; font-size: 18px; }
+        .timer-controls { display: flex; gap: 8px; margin-left: 15px; }
+        .timer-controls button { background: #f0f0f0; border: 1px solid #ccc; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+        .timer-controls button:hover { background: #e0e0e0; }
+        
+        /* Main Layout */
+        .main-container { margin-top: 60px; display: flex; flex-direction: column; background: #ffffff; height: calc(100vh - 60px); }
+        .passage-header-container { background-color: #f1f2ec; padding: 15px 20px; border-bottom: 1px solid #e0e0e0; font-size: 15px; }
+        .panels-container { display: flex; flex: 1; overflow: hidden; }
+        
+        /* Passage Panel */
+        .passage-panel { flex: 1; padding: 30px 40px 100px; overflow-y: auto; min-width: 300px; background-color: #fff; }
+        .reading-passage h4 { font-family: 'Merriweather', serif; font-size: 24px; font-weight: 600; color: #2c3e50; line-height: 1.4; margin-bottom: 25px; text-align: center; border-bottom: 3px solid #d9534f; padding-bottom: 10px; }
+        .reading-passage p { margin-bottom: 1.4em; text-align: justify; font-size: 17px; line-height: 1.6; }
+        .reading-passage strong { color: #2c3e50; }
+        
+        /* Resizer */
+        .resizer { width: 12px; cursor: col-resize; background-color: #f0f0f0; flex-shrink: 0; flex-grow: 0; border-left: 1px solid #ddd; border-right: 1px solid #ddd; background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="30" viewBox="0 0 10 30"><path d="M4 11h2v2H4zM4 15h2v2H4zM4 19h2v2H4z" fill="%23999"/></svg>'); background-repeat: no-repeat; background-position: center; transition: background-color 0.2s; }
+        .resizer:hover { background-color: #e0e0e0; }
+
+        /* Questions Panel */
+        .questions-panel { flex: 1; padding: 30px 40px 100px; overflow-y: auto; min-width: 300px; background-color: #fafafa; }
+        .question-set { margin-bottom: 40px; background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #eee; box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
+        .question-prompt { margin-bottom: 20px; background: #eaf4fc; padding: 15px; border-radius: 5px; border-left: 4px solid #4a90e2; color: #333; font-size: 15px; }
+        .question-prompt strong { color: #0056b3; }
+
+        /* Question Items */
+        .question-item { margin-bottom: 25px; border-bottom: 1px dashed #eee; padding-bottom: 20px; display: flex; flex-direction: column; gap: 12px; }
+        .question-text { font-weight: 600; color: #444; font-size: 16px; line-height: 1.8; }
+        
+        /* Text Inputs */
+        .answer-input { border: 1px solid #ccc; border-radius: 4px; padding: 6px 10px; font-size: 16px; width: 180px; text-align: center; font-weight: bold; transition: all 0.3s; color: #333; }
+        .answer-input:focus { outline: none; border-color: #4a90e2; box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2); }
+        .answer-input.correct { border-color: #28a745; background-color: #e9f7ef; color: #155724; }
+        .answer-input.incorrect { border-color: #dc3545; background-color: #f8d7da; color: #721c24; }
+
+        /* Explanation Button */
+        .explanation-btn { font-size: 12px; background-color: #6c757d; color: white; padding: 3px 8px; border-radius: 12px; cursor: pointer; margin-left: 10px; display: none; vertical-align: middle; border: none; transition: background 0.2s; }
+        .explanation-btn:hover { background-color: #5a6268; }
+        .show-explanation .explanation-btn { display: inline-block; }
+
+        /* Correct Answer Display */
+        .correct-answer-display { color: #155724; font-weight: bold; margin-left: 10px; font-size: 15px; background: #d4edda; padding: 2px 8px; border-radius: 4px; border: 1px solid #c3e6cb; }
+
+        /* Footer Nav */
+        .nav-row { position: fixed; bottom: 0; left: 0; right: 0; background: #ffffff; padding: 0; display: flex; align-items: center; height: 70px; z-index: 100; box-shadow: 0 -4px 15px rgba(0,0,0,0.05); border-top: 1px solid #eee; }
+        .footer__questionWrapper { display: flex; align-items: center; padding: 0 20px; overflow-x: auto; flex: 1; }
+        .footer__subquestionWrapper { display: flex; gap: 8px; padding-bottom: 5px; }
+        .subQuestion { width: 40px; height: 40px; border: 1px solid #dfe1e5; background: white; color: #5f6368; font-size: 14px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: all 0.2s; flex-shrink: 0; }
+        .subQuestion:hover { background-color: #f8f9fa; border-color: #dadce0; }
+        .subQuestion.active { background-color: #e8f0fe; color: #1a73e8; border-color: #1a73e8; font-weight: bold; }
+        .subQuestion.correct { background-color: #28a745; color: white; border-color: #28a745; }
+        .subQuestion.incorrect { background-color: #dc3545; color: white; border-color: #dc3545; }
+        .subQuestion.answered { background-color: #5f6368; color: white; border-color: #5f6368; }
+        
+        .footer__deliverButton { margin-right: 30px; background-color: #1a73e8; color: #fff; border: none; padding: 12px 24px; border-radius: 4px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+        .footer__deliverButton:hover { background-color: #1557b0; }
+
+        /* Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 2000; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(2px); }
+        .modal-content { background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 700px; position: relative; max-height: 85vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .modal-close-btn { position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 28px; cursor: pointer; color: #aaa; transition: color 0.2s; }
+        .modal-close-btn:hover { color: #555; }
+        .results-summary { font-size: 24px; font-weight: bold; margin-bottom: 25px; border-bottom: 2px solid #f0f0f0; padding-bottom: 15px; color: #202124; text-align: center; }
+        .result-row { display: flex; justify-content: space-between; padding: 12px 15px; border-bottom: 1px solid #f0f0f0; cursor: pointer; text-align: left; transition: background 0.1s; border-radius: 4px; }
+        .result-row:hover { background-color: #f8f9fa; }
+        .hidden { display: none !important; }
+
+        /* Explanation Content */
+        .explanation-content { text-align: left; line-height: 1.7; font-size: 16px; color: #202124; }
+        .explanation-title { font-weight: bold; font-size: 18px; margin-bottom: 15px; color: #1a73e8; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .keyword-highlight { font-weight: bold; color: #d93025; background-color: #fce8e6; padding: 2px 4px; border-radius: 2px; }
+        
+        /* Highlighting Context Menu */
+        .highlight { background-color: #fffac1; }
+        .context-menu { position: absolute; background: white; border: 1px solid #ccc; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; display: none; min-width: 140px; overflow: hidden; }
+        .context-menu-item { padding: 10px 16px; cursor: pointer; font-size: 14px; color: #333; transition: background 0.1s; }
+        .context-menu-item:hover { background-color: #f1f3f4; }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .panels-container { flex-direction: column; overflow-y: auto; }
+            .resizer { display: none; }
+            .passage-panel { max-height: 40vh; padding: 20px; border-bottom: 5px solid #eee; }
+            .questions-panel { padding: 20px; }
+            .footer__deliverButton { padding: 10px 16px; font-size: 14px; margin-right: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="timer-container">
+            <span class="timer-display">40:00</span>
+            <div class="timer-controls">
+                <button id="timer-toggle-btn" title="Pause/Resume Timer">||</button>
+                <button id="timer-reset-btn" title="Reset Timer">↺</button>
+            </div>
+        </div>
+        <div style="font-weight: bold; color: #1a73e8; font-size: 20px;">Đình Phước Edu</div>
+    </div>
+
+    <div class="main-container">
+        <div class="passage-header-container">
+            <p><strong>Practice test: The Honey Badger</strong></p>
+            <p>Read the text and answer questions 1-8.</p>
+        </div>
+        
+        <div class="panels-container">
+            <div class="passage-panel" id="passage-panel">
+                <div class="reading-passage">
+                    <h4 class="text-center">The Honey Badger</h4>
+                    <p>It looks harmless and vulnerable. But the honey badger is afraid of nothing... and will attack and eat almost anything.</p>
+                    <p>The honey badger (<em>Melivora capensis</em>), is an African and south-Asian mammal that has a reputation for being one of the world's most fearless animals, despite its small size. And in spite of its gentle-sounding name, it is also one of its most aggressive. Honey badgers have been known to attack lions, buffalo, and snakes three times their size. Even humans are not safe from a honey badger if it thinks the human will attack or harm it. They are also extremely tough creatures, and can recover quickly from injuries that would kill most other animals.</p>
+                    <p>At first glance, honey badgers look like the common European badger. They are usually between 75cm and 1 metre long, although males are about twice the size of females. They are instantly recognisable by grey and white stripes that extend from the top of the head to the tail. Closer inspection, which is probably not a wise thing to do, reveals pointed teeth, and sharp front claws which can be four centimetres in length.</p>
+                    <p>Honey badgers are meat-eating animals with an extremely varied diet. They mainly eat a range of small creatures like beetles, lizards and birds, but will also catch larger reptiles like snakes and small crocodiles. Some mammals, such as foxes, antelope and wild cats also form part of their diet.</p>
+                    <p>The badgers locate their prey mainly using their excellent sense of smell, and catch most of their prey through digging. During a 24-hour period, they may dig as many as fifty holes, and travel more than 40 kilometres. They are also good climbers, and can easily climb very tall trees to steal eggs from birds' nests, or catch other tree-dwelling creatures.</p>
+                    <p>As their name suggests, honey badgers have always been associated with honey, although they do not actually eat it. It is the highly nutritious bee eggs (called 'brood') that they prefer, and they will do anything to find it. They usually cause a lot of damage to the hive in the process, and for this reason, humans are one of their main predators. Bee-keepers will often set special traps for honey badgers, to protect their hives.</p>
+                    <p>One of the most fascinating aspects of the honey badger is its working relationship with a bird called the greater honeyguide (<em>Indicator indicator</em>). This bird deliberately guides the badger to beehives, then waits while the badger breaks into the hive and extracts the brood. The two creatures, bird and mammal, then share the brood between them.</p>
+                </div>
+            </div>
+            
+            <div class="resizer" id="resizer"></div>
+            
+            <div class="questions-panel" id="questions-panel">
+                <div id="questions-group-1" class="question-set">
+                    <div class="question-prompt">
+                        <p><strong>Questions 1-8</strong></p>
+                        <p>Write <strong>NO MORE THAN TWO WORDS</strong> from the passage for each answer.</p>
+                    </div>
+
+                    <div class="question-item">
+                        <div class="question-text">
+                            1. Although they are not big animals, honey badgers are fearless, <input type="text" class="answer-input" id="q1" autocomplete="off"> and tough.
+                            <span class="explanation-btn" onclick="showExplanation(1)">ℹ️</span>
+                        </div>
+                    </div>
+                    
+                    <div class="question-item">
+                        <div class="question-text">
+                            2. Honey badgers will attack <input type="text" class="answer-input" id="q2" autocomplete="off"> if they need to protect themselves.
+                            <span class="explanation-btn" onclick="showExplanation(2)">ℹ️</span>
+                        </div>
+                    </div>
+
+                    <div class="question-item">
+                        <div class="question-text">
+                            3. The pattern and colours on the honey badger's back make it <input type="text" class="answer-input" id="q3" autocomplete="off">.
+                            <span class="explanation-btn" onclick="showExplanation(3)">ℹ️</span>
+                        </div>
+                    </div>
+
+                    <div class="question-item">
+                        <div class="question-text">
+                            4. The food they eat is meat-based and <input type="text" class="answer-input" id="q4" autocomplete="off">.
+                            <span class="explanation-btn" onclick="showExplanation(4)">ℹ️</span>
+                        </div>
+                    </div>
+                    
+                    <div class="question-item">
+                        <div class="question-text">
+                            5. <input type="text" class="answer-input" id="q5" autocomplete="off"> form the biggest part of a honey badger's diet.
+                            <span class="explanation-btn" onclick="showExplanation(5)">ℹ️</span>
+                        </div>
+                    </div>
+
+                    <div class="question-item">
+                        <div class="question-text">
+                            6. Honey badgers find the creatures they eat by their <input type="text" class="answer-input" id="q6" autocomplete="off">.
+                            <span class="explanation-btn" onclick="showExplanation(6)">ℹ️</span>
+                        </div>
+                    </div>
+
+                    <div class="question-item">
+                        <div class="question-text">
+                            7. <input type="text" class="answer-input" id="q7" autocomplete="off"> are often used to catch honey badgers which attack beehives.
+                            <span class="explanation-btn" onclick="showExplanation(7)">ℹ️</span>
+                        </div>
+                    </div>
+                    
+                    <div class="question-item">
+                        <div class="question-text">
+                            8. For one particular type of food, the honey badger has a <input type="text" class="answer-input" id="q8" autocomplete="off"> with another creature.
+                            <span class="explanation-btn" onclick="showExplanation(8)">ℹ️</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="nav-row" aria-label="Questions">
+        <div class="footer__questionWrapper">
+            <div class="footer__subquestionWrapper">
+                <button class="subQuestion" onclick="goToQuestion(1)">1</button>
+                <button class="subQuestion" onclick="goToQuestion(2)">2</button>
+                <button class="subQuestion" onclick="goToQuestion(3)">3</button>
+                <button class="subQuestion" onclick="goToQuestion(4)">4</button>
+                <button class="subQuestion" onclick="goToQuestion(5)">5</button>
+                <button class="subQuestion" onclick="goToQuestion(6)">6</button>
+                <button class="subQuestion" onclick="goToQuestion(7)">7</button>
+                <button class="subQuestion" onclick="goToQuestion(8)">8</button>
+            </div>
+        </div>
+        <button id="deliver-button" class="footer__deliverButton">Check Answers</button>
+    </nav>
+
+    <!-- Context Menu, Modals -->
+    <div id="contextMenu" class="context-menu">
+        <div id="menu-highlight" class="context-menu-item" onclick="highlightText()">Highlight</div>
+        <div id="menu-clear" class="context-menu-item" onclick="clearHighlight()">Clear</div>
+    </div>
+    <div id="results-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeResultsModal()">&times;</button>
+            <h2>Results</h2>
+            <div class="results-summary">Score: <span id="results-score"></span> / 8</div>
+            <p style="margin-bottom: 20px; color: #666; font-size: 14px;">Click on any row below to see the detailed explanation.</p>
+            <div id="results-details"></div>
+        </div>
+    </div>
+    <div id="explanation-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeExplanationModal()">&times;</button>
+            <div id="explanation-content" class="explanation-content"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const correctAnswers = {
+                '1': 'aggressive',
+                '2': 'humans',
+                '3': 'instantly recognisable',
+                '4': 'varied',
+                '5': 'small creatures',
+                '6': 'smell',
+                '7': 'traps',
+                '8': 'working relationship'
+            };
+
+            const explanations = {
+                '1': `<strong>Answer: aggressive</strong><br>Paragraph 1: "...it is also one of its most <span class="keyword-highlight">aggressive</span>."`,
+                '2': `<strong>Answer: humans</strong><br>Paragraph 1: "Even <span class="keyword-highlight">humans</span> are not safe from a honey badger..."`,
+                '3': `<strong>Answer: instantly recognisable</strong><br>Paragraph 3: "They are <span class="keyword-highlight">instantly recognisable</span> by grey and white stripes..."`,
+                '4': `<strong>Answer: varied</strong><br>Paragraph 4: "Honey badgers are meat-eating animals with an extremely <span class="keyword-highlight">varied</span> diet."`,
+                '5': `<strong>Answer: small creatures</strong><br>Paragraph 4: "They mainly eat a range of <span class="keyword-highlight">small creatures</span> like beetles..."`,
+                '6': `<strong>Answer: smell</strong><br>Paragraph 5: "...using their excellent sense of <span class="keyword-highlight">smell</span>..."`,
+                '7': `<strong>Answer: traps</strong><br>Paragraph 6: "Bee-keepers will often set special <span class="keyword-highlight">traps</span> for honey badgers..."`,
+                '8': `<strong>Answer: working relationship</strong><br>Paragraph 7: "...honey badger is its <span class="keyword-highlight">working relationship</span> with a bird..."`
+            };
+
+            const questionIds = [1, 2, 3, 4, 5, 6, 7, 8];
+            let timeInSeconds = 2400;
+            let timerInterval;
+            let selectedRange = null;
+
+            const timerDisplay = document.querySelector('.timer-display');
+            const deliverButton = document.getElementById('deliver-button');
+            const resizer = document.getElementById('resizer');
+            const passagePanel = document.getElementById('passage-panel');
+            const contextMenu = document.getElementById('contextMenu');
+
+            function initialize() {
+                startTimer();
+                deliverButton.addEventListener('click', checkAnswers);
+                document.body.addEventListener('input', updateIndicators);
+                resizer.addEventListener('mousedown', initResize, false);
+                initializeContextMenu();
+                document.getElementById('timer-toggle-btn').addEventListener('click', toggleTimer);
+                document.getElementById('timer-reset-btn').addEventListener('click', resetTimer);
+            }
+
+            let isTimerRunning = true;
+            function toggleTimer() { if(isTimerRunning){ clearInterval(timerInterval); isTimerRunning=false;} else { startTimer(); isTimerRunning=true; }}
+            function resetTimer() { clearInterval(timerInterval); timeInSeconds = 2400; updateTimerDisplay(); startTimer(); isTimerRunning=true; }
+            function updateTimerDisplay() { const m = Math.floor(timeInSeconds / 60).toString().padStart(2,'0'); const s = (timeInSeconds % 60).toString().padStart(2,'0'); timerDisplay.textContent = `${m}:${s}`; }
+            function startTimer() { clearInterval(timerInterval); timerInterval = setInterval(() => { timeInSeconds--; updateTimerDisplay(); if(timeInSeconds <= 0) { clearInterval(timerInterval); checkAnswers(); } }, 1000); }
+
+            function checkAnswers() {
+                clearInterval(timerInterval); isTimerRunning=false;
+                let score = 0;
+                const resultsContainer = document.getElementById('results-details');
+                resultsContainer.innerHTML = '';
+                document.querySelectorAll('input').forEach(input => input.disabled = true);
+                deliverButton.disabled = true; deliverButton.textContent = "Checked";
+                document.querySelector('.questions-panel').classList.add('show-explanation');
+
+                questionIds.forEach(id => {
+                    const input = document.getElementById(`q${id}`);
+                    const val = input.value.trim().toLowerCase();
+                    const correct = correctAnswers[id].toLowerCase();
+                    const isCorrect = val === correct || (id === 3 && val === "recognisable"); // tolerant check
+                    
+                    if(isCorrect) { score++; input.classList.add('correct'); document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`).classList.add('correct'); }
+                    else { 
+                        input.classList.add('incorrect'); 
+                        document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`).classList.add('incorrect');
+                        const span = document.createElement('span'); span.className = 'correct-answer-display'; span.textContent = `✓ ${correctAnswers[id]}`;
+                        input.parentNode.insertBefore(span, input.nextSibling);
+                    }
+
+                    const row = document.createElement('div'); row.className = 'result-row';
+                    row.innerHTML = `<span style="font-weight:bold;">Q${id}</span><span>Your: <span style="color:${isCorrect?'green':'red'}">${input.value}</span></span><span style="color:green">Correct: ${correctAnswers[id]}</span>`;
+                    row.onclick = () => showExplanation(id); resultsContainer.appendChild(row);
+                });
+                document.getElementById('results-score').textContent = score;
+                document.getElementById('results-modal').classList.remove('hidden');
+            }
+
+            function updateIndicators() {
+                questionIds.forEach(id => {
+                    const input = document.getElementById(`q${id}`);
+                    const btn = document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`);
+                    if(input.value.trim() !== '') btn.classList.add('answered'); else btn.classList.remove('answered');
+                });
+            }
+
+            window.goToQuestion = (id) => {
+                const el = document.getElementById(`q${id}`).closest('.question-item');
+                el.scrollIntoView({behavior: 'smooth', block: 'center'});
+                document.querySelectorAll('.subQuestion').forEach(b => b.classList.remove('active'));
+                document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`).classList.add('active');
+            };
+
+            window.closeResultsModal = () => document.getElementById('results-modal').classList.add('hidden');
+            window.showExplanation = (id) => { document.getElementById('explanation-content').innerHTML = explanations[id]; document.getElementById('explanation-modal').classList.remove('hidden'); };
+            window.closeExplanationModal = () => document.getElementById('explanation-modal').classList.add('hidden');
+
+            function initResize(e) { e.preventDefault(); const startX = e.clientX; const startWidth = passagePanel.offsetWidth; const doDrag = (e) => { passagePanel.style.flex = `0 0 ${startWidth + e.clientX - startX}px`; }; const stopDrag = () => { window.removeEventListener('mousemove', doDrag); window.removeEventListener('mouseup', stopDrag); }; window.addEventListener('mousemove', doDrag); window.addEventListener('mouseup', stopDrag); }
+            function initializeContextMenu() { document.addEventListener('selectionchange', () => { const sel = window.getSelection(); if(sel.toString().length > 0) selectedRange = sel.getRangeAt(0); }); document.addEventListener('contextmenu', (e) => { if(e.target.closest('.passage-panel')) { e.preventDefault(); contextMenu.style.display = 'block'; contextMenu.style.left = `${e.pageX}px`; contextMenu.style.top = `${e.pageY}px`; } else { contextMenu.style.display = 'none'; } }); document.addEventListener('click', (e) => { if(!contextMenu.contains(e.target)) contextMenu.style.display = 'none'; }); }
+            window.highlightText = () => { if(selectedRange) { const span = document.createElement('span'); span.className = 'highlight'; span.appendChild(selectedRange.extractContents()); selectedRange.insertNode(span); } contextMenu.style.display = 'none'; };
+            window.clearHighlight = () => { document.querySelectorAll('.highlight').forEach(h => { const p = h.parentNode; while(h.firstChild) p.insertBefore(h.firstChild, h); p.removeChild(h); }); contextMenu.style.display = 'none'; };
+
+            initialize();
+        });
+    </script>
+</body>
+</html>

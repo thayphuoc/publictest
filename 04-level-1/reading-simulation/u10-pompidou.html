@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@600&display=swap" rel="stylesheet">
+    <title>Practice test: The Pompidou Centre</title>
+    <style>
+        /* Base Styles */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background-color: #ffffff; line-height: 1.5; font-size: 16px; color: #333; }
+        
+        /* Header */
+        .header { background-color: #ffffff; padding: 12px 20px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 60px; }
+        .timer-container { display: flex; align-items: center; font-weight: 500; font-size: 18px; }
+        .timer-controls { display: flex; gap: 8px; margin-left: 15px; }
+        .timer-controls button { background: #f0f0f0; border: 1px solid #ccc; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+        .timer-controls button:hover { background: #e0e0e0; }
+        
+        /* Main Layout */
+        .main-container { margin-top: 60px; display: flex; flex-direction: column; background: #ffffff; height: calc(100vh - 60px); }
+        .passage-header-container { background-color: #f1f2ec; padding: 15px 20px; border-bottom: 1px solid #e0e0e0; font-size: 15px; }
+        .panels-container { display: flex; flex: 1; overflow: hidden; }
+        
+        /* Passage Panel */
+        .passage-panel { flex: 1; padding: 30px 40px 100px; overflow-y: auto; min-width: 300px; background-color: #fff; }
+        .reading-passage h4 { font-family: 'Merriweather', serif; font-size: 24px; font-weight: 600; color: #2c3e50; line-height: 1.4; margin-bottom: 25px; text-align: center; border-bottom: 3px solid #d9534f; padding-bottom: 10px; }
+        .reading-passage p { margin-bottom: 1.4em; text-align: justify; font-size: 17px; line-height: 1.6; }
+        .reading-passage strong { color: #2c3e50; }
+        
+        /* Resizer */
+        .resizer { width: 12px; cursor: col-resize; background-color: #f0f0f0; flex-shrink: 0; flex-grow: 0; border-left: 1px solid #ddd; border-right: 1px solid #ddd; background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="30" viewBox="0 0 10 30"><path d="M4 11h2v2H4zM4 15h2v2H4zM4 19h2v2H4z" fill="%23999"/></svg>'); background-repeat: no-repeat; background-position: center; transition: background-color 0.2s; }
+        .resizer:hover { background-color: #e0e0e0; }
+
+        /* Questions Panel */
+        .questions-panel { flex: 1; padding: 30px 40px 100px; overflow-y: auto; min-width: 300px; background-color: #fafafa; }
+        .question-set { margin-bottom: 40px; background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #eee; box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
+        .question-prompt { margin-bottom: 20px; background: #eaf4fc; padding: 15px; border-radius: 5px; border-left: 4px solid #4a90e2; color: #333; font-size: 15px; }
+        .question-prompt strong { color: #0056b3; }
+
+        /* Question Items */
+        .question-item { margin-bottom: 25px; border-bottom: 1px dashed #eee; padding-bottom: 20px; display: flex; flex-direction: column; gap: 12px; }
+        .question-item:last-child { border-bottom: none; }
+        .question-text { font-weight: 600; color: #444; font-size: 16px; }
+        
+        /* Radio Options (MCQ & Y/N/NG) */
+        .mcq-options, .tf-options { display: flex; flex-direction: column; gap: 10px; margin-top: 5px; }
+        .tf-options { flex-direction: row; gap: 20px; }
+        .option-label { cursor: pointer; display: flex; align-items: flex-start; gap: 10px; padding: 8px; border-radius: 4px; transition: background 0.2s; font-size: 15px; }
+        .option-label:hover { background-color: #f5f5f5; }
+        .option-label input { margin-top: 4px; cursor: pointer; }
+        
+        .option-label.correct { color: #155724; font-weight: bold; background-color: #d4edda; border: 1px solid #c3e6cb; }
+        .option-label.incorrect { color: #721c24; text-decoration: line-through; opacity: 0.7; }
+        .option-label.correct-answer-highlight { background-color: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; font-weight: bold; }
+
+        /* Matching Box */
+        .matching-box { background: #f9f9f9; border: 1px solid #ddd; padding: 15px; margin-bottom: 20px; border-radius: 4px; }
+        .matching-options-list { list-style: none; display: grid; grid-template-columns: 1fr; gap: 8px; }
+        .matching-option { padding: 4px 8px; background: #fff; border: 1px solid #eee; font-size: 14px; }
+
+        /* Text Inputs */
+        .answer-input { border: 1px solid #ccc; border-radius: 4px; padding: 6px 10px; font-size: 16px; width: 60px; text-align: center; text-transform: uppercase; font-weight: bold; transition: all 0.3s; }
+        .answer-input:focus { outline: none; border-color: #4a90e2; box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2); }
+        .answer-input.correct { border-color: #28a745; background-color: #e9f7ef; color: #155724; }
+        .answer-input.incorrect { border-color: #dc3545; background-color: #f8d7da; color: #721c24; }
+
+        /* Explanation Button */
+        .explanation-btn { font-size: 12px; background-color: #6c757d; color: white; padding: 3px 8px; border-radius: 12px; cursor: pointer; margin-left: 10px; display: none; vertical-align: middle; border: none; transition: background 0.2s; }
+        .explanation-btn:hover { background-color: #5a6268; }
+        .show-explanation .explanation-btn { display: inline-block; }
+
+        /* Correct Answer Display */
+        .correct-answer-display { color: #155724; font-weight: bold; margin-left: 10px; font-size: 15px; background: #d4edda; padding: 2px 8px; border-radius: 4px; border: 1px solid #c3e6cb; }
+
+        /* Footer Nav */
+        .nav-row { position: fixed; bottom: 0; left: 0; right: 0; background: #ffffff; padding: 0; display: flex; align-items: center; height: 70px; z-index: 100; box-shadow: 0 -4px 15px rgba(0,0,0,0.05); border-top: 1px solid #eee; }
+        .footer__questionWrapper { display: flex; align-items: center; padding: 0 20px; overflow-x: auto; flex: 1; }
+        .footer__subquestionWrapper { display: flex; gap: 8px; padding-bottom: 5px; } /* Add padding for scrollbar */
+        .subQuestion { width: 40px; height: 40px; border: 1px solid #dfe1e5; background: white; color: #5f6368; font-size: 14px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: all 0.2s; flex-shrink: 0; }
+        .subQuestion:hover { background-color: #f8f9fa; border-color: #dadce0; }
+        .subQuestion.active { background-color: #e8f0fe; color: #1a73e8; border-color: #1a73e8; font-weight: bold; }
+        .subQuestion.correct { background-color: #28a745; color: white; border-color: #28a745; }
+        .subQuestion.incorrect { background-color: #dc3545; color: white; border-color: #dc3545; }
+        .subQuestion.answered { background-color: #5f6368; color: white; border-color: #5f6368; }
+        
+        .footer__deliverButton { margin-right: 30px; background-color: #1a73e8; color: #fff; border: none; padding: 12px 24px; border-radius: 4px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+        .footer__deliverButton:hover { background-color: #1557b0; }
+        .footer__deliverButton:disabled { background-color: #ccc; cursor: not-allowed; }
+
+        /* Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 2000; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(2px); }
+        .modal-content { background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 700px; position: relative; max-height: 85vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .modal-close-btn { position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 28px; cursor: pointer; color: #aaa; transition: color 0.2s; }
+        .modal-close-btn:hover { color: #555; }
+        .results-summary { font-size: 24px; font-weight: bold; margin-bottom: 25px; border-bottom: 2px solid #f0f0f0; padding-bottom: 15px; color: #202124; text-align: center; }
+        .result-row { display: flex; justify-content: space-between; padding: 12px 15px; border-bottom: 1px solid #f0f0f0; cursor: pointer; text-align: left; transition: background 0.1s; border-radius: 4px; }
+        .result-row:hover { background-color: #f8f9fa; }
+        .hidden { display: none !important; }
+
+        /* Explanation Content */
+        .explanation-content { text-align: left; line-height: 1.7; font-size: 16px; color: #202124; }
+        .explanation-title { font-weight: bold; font-size: 18px; margin-bottom: 15px; color: #1a73e8; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .keyword-highlight { font-weight: bold; color: #d93025; background-color: #fce8e6; padding: 2px 4px; border-radius: 2px; }
+        
+        /* Highlighting Context Menu */
+        .highlight { background-color: #fffac1; }
+        .context-menu { position: absolute; background: white; border: 1px solid #ccc; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; display: none; min-width: 140px; overflow: hidden; }
+        .context-menu-item { padding: 10px 16px; cursor: pointer; font-size: 14px; color: #333; transition: background 0.1s; }
+        .context-menu-item:hover { background-color: #f1f3f4; }
+        .context-menu-item:not(:last-child) { border-bottom: 1px solid #f0f0f0; }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .panels-container { flex-direction: column; overflow-y: auto; }
+            .resizer { display: none; }
+            .passage-panel { max-height: 40vh; padding: 20px; border-bottom: 5px solid #eee; }
+            .questions-panel { padding: 20px; }
+            .footer__deliverButton { padding: 10px 16px; font-size: 14px; margin-right: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="timer-container">
+            <span class="timer-display">40:00</span>
+            <div class="timer-controls">
+                <button id="timer-toggle-btn" title="Pause/Resume Timer">||</button>
+                <button id="timer-reset-btn" title="Reset Timer">↺</button>
+            </div>
+        </div>
+        <div style="font-weight: bold; color: #1a73e8; font-size: 20px;">Đình Phước Edu</div>
+    </div>
+
+    <div class="main-container">
+        <div class="passage-header-container">
+            <p><strong>Practice test: The Pompidou Centre</strong></p>
+            <p>Read the text and answer questions 1-14.</p>
+        </div>
+        
+        <div class="panels-container">
+            <div class="passage-panel" id="passage-panel">
+                <div class="reading-passage">
+                    <h4 class="text-center">The Pompidou Centre</h4>
+                    
+                    <p>More than three decades after it was built, the Pompidou Centre in Paris has survived its moment at the edge of architectural fashion and proved itself to be one of the most remarkable buildings of the 20th century.</p>
+
+                    <p>It was the most outstanding building constructed in Paris for two generations. It looked like an explosion of brightly coloured service pipes in the calm of the city centre. However, when in 1977 the architects Richard Rogers and Renzo Piano stood among a large crowd of 5,000 at the opening of the Centre Culturel d'Art Georges Pompidou (known as the Pompidou), no one was really aware of the significance of this unusual building.</p>
+
+                    <p>Rogers was only 38 when he and Piano won the competition to design a new cultural centre for Paris in the old market site. Young, unknown architects, they had been chosen from a field of nearly 700 to design one of the most prestigious buildings of its day. After six difficult years, with 25,000 drawings, seven lawsuits, battles over budgets, and a desperate last-minute scramble to finish the building, it had finally been done.</p>
+
+                    <p>Yet the opening was a downbeat moment. The Pompidou Centre had been rubbished by the critics while it was being built, there was no more work in prospect for the architects, and their partnership had effectively broken down. But this was just a passing crisis. The Centre, which combined the national museum of modern art, exhibition space, a public library and a centre for modern music, proved an enormous success. It attracted six million visitors in its first year, and with its success, the critics swiftly changed their tune.</p>
+
+                    <p>The architects had been driven by the desire for ultimate flexibility, for a building that would not limit the movement of its users. All the different parts were approached through the same enormous entrance hall and served by the same escalator, which was free to anyone to ride, whether they wanted to visit an exhibition or just admire the view. With all the services at one end of the building, escalators and lifts at the other, and the floors hung on giant steel beams providing uninterrupted space the size of two football pitches, their dream had become a reality.</p>
+
+                    <p>The image of the Pompidou pervaded popular culture in the 1970s, making appearances everywhere - on record-album covers and a table lamp, and even acting as the set for a James Bond film. This did much to overcome the secretive nature of the architectural culture of its time, as it enabled wider audience to appreciate the style and content of the building and so moved away from the strictly professional view.</p>
+
+                    <p>The following year, Rogers was commissioned to design a new headquarters for Lloyd's Bank in London and went on to create one of Britain's most dynamic architectural practices. Piano is now among the world's most respected architects. But what of their shared creation?</p>
+
+                    <p>It was certainly like no previous museum, with its plans for a flexible interior that not only had movable walls but floors that could also be adjusted up or down. This second feature did not in the end survive when the competition drawings were turned into a real building. In other ways, however, the finished building demonstrated a remarkable degree of refinement - of craftsmanship even - in the way the original diagram was transformed into a superbly detailed structure. It was this quality which, according to some critics, suggested that the Pompidou should be seen as closer to the 19th-century engineering tradition than the space age.</p>
+
+                    <p>Nevertheless, as a model for urban planning, it has proved immensely influential. The Guggenheim in Bilbao and the many other major landmark projects that were built in the belief that innovatively designed cultural buildings can bring about urban renewal are all following the lead of the Pompidou Centre.</p>
+
+                    <p>Other buildings may now challenge it for the title of Europe's most outlandish work of architecture. However, more than a quarter of a century later, this construction - it is hard to call it a building when there is no façade, just a lattice of steel beams and pipes and a long external escalator snaking up the outside - still seems extreme.</p>
+
+                    <p>Today, the Pompidou Centre itself still looks much as it did when it opened. The shock value of its colour-coded plumbing and its structure has not faded with the years. But while traditionalists regarded it as an ugly attack on Paris when it was built, they now see it for what it is - an enormous achievement, technically and conceptually.</p>
+                </div>
+            </div>
+            
+            <div class="resizer" id="resizer"></div>
+            
+            <div class="questions-panel" id="questions-panel">
+                <!-- Group 1: Multiple Choice -->
+                <div id="questions-group-1" class="question-set">
+                    <div class="question-prompt">
+                        <p><strong>Questions 1-4</strong></p>
+                        <p>Choose the correct letter, <strong>A, B, C or D</strong>.</p>
+                    </div>
+
+                    <div class="question-item" id="q1-container">
+                        <div class="question-text"><strong>1.</strong> What does the writer say in the first paragraph about the opening of the Pompidou Centre? <span class="explanation-btn" onclick="showExplanation(1)">ℹ️ Xem giải thích</span></div>
+                        <div class="mcq-options">
+                            <label class="option-label"><input type="radio" name="q1" value="A"> <span>A. The elderly did not like it.</span></label>
+                            <label class="option-label"><input type="radio" name="q1" value="B"> <span>B. The architects were not present.</span></label>
+                            <label class="option-label"><input type="radio" name="q1" value="C"> <span>C. The atmosphere was very noisy.</span></label>
+                            <label class="option-label"><input type="radio" name="q1" value="D"> <span>D. The people did not realise its importance.</span></label>
+                        </div>
+                    </div>
+
+                    <div class="question-item" id="q2-container">
+                        <div class="question-text"><strong>2.</strong> What does the writer say in the second paragraph about the construction of the Pompidou? <span class="explanation-btn" onclick="showExplanation(2)">ℹ️ Xem giải thích</span></div>
+                        <div class="mcq-options">
+                            <label class="option-label"><input type="radio" name="q2" value="A"> <span>A. There was a hurry to complete it.</span></label>
+                            <label class="option-label"><input type="radio" name="q2" value="B"> <span>B. It cost less than expected.</span></label>
+                            <label class="option-label"><input type="radio" name="q2" value="C"> <span>C. Other experts helped draw the plans.</span></label>
+                            <label class="option-label"><input type="radio" name="q2" value="D"> <span>D. The market location was criticised.</span></label>
+                        </div>
+                    </div>
+
+                    <div class="question-item" id="q3-container">
+                        <div class="question-text"><strong>3.</strong> What is the writer’s main purpose in the third paragraph? <span class="explanation-btn" onclick="showExplanation(3)">ℹ️ Xem giải thích</span></div>
+                        <div class="mcq-options">
+                            <label class="option-label"><input type="radio" name="q3" value="A"> <span>A. to explain the multi-functional role of the centre</span></label>
+                            <label class="option-label"><input type="radio" name="q3" value="B"> <span>B. to praise the architects for their design ideas</span></label>
+                            <label class="option-label"><input type="radio" name="q3" value="C"> <span>C. to say why some people’s opinions quickly altered</span></label>
+                            <label class="option-label"><input type="radio" name="q3" value="D"> <span>D. to show how the media benefited from its success</span></label>
+                        </div>
+                    </div>
+
+                    <div class="question-item" id="q4-container">
+                        <div class="question-text"><strong>4.</strong> What was the architects’ ‘dream’, referred to in the fourth paragraph? <span class="explanation-btn" onclick="showExplanation(4)">ℹ️ Xem giải thích</span></div>
+                        <div class="mcq-options">
+                            <label class="option-label"><input type="radio" name="q4" value="A"> <span>A. to become famous</span></label>
+                            <label class="option-label"><input type="radio" name="q4" value="B"> <span>B. to provide entertainment</span></label>
+                            <label class="option-label"><input type="radio" name="q4" value="C"> <span>C. to allow visitors to use it freely</span></label>
+                            <label class="option-label"><input type="radio" name="q4" value="D"> <span>D. to build the biggest museum in the world</span></label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Group 2: Matching -->
+                <div id="questions-group-2" class="question-set">
+                    <div class="question-prompt">
+                        <p><strong>Questions 5-8</strong></p>
+                        <p>Complete each sentence with the correct ending, <strong>A-F</strong>, below.</p>
+                        <p>Write the correct letter, <strong>A-F</strong>, in boxes 5-8 on your answer sheet.</p>
+                    </div>
+
+                    <div class="matching-box">
+                        <ul class="matching-options-list">
+                            <li class="matching-option"><strong>A</strong> reminded some people of past building styles.</li>
+                            <li class="matching-option"><strong>B</strong> were used to decorate everyday objects.</li>
+                            <li class="matching-option"><strong>C</strong> fitted in well with the external surroundings.</li>
+                            <li class="matching-option"><strong>D</strong> were situated on one side of the building.</li>
+                            <li class="matching-option"><strong>E</strong> showed people which area to visit.</li>
+                            <li class="matching-option"><strong>F</strong> were changed during the construction process.</li>
+                        </ul>
+                    </div>
+
+                    <div class="question-item">
+                        <div class="question-text"><strong>5.</strong> The escalators and lifts inside the Pompidou <input type="text" class="answer-input" id="q5" maxlength="1" autocomplete="off"> <span class="explanation-btn" onclick="showExplanation(5)">ℹ️</span></div>
+                    </div>
+                    
+                    <div class="question-item">
+                        <div class="question-text"><strong>6.</strong> In the 1970s, pictures of the Pompidou <input type="text" class="answer-input" id="q6" maxlength="1" autocomplete="off"> <span class="explanation-btn" onclick="showExplanation(6)">ℹ️</span></div>
+                    </div>
+
+                    <div class="question-item">
+                        <div class="question-text"><strong>7.</strong> The original plans for the floors of the Pompidou <input type="text" class="answer-input" id="q7" maxlength="1" autocomplete="off"> <span class="explanation-btn" onclick="showExplanation(7)">ℹ️</span></div>
+                    </div>
+
+                    <div class="question-item">
+                        <div class="question-text"><strong>8.</strong> The detailed structure of the finished building <input type="text" class="answer-input" id="q8" maxlength="1" autocomplete="off"> <span class="explanation-btn" onclick="showExplanation(8)">ℹ️</span></div>
+                    </div>
+                </div>
+
+                <!-- Group 3: YES/NO/NOT GIVEN -->
+                <div id="questions-group-3" class="question-set">
+                    <div class="question-prompt">
+                        <p><strong>Questions 9-14</strong></p>
+                        <p>Do the following statements agree with the views of the writer in the reading passage? In boxes 9-14 on your answer sheet, write:</p>
+                        <p><strong>YES</strong> if the statement agrees with the views of the writer</p>
+                        <p><strong>NO</strong> if the statement contradicts the views of the writer</p>
+                        <p><strong>NOT GIVEN</strong> if it is impossible to say what the writer thinks about this</p>
+                    </div>
+
+                    <div class="question-item" id="q9-container">
+                        <div class="question-text"><strong>9.</strong> The Pompidou has influenced the way cities are designed. <span class="explanation-btn" onclick="showExplanation(9)">ℹ️ Xem giải thích</span></div>
+                        <div class="tf-options">
+                            <label class="option-label"><input type="radio" name="q9" value="YES"> YES</label>
+                            <label class="option-label"><input type="radio" name="q9" value="NO"> NO</label>
+                            <label class="option-label"><input type="radio" name="q9" value="NOT GIVEN"> NOT GIVEN</label>
+                        </div>
+                    </div>
+
+                    <div class="question-item" id="q10-container">
+                        <div class="question-text"><strong>10.</strong> The Guggenheim has been more popular than the Pompidou. <span class="explanation-btn" onclick="showExplanation(10)">ℹ️ Xem giải thích</span></div>
+                        <div class="tf-options">
+                            <label class="option-label"><input type="radio" name="q10" value="YES"> YES</label>
+                            <label class="option-label"><input type="radio" name="q10" value="NO"> NO</label>
+                            <label class="option-label"><input type="radio" name="q10" value="NOT GIVEN"> NOT GIVEN</label>
+                        </div>
+                    </div>
+
+                    <div class="question-item" id="q11-container">
+                        <div class="question-text"><strong>11.</strong> The word building fits the Pompidou better than the word construction. <span class="explanation-btn" onclick="showExplanation(11)">ℹ️ Xem giải thích</span></div>
+                        <div class="tf-options">
+                            <label class="option-label"><input type="radio" name="q11" value="YES"> YES</label>
+                            <label class="option-label"><input type="radio" name="q11" value="NO"> NO</label>
+                            <label class="option-label"><input type="radio" name="q11" value="NOT GIVEN"> NOT GIVEN</label>
+                        </div>
+                    </div>
+
+                    <div class="question-item" id="q12-container">
+                        <div class="question-text"><strong>12.</strong> The Pompidou’s appearance has changed considerably since it opened. <span class="explanation-btn" onclick="showExplanation(12)">ℹ️ Xem giải thích</span></div>
+                        <div class="tf-options">
+                            <label class="option-label"><input type="radio" name="q12" value="YES"> YES</label>
+                            <label class="option-label"><input type="radio" name="q12" value="NO"> NO</label>
+                            <label class="option-label"><input type="radio" name="q12" value="NOT GIVEN"> NOT GIVEN</label>
+                        </div>
+                    </div>
+
+                    <div class="question-item" id="q13-container">
+                        <div class="question-text"><strong>13.</strong> Nowadays, the design of the Pompidou fails to shock people. <span class="explanation-btn" onclick="showExplanation(13)">ℹ️ Xem giải thích</span></div>
+                        <div class="tf-options">
+                            <label class="option-label"><input type="radio" name="q13" value="YES"> YES</label>
+                            <label class="option-label"><input type="radio" name="q13" value="NO"> NO</label>
+                            <label class="option-label"><input type="radio" name="q13" value="NOT GIVEN"> NOT GIVEN</label>
+                        </div>
+                    </div>
+
+                    <div class="question-item" id="q14-container">
+                        <div class="question-text"><strong>14.</strong> The traditionalist view of the Pompidou has changed over the years. <span class="explanation-btn" onclick="showExplanation(14)">ℹ️ Xem giải thích</span></div>
+                        <div class="tf-options">
+                            <label class="option-label"><input type="radio" name="q14" value="YES"> YES</label>
+                            <label class="option-label"><input type="radio" name="q14" value="NO"> NO</label>
+                            <label class="option-label"><input type="radio" name="q14" value="NOT GIVEN"> NOT GIVEN</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="nav-row" aria-label="Questions">
+        <div class="footer__questionWrapper">
+            <div class="footer__subquestionWrapper">
+                <button class="subQuestion" onclick="goToQuestion(1)">1</button>
+                <button class="subQuestion" onclick="goToQuestion(2)">2</button>
+                <button class="subQuestion" onclick="goToQuestion(3)">3</button>
+                <button class="subQuestion" onclick="goToQuestion(4)">4</button>
+                <button class="subQuestion" onclick="goToQuestion(5)">5</button>
+                <button class="subQuestion" onclick="goToQuestion(6)">6</button>
+                <button class="subQuestion" onclick="goToQuestion(7)">7</button>
+                <button class="subQuestion" onclick="goToQuestion(8)">8</button>
+                <button class="subQuestion" onclick="goToQuestion(9)">9</button>
+                <button class="subQuestion" onclick="goToQuestion(10)">10</button>
+                <button class="subQuestion" onclick="goToQuestion(11)">11</button>
+                <button class="subQuestion" onclick="goToQuestion(12)">12</button>
+                <button class="subQuestion" onclick="goToQuestion(13)">13</button>
+                <button class="subQuestion" onclick="goToQuestion(14)">14</button>
+            </div>
+        </div>
+        <button id="deliver-button" class="footer__deliverButton">Check Answers</button>
+    </nav>
+
+    <!-- Context Menu -->
+    <div id="contextMenu" class="context-menu">
+        <div id="menu-highlight" class="context-menu-item" onclick="highlightText()">Highlight</div>
+        <div id="menu-clear" class="context-menu-item" onclick="clearHighlight()">Clear</div>
+    </div>
+
+    <!-- Results Modal -->
+    <div id="results-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeResultsModal()">&times;</button>
+            <h2>Results</h2>
+            <div class="results-summary">Score: <span id="results-score"></span> / 14</div>
+            <p style="margin-bottom: 20px; color: #666; font-size: 14px;">Click on any row below to see the detailed explanation.</p>
+            <div id="results-details"></div>
+        </div>
+    </div>
+
+    <!-- Explanation Modal -->
+    <div id="explanation-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeExplanationModal()">&times;</button>
+            <div id="explanation-content" class="explanation-content"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DATA ---
+            const correctAnswers = {
+                '1': 'D',
+                '2': 'A',
+                '3': 'C',
+                '4': 'C',
+                '5': 'D',
+                '6': 'B',
+                '7': 'F',
+                '8': 'A',
+                '9': 'YES',
+                '10': 'NOT GIVEN',
+                '11': 'NO',
+                '12': 'NO',
+                '13': 'NO',
+                '14': 'YES'
+            };
+
+            const explanations = {
+                '1': `
+                    <div class="explanation-title">Q1: What does the writer say in the first paragraph about the opening...?</div>
+                    <p><strong>Answer: D (The people did not realise its importance)</strong></p>
+                    <p><strong>Explanation:</strong> In paragraph 1, the text says: "no one was really aware of the <span class="keyword-highlight">significance</span> of this unusual building." Significance is a synonym for importance.</p>
+                `,
+                '2': `
+                    <div class="explanation-title">Q2: What does the writer say in the second paragraph about the construction...?</div>
+                    <p><strong>Answer: A (There was a hurry to complete it)</strong></p>
+                    <p><strong>Explanation:</strong> Paragraph 2 mentions a "desperate <span class="keyword-highlight">last-minute scramble</span> to finish the building". This indicates a hurry.</p>
+                `,
+                '3': `
+                    <div class="explanation-title">Q3: What is the writer’s main purpose in the third paragraph?</div>
+                    <p><strong>Answer: C (to say why some people’s opinions quickly altered)</strong></p>
+                    <p><strong>Explanation:</strong> The paragraph starts by saying the opening was "downbeat" and "rubbished by critics", but ends by saying it "proved an enormous success" and critics "swiftly <span class="keyword-highlight">changed their tune</span>". The purpose is to describe this shift.</p>
+                `,
+                '4': `
+                    <div class="explanation-title">Q4: What was the architects’ ‘dream’, referred to in the fourth paragraph?</div>
+                    <p><strong>Answer: C (to allow visitors to use it freely)</strong></p>
+                    <p><strong>Explanation:</strong> Paragraph 4 mentions the "desire for <span class="keyword-highlight">ultimate flexibility</span>" and that it was "free to anyone to ride...". The focus is on the freedom of movement for users.</p>
+                `,
+                '5': `
+                    <div class="explanation-title">Q5: The escalators and lifts inside the Pompidou...</div>
+                    <p><strong>Answer: D (were situated on one side of the building)</strong></p>
+                    <p><strong>Explanation:</strong> Paragraph 4: "With all the services at one end of the building, escalators and lifts at the <span class="keyword-highlight">other</span>..."</p>
+                `,
+                '6': `
+                    <div class="explanation-title">Q6: In the 1970s, pictures of the Pompidou...</div>
+                    <p><strong>Answer: B (were used to decorate everyday objects)</strong></p>
+                    <p><strong>Explanation:</strong> Paragraph 5 states the image made appearances everywhere, including "on record-album covers and a <span class="keyword-highlight">table lamp</span>".</p>
+                `,
+                '7': `
+                    <div class="explanation-title">Q7: The original plans for the floors of the Pompidou...</div>
+                    <p><strong>Answer: F (were changed during the construction process)</strong></p>
+                    <p><strong>Explanation:</strong> Paragraph 7 mentions plans for floors that could be adjusted up or down, but "This second feature did not in the end <span class="keyword-highlight">survive</span> when the competition drawings were turned into a real building."</p>
+                `,
+                '8': `
+                    <div class="explanation-title">Q8: The detailed structure of the finished building...</div>
+                    <p><strong>Answer: A (reminded some people of past building styles)</strong></p>
+                    <p><strong>Explanation:</strong> Paragraph 7 says the refinement suggested the Pompidou should be seen "as closer to the <span class="keyword-highlight">19th-century engineering tradition</span>".</p>
+                `,
+                '9': `
+                    <div class="explanation-title">Q9: The Pompidou has influenced the way cities are designed.</div>
+                    <p><strong>Answer: YES</strong></p>
+                    <p><strong>Explanation:</strong> Paragraph 8 states: "...as a model for urban planning, it has proved <span class="keyword-highlight">immensely influential</span>."</p>
+                `,
+                '10': `
+                    <div class="explanation-title">Q10: The Guggenheim has been more popular than the Pompidou.</div>
+                    <p><strong>Answer: NOT GIVEN</strong></p>
+                    <p><strong>Explanation:</strong> Paragraph 8 mentions the Guggenheim followed the lead of the Pompidou, but does <span class="keyword-highlight">not compare</span> the popularity figures of the two.</p>
+                `,
+                '11': `
+                    <div class="explanation-title">Q11: The word building fits the Pompidou better than the word construction.</div>
+                    <p><strong>Answer: NO</strong></p>
+                    <p><strong>Explanation:</strong> Paragraph 9 says: "...it is <span class="keyword-highlight">hard to call it a building</span>... this construction... still seems extreme." The writer suggests 'construction' is more appropriate, not 'building'.</p>
+                `,
+                '12': `
+                    <div class="explanation-title">Q12: The Pompidou’s appearance has changed considerably since it opened.</div>
+                    <p><strong>Answer: NO</strong></p>
+                    <p><strong>Explanation:</strong> Paragraph 10 says: "Today, the Pompidou Centre itself still looks <span class="keyword-highlight">much as it did</span> when it opened."</p>
+                `,
+                '13': `
+                    <div class="explanation-title">Q13: Nowadays, the design of the Pompidou fails to shock people.</div>
+                    <p><strong>Answer: NO</strong></p>
+                    <p><strong>Explanation:</strong> Paragraph 10 states: "The <span class="keyword-highlight">shock value</span>... has <span class="keyword-highlight">not faded</span> with the years."</p>
+                `,
+                '14': `
+                    <div class="explanation-title">Q14: The traditionalist view of the Pompidou has changed over the years.</div>
+                    <p><strong>Answer: YES</strong></p>
+                    <p><strong>Explanation:</strong> Paragraph 10: "But while traditionalists regarded it as an ugly attack... they <span class="keyword-highlight">now see it for what it is</span> - an enormous achievement..."</p>
+                `
+            };
+
+            const questionIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
+            let timeInSeconds = 2400; // 40 minutes
+            let timerInterval;
+            let selectedRange = null;
+
+            // --- DOM ELEMENTS ---
+            const timerDisplay = document.querySelector('.timer-display');
+            const deliverButton = document.getElementById('deliver-button');
+            const resizer = document.getElementById('resizer');
+            const passagePanel = document.getElementById('passage-panel');
+            const contextMenu = document.getElementById('contextMenu');
+
+            // --- INITIALIZATION ---
+            function initialize() {
+                startTimer();
+                
+                deliverButton.addEventListener('click', checkAnswers);
+                document.body.addEventListener('change', updateIndicators);
+                document.body.addEventListener('input', updateIndicators);
+                
+                // Security
+                document.addEventListener("keydown", function (e) {
+                    if (
+                        e.key === "F12" ||
+                        (e.ctrlKey && e.shiftKey && e.key === "I") ||
+                        (e.ctrlKey && e.shiftKey && e.key === "J") ||
+                        (e.ctrlKey && e.shiftKey && e.key === "C") ||
+                        (e.ctrlKey && e.key === "u") ||
+                        (e.ctrlKey && e.key === "p") ||
+                        (e.ctrlKey && e.key === "s")
+                    ) {
+                        e.preventDefault();
+                        return false;
+                    }
+                });
+
+                // Resizer
+                resizer.addEventListener('mousedown', initResize, false);
+                
+                // Context Menu
+                initializeContextMenu();
+                
+                // Timer controls
+                document.getElementById('timer-toggle-btn').addEventListener('click', toggleTimer);
+                document.getElementById('timer-reset-btn').addEventListener('click', resetTimer);
+            }
+
+            let isTimerRunning = true;
+
+            function toggleTimer() {
+                if (isTimerRunning) {
+                    clearInterval(timerInterval);
+                    isTimerRunning = false;
+                } else {
+                    startTimer();
+                    isTimerRunning = true;
+                }
+            }
+
+            function resetTimer() {
+                clearInterval(timerInterval);
+                timeInSeconds = 2400;
+                updateTimerDisplay();
+                startTimer();
+                isTimerRunning = true;
+            }
+
+            function updateTimerDisplay() {
+                const m = Math.floor(timeInSeconds / 60).toString().padStart(2,'0');
+                const s = (timeInSeconds % 60).toString().padStart(2,'0');
+                timerDisplay.textContent = `${m}:${s}`;
+            }
+
+            // --- CORE LOGIC ---
+            function checkAnswers() {
+                clearInterval(timerInterval);
+                isTimerRunning = false;
+                let score = 0;
+                const resultsContainer = document.getElementById('results-details');
+                resultsContainer.innerHTML = '';
+                
+                // Disable inputs
+                document.querySelectorAll('input').forEach(input => input.disabled = true);
+                deliverButton.disabled = true;
+                deliverButton.textContent = "Checked";
+                
+                // Show explanation buttons
+                document.querySelector('.questions-panel').classList.add('show-explanation');
+
+                questionIds.forEach(id => {
+                    let isCorrect = false;
+                    let userAnswer = '';
+                    let correctAnswerDisplay = '';
+                    const correctAnswer = correctAnswers[id];
+
+                    // Logic for Radio Buttons (MCQ & Y/N/NG)
+                    // Q1-4 are MCQ, Q9-14 are Y/N/NG
+                    if ((id >= 1 && id <= 4) || id >= 9) {
+                        const selectedOption = document.querySelector(`input[name="q${id}"]:checked`);
+                        userAnswer = selectedOption ? selectedOption.value : 'Not Answered';
+                        isCorrect = userAnswer === correctAnswer;
+                        correctAnswerDisplay = correctAnswer;
+
+                        // UI Updates
+                        const container = document.getElementById(`q${id}-container`);
+                        if (selectedOption) {
+                            const label = selectedOption.parentElement;
+                            if (isCorrect) label.classList.add('correct');
+                            else label.classList.add('incorrect');
+                        }
+                        
+                        // Highlight correct answer if wrong
+                        if (!isCorrect) {
+                            const correctInput = document.querySelector(`input[name="q${id}"][value="${correctAnswer}"]`);
+                            if (correctInput) correctInput.parentElement.classList.add('correct-answer-highlight');
+                        }
+                    } 
+                    // Logic for Text Inputs (Matching Q5-8)
+                    else {
+                        const input = document.getElementById(`q${id}`);
+                        userAnswer = input.value.trim().toUpperCase();
+                        isCorrect = userAnswer === correctAnswer;
+                        correctAnswerDisplay = correctAnswer;
+
+                        // UI Updates
+                        if (isCorrect) input.classList.add('correct');
+                        else {
+                            input.classList.add('incorrect');
+                            // Show correct text next to input
+                            const span = document.createElement('span');
+                            span.className = 'correct-answer-display';
+                            span.textContent = `✓ ${correctAnswerDisplay}`;
+                            input.parentNode.insertBefore(span, input.nextSibling);
+                        }
+                    }
+
+                    if (isCorrect) {
+                        score++;
+                        const navBtn = document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`);
+                        if(navBtn) navBtn.classList.add('correct');
+                    } else {
+                        const navBtn = document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`);
+                        if(navBtn) navBtn.classList.add('incorrect');
+                    }
+
+                    // Add to Results Modal
+                    const row = document.createElement('div');
+                    row.className = 'result-row';
+                    row.innerHTML = `
+                        <span style="font-weight:bold;">Q${id}</span>
+                        <span>Your Answer: <span style="color:${isCorrect ? '#155724' : '#721c24'}">${userAnswer}</span></span>
+                        <span style="color:#155724; font-weight:bold;">Correct: ${correctAnswerDisplay}</span>
+                    `;
+                    row.onclick = () => showExplanation(id);
+                    resultsContainer.appendChild(row);
+                });
+
+                document.getElementById('results-score').textContent = score;
+                document.getElementById('results-modal').classList.remove('hidden');
+            }
+
+            function updateIndicators() {
+                let answered = 0;
+                questionIds.forEach(id => {
+                    let hasAnswer = false;
+                    // Radio buttons
+                    if ((id >= 1 && id <= 4) || id >= 9) {
+                        if (document.querySelector(`input[name="q${id}"]:checked`)) hasAnswer = true;
+                    } 
+                    // Text inputs
+                    else {
+                        if (document.getElementById(`q${id}`).value.trim() !== '') hasAnswer = true;
+                    }
+
+                    const btn = document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`);
+                    if (btn) {
+                        if (hasAnswer) {
+                            answered++;
+                            btn.classList.add('answered');
+                        } else {
+                            btn.classList.remove('answered');
+                        }
+                    }
+                });
+            }
+
+            window.goToQuestion = (id) => {
+                let el;
+                if((id >= 1 && id <= 4) || id >= 9) el = document.getElementById(`q${id}-container`);
+                else el = document.getElementById(`q${id}`).closest('.question-item');
+
+                if(el) {
+                    el.scrollIntoView({behavior: 'smooth', block: 'center'});
+                    
+                    // Update active nav
+                    document.querySelectorAll('.subQuestion').forEach(b => b.classList.remove('active'));
+                    const btn = document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`);
+                    if(btn) btn.classList.add('active');
+                }
+            };
+
+            window.closeResultsModal = () => document.getElementById('results-modal').classList.add('hidden');
+            
+            window.showExplanation = (id) => {
+                const content = explanations[id];
+                if(content) {
+                    document.getElementById('explanation-content').innerHTML = content;
+                    document.getElementById('explanation-modal').classList.remove('hidden');
+                }
+            };
+            
+            window.closeExplanationModal = () => document.getElementById('explanation-modal').classList.add('hidden');
+
+            // --- UTILS ---
+            function startTimer() {
+                clearInterval(timerInterval);
+                timerInterval = setInterval(() => {
+                    timeInSeconds--;
+                    updateTimerDisplay();
+                    if(timeInSeconds <= 0) {
+                        clearInterval(timerInterval);
+                        checkAnswers(); // Auto submit
+                    }
+                }, 1000);
+            }
+
+            function initResize(e) {
+                e.preventDefault();
+                const startX = e.clientX;
+                const startWidth = passagePanel.offsetWidth;
+                const doDrag = (e) => { passagePanel.style.flex = `0 0 ${startWidth + e.clientX - startX}px`; };
+                const stopDrag = () => {
+                    window.removeEventListener('mousemove', doDrag);
+                    window.removeEventListener('mouseup', stopDrag);
+                };
+                window.addEventListener('mousemove', doDrag);
+                window.addEventListener('mouseup', stopDrag);
+            }
+
+            function initializeContextMenu() {
+                document.addEventListener('selectionchange', () => {
+                    const sel = window.getSelection();
+                    if(sel.toString().length > 0) selectedRange = sel.getRangeAt(0);
+                });
+                document.addEventListener('contextmenu', (e) => {
+                    if(e.target.closest('.passage-panel')) {
+                        e.preventDefault();
+                        contextMenu.style.display = 'block';
+                        contextMenu.style.left = `${e.pageX}px`;
+                        contextMenu.style.top = `${e.pageY}px`;
+                    } else {
+                         contextMenu.style.display = 'none';
+                    }
+                });
+                document.addEventListener('click', (e) => {
+                    if(!contextMenu.contains(e.target)) contextMenu.style.display = 'none';
+                });
+            }
+
+            window.highlightText = () => {
+                if(selectedRange) {
+                    try {
+                        const span = document.createElement('span');
+                        span.className = 'highlight';
+                        span.appendChild(selectedRange.extractContents());
+                        selectedRange.insertNode(span);
+                    } catch(e) {
+                        console.log("Highlighting error (cross-node selections are complex):", e);
+                    }
+                }
+                contextMenu.style.display = 'none';
+            };
+
+            window.clearHighlight = () => {
+                // This is a simple clear for demonstration.
+                // In production, checking if the click is inside a highlight span is better.
+                const highlights = document.querySelectorAll('.highlight');
+                highlights.forEach(h => {
+                    const parent = h.parentNode;
+                    while(h.firstChild) parent.insertBefore(h.firstChild, h);
+                    parent.removeChild(h);
+                });
+                contextMenu.style.display = 'none';
+            };
+
+            initialize();
+        });
+    </script>
+</body>
+</html>

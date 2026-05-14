@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@600&display=swap" rel="stylesheet">
+    <title>Practice test: The man who tried to destroy Paris</title>
+    <style>
+        /* Base Styles */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background-color: #ffffff; line-height: 1.5; font-size: 16px; color: #333; }
+        
+        /* Header */
+        .header { background-color: #ffffff; padding: 12px 20px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 60px; }
+        .timer-container { display: flex; align-items: center; font-weight: 500; font-size: 18px; }
+        .timer-controls { display: flex; gap: 8px; margin-left: 15px; }
+        .timer-controls button { background: #f0f0f0; border: 1px solid #ccc; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+        .timer-controls button:hover { background: #e0e0e0; }
+        
+        /* Main Layout */
+        .main-container { margin-top: 60px; display: flex; flex-direction: column; background: #ffffff; height: calc(100vh - 60px); }
+        .passage-header-container { background-color: #f1f2ec; padding: 15px 20px; border-bottom: 1px solid #e0e0e0; font-size: 15px; }
+        .panels-container { display: flex; flex: 1; overflow: hidden; }
+        
+        /* Passage Panel */
+        .passage-panel { flex: 1; padding: 30px 40px 100px; overflow-y: auto; min-width: 300px; background-color: #fff; }
+        .reading-passage h4 { font-family: 'Merriweather', serif; font-size: 24px; font-weight: 600; color: #2c3e50; line-height: 1.4; margin-bottom: 25px; text-align: center; border-bottom: 3px solid #d9534f; padding-bottom: 10px; }
+        .reading-passage p { margin-bottom: 1.4em; text-align: justify; font-size: 17px; line-height: 1.6; }
+        .reading-passage strong { color: #2c3e50; }
+        
+        /* Resizer */
+        .resizer { width: 12px; cursor: col-resize; background-color: #f0f0f0; flex-shrink: 0; flex-grow: 0; border-left: 1px solid #ddd; border-right: 1px solid #ddd; background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="30" viewBox="0 0 10 30"><path d="M4 11h2v2H4zM4 15h2v2H4zM4 19h2v2H4z" fill="%23999"/></svg>'); background-repeat: no-repeat; background-position: center; transition: background-color 0.2s; }
+        .resizer:hover { background-color: #e0e0e0; }
+
+        /* Questions Panel */
+        .questions-panel { flex: 1; padding: 30px 40px 100px; overflow-y: auto; min-width: 300px; background-color: #fafafa; }
+        .question-set { margin-bottom: 40px; background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #eee; box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
+        .question-prompt { margin-bottom: 20px; background: #eaf4fc; padding: 15px; border-radius: 5px; border-left: 4px solid #4a90e2; color: #333; font-size: 15px; }
+        .question-prompt strong { color: #0056b3; }
+
+        /* Question Items */
+        .question-item { margin-bottom: 25px; border-bottom: 1px dashed #eee; padding-bottom: 20px; display: flex; flex-direction: column; gap: 12px; }
+        .question-item:last-child { border-bottom: none; }
+        .question-text { font-weight: 600; color: #444; font-size: 16px; }
+        
+        /* Radio Options (MCQ & Y/N/NG) */
+        .mcq-options, .tf-options { display: flex; flex-direction: column; gap: 10px; margin-top: 5px; }
+        .tf-options { flex-direction: row; gap: 20px; }
+        .option-label { cursor: pointer; display: flex; align-items: flex-start; gap: 10px; padding: 8px; border-radius: 4px; transition: background 0.2s; font-size: 15px; }
+        .option-label:hover { background-color: #f5f5f5; }
+        .option-label input { margin-top: 4px; cursor: pointer; }
+        
+        .option-label.correct { color: #155724; font-weight: bold; background-color: #d4edda; border: 1px solid #c3e6cb; }
+        .option-label.incorrect { color: #721c24; text-decoration: line-through; opacity: 0.7; }
+        .option-label.correct-answer-highlight { background-color: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; font-weight: bold; }
+
+        /* Matching Box */
+        .matching-box { background: #f9f9f9; border: 1px solid #ddd; padding: 15px; margin-bottom: 20px; border-radius: 4px; }
+        .matching-options-list { list-style: none; display: grid; grid-template-columns: 1fr; gap: 8px; }
+        .matching-option { padding: 4px 8px; background: #fff; border: 1px solid #eee; font-size: 14px; }
+
+        /* Text Inputs */
+        .answer-input { border: 1px solid #ccc; border-radius: 4px; padding: 6px 10px; font-size: 16px; width: 60px; text-align: center; text-transform: uppercase; font-weight: bold; transition: all 0.3s; }
+        .answer-input:focus { outline: none; border-color: #4a90e2; box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2); }
+        .answer-input.correct { border-color: #28a745; background-color: #e9f7ef; color: #155724; }
+        .answer-input.incorrect { border-color: #dc3545; background-color: #f8d7da; color: #721c24; }
+
+        /* Explanation Button */
+        .explanation-btn { font-size: 12px; background-color: #6c757d; color: white; padding: 3px 8px; border-radius: 12px; cursor: pointer; margin-left: 10px; display: none; vertical-align: middle; border: none; transition: background 0.2s; }
+        .explanation-btn:hover { background-color: #5a6268; }
+        .show-explanation .explanation-btn { display: inline-block; }
+
+        /* Correct Answer Display */
+        .correct-answer-display { color: #155724; font-weight: bold; margin-left: 10px; font-size: 15px; background: #d4edda; padding: 2px 8px; border-radius: 4px; border: 1px solid #c3e6cb; }
+
+        /* Footer Nav */
+        .nav-row { position: fixed; bottom: 0; left: 0; right: 0; background: #ffffff; padding: 0; display: flex; align-items: center; height: 70px; z-index: 100; box-shadow: 0 -4px 15px rgba(0,0,0,0.05); border-top: 1px solid #eee; }
+        .footer__questionWrapper { display: flex; align-items: center; padding: 0 20px; overflow-x: auto; flex: 1; }
+        .footer__subquestionWrapper { display: flex; gap: 8px; padding-bottom: 5px; } 
+        .subQuestion { width: 40px; height: 40px; border: 1px solid #dfe1e5; background: white; color: #5f6368; font-size: 14px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: all 0.2s; flex-shrink: 0; }
+        .subQuestion:hover { background-color: #f8f9fa; border-color: #dadce0; }
+        .subQuestion.active { background-color: #e8f0fe; color: #1a73e8; border-color: #1a73e8; font-weight: bold; }
+        .subQuestion.correct { background-color: #28a745; color: white; border-color: #28a745; }
+        .subQuestion.incorrect { background-color: #dc3545; color: white; border-color: #dc3545; }
+        .subQuestion.answered { background-color: #5f6368; color: white; border-color: #5f6368; }
+        
+        .footer__deliverButton { margin-right: 30px; background-color: #1a73e8; color: #fff; border: none; padding: 12px 24px; border-radius: 4px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+        .footer__deliverButton:hover { background-color: #1557b0; }
+        .footer__deliverButton:disabled { background-color: #ccc; cursor: not-allowed; }
+
+        /* Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 2000; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(2px); }
+        .modal-content { background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 700px; position: relative; max-height: 85vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .modal-close-btn { position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 28px; cursor: pointer; color: #aaa; transition: color 0.2s; }
+        .modal-close-btn:hover { color: #555; }
+        .results-summary { font-size: 24px; font-weight: bold; margin-bottom: 25px; border-bottom: 2px solid #f0f0f0; padding-bottom: 15px; color: #202124; text-align: center; }
+        .result-row { display: flex; justify-content: space-between; padding: 12px 15px; border-bottom: 1px solid #f0f0f0; cursor: pointer; text-align: left; transition: background 0.1s; border-radius: 4px; }
+        .result-row:hover { background-color: #f8f9fa; }
+        .hidden { display: none !important; }
+
+        /* Explanation Content */
+        .explanation-content { text-align: left; line-height: 1.7; font-size: 16px; color: #202124; }
+        .explanation-title { font-weight: bold; font-size: 18px; margin-bottom: 15px; color: #1a73e8; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .keyword-highlight { font-weight: bold; color: #d93025; background-color: #fce8e6; padding: 2px 4px; border-radius: 2px; }
+        
+        /* Highlighting Context Menu */
+        .highlight { background-color: #fffac1; }
+        .context-menu { position: absolute; background: white; border: 1px solid #ccc; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; display: none; min-width: 140px; overflow: hidden; }
+        .context-menu-item { padding: 10px 16px; cursor: pointer; font-size: 14px; color: #333; transition: background 0.1s; }
+        .context-menu-item:hover { background-color: #f1f3f4; }
+        .context-menu-item:not(:last-child) { border-bottom: 1px solid #f0f0f0; }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .panels-container { flex-direction: column; overflow-y: auto; }
+            .resizer { display: none; }
+            .passage-panel { max-height: 40vh; padding: 20px; border-bottom: 5px solid #eee; }
+            .questions-panel { padding: 20px; }
+            .footer__deliverButton { padding: 10px 16px; font-size: 14px; margin-right: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="timer-container">
+            <span class="timer-display">40:00</span>
+            <div class="timer-controls">
+                <button id="timer-toggle-btn" title="Pause/Resume Timer">||</button>
+                <button id="timer-reset-btn" title="Reset Timer">↺</button>
+            </div>
+        </div>
+        <div style="font-weight: bold; color: #1a73e8; font-size: 20px;">Đình Phước Edu</div>
+    </div>
+
+    <div class="main-container">
+        <div class="passage-header-container">
+            <p><strong>Practice test: The man who tried to destroy Paris</strong></p>
+            <p>Read the text and answer questions 1-14.</p>
+        </div>
+        
+        <div class="panels-container">
+            <div class="passage-panel" id="passage-panel">
+                <div class="reading-passage">
+                    <h4 class="text-center">The man who tried to destroy Paris</h4>
+                    <p>Le Corbusier was one of the most influential architects of the 20th century. But many may wish he had never built anything</p>
+
+                    <p>Born Charles-Edouard Jeanneret in Switzerland in 1887, the architect Le Corbusier used his grandfather's name when he went to Paris at the age of 29. As Jeanneret, he had been a fairly successful small-town architect; as Le Corbusier, he had bigger ideas. He disliked the architectural styles that were popular at the time, and considered them to be out of date in an industrial age. He believed that the 20th century deserved a brand-new style of architecture. "We must start again from zero," he said.</p>
+
+                    <p>The new style of architecture was called the International Style, and it attracted many followers in the architectural world. However, nobody was as enthusiastic about it as Le Corbusier at the beginning. He worked hard to promote his ideas at exhibitions, at talks, in books and in his own magazine. He loved machines, and believed that, like a machine, a building should have a function. He is famous for saying: "A house is a machine for living in."</p>
+
+                    <p>The machines he admired the most were ships, and his early buildings tried to capture the spirit of the sea with their white walls, exposed rooms, shining glass and flat roofs. He called this style of architecture 'purism'. The first building to embrace this style was the Villa Savoye in France. Le Corbusier believed that it was one of the best, most functional houses ever built. Unfortunately, this turned out to be an exaggeration. The flat roof was a particular problem, as water poured in every time it rained, and it needed constant repairs. Nevertheless, its design was revolutionary, and it should be considered a significant piece of early 20th-century architecture.</p>
+
+                    <p>In 1935, Le Corbusier visited New York City. He loved the city, and especially its tall buildings. He had only one reservation, which he explained to a journalist for the Herald Tribune newspaper. American skyscrapers were the biggest, tallest buildings in the world at that time, but Le Corbusier was a man who always thought big, and as far as he was concerned, they were "just too small". Le Corbusier had always admired tall buildings. Now, inspired by his visit, he abandoned purism. It is doubtful that he could have created anything as grand as the skyscrapers he had seen in the city, but from now on Le Corbusier started designing buildings that sent out a more powerful message.</p>
+
+                    <p>He first started using bright colours, and then experimented with concrete. Le Corbusier loved the look and flexibility of concrete, and found it hard to hide it behind brick or paint, preferring to leave it on full view. At a time when concrete was seen as modern and exciting, his designs made him world famous, and he was asked to design several important buildings around the world. Altogether, he designed about 60 major buildings worldwide, in a style that became known as 'modernism'.</p>
+
+                    <p>However, while many admired and copied his new style of architecture, many more hated it. They turned against him, and tried to block his plans. Buildings should inspire people and make them feel good, they said, and Le Corbusier's ugly, depressing buildings often had the opposite effect. In this respect, the people of Paris had a lucky escape. Early in his career, Le Corbusier had wanted to knock down the centre of Paris and replace the old buildings with huge towers. Fortunately, his plan was rejected. Justifiably, in view of his plans to transform one of the world's most beautiful cities into a hideous concrete jungle, Le Corbusier is still known as 'the man who tried to destroy Paris'.</p>
+
+                    <p>Despite the criticism, he had an enormous effect on the world of architecture, and attracted a large number of followers. As a result, many places were subjected to his style. In the Paris suburbs of Bobigny, for example, huge towers were built to house some of the city's poorer inhabitants. Other European cities such as London, Berlin and Dublin also felt his influence.</p>
+
+                    <p>Apart from the buildings that were directly influenced by Le Corbusier, something else happened that the architect never planned: there was a return to older styles of architecture. Today, many people live in modern houses that look like they are much older. This look may represent a return to traditional tastes and values. More likely, however, it represents a reaction against modernist architecture.</p>
+                </div>
+            </div>
+            
+            <div class="resizer" id="resizer"></div>
+            
+            <div class="questions-panel" id="questions-panel">
+                <!-- Group 1: Multiple Choice -->
+                <div id="questions-group-1" class="question-set">
+                    <div class="question-prompt">
+                        <p><strong>Questions 1-4</strong></p>
+                        <p>Choose the correct letter, <strong>A, B, C or D</strong>.</p>
+                    </div>
+
+                    <div class="question-item" id="q1-container">
+                        <div class="question-text"><strong>1.</strong> What does the writer say about Le Corbusier in the first paragraph? <span class="explanation-btn" onclick="showExplanation(1)">ℹ️ Xem giải thích</span></div>
+                        <div class="mcq-options">
+                            <label class="option-label"><input type="radio" name="q1" value="A"> <span>A. He had a relative who was also an architect.</span></label>
+                            <label class="option-label"><input type="radio" name="q1" value="B"> <span>B. He became successful when he went to Paris.</span></label>
+                            <label class="option-label"><input type="radio" name="q1" value="C"> <span>C. He thought that there were too many industrial buildings.</span></label>
+                            <label class="option-label"><input type="radio" name="q1" value="D"> <span>D. He wanted to do something different from everyone else.</span></label>
+                        </div>
+                    </div>
+
+                    <div class="question-item" id="q2-container">
+                        <div class="question-text"><strong>2.</strong> What does the writer say about the International Style in the second paragraph? <span class="explanation-btn" onclick="showExplanation(2)">ℹ️ Xem giải thích</span></div>
+                        <div class="mcq-options">
+                            <label class="option-label"><input type="radio" name="q2" value="A"> <span>A. A lot of other architects liked it.</span></label>
+                            <label class="option-label"><input type="radio" name="q2" value="B"> <span>B. At first, people did not like it very much.</span></label>
+                            <label class="option-label"><input type="radio" name="q2" value="C"> <span>C. It took a lot of hard work to get people to accept it.</span></label>
+                            <label class="option-label"><input type="radio" name="q2" value="D"> <span>D. The buildings looked like machines.</span></label>
+                        </div>
+                    </div>
+
+                    <div class="question-item" id="q3-container">
+                        <div class="question-text"><strong>3.</strong> Why does the writer describe the Villa Savoye as 'revolutionary' in the third paragraph? <span class="explanation-btn" onclick="showExplanation(3)">ℹ️ Xem giải thích</span></div>
+                        <div class="mcq-options">
+                            <label class="option-label"><input type="radio" name="q3" value="A"> <span>A. It looked more like a ship than a building.</span></label>
+                            <label class="option-label"><input type="radio" name="q3" value="B"> <span>B. Nobody had built anything like it before.</span></label>
+                            <label class="option-label"><input type="radio" name="q3" value="C"> <span>C. It looked nice, but had too many faults.</span></label>
+                            <label class="option-label"><input type="radio" name="q3" value="D"> <span>D. It was more functional than any other building of the time.</span></label>
+                        </div>
+                    </div>
+
+                    <div class="question-item" id="q4-container">
+                        <div class="question-text"><strong>4.</strong> What is the writer's main purpose in the fourth paragraph? <span class="explanation-btn" onclick="showExplanation(4)">ℹ️ Xem giải thích</span></div>
+                        <div class="mcq-options">
+                            <label class="option-label"><input type="radio" name="q4" value="A"> <span>A. to explain why Le Corbusier visited New York</span></label>
+                            <label class="option-label"><input type="radio" name="q4" value="B"> <span>B. to show that Le Corbusier was not impressed by New York's skyscrapers</span></label>
+                            <label class="option-label"><input type="radio" name="q4" value="C"> <span>C. to describe Le Corbusier's reaction to New York</span></label>
+                            <label class="option-label"><input type="radio" name="q4" value="D"> <span>D. to explain why Le Corbusier changed his style of architecture</span></label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Group 2: Matching -->
+                <div id="questions-group-2" class="question-set">
+                    <div class="question-prompt">
+                        <p><strong>Questions 5-8</strong></p>
+                        <p>Complete each sentence with the correct ending, <strong>A-F</strong>, below.</p>
+                        <p>Write the correct letter, <strong>A-F</strong>, in boxes 5-8 on your answer sheet.</p>
+                    </div>
+
+                    <div class="matching-box">
+                        <ul class="matching-options-list">
+                            <li class="matching-option"><strong>A</strong> copied the style that he had invented.</li>
+                            <li class="matching-option"><strong>B</strong> is a classic example of modernist architecture.</li>
+                            <li class="matching-option"><strong>C</strong> made him friends and enemies.</li>
+                            <li class="matching-option"><strong>D</strong> was not as good as he claimed.</li>
+                            <li class="matching-option"><strong>E</strong> was covered in bright colours.</li>
+                            <li class="matching-option"><strong>F</strong> was left exposed so that people could see it.</li>
+                        </ul>
+                    </div>
+
+                    <div class="question-item">
+                        <div class="question-text"><strong>5.</strong> Le Corbusier's Villa Savoye <input type="text" class="answer-input" id="q5" maxlength="1" autocomplete="off"> <span class="explanation-btn" onclick="showExplanation(5)">ℹ️</span></div>
+                    </div>
+                    
+                    <div class="question-item">
+                        <div class="question-text"><strong>6.</strong> The concrete in Le Corbusier's later buildings <input type="text" class="answer-input" id="q6" maxlength="1" autocomplete="off"> <span class="explanation-btn" onclick="showExplanation(6)">ℹ️</span></div>
+                    </div>
+
+                    <div class="question-item">
+                        <div class="question-text"><strong>7.</strong> Le Corbusier's style of architecture <input type="text" class="answer-input" id="q7" maxlength="1" autocomplete="off"> <span class="explanation-btn" onclick="showExplanation(7)">ℹ️</span></div>
+                    </div>
+
+                    <div class="question-item">
+                        <div class="question-text"><strong>8.</strong> Le Corbusier had a large following which <input type="text" class="answer-input" id="q8" maxlength="1" autocomplete="off"> <span class="explanation-btn" onclick="showExplanation(8)">ℹ️</span></div>
+                    </div>
+                </div>
+
+                <!-- Group 3: YES/NO/NOT GIVEN -->
+                <div id="questions-group-3" class="question-set">
+                    <div class="question-prompt">
+                        <p><strong>Questions 9-14</strong></p>
+                        <p>Do the following statements agree with the views of the writer in the reading passage? In boxes 9-14 on your answer sheet, write:</p>
+                        <p><strong>YES</strong> if the statement agrees with the views of the writer</p>
+                        <p><strong>NO</strong> if the statement contradicts the views of the writer</p>
+                        <p><strong>NOT GIVEN</strong> if it is impossible to say what the writer thinks about this</p>
+                    </div>
+
+                    <div class="question-item" id="q9-container">
+                        <div class="question-text"><strong>9.</strong> At first, people were not as enthusiastic about the International Style as Le Corbusier was. <span class="explanation-btn" onclick="showExplanation(9)">ℹ️ Xem giải thích</span></div>
+                        <div class="tf-options">
+                            <label class="option-label"><input type="radio" name="q9" value="YES"> YES</label>
+                            <label class="option-label"><input type="radio" name="q9" value="NO"> NO</label>
+                            <label class="option-label"><input type="radio" name="q9" value="NOT GIVEN"> NOT GIVEN</label>
+                        </div>
+                    </div>
+
+                    <div class="question-item" id="q10-container">
+                        <div class="question-text"><strong>10.</strong> The Villa Savoye is an important building. <span class="explanation-btn" onclick="showExplanation(10)">ℹ️ Xem giải thích</span></div>
+                        <div class="tf-options">
+                            <label class="option-label"><input type="radio" name="q10" value="YES"> YES</label>
+                            <label class="option-label"><input type="radio" name="q10" value="NO"> NO</label>
+                            <label class="option-label"><input type="radio" name="q10" value="NOT GIVEN"> NOT GIVEN</label>
+                        </div>
+                    </div>
+
+                    <div class="question-item" id="q11-container">
+                        <div class="question-text"><strong>11.</strong> Le Corbusier could have designed buildings that were as big and as impressive as those in New York. <span class="explanation-btn" onclick="showExplanation(11)">ℹ️ Xem giải thích</span></div>
+                        <div class="tf-options">
+                            <label class="option-label"><input type="radio" name="q11" value="YES"> YES</label>
+                            <label class="option-label"><input type="radio" name="q11" value="NO"> NO</label>
+                            <label class="option-label"><input type="radio" name="q11" value="NOT GIVEN"> NOT GIVEN</label>
+                        </div>
+                    </div>
+
+                    <div class="question-item" id="q12-container">
+                        <div class="question-text"><strong>12.</strong> Le Corbusier found concrete a difficult material to work with. <span class="explanation-btn" onclick="showExplanation(12)">ℹ️ Xem giải thích</span></div>
+                        <div class="tf-options">
+                            <label class="option-label"><input type="radio" name="q12" value="YES"> YES</label>
+                            <label class="option-label"><input type="radio" name="q12" value="NO"> NO</label>
+                            <label class="option-label"><input type="radio" name="q12" value="NOT GIVEN"> NOT GIVEN</label>
+                        </div>
+                    </div>
+
+                    <div class="question-item" id="q13-container">
+                        <div class="question-text"><strong>13.</strong> Le Corbusier's plans for Paris would have ruined the city. <span class="explanation-btn" onclick="showExplanation(13)">ℹ️ Xem giải thích</span></div>
+                        <div class="tf-options">
+                            <label class="option-label"><input type="radio" name="q13" value="YES"> YES</label>
+                            <label class="option-label"><input type="radio" name="q13" value="NO"> NO</label>
+                            <label class="option-label"><input type="radio" name="q13" value="NOT GIVEN"> NOT GIVEN</label>
+                        </div>
+                    </div>
+
+                    <div class="question-item" id="q14-container">
+                        <div class="question-text"><strong>14.</strong> Many people show they reject Le Corbusier's style of architecture by living in old houses. <span class="explanation-btn" onclick="showExplanation(14)">ℹ️ Xem giải thích</span></div>
+                        <div class="tf-options">
+                            <label class="option-label"><input type="radio" name="q14" value="YES"> YES</label>
+                            <label class="option-label"><input type="radio" name="q14" value="NO"> NO</label>
+                            <label class="option-label"><input type="radio" name="q14" value="NOT GIVEN"> NOT GIVEN</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="nav-row" aria-label="Questions">
+        <div class="footer__questionWrapper">
+            <div class="footer__subquestionWrapper">
+                <button class="subQuestion" onclick="goToQuestion(1)">1</button>
+                <button class="subQuestion" onclick="goToQuestion(2)">2</button>
+                <button class="subQuestion" onclick="goToQuestion(3)">3</button>
+                <button class="subQuestion" onclick="goToQuestion(4)">4</button>
+                <button class="subQuestion" onclick="goToQuestion(5)">5</button>
+                <button class="subQuestion" onclick="goToQuestion(6)">6</button>
+                <button class="subQuestion" onclick="goToQuestion(7)">7</button>
+                <button class="subQuestion" onclick="goToQuestion(8)">8</button>
+                <button class="subQuestion" onclick="goToQuestion(9)">9</button>
+                <button class="subQuestion" onclick="goToQuestion(10)">10</button>
+                <button class="subQuestion" onclick="goToQuestion(11)">11</button>
+                <button class="subQuestion" onclick="goToQuestion(12)">12</button>
+                <button class="subQuestion" onclick="goToQuestion(13)">13</button>
+                <button class="subQuestion" onclick="goToQuestion(14)">14</button>
+            </div>
+        </div>
+        <button id="deliver-button" class="footer__deliverButton">Check Answers</button>
+    </nav>
+
+    <!-- Context Menu -->
+    <div id="contextMenu" class="context-menu">
+        <div id="menu-highlight" class="context-menu-item" onclick="highlightText()">Highlight</div>
+        <div id="menu-clear" class="context-menu-item" onclick="clearHighlight()">Clear</div>
+    </div>
+
+    <!-- Results Modal -->
+    <div id="results-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeResultsModal()">&times;</button>
+            <h2>Results</h2>
+            <div class="results-summary">Score: <span id="results-score"></span> / 14</div>
+            <p style="margin-bottom: 20px; color: #666; font-size: 14px;">Click on any row below to see the detailed explanation.</p>
+            <div id="results-details"></div>
+        </div>
+    </div>
+
+    <!-- Explanation Modal -->
+    <div id="explanation-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeExplanationModal()">&times;</button>
+            <div id="explanation-content" class="explanation-content"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DATA ---
+            const correctAnswers = {
+                '1': 'D',
+                '2': 'B',
+                '3': 'B',
+                '4': 'D',
+                '5': 'D',
+                '6': 'F',
+                '7': 'C',
+                '8': 'A',
+                '9': 'YES',
+                '10': 'YES',
+                '11': 'NO',
+                '12': 'NO',
+                '13': 'YES',
+                '14': 'NO'
+            };
+
+            const explanations = {
+                '1': `
+                    <div class="explanation-title">Q1: What does the writer say about Le Corbusier in the first paragraph?</div>
+                    <p><strong>Answer: D (He wanted to do something different from everyone else)</strong></p>
+                    <p><strong>Explanation:</strong> In paragraph 1, the text says: "He disliked the architectural styles that were popular at the time... He believed that the 20th century deserved a <span class="keyword-highlight">brand-new style</span> of architecture. 'We must start again from zero,' he said."</p>
+                `,
+                '2': `
+                    <div class="explanation-title">Q2: What does the writer say about the International Style in the second paragraph?</div>
+                    <p><strong>Answer: B (At first, people did not like it very much)</strong></p>
+                    <p><strong>Explanation:</strong> Paragraph 2 states: "However, <span class="keyword-highlight">nobody was as enthusiastic about it as Le Corbusier at the beginning</span>." This implies that others were not very enthusiastic initially, requiring him to "work hard to promote his ideas".</p>
+                `,
+                '3': `
+                    <div class="explanation-title">Q3: Why does the writer describe the Villa Savoye as 'revolutionary' in the third paragraph?</div>
+                    <p><strong>Answer: B (Nobody had built anything like it before)</strong></p>
+                    <p><strong>Explanation:</strong> The text mentions it was "The <span class="keyword-highlight">first building to embrace this style</span>". Being the first of a new style makes it revolutionary/innovative.</p>
+                `,
+                '4': `
+                    <div class="explanation-title">Q4: What is the writer's main purpose in the fourth paragraph?</div>
+                    <p><strong>Answer: D (to explain why Le Corbusier changed his style of architecture)</strong></p>
+                    <p><strong>Explanation:</strong> The paragraph explains that "inspired by his visit [to New York], he <span class="keyword-highlight">abandoned purism</span>" and "started designing buildings that sent out a more powerful message."</p>
+                `,
+                '5': `
+                    <div class="explanation-title">Q5: Le Corbusier's Villa Savoye...</div>
+                    <p><strong>Answer: D (was not as good as he claimed)</strong></p>
+                    <p><strong>Explanation:</strong> Paragraph 3 says Le Corbusier believed it was the best, most functional house, but: "Unfortunately, this turned out to be an <span class="keyword-highlight">exaggeration</span>. The flat roof was a particular problem..."</p>
+                `,
+                '6': `
+                    <div class="explanation-title">Q6: The concrete in Le Corbusier's later buildings...</div>
+                    <p><strong>Answer: F (was left exposed so that people could see it)</strong></p>
+                    <p><strong>Explanation:</strong> Paragraph 5: "found it hard to hide it behind brick or paint, <span class="keyword-highlight">preferring to leave it on full view</span>."</p>
+                `,
+                '7': `
+                    <div class="explanation-title">Q7: Le Corbusier's style of architecture...</div>
+                    <p><strong>Answer: C (made him friends and enemies)</strong></p>
+                    <p><strong>Explanation:</strong> Paragraph 6: "while many <span class="keyword-highlight">admired</span> and copied his new style... many more <span class="keyword-highlight">hated</span> it."</p>
+                `,
+                '8': `
+                    <div class="explanation-title">Q8: Le Corbusier had a large following which...</div>
+                    <p><strong>Answer: A (copied the style that he had invented)</strong></p>
+                    <p><strong>Explanation:</strong> Paragraph 7: "attracted a large number of followers. As a result, many places were <span class="keyword-highlight">subjected to his style</span>." and earlier "many admired and copied his new style".</p>
+                `,
+                '9': `
+                    <div class="explanation-title">Q9: At first, people were not as enthusiastic about the International Style as Le Corbusier was.</div>
+                    <p><strong>Answer: YES</strong></p>
+                    <p><strong>Explanation:</strong> Paragraph 2: "However, <span class="keyword-highlight">nobody was as enthusiastic about it as Le Corbusier at the beginning</span>."</p>
+                `,
+                '10': `
+                    <div class="explanation-title">Q10: The Villa Savoye is an important building.</div>
+                    <p><strong>Answer: YES</strong></p>
+                    <p><strong>Explanation:</strong> Paragraph 3 concludes: "...it should be considered a <span class="keyword-highlight">significant</span> piece of early 20th-century architecture."</p>
+                `,
+                '11': `
+                    <div class="explanation-title">Q11: Le Corbusier could have designed buildings that were as big and as impressive as those in New York.</div>
+                    <p><strong>Answer: NO</strong></p>
+                    <p><strong>Explanation:</strong> Paragraph 4: "It is <span class="keyword-highlight">doubtful</span> that he could have created anything as grand as the skyscrapers he had seen in the city..."</p>
+                `,
+                '12': `
+                    <div class="explanation-title">Q12: Le Corbusier found concrete a difficult material to work with.</div>
+                    <p><strong>Answer: NO</strong></p>
+                    <p><strong>Explanation:</strong> Paragraph 5: "Le Corbusier <span class="keyword-highlight">loved</span> the look and flexibility of concrete..."</p>
+                `,
+                '13': `
+                    <div class="explanation-title">Q13: Le Corbusier's plans for Paris would have ruined the city.</div>
+                    <p><strong>Answer: YES</strong></p>
+                    <p><strong>Explanation:</strong> Paragraph 6 mentions his plan to replace old buildings with huge towers and says: "Justifiably, in view of his plans to transform one of the world's most beautiful cities into a <span class="keyword-highlight">hideous concrete jungle</span>... people of Paris had a lucky escape."</p>
+                `,
+                '14': `
+                    <div class="explanation-title">Q14: Many people show they reject Le Corbusier's style of architecture by living in old houses.</div>
+                    <p><strong>Answer: NO</strong></p>
+                    <p><strong>Explanation:</strong> Paragraph 8 says: "Today, many people live in <span class="keyword-highlight">modern houses that look like they are much older</span>." They are not living in old houses, but in modern ones that imitate old styles to reject modernism.</p>
+                `
+            };
+
+            const questionIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
+            let timeInSeconds = 2400; // 40 minutes
+            let timerInterval;
+            let selectedRange = null;
+
+            // --- DOM ELEMENTS ---
+            const timerDisplay = document.querySelector('.timer-display');
+            const deliverButton = document.getElementById('deliver-button');
+            const resizer = document.getElementById('resizer');
+            const passagePanel = document.getElementById('passage-panel');
+            const contextMenu = document.getElementById('contextMenu');
+
+            // --- INITIALIZATION ---
+            function initialize() {
+                startTimer();
+                
+                deliverButton.addEventListener('click', checkAnswers);
+                document.body.addEventListener('change', updateIndicators);
+                document.body.addEventListener('input', updateIndicators);
+                
+                // Security
+                document.addEventListener("keydown", function (e) {
+                    if (
+                        e.key === "F12" ||
+                        (e.ctrlKey && e.shiftKey && e.key === "I") ||
+                        (e.ctrlKey && e.shiftKey && e.key === "J") ||
+                        (e.ctrlKey && e.shiftKey && e.key === "C") ||
+                        (e.ctrlKey && e.key === "u") ||
+                        (e.ctrlKey && e.key === "p") ||
+                        (e.ctrlKey && e.key === "s")
+                    ) {
+                        e.preventDefault();
+                        return false;
+                    }
+                });
+
+                // Resizer
+                resizer.addEventListener('mousedown', initResize, false);
+                
+                // Context Menu
+                initializeContextMenu();
+                
+                // Timer controls
+                document.getElementById('timer-toggle-btn').addEventListener('click', toggleTimer);
+                document.getElementById('timer-reset-btn').addEventListener('click', resetTimer);
+            }
+
+            let isTimerRunning = true;
+
+            function toggleTimer() {
+                if (isTimerRunning) {
+                    clearInterval(timerInterval);
+                    isTimerRunning = false;
+                } else {
+                    startTimer();
+                    isTimerRunning = true;
+                }
+            }
+
+            function resetTimer() {
+                clearInterval(timerInterval);
+                timeInSeconds = 2400;
+                updateTimerDisplay();
+                startTimer();
+                isTimerRunning = true;
+            }
+
+            function updateTimerDisplay() {
+                const m = Math.floor(timeInSeconds / 60).toString().padStart(2,'0');
+                const s = (timeInSeconds % 60).toString().padStart(2,'0');
+                timerDisplay.textContent = `${m}:${s}`;
+            }
+
+            // --- CORE LOGIC ---
+            function checkAnswers() {
+                clearInterval(timerInterval);
+                isTimerRunning = false;
+                let score = 0;
+                const resultsContainer = document.getElementById('results-details');
+                resultsContainer.innerHTML = '';
+                
+                // Disable inputs
+                document.querySelectorAll('input').forEach(input => input.disabled = true);
+                deliverButton.disabled = true;
+                deliverButton.textContent = "Checked";
+                
+                // Show explanation buttons
+                document.querySelector('.questions-panel').classList.add('show-explanation');
+
+                questionIds.forEach(id => {
+                    let isCorrect = false;
+                    let userAnswer = '';
+                    let correctAnswerDisplay = '';
+                    const correctAnswer = correctAnswers[id];
+
+                    // Logic for Radio Buttons (MCQ & Y/N/NG)
+                    // Q1-4 are MCQ, Q9-14 are Y/N/NG
+                    if ((id >= 1 && id <= 4) || id >= 9) {
+                        const selectedOption = document.querySelector(`input[name="q${id}"]:checked`);
+                        userAnswer = selectedOption ? selectedOption.value : 'Not Answered';
+                        isCorrect = userAnswer === correctAnswer;
+                        correctAnswerDisplay = correctAnswer;
+
+                        // UI Updates
+                        const container = document.getElementById(`q${id}-container`);
+                        if (selectedOption) {
+                            const label = selectedOption.parentElement;
+                            if (isCorrect) label.classList.add('correct');
+                            else label.classList.add('incorrect');
+                        }
+                        
+                        // Highlight correct answer if wrong
+                        if (!isCorrect) {
+                            const correctInput = document.querySelector(`input[name="q${id}"][value="${correctAnswer}"]`);
+                            if (correctInput) correctInput.parentElement.classList.add('correct-answer-highlight');
+                        }
+                    } 
+                    // Logic for Text Inputs (Matching Q5-8)
+                    else {
+                        const input = document.getElementById(`q${id}`);
+                        userAnswer = input.value.trim().toUpperCase();
+                        isCorrect = userAnswer === correctAnswer;
+                        correctAnswerDisplay = correctAnswer;
+
+                        // UI Updates
+                        if (isCorrect) input.classList.add('correct');
+                        else {
+                            input.classList.add('incorrect');
+                            // Show correct text next to input
+                            const span = document.createElement('span');
+                            span.className = 'correct-answer-display';
+                            span.textContent = `✓ ${correctAnswerDisplay}`;
+                            input.parentNode.insertBefore(span, input.nextSibling);
+                        }
+                    }
+
+                    if (isCorrect) {
+                        score++;
+                        const navBtn = document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`);
+                        if(navBtn) navBtn.classList.add('correct');
+                    } else {
+                        const navBtn = document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`);
+                        if(navBtn) navBtn.classList.add('incorrect');
+                    }
+
+                    // Add to Results Modal
+                    const row = document.createElement('div');
+                    row.className = 'result-row';
+                    row.innerHTML = `
+                        <span style="font-weight:bold;">Q${id}</span>
+                        <span>Your Answer: <span style="color:${isCorrect ? '#155724' : '#721c24'}">${userAnswer}</span></span>
+                        <span style="color:#155724; font-weight:bold;">Correct: ${correctAnswerDisplay}</span>
+                    `;
+                    row.onclick = () => showExplanation(id);
+                    resultsContainer.appendChild(row);
+                });
+
+                document.getElementById('results-score').textContent = score;
+                document.getElementById('results-modal').classList.remove('hidden');
+            }
+
+            function updateIndicators() {
+                let answered = 0;
+                questionIds.forEach(id => {
+                    let hasAnswer = false;
+                    // Radio buttons
+                    if ((id >= 1 && id <= 4) || id >= 9) {
+                        if (document.querySelector(`input[name="q${id}"]:checked`)) hasAnswer = true;
+                    } 
+                    // Text inputs
+                    else {
+                        if (document.getElementById(`q${id}`).value.trim() !== '') hasAnswer = true;
+                    }
+
+                    const btn = document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`);
+                    if (btn) {
+                        if (hasAnswer) {
+                            answered++;
+                            btn.classList.add('answered');
+                        } else {
+                            btn.classList.remove('answered');
+                        }
+                    }
+                });
+            }
+
+            window.goToQuestion = (id) => {
+                let el;
+                if((id >= 1 && id <= 4) || id >= 9) el = document.getElementById(`q${id}-container`);
+                else el = document.getElementById(`q${id}`).closest('.question-item');
+
+                if(el) {
+                    el.scrollIntoView({behavior: 'smooth', block: 'center'});
+                    
+                    // Update active nav
+                    document.querySelectorAll('.subQuestion').forEach(b => b.classList.remove('active'));
+                    const btn = document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`);
+                    if(btn) btn.classList.add('active');
+                }
+            };
+
+            window.closeResultsModal = () => document.getElementById('results-modal').classList.add('hidden');
+            
+            window.showExplanation = (id) => {
+                const content = explanations[id];
+                if(content) {
+                    document.getElementById('explanation-content').innerHTML = content;
+                    document.getElementById('explanation-modal').classList.remove('hidden');
+                }
+            };
+            
+            window.closeExplanationModal = () => document.getElementById('explanation-modal').classList.add('hidden');
+
+            // --- UTILS ---
+            function startTimer() {
+                clearInterval(timerInterval);
+                timerInterval = setInterval(() => {
+                    timeInSeconds--;
+                    updateTimerDisplay();
+                    if(timeInSeconds <= 0) {
+                        clearInterval(timerInterval);
+                        checkAnswers(); // Auto submit
+                    }
+                }, 1000);
+            }
+
+            function initResize(e) {
+                e.preventDefault();
+                const startX = e.clientX;
+                const startWidth = passagePanel.offsetWidth;
+                const doDrag = (e) => { passagePanel.style.flex = `0 0 ${startWidth + e.clientX - startX}px`; };
+                const stopDrag = () => {
+                    window.removeEventListener('mousemove', doDrag);
+                    window.removeEventListener('mouseup', stopDrag);
+                };
+                window.addEventListener('mousemove', doDrag);
+                window.addEventListener('mouseup', stopDrag);
+            }
+
+            function initializeContextMenu() {
+                document.addEventListener('selectionchange', () => {
+                    const sel = window.getSelection();
+                    if(sel.toString().length > 0) selectedRange = sel.getRangeAt(0);
+                });
+                document.addEventListener('contextmenu', (e) => {
+                    if(e.target.closest('.passage-panel')) {
+                        e.preventDefault();
+                        contextMenu.style.display = 'block';
+                        contextMenu.style.left = `${e.pageX}px`;
+                        contextMenu.style.top = `${e.pageY}px`;
+                    } else {
+                         contextMenu.style.display = 'none';
+                    }
+                });
+                document.addEventListener('click', (e) => {
+                    if(!contextMenu.contains(e.target)) contextMenu.style.display = 'none';
+                });
+            }
+
+            window.highlightText = () => {
+                if(selectedRange) {
+                    try {
+                        const span = document.createElement('span');
+                        span.className = 'highlight';
+                        span.appendChild(selectedRange.extractContents());
+                        selectedRange.insertNode(span);
+                    } catch(e) {
+                        console.log("Highlighting error (cross-node selections are complex):", e);
+                    }
+                }
+                contextMenu.style.display = 'none';
+            };
+
+            window.clearHighlight = () => {
+                const highlights = document.querySelectorAll('.highlight');
+                highlights.forEach(h => {
+                    const parent = h.parentNode;
+                    while(h.firstChild) parent.insertBefore(h.firstChild, h);
+                    parent.removeChild(h);
+                });
+                contextMenu.style.display = 'none';
+            };
+
+            initialize();
+        });
+    </script>
+</body>
+</html>

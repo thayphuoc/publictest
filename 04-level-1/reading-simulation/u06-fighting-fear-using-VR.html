@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Practice test: Fighting fear using virtual reality</title>
+    <!-- [Include CSS Block Here - Identical to previous files] -->
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background-color: #ffffff; line-height: 1.5; font-size: 16px; color: #333; }
+        .header { background-color: #ffffff; padding: 12px 20px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 60px; }
+        .timer-container { display: flex; align-items: center; font-weight: 500; font-size: 18px; }
+        .timer-controls { display: flex; gap: 8px; margin-left: 15px; }
+        .timer-controls button { background: #f0f0f0; border: 1px solid #ccc; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .main-container { margin-top: 60px; display: flex; flex-direction: column; background: #ffffff; height: calc(100vh - 60px); }
+        .passage-header-container { background-color: #f1f2ec; padding: 15px 20px; border-bottom: 1px solid #e0e0e0; font-size: 15px; }
+        .panels-container { display: flex; flex: 1; overflow: hidden; }
+        .passage-panel { flex: 1; padding: 30px 40px 100px; overflow-y: auto; min-width: 300px; background-color: #fff; }
+        .questions-panel { flex: 1; padding: 30px 40px 100px; overflow-y: auto; min-width: 300px; background-color: #fafafa; }
+        .reading-passage h4 { font-family: 'Times New Roman', serif; font-size: 24px; font-weight: 600; text-align: center; color: #2c3e50; }
+        .reading-passage p { margin-bottom: 1.4em; text-align: justify; line-height: 1.6; }
+        .resizer { width: 12px; cursor: col-resize; background: #f0f0f0; border-left: 1px solid #ddd; border-right: 1px solid #ddd; }
+        .answer-input { border: 1px solid #ccc; border-radius: 4px; padding: 6px 10px; font-size: 16px; width: 60px; text-align: center; font-weight: bold; text-transform: uppercase; }
+        .answer-input.correct { border-color: #28a745; background-color: #e9f7ef; color: #155724; }
+        .answer-input.incorrect { border-color: #dc3545; background-color: #f8d7da; color: #721c24; }
+        .explanation-btn { font-size: 12px; background: #6c757d; color: white; padding: 2px 8px; border-radius: 10px; display: none; margin-left: 10px; cursor: pointer; }
+        .show-explanation .explanation-btn { display: inline-block; }
+        .nav-row { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 10px; border-top: 1px solid #eee; display: flex; justify-content: space-between; }
+        .footer__questionWrapper { display: flex; gap: 5px; overflow-x: auto; }
+        .subQuestion { width: 40px; height: 40px; border: 1px solid #ccc; background: white; cursor: pointer; border-radius: 4px; }
+        .subQuestion.active { background: #e8f0fe; border-color: #1a73e8; color: #1a73e8; font-weight: bold; }
+        .subQuestion.correct { background: #28a745; color: white; }
+        .subQuestion.incorrect { background: #dc3545; color: white; }
+        .footer__deliverButton { background: #1a73e8; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 2000; }
+        .modal-content { background: white; padding: 30px; border-radius: 8px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto; position: relative; }
+        .hidden { display: none !important; }
+        .keyword-highlight { font-weight: bold; color: #d93025; background-color: #fce8e6; }
+        .matching-box { background: #f9f9f9; border: 1px solid #ddd; padding: 15px; margin-bottom: 20px; border-radius: 4px; }
+        .matching-options-list { list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .matching-option { padding: 4px 8px; background: #fff; border: 1px solid #eee; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="timer-container">
+            <span class="timer-display">40:00</span>
+            <div class="timer-controls"><button id="timer-toggle-btn">||</button><button id="timer-reset-btn">↺</button></div>
+        </div>
+        <div style="font-weight: bold; color: #1a73e8;">Đình Phước Edu</div>
+    </div>
+
+    <div class="main-container">
+        <div class="passage-header-container">
+            <p><strong>Practice test: Fighting fear using virtual reality</strong></p>
+            <p>Read the text and answer questions 1-5.</p>
+        </div>
+        
+        <div class="panels-container">
+            <div class="passage-panel" id="passage-panel">
+                <div class="reading-passage">
+                    <h4 class="text-center">Fighting fear using virtual reality</h4>
+                    <p>Computers are not just for entertainment, shopping or research purposes - as one woman found out when she tried to cure her fears.</p>
+                    <p>Most people have at least one thing they are afraid of. A fear of things like snakes, spiders, dogs, heights or open spaces affects over 90% of the population. In extreme cases, a fear can develop into a phobia, where the fear of something is so powerful it can affect the way the sufferer lives their life. About 10% of people suffer from a phobia. Most sufferers never seek treatment, because the most common type of cure - 'exposure therapy' - involves them being exposed to the object of their fear, and this is the last thing many of them are prepared to do.</p>
+                    <p>There is now a new cure for phobias, using something called virtual reality exposure therapy (VRET). The concept is simple. The person with the phobia wears a virtual reality headset. A computer, controlled by a therapist, then simulates a variety of situations in which the sufferer is gradually exposed to the object of their fear, which they view on the headset's screen. At the same time, the therapist explains why they should not be afraid of it. The technique is surprisingly successful, as this case demonstrates.</p>
+                    <p>Sara Considine had a serious spider phobia, and had developed several spider-related behaviour patterns. Before going to bed, for example, she would check her room for spiders, then seal the windows with tape so none could get in. She had frightening dreams about spiders every night. Eventually, she decided to get treatment.</p>
+                    <p>During twelve one-hour virtual reality sessions over a three-month period, Ms Considine started very slowly. First, she stood a long way from the virtual spider and just looked at it. Slowly, she moved a little closer. The therapist controlling the computer programme then made the virtual spider move. After just two sessions, Ms Considine reported that although she still saw spiders in her dreams, they were no longer frightening, and she had even managed to have an amusing `conversation' with one of them. A few sessions later, the therapist encouraged her to hold the virtual spider in her virtual hand, and put it in places where the presence of a real spider would cause her fear. The next stage was to introduce touch. A large toy spider was placed next to her. Ms Considine then reached out to touch the virtual spider she could see on the screen, and at the same time her real hand touched the toy spider.</p>
+                    <p>After her sessions were over, Sara Considine was able to stop her spider-related behaviour. She even took up camping, something she would never have considered before therapy. More recently she has appeared on a television nature programme, where for the first time she was able to hold a real spider in her hands.</p>
+                </div>
+            </div>
+            
+            <div class="resizer" id="resizer"></div>
+            
+            <div class="questions-panel" id="questions-panel">
+                <div class="question-prompt">
+                    <p><strong>Questions 1-5</strong></p>
+                    <p>Complete the summary using the list of words and phrases, <strong>A-J</strong>, below.</p>
+                </div>
+
+                <div class="matching-box">
+                    <ul class="matching-options-list">
+                        <li class="matching-option"><strong>A</strong> afraid of</li>
+                        <li class="matching-option"><strong>B</strong> amused by</li>
+                        <li class="matching-option"><strong>C</strong> contact</li>
+                        <li class="matching-option"><strong>D</strong> held</li>
+                        <li class="matching-option"><strong>E</strong> observed</li>
+                        <li class="matching-option"><strong>F</strong> quickly</li>
+                        <li class="matching-option"><strong>G</strong> slowly</li>
+                        <li class="matching-option"><strong>H</strong> touch</li>
+                        <li class="matching-option"><strong>I</strong> three</li>
+                        <li class="matching-option"><strong>J</strong> twelve</li>
+                    </ul>
+                </div>
+
+                <div style="background:#f9f9f9; padding:20px; border-radius:5px; border:1px solid #ddd; line-height:2;">
+                    <h4 style="text-align:center; margin-bottom:15px;">Treating a phobia using VRET</h4>
+                    <p>
+                        Sara Considine's programme of treatments lasted for <strong>1</strong> <input type="text" class="answer-input" id="q1" maxlength="1" autocomplete="off"> <span class="explanation-btn" onclick="showExplanation(1)">ℹ️</span> months. 
+                        At first, the sessions did not move very <strong>2</strong> <input type="text" class="answer-input" id="q2" maxlength="1" autocomplete="off"> <span class="explanation-btn" onclick="showExplanation(2)">ℹ️</span>, as she just <strong>3</strong> <input type="text" class="answer-input" id="q3" maxlength="1" autocomplete="off"> <span class="explanation-btn" onclick="showExplanation(3)">ℹ️</span> the virtual spider through her headset. 
+                        It only took two sessions for her to stop being <strong>4</strong> <input type="text" class="answer-input" id="q4" maxlength="1" autocomplete="off"> <span class="explanation-btn" onclick="showExplanation(4)">ℹ️</span> the spiders in her dreams. 
+                        After a while, she could hold the virtual spider in her virtual hand, and the next stage involved making physical <strong>5</strong> <input type="text" class="answer-input" id="q5" maxlength="1" autocomplete="off"> <span class="explanation-btn" onclick="showExplanation(5)">ℹ️</span> with a toy spider.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="nav-row">
+        <div class="footer__questionWrapper">
+            <button class="subQuestion" onclick="goToQuestion(1)">1</button>
+            <button class="subQuestion" onclick="goToQuestion(2)">2</button>
+            <button class="subQuestion" onclick="goToQuestion(3)">3</button>
+            <button class="subQuestion" onclick="goToQuestion(4)">4</button>
+            <button class="subQuestion" onclick="goToQuestion(5)">5</button>
+        </div>
+        <button id="deliver-button" class="footer__deliverButton">Check Answers</button>
+    </nav>
+
+    <!-- Modals -->
+    <div id="results-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeResultsModal()">x</button>
+            <h2>Results</h2>
+            <div class="results-summary">Score: <span id="results-score"></span> / 5</div>
+            <div id="results-details"></div>
+        </div>
+    </div>
+    <div id="explanation-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeExplanationModal()">x</button>
+            <div id="explanation-content" class="explanation-content"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const correctAnswers = {
+                '1': 'I',
+                '2': 'F',
+                '3': 'E',
+                '4': 'A',
+                '5': 'C'
+            };
+
+            const explanations = {
+                '1': '<strong>Answer: I (three)</strong><br>Paragraph 5: "...twelve one-hour virtual reality sessions over a <span class="keyword-highlight">three-month</span> period..."',
+                '2': '<strong>Answer: F (quickly)</strong><br>Paragraph 5: "Ms Considine started very slowly." Not moving quickly = slowly.',
+                '3': '<strong>Answer: E (observed)</strong><br>Paragraph 5: "...stood a long way from the virtual spider and <span class="keyword-highlight">just looked at it</span>." (Looked at = observed)',
+                '4': '<strong>Answer: A (afraid of)</strong><br>Paragraph 5: "...they were <span class="keyword-highlight">no longer frightening</span>..." (Frightening = afraid of)',
+                '5': '<strong>Answer: C (contact)</strong><br>Paragraph 5: "The next stage was to introduce <span class="keyword-highlight">touch</span>... reached out to touch the virtual spider... and at the same time her real hand touched the toy spider." (Making physical contact = touch)'
+            };
+
+            const questionIds = [1, 2, 3, 4, 5];
+            let timeInSeconds = 2400; let timerInterval;
+            const timerDisplay = document.querySelector('.timer-display');
+            const deliverButton = document.getElementById('deliver-button');
+            const resizer = document.getElementById('resizer');
+            const passagePanel = document.getElementById('passage-panel');
+
+            function initialize() {
+                startTimer();
+                deliverButton.addEventListener('click', checkAnswers);
+                resizer.addEventListener('mousedown', initResize, false);
+                document.body.addEventListener('input', updateIndicators);
+                document.getElementById('timer-toggle-btn').addEventListener('click', toggleTimer);
+                document.getElementById('timer-reset-btn').addEventListener('click', resetTimer);
+            }
+
+            let isTimerRunning = true;
+            function toggleTimer() { if(isTimerRunning){ clearInterval(timerInterval); isTimerRunning=false;} else { startTimer(); isTimerRunning=true; }}
+            function resetTimer() { clearInterval(timerInterval); timeInSeconds = 2400; updateTimerDisplay(); startTimer(); isTimerRunning=true; }
+            function updateTimerDisplay() { const m = Math.floor(timeInSeconds / 60).toString().padStart(2,'0'); const s = (timeInSeconds % 60).toString().padStart(2,'0'); timerDisplay.textContent = `${m}:${s}`; }
+            function startTimer() { clearInterval(timerInterval); timerInterval = setInterval(() => { timeInSeconds--; updateTimerDisplay(); if(timeInSeconds <= 0) { clearInterval(timerInterval); checkAnswers(); } }, 1000); }
+
+            function checkAnswers() {
+                clearInterval(timerInterval); isTimerRunning=false;
+                let score = 0;
+                const resultsContainer = document.getElementById('results-details');
+                resultsContainer.innerHTML = '';
+                document.querySelectorAll('input').forEach(input => input.disabled = true);
+                deliverButton.disabled = true; deliverButton.textContent = "Checked";
+                document.querySelector('.questions-panel').classList.add('show-explanation');
+
+                questionIds.forEach(id => {
+                    const input = document.getElementById(`q${id}`);
+                    const val = input.value.trim().toUpperCase();
+                    const correct = correctAnswers[id];
+                    const isCorrect = val === correct;
+                    
+                    if(isCorrect) { score++; input.classList.add('correct'); document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`).classList.add('correct'); }
+                    else { 
+                        input.classList.add('incorrect'); 
+                        document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`).classList.add('incorrect');
+                        const span = document.createElement('span'); span.style.color = '#155724'; span.style.fontWeight='bold'; span.style.marginLeft='5px'; span.textContent = `✓ ${correct}`;
+                        input.parentNode.insertBefore(span, input.nextSibling);
+                    }
+
+                    const row = document.createElement('div'); row.className = 'result-row';
+                    row.innerHTML = `<span style="font-weight:bold;">Q${id}</span><span>Your: <span style="color:${isCorrect?'green':'red'}">${val}</span></span><span style="color:green">Correct: ${correct}</span>`;
+                    row.onclick = () => showExplanation(id); resultsContainer.appendChild(row);
+                });
+                document.getElementById('results-score').textContent = score;
+                document.getElementById('results-modal').classList.remove('hidden');
+            }
+
+            function updateIndicators() {
+                questionIds.forEach(id => {
+                    const input = document.getElementById(`q${id}`);
+                    const btn = document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`);
+                    if(input.value.trim() !== '') btn.classList.add('answered'); else btn.classList.remove('answered');
+                });
+            }
+
+            window.goToQuestion = (id) => { document.getElementById(`q${id}`).closest('div').scrollIntoView({behavior: 'smooth', block: 'center'}); };
+            window.closeResultsModal = () => document.getElementById('results-modal').classList.add('hidden');
+            window.showExplanation = (id) => { document.getElementById('explanation-content').innerHTML = explanations[id]; document.getElementById('explanation-modal').classList.remove('hidden'); };
+            window.closeExplanationModal = () => document.getElementById('explanation-modal').classList.add('hidden');
+
+            function initResize(e) { e.preventDefault(); const startX = e.clientX; const startWidth = passagePanel.offsetWidth; const doDrag = (e) => { passagePanel.style.flex = `0 0 ${startWidth + e.clientX - startX}px`; }; const stopDrag = () => { window.removeEventListener('mousemove', doDrag); window.removeEventListener('mouseup', stopDrag); }; window.addEventListener('mousemove', doDrag); window.addEventListener('mouseup', stopDrag); }
+
+            initialize();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Practice test: Graphic Novels</title>
+    <!-- [CSS Block same as above - omitted for brevity, assume included] -->
+    <style>
+        /* Include the same CSS as the first file */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background-color: #ffffff; line-height: 1.5; font-size: 16px; color: #333; }
+        .header { background-color: #ffffff; padding: 12px 20px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 60px; }
+        .timer-container { display: flex; align-items: center; font-weight: 500; font-size: 18px; }
+        .timer-controls { display: flex; gap: 8px; margin-left: 15px; }
+        .timer-controls button { background: #f0f0f0; border: 1px solid #ccc; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .main-container { margin-top: 60px; display: flex; flex-direction: column; background: #ffffff; height: calc(100vh - 60px); }
+        .passage-header-container { background-color: #f1f2ec; padding: 15px 20px; border-bottom: 1px solid #e0e0e0; font-size: 15px; }
+        .panels-container { display: flex; flex: 1; overflow: hidden; }
+        .passage-panel { flex: 1; padding: 30px 40px 100px; overflow-y: auto; min-width: 300px; background-color: #fff; }
+        .reading-passage h4 { font-family: 'Times New Roman', serif; font-size: 24px; font-weight: 600; text-align: center; color: #2c3e50; }
+        .reading-passage p { margin-bottom: 1.4em; text-align: justify; line-height: 1.6; }
+        .resizer { width: 12px; cursor: col-resize; background: #f0f0f0; border-left: 1px solid #ddd; border-right: 1px solid #ddd; }
+        .questions-panel { flex: 1; padding: 30px 40px 100px; overflow-y: auto; min-width: 300px; background-color: #fafafa; }
+        .question-set { margin-bottom: 40px; background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #eee; }
+        .question-prompt { margin-bottom: 20px; background: #eaf4fc; padding: 15px; border-radius: 5px; border-left: 4px solid #4a90e2; color: #333; }
+        .question-item { margin-bottom: 25px; border-bottom: 1px dashed #eee; padding-bottom: 20px; }
+        .answer-input { border: 1px solid #ccc; border-radius: 4px; padding: 6px 10px; font-size: 16px; width: 150px; text-align: center; font-weight: bold; }
+        .answer-input.correct { border-color: #28a745; background-color: #e9f7ef; color: #155724; }
+        .answer-input.incorrect { border-color: #dc3545; background-color: #f8d7da; color: #721c24; }
+        .explanation-btn { font-size: 12px; background: #6c757d; color: white; padding: 2px 8px; border-radius: 10px; display: none; margin-left: 10px; cursor: pointer; }
+        .show-explanation .explanation-btn { display: inline-block; }
+        .nav-row { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 10px; border-top: 1px solid #eee; display: flex; justify-content: space-between; }
+        .footer__questionWrapper { display: flex; gap: 5px; overflow-x: auto; }
+        .subQuestion { width: 40px; height: 40px; border: 1px solid #ccc; background: white; cursor: pointer; border-radius: 4px; }
+        .subQuestion.active { background: #e8f0fe; border-color: #1a73e8; color: #1a73e8; font-weight: bold; }
+        .subQuestion.correct { background: #28a745; color: white; }
+        .subQuestion.incorrect { background: #dc3545; color: white; }
+        .footer__deliverButton { background: #1a73e8; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 2000; }
+        .modal-content { background: white; padding: 30px; border-radius: 8px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto; position: relative; }
+        .hidden { display: none !important; }
+        .keyword-highlight { font-weight: bold; color: #d93025; background-color: #fce8e6; }
+        .question-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .question-table th, .question-table td { border: 1px solid #ddd; padding: 12px; text-align: left; vertical-align: top; }
+        .question-table th { background-color: #f2f2f2; font-weight: bold; }
+        .question-table input { width: 100%; min-width: 100px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="timer-container">
+            <span class="timer-display">40:00</span>
+            <div class="timer-controls"><button id="timer-toggle-btn">||</button><button id="timer-reset-btn">↺</button></div>
+        </div>
+        <div style="font-weight: bold; color: #1a73e8;">Đình Phước Edu</div>
+    </div>
+
+    <div class="main-container">
+        <div class="passage-header-container">
+            <p><strong>Practice test: Graphic Novels</strong></p>
+            <p>Read the text and answer questions 1-14.</p>
+        </div>
+        
+        <div class="panels-container">
+            <div class="passage-panel" id="passage-panel">
+                <div class="reading-passage">
+                    <h4 class="text-center">Graphic novels</h4>
+                    <p class="text-center">People who think graphic novels are just comics with a different name should think again</p>
+                    <p><strong>A</strong> Graphic novels, as the name suggests, are books written and illustrated in the style of a comic book. The term graphic novel was first used in 1978 by author and artist Will Eisner to distinguish a comic novel he had written and illustrated from newspaper comic strips. He described graphic novels as consisting of 'sequential art' — a series of illustrations which, when viewed in order, tell a story.</p>
+                    <p><strong>B</strong> Although today's graphic novels are a recent phenomenon, this basic way of telling stories has been used in various forms for centuries. Early cave drawings, hieroglyphics and medieval tapestries are examples of this. The term graphic novel is now generally used to describe any book in a comic format that resembles a novel in length and narrative development.</p>
+                    <p><strong>C</strong> Many adults feel that graphic novels are not the type of reading material that will help young people become good readers. They believe that graphic novels are somehow a bad influence that prevent 'real' reading. In other words, they think that they are not 'real' books.</p>
+                    <p><strong>D</strong> However, many quality graphic novels are now being seen as a method of storytelling on the same level as novels, films or audio books. From originally appealing to a small following of enthusiasts, they are now being accepted by librarians and teachers as proper literature for children and young adults. The main advantages are that they promote literacy, and attract and motivate young people to read.</p>
+                    <p><strong>E</strong> How do we know this? In the last few years, teachers and school libraries have reported outstanding success getting children to read with graphic novels. Many have mentioned the motivational factor of the graphic novel. This has been especially true with children who are usually reluctant to read, especially boys. The colourful pictures attract them, and then encourage them to find out what the story is about. Providing young people of all abilities with a wide range of reading materials, including graphic novels, can help them become lifelong readers.</p>
+                    <p><strong>F</strong> Furthermore, one of the main benefits of a graphic novel is that it can help students who are learning a foreign language, and who are having problems improving their reading skills. This is because the pictures provide clues to the meaning of the words. Language learners are therefore more motivated by graphic novels, and will acquire new vocabulary more quickly.</p>
+                    <p><strong>G</strong> Many teachers have reported great success when they have used graphic novels with their students, especially in the areas of English, social studies and art. They have discovered that, just like traditional forms of literature, they can be useful tools for helping students examine aspects of history, science, literature and art.</p>
+                    <p><strong>H</strong> The idea that graphic novels are too simple to be regarded as serious reading is no longer valid. The excellent graphic novels available today demand many of the same skills that are needed to understand traditional works of fiction. Often they actually contain more sophisticated vocabulary than traditional books. Reading them can help students develop the skills that are necessary to read more challenging works.</p>
+                </div>
+            </div>
+            <div class="resizer" id="resizer"></div>
+            <div class="questions-panel" id="questions-panel">
+                <div class="question-set">
+                    <p><strong>Questions 1-7</strong>: Which paragraph contains the following information? Write the correct letter, <strong>A-H</strong>.</p>
+                    <div class="question-item">1. people with negative attitudes towards graphic novels <input type="text" class="answer-input" id="q1" maxlength="1"> <span class="explanation-btn" onclick="showExplanation(1)">ℹ️</span></div>
+                    <div class="question-item">2. a variety of school subjects where graphic novels can play an important role <input type="text" class="answer-input" id="q2" maxlength="1"> <span class="explanation-btn" onclick="showExplanation(2)">ℹ️</span></div>
+                    <div class="question-item">3. why a graphic novel's visual element speeds up learning <input type="text" class="answer-input" id="q3" maxlength="1"> <span class="explanation-btn" onclick="showExplanation(3)">ℹ️</span></div>
+                    <div class="question-item">4. a modern definition of graphic novels <input type="text" class="answer-input" id="q4" maxlength="1"> <span class="explanation-btn" onclick="showExplanation(4)">ℹ️</span></div>
+                    <div class="question-item">5. graphic novels are as good as any other method of telling a story <input type="text" class="answer-input" id="q5" maxlength="1"> <span class="explanation-btn" onclick="showExplanation(5)">ℹ️</span></div>
+                    <div class="question-item">6. graphic novels sometimes use advanced words <input type="text" class="answer-input" id="q6" maxlength="1"> <span class="explanation-btn" onclick="showExplanation(6)">ℹ️</span></div>
+                    <div class="question-item">7. the historical use of pictures as a method of storytelling <input type="text" class="answer-input" id="q7" maxlength="1"> <span class="explanation-btn" onclick="showExplanation(7)">ℹ️</span></div>
+                </div>
+                <div class="question-set">
+                    <p><strong>Questions 8-14</strong>: Complete the table below (NO MORE THAN TWO WORDS).</p>
+                    <table class="question-table">
+                        <thead><tr><th>Advantages</th><th>Who benefits?</th><th>How it works</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td>They provide motivation to read</td>
+                                <td><strong>8</strong> <input type="text" class="answer-input" id="q8"> <span class="explanation-btn" onclick="showExplanation(8)">ℹ️</span> readers</td>
+                                <td>They are attracted by <strong>9</strong> <input type="text" class="answer-input" id="q9"> <span class="explanation-btn" onclick="showExplanation(9)">ℹ️</span>. This encourages them to find out what happens in the <strong>10</strong> <input type="text" class="answer-input" id="q10"> <span class="explanation-btn" onclick="showExplanation(10)">ℹ️</span></td>
+                            </tr>
+                            <tr>
+                                <td>They help improve a student's <strong>11</strong> <input type="text" class="answer-input" id="q11"> <span class="explanation-btn" onclick="showExplanation(11)">ℹ️</span></td>
+                                <td><strong>12</strong> <input type="text" class="answer-input" id="q12"> <span class="explanation-btn" onclick="showExplanation(12)">ℹ️</span> learners</td>
+                                <td>The pictures act as visual <strong>13</strong> <input type="text" class="answer-input" id="q13"> <span class="explanation-btn" onclick="showExplanation(13)">ℹ️</span>. The student develops a larger <strong>14</strong> <input type="text" class="answer-input" id="q14"> <span class="explanation-btn" onclick="showExplanation(14)">ℹ️</span>.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Navigation, Scripts etc. (standard boilerplate) -->
+    <nav class="nav-row"><div class="footer__questionWrapper"><button class="subQuestion" onclick="goToQuestion(1)">1</button><button class="subQuestion" onclick="goToQuestion(2)">2</button><button class="subQuestion" onclick="goToQuestion(3)">3</button><button class="subQuestion" onclick="goToQuestion(4)">4</button><button class="subQuestion" onclick="goToQuestion(5)">5</button><button class="subQuestion" onclick="goToQuestion(6)">6</button><button class="subQuestion" onclick="goToQuestion(7)">7</button><button class="subQuestion" onclick="goToQuestion(8)">8</button><button class="subQuestion" onclick="goToQuestion(9)">9</button><button class="subQuestion" onclick="goToQuestion(10)">10</button><button class="subQuestion" onclick="goToQuestion(11)">11</button><button class="subQuestion" onclick="goToQuestion(12)">12</button><button class="subQuestion" onclick="goToQuestion(13)">13</button><button class="subQuestion" onclick="goToQuestion(14)">14</button></div><button id="deliver-button" class="footer__deliverButton">Check Answers</button></nav>
+    <div id="results-modal" class="modal-overlay hidden"><div class="modal-content"><button class="modal-close-btn" onclick="closeResultsModal()">×</button><h2>Results</h2><div class="results-summary">Score: <span id="results-score"></span> / 14</div><div id="results-details"></div></div></div>
+    <div id="explanation-modal" class="modal-overlay hidden"><div class="modal-content"><button class="modal-close-btn" onclick="closeExplanationModal()">×</button><div id="explanation-content" class="explanation-content"></div></div></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const correctAnswers = {
+                '1': 'C', '2': 'G', '3': 'F', '4': 'B', '5': 'D', '6': 'H', '7': 'B',
+                '8': 'reluctant', '9': 'colourful pictures', '10': 'story', '11': 'reading skills', '12': 'language', '13': 'clues', '14': 'vocabulary'
+            };
+            const explanations = {
+                '1': '<strong>Answer: C</strong><br>Para C: "Many adults feel that graphic novels are... a bad influence... not \'real\' books."',
+                '2': '<strong>Answer: G</strong><br>Para G: "areas of English, social studies and art... history, science..."',
+                '3': '<strong>Answer: F</strong><br>Para F: "pictures provide clues... acquire new vocabulary more quickly."',
+                '4': '<strong>Answer: B</strong><br>Para B: "The term graphic novel is now generally used to describe..."',
+                '5': '<strong>Answer: D</strong><br>Para D: "...seen as a method of storytelling on the same level as novels, films..."',
+                '6': '<strong>Answer: H</strong><br>Para H: "contain more sophisticated vocabulary than traditional books."',
+                '7': '<strong>Answer: B</strong><br>Para B: "Early cave drawings, hieroglyphics and medieval tapestries..."',
+                '8': '<strong>Answer: reluctant</strong><br>Para E: "true with children who are usually <span class="keyword-highlight">reluctant</span> to read"',
+                '9': '<strong>Answer: colourful pictures</strong><br>Para E: "The <span class="keyword-highlight">colourful pictures</span> attract them..."',
+                '10': '<strong>Answer: story</strong><br>Para E: "find out what the <span class="keyword-highlight">story</span> is about."',
+                '11': '<strong>Answer: reading skills</strong><br>Para F: "problems improving their <span class="keyword-highlight">reading skills</span>"',
+                '12': '<strong>Answer: language</strong><br>Para F: "<span class="keyword-highlight">Language</span> learners are therefore more motivated..." (Note: foreign language also acceptable but limit is 2 words)',
+                '13': '<strong>Answer: clues</strong><br>Para F: "pictures provide <span class="keyword-highlight">clues</span>"',
+                '14': '<strong>Answer: vocabulary</strong><br>Para F: "acquire new <span class="keyword-highlight">vocabulary</span>"'
+            };
+            
+            // Standard logic (timer, check answers, etc) copied from previous file
+            let questionIds = Object.keys(correctAnswers); let timeInSeconds = 2400; let timerInterval;
+            function checkAnswers() {
+                clearInterval(timerInterval); let score = 0; document.getElementById('results-details').innerHTML = '';
+                document.querySelectorAll('input').forEach(input => input.disabled = true);
+                document.getElementById('deliver-button').disabled = true;
+                document.querySelector('.questions-panel').classList.add('show-explanation');
+                questionIds.forEach(id => {
+                    const input = document.getElementById('q'+id); const val = input.value.trim().toLowerCase();
+                    const correct = correctAnswers[id].toLowerCase();
+                    // Tolerant check for Q9, Q12
+                    let isCorrect = val === correct || (id==='9' && val==='pictures') || (id==='12' && val.includes('language'));
+                    if(isCorrect) { score++; input.classList.add('correct'); document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`).classList.add('correct'); }
+                    else { input.classList.add('incorrect'); document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`).classList.add('incorrect'); }
+                    const row = document.createElement('div'); row.className = 'result-row';
+                    row.innerHTML = `<span>Q${id}</span> <span>Your: ${input.value}</span> <span style="color:green">Correct: ${correctAnswers[id]}</span>`;
+                    row.onclick = () => showExplanation(id); document.getElementById('results-details').appendChild(row);
+                });
+                document.getElementById('results-score').textContent = score; document.getElementById('results-modal').classList.remove('hidden');
+            }
+            window.goToQuestion = (id) => document.getElementById('q'+id).scrollIntoView({behavior:'smooth',block:'center'});
+            window.showExplanation = (id) => { document.getElementById('explanation-content').innerHTML = explanations[id]; document.getElementById('explanation-modal').classList.remove('hidden'); };
+            window.closeResultsModal = () => document.getElementById('results-modal').classList.add('hidden');
+            window.closeExplanationModal = () => document.getElementById('explanation-modal').classList.add('hidden');
+            
+            function startTimer() { timerInterval = setInterval(() => { timeInSeconds--; const m = Math.floor(timeInSeconds/60).toString().padStart(2,'0'); const s = (timeInSeconds%60).toString().padStart(2,'0'); document.querySelector('.timer-display').textContent = `${m}:${s}`; if(timeInSeconds<=0) checkAnswers(); }, 1000); }
+            document.getElementById('timer-toggle-btn').onclick = () => { if(timerInterval) { clearInterval(timerInterval); timerInterval=null; } else startTimer(); };
+            document.getElementById('timer-reset-btn').onclick = () => { clearInterval(timerInterval); timeInSeconds=2400; startTimer(); };
+            document.getElementById('deliver-button').onclick = checkAnswers;
+            
+            const resizer = document.getElementById('resizer'); const panel = document.getElementById('passage-panel');
+            resizer.addEventListener('mousedown', (e) => { e.preventDefault(); window.addEventListener('mousemove', resize); window.addEventListener('mouseup', stopResize); });
+            function resize(e) { panel.style.flex = `0 0 ${e.clientX}px`; }
+            function stopResize() { window.removeEventListener('mousemove', resize); window.removeEventListener('mouseup', stopResize); }
+            startTimer();
+        });
+    </script>
+</body>
+</html>

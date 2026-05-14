@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@600&display=swap" rel="stylesheet">
+    <title>The Pompidou Centre</title>
+
+ 
+    <script>
+    (function(){var _d=atob("CihmdW5jdGlvbigpewogIGRvY3VtZW50LmFkZEV2ZW50TGlzdGVuZXIoJ2tleWRvd24nLGZ1bmN0aW9uKGUpewogICAgaWYoZS5rZXk9PT0nRjEyJ3x8KGUuY3RybEtleSYmZS5zaGlmdEtleSYmZS5rZXk9PT0nSScpfHwoZS5jdHJsS2V5JiZlLnNoaWZ0S2V5JiZlLmtleT09PSdKJyl8fChlLmN0cmxLZXkmJmUuc2hpZnRLZXkmJmUua2V5PT09J0MnKXx8KGUuY3RybEtleSYmZS5rZXk9PT0ndScpfHwoZS5jdHJsS2V5JiZlLmtleT09PSdwJyl8fChlLmN0cmxLZXkmJmUua2V5PT09J3MnKSl7ZS5wcmV2ZW50RGVmYXVsdCgpO3JldHVybiBmYWxzZTt9CiAgfSk7CiAgZG9jdW1lbnQuYWRkRXZlbnRMaXN0ZW5lcignY29udGV4dG1lbnUnLGZ1bmN0aW9uKGUpewogICAgdmFyIHQ9d2luZG93LmdldFNlbGVjdGlvbigpP3dpbmRvdy5nZXRTZWxlY3Rpb24oKS50b1N0cmluZygpOicnOwogICAgaWYodC50cmltKCkuc3BsaXQoL1xzKy8pLmxlbmd0aD42KXtlLnByZXZlbnREZWZhdWx0KCk7cmV0dXJuIGZhbHNlO30KICV9KTsKICBkb2N1bWVudC5hZGRFdmVudExpc3RlbmVyKCdjb3B5JyxmdW5jdGlvbihlKXsKICAgIHZhciB0PXdpbmRvdy5nZXRTZWxlY3Rpb24oKT93aW5kb3cuZ2V0U2VsZWN0aW9uKCkudG9TdHJpbmcoKTonJzsKICAgIGlmKHQudHJpbSgpLnNwbGl0KC9ccysvKS5sZW5ndGg+Nil7ZS5wcmV2ZW50RGVmYXVsdCgpO2lmKGUuY2xpcGJvYXJkRGF0YSllLmNsaXBib2FyZERhdGEuc2V0RGF0YSgndGV4dC9wbGFpbicsJycpO3JldHVybiBmYWxzZTt9CiAgfSk7CiAgZG9jdW1lbnQuYWRkRXZlbnRMaXN0ZW5lcignY3V0JyxmdW5jdGlvbihlKXsKICAgIHZhciB0PXdpbmRvdy5nZXRTZWxlY3Rpb24oKT93aW5kb3cuZ2V0U2VsZWN0aW9uKCkudG9TdHJpbmcoKTonJzsKICAgIGlmKHQudHJpbSgpLnNwbGl0KC9ccysvKS5sZW5ndGg+Nil7ZS5wcmV2ZW50RGVmYXVsdCgpO3JldHVybiBmYWxzZTt9CiAgfSk7Cn0pKCk7Cg==");var _f=new Function(_d);_f();})();
+    </script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background-color: #ffffff; line-height: 1.6; font-size: 16px; }
+        
+        /* ── Dark Mode ── */
+        body.dark-mode { background:#1a1a2e; color:#e0e0e0; }
+        body.dark-mode .header { background:#16213e; border-color:#0f3460; }
+        body.dark-mode .passage-panel, body.dark-mode .questions-panel, body.dark-mode .listening-panel { background:#1a1a2e; }
+        body.dark-mode .part-header { background:#16213e; border-color:#0f3460; color:#e0e0e0; }
+        body.dark-mode .nav-row { background:#16213e; box-shadow:0 -2px 10px rgba(0,0,0,0.4); }
+        body.dark-mode .subQuestion { background:#16213e; border-color:#0f3460; color:#e0e0e0; }
+        body.dark-mode .subQuestion:hover { background:#0f3460; }
+        body.dark-mode .subQuestion.answered { background:#2d4a6d; border-color:#4a90e2; }
+        body.dark-mode .answer-input { background:#16213e; color:#e0e0e0; border-color:#4a90e2; }
+        body.dark-mode .example-box { background:#16213e; border-color:#0f3460; color:#e0e0e0; }
+        body.dark-mode .ielts-table th { background:#16213e; }
+        body.dark-mode .ielts-table { background-color:#1a1a2e; }
+        body.dark-mode .ielts-table th, body.dark-mode .ielts-table td { border-color:#0f3460; }
+        body.dark-mode .modal-content { background:#16213e; color:#e0e0e0; }
+        body.dark-mode .result-row { border-color:#0f3460; }
+        body.dark-mode .result-row.incorrect { background:#3d1a1a; }
+        body.dark-mode .footer__deliverButton___3FM07 { background:#16213e; border-color:#0f3460; color:#e0e0e0; }
+        body.dark-mode .footer__questionNo___3WNct { color:#e0e0e0; }
+        body.dark-mode .resizer { background-color:#0f3460; }
+        body.dark-mode .audio-bar { background:#16213e; border-color:#0f3460; }
+        body.dark-mode .reading-passage h4 { color:#e0e0e0; text-shadow:none; }
+        body.dark-mode .question-number { background:#0f3460; color:#7cb8f7; border-color:#4a90e2; }
+        body.dark-mode .instruction { color:#b0b0b0; }
+        body.dark-mode .timer-container { color:#e0e0e0; }
+        body.dark-mode .timer-controls button { background:#0f3460; border-color:#4a90e2; color:#e0e0e0; }
+        body.dark-mode .timer-controls button svg path:not([fill="none"]) { fill:#e0e0e0; }
+        body.dark-mode .modal-content h2 { color:#e0e0e0; }
+        body.dark-mode .modal-close-btn { color:#aaa; }
+        body.dark-mode .result-row .user-ans { color:#b0b0b0; }
+        body.dark-mode .result-row .correct-ans { color:#6fd88c; }
+        body.dark-mode .context-menu { background:#16213e; border-color:#0f3460; }
+        body.dark-mode .context-menu-item { color:#e0e0e0; border-color:#0f3460; }
+        body.dark-mode .context-menu-item:hover { background:#0f3460; }
+        body.dark-mode .attemptedCount { color:#aaa; }
+        body.dark-mode .nav-arrow { background:#0f3460; }
+        body.dark-mode .nav-arrow:hover { background:#1a4a7a; }
+        body.dark-mode .main-container { background:#1a1a2e; }
+        body.dark-mode .questions-panel { border-color:#0f3460; }
+        body.dark-mode .matching-form-label { color:#e0e0e0; }
+        body.dark-mode .footer__questionNo___3WNct:hover { background-color:#0f3460; }
+        .header-title { color:#2c3e50; }
+        body.dark-mode .header-title { color:#e0e0e0; }
+        body.dark-mode .reset-btn { background:#16213e; color:#aaa; border-color:#0f3460; }
+
+        .header { background-color: #ffffff; padding: 12px 20px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 60px; }
+        
+        .part-header { background:#f1f2ec; padding:8px 20px; border-bottom:1px solid #e0e0e0; position:fixed; left:0; right:0; z-index:99; top: 60px; }
+        .part-header p { margin: 0; }
+        .part-header p:first-child { margin-bottom: 5px; font-size: 0.9375em; }
+
+        .main-container { margin-top: 130px; display: flex; flex-direction: column; height: calc(100vh - 130px); }
+        .panels-container { display: flex; flex: 1; overflow: hidden; }
+        .passage-panel { flex: 1; padding: 20px 20px 100px; overflow-y: auto; min-width: 200px; }
+        .questions-panel { flex: 1; padding: 20px 20px 100px; overflow-y: auto; min-width: 200px; border-left: 1px solid #e0e0e0; }
+        
+        .resizer { width: 10px; cursor: col-resize; background-color: #f0f0f0; background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="30" viewBox="0 0 10 30"><path d="M4 11h2v2H4zM4 15h2v2H4zM4 19h2v2H4z" fill="%23888"/></svg>'); background-repeat: no-repeat; background-position: center; flex-shrink: 0; flex-grow: 0; }
+        
+        .text-center { text-align: center; }
+        .reading-passage h4 { font-family: 'Merriweather', serif; font-size: 1.375em; font-weight: 600; line-height: 1.4; margin-bottom: 20px; border-bottom: 2px solid #4a90e2; padding-bottom: 5px; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); }
+        .reading-passage p { margin-bottom: 1.2em; font-size: 1em; }
+        
+        .question-number { background: white; border: 1px solid #4a90e2; padding: 4px 8px; border-radius: 3px; font-weight: bold; font-size: 0.875em; color: #4a90e2; min-width: 30px; text-align: center; display: inline-block; }
+        .questions-section { margin-bottom: 20px; }
+        .question { margin-bottom: 40px; }
+        .question p { margin-bottom: 10px; }
+        .question-prompt { margin-bottom: 20px; }
+        .instruction { margin-bottom: 20px; font-size: 1em; color: #666; font-style: italic; display: block; }
+        
+        .answer-input { border: 1px solid #888; border-radius: 4px; background-color: #fff; padding: 2px 5px; font-size: inherit; text-align: center; margin: 0 4px; transition: border-color 0.3s, box-shadow 0.3s; height: 32px; width: 150px; }
+        select.answer-input { width: auto; min-width: 60px; font-size: inherit; }
+        .answer-input.active-input { border-color: #4a90e2; box-shadow: 0 0 3px 1px rgba(74,144,226,0.5); }
+        .answer-input::placeholder { color: #999; font-weight: bold; text-align: center; }
+        .answer-input.correct { border-color: #28a745; background-color: #e9f7ef; color: #155724; }
+        .answer-input.incorrect { border-color: #dc3545; background-color: #f8d7da; color: #721c24; }
+        
+        .tf-question { margin-bottom: 25px; padding: 10px 0; border-radius: 4px; transition: border-color 0.3s, background-color 0.3s; }
+        .tf-question-line { display: flex; align-items: flex-start; margin-bottom: 15px; padding: 5px 0; border-radius: 4px; }
+        .tf-question-number { border: 2px solid #ccc; padding: 2px 8px; margin-right: 10px; border-radius: 3px; font-weight: bold; transition: border-color 0.3s; display: inline-block; font-size: 0.875em; }
+        .tf-question-text { padding-top: 3px; font-size: 1em; }
+        .tf-options { padding-left: 5px; display: flex; gap: 20px; flex-wrap: wrap; }
+        .tf-option { display: flex; align-items: center; cursor: pointer; font-size: 1em; }
+        .tf-option input[type="radio"] { margin-right: 8px; transform: scale(1.2); }
+        .tf-question.correct .tf-question-line { background-color: #e9f7ef; }
+        .tf-question.incorrect .tf-question-line { background-color: #f8d7da; }
+        
+        .multi-choice-question { margin-bottom: 25px; padding: 10px; border-radius: 4px; border: 3px solid transparent; transition: border-color 0.3s, background-color 0.3s; }
+        .multi-choice-option { margin-bottom: 10px; padding: 8px; border-radius: 4px; transition: background-color 0.3s; }
+        .multi-choice-option label { display: flex; align-items: flex-start; cursor: pointer; font-size: inherit; }
+        .multi-choice-option input[type="radio"] { margin-right: 12px; margin-top: 4px; transform: scale(1.3); accent-color: #4a90e2; }
+        .multi-choice-question.correct { background-color: #e9f7ef; border-color: #28a745 !important; }
+        .multi-choice-question.incorrect { background-color: #f8d7da; border-color: #dc3545 !important; }
+        
+        .matching-form-container { margin-top: 20px; }
+        .matching-form-row { display: flex; align-items: flex-start; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; font-size: 1em; }
+        .matching-form-label { min-width: 35px; flex-shrink: 0; margin-right: 10px; font-weight: normal; font-size: 1em; }
+        
+        .ielts-table { width: 100%; border-collapse: collapse; margin-top: 15px; margin-bottom: 15px; background-color: #fff; font-size: 1em; }
+        .ielts-table th, .ielts-table td { border: 1px solid #ccc; padding: 12px 15px; vertical-align: top; line-height: 1.6; }
+        .ielts-table th { background-color: #f8f9fa; font-weight: bold; }
+        
+        .example-box { border: 1px solid #ddd; background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0; line-height: 2; font-size: 1em; }
+        
+        .nav-arrows { position: fixed; bottom: 100px; right: 20px; display: flex; gap: 5px; z-index: 101; }
+        .nav-arrow { width: 50px; height: 50px; background: #333; color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.375em; font-weight: bold; border-radius: 4px; }
+        .nav-arrow:hover { background: #555; }
+        .nav-arrow:disabled { background: #ccc; cursor: not-allowed; }
+        
+        .nav-row { position: fixed; bottom: 0; left: 0; right: 0; background: #ffffff; padding: 0; display: flex; align-items: center; height: 80px; z-index: 100; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
+        .footer__questionWrapper___1tZ46 { display: flex; align-items: center; margin-right: 20px; }
+        .footer__questionNo___3WNct { background: none; border: none; padding: 10px 15px; font-size: 1em; font-weight: 600; color: #333; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: background-color 0.2s; }
+        .footer__questionNo___3WNct:hover { background-color: #f8f9fa; }
+        .section-prefix { font-size: 1em; }
+        .sectionNr { font-size: 1em; font-weight: bold; }
+        .attemptedCount { font-size: 0.875em; color: #666; margin-left: 5px; font-weight: 400; }
+        @media (max-width: 768px) { .attemptedCount { display: none; } }
+        .footer__questionWrapper___1tZ46.selected .attemptedCount { display: none; }
+        .footer__subquestionWrapper___9GgoP { display: none; gap: 4px; margin-left: 10px; padding: 0 10px; }
+        .footer__questionWrapper___1tZ46.selected .footer__subquestionWrapper___9GgoP { display: flex; flex-wrap: wrap; }
+        
+        .subQuestion { width: 34px; height: 34px; border: 1px solid #ccc; background: white; color: #333; font-size: 0.875em; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; border-radius: 4px; }
+        .subQuestion.answered { background-color: #e9ecef; border-color: #ddd; }
+        .subQuestion.correct { background-color: #28a745; color: white; border-color: #28a745; }
+        .subQuestion.incorrect { background-color: #dc3545; color: white; border-color: #dc3545; }
+        .subQuestion:hover { background-color: #f0f0f0; border-color: #999; }
+        .subQuestion.active { background-color: #4a90e2; color: white; border-color: #4a90e2; }
+        .subQuestion.flagged { background-color: #fff3e0; border-color: #e67e22; color: #e67e22; }
+        body.dark-mode .subQuestion.flagged { background-color: #3d2800; }
+
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+        .footer__deliverButton___3FM07 { margin-left: auto; margin-right: 20px; background-color: #f0f0f0; color: #333; border: 1px solid #ccc; padding: 12px 20px; border-radius: 4px; font-size: 1em; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background-color 0.2s, border-color 0.2s; min-width: 170px; justify-content: center; }
+        .footer__deliverButton___3FM07:hover { background-color: #e0e0e0; border-color: #bbb; }
+        .footer__deliverButton___3FM07:disabled { background: #e9ecef; color: #6c757d; cursor: not-allowed; border-color: #ddd; }
+        .hidden { display: none !important; }
+
+        .context-menu { position: absolute; background: white; border: 1px solid #ccc; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; display: none; min-width: 140px; }
+        .context-menu-item { padding: 12px 16px; cursor: pointer; font-size: 1em; border-bottom: 1px solid #f0f0f0; transition: background-color 0.2s; display: flex; align-items: center; gap: 8px; }
+        .context-menu-item:last-child { border-bottom: none; }
+
+        /* Highlight & Note colours */
+        .highlight { background-color:#c8813a; color:#fff; border-radius:2px; }
+        .highlight-neon { background-color:#9b30ff; color:#fff; border-radius:2px; }
+        .comment-highlight { background-color:#1565c0; color:#fff; position:relative; cursor:help; border-radius:2px; }
+        .comment-tooltip { position:absolute; bottom:100%; left:50%; transform:translateX(-50%); background:#333; color:#fff; padding:8px 12px; border-radius:4px; font-size:0.875em; white-space:nowrap; z-index:1000; opacity:0; pointer-events:none; transition:opacity 0.3s; }
+        .comment-highlight:hover .comment-tooltip { opacity:1; }
+
+        /* Settings Panel */
+        .settings-panel { position: fixed; top: 60px; right: 0; width: 260px; background: white; border: 1px solid #ddd; border-radius: 0 0 0 8px; box-shadow: -2px 4px 12px rgba(0,0,0,0.15); z-index: 200; padding: 16px; display: none; }
+        .settings-panel.open { display: block; }
+        .settings-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; font-size:0.9375em; }
+        .settings-label { font-weight:500; }
+        .font-size-controls { display:flex; align-items:center; gap:8px; }
+        .font-size-controls button { width:28px; height:28px; border:1px solid #ccc; border-radius:4px; font-size:1em; cursor:pointer; background:#f0f0f0; line-height:1; }
+        .font-size-value { min-width:30px; text-align:center; font-weight:bold; }
+        
+        /* Toggle Switch */
+        .toggle-switch { position:relative; width:44px; height:24px; }
+        .toggle-switch input { opacity:0; width:0; height:0; }
+        .toggle-slider { position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background:#ccc; border-radius:24px; transition:0.3s; }
+        .toggle-slider:before { position:absolute; content:""; height:18px; width:18px; left:3px; bottom:3px; background:white; border-radius:50%; transition:0.3s; }
+        input:checked + .toggle-slider { background:#4a90e2; }
+        input:checked + .toggle-slider:before { transform:translateX(20px); }
+
+        .settings-cog-btn { background: none; border: none; cursor: pointer; font-size: 1.25em; margin-left: 12px; color: #666; padding: 4px; border-radius: 4px; transition: color 0.2s, background 0.2s; }
+        .settings-cog-btn:hover { color: #4a90e2; background: #f0f0f0; }
+
+        .timer-container { display: flex; position: relative; cursor: default; color: #333; font-size: 1em; font-weight: 500; align-items: center; }
+        .timer-controls { display: flex; align-items: center; gap: 8px; margin-left: 15px; }
+        .timer-controls button { background: #f0f0f0; border: 1px solid #ccc; border-radius: 50%; padding: 0; cursor: pointer; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; transition: background-color 0.2s; }
+        .timer-controls button:hover { background: #e0e0e0; }
+        
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); z-index: 2000; display: flex; justify-content: center; align-items: center; }
+        .modal-overlay.hidden { display: none; }
+        .modal-content { background: white; padding: 25px; border-radius: 8px; width: 90%; max-width: 600px; max-height: 85vh; display: flex; flex-direction: column; position: relative; }
+        .modal-close-btn { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 1.75em; cursor: pointer; color: #888; }
+        .modal-content h2 { text-align: center; margin-bottom: 15px; color: #333; font-size: 1.5em; }
+        .results-summary { display: flex; justify-content: space-around; margin-bottom: 20px; font-size: 1.125em; font-weight: bold; text-align: center; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+        .results-details-container { overflow-y: auto; padding-right: 10px; flex: 1; margin-bottom: 15px; }
+        .result-row { display: grid; grid-template-columns: 40px 1fr 1fr; gap: 15px; padding: 10px 5px; border-bottom: 1px solid #f0f0f0; font-size: 0.9375em; }
+        .result-row.incorrect { background-color: #f8d7da; }
+        .result-row .q-num { font-weight: bold; }
+        .result-row .user-ans { color: #555; }
+        .result-row .correct-ans { color: #155724; font-weight: 500; }
+        .correct-answer-display { font-weight: bold; color: #28a745; margin-left: 10px; font-size: 0.875em; }
+        .correct-answer-highlight, .tf-option.correct-answer-highlight, .multi-choice-option.correct-answer-highlight { background-color: #d4edda !important; border: 1px solid #c3e6cb !important; border-radius: 4px; padding: 4px; }
+        
+        .reset-btn { background:#f0f0f0; color:#555; border:1px solid #ccc; padding:10px 16px; border-radius:4px; font-size:0.9375em; font-weight:600; cursor:pointer; margin-right:8px; transition: background 0.2s; }
+        .reset-btn:hover { background:#e0e0e0; }
+        
+        .save-results-btn { background:#28a745; color:white; border:none; padding:10px 24px; border-radius:6px; font-size:1em; font-weight:bold; cursor:pointer; margin-top:12px; width:100%; transition: background 0.2s; }
+        .save-results-btn:hover { background:#218838; }
+
+        .flag-btn { background: none; border: 1px solid #ccc; border-radius: 3px; cursor: pointer; font-size: 1em; padding: 2px 6px; margin-left: 8px; color: #aaa; transition: color 0.2s, border-color 0.2s; vertical-align: middle; }
+        .flag-btn.flagged { color: #e67e22; border-color: #e67e22; }
+        body.dark-mode .flag-btn { color: #666; border-color: #444; }
+        body.dark-mode .flag-btn.flagged { color: #e67e22; border-color: #e67e22; }
+
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-title" style="font-weight:bold;font-size:0.9375em;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+            The Pompidou Centre
+        </div>
+        <div style="display:flex;align-items:center;">
+            <div class="timer-container">
+                <span class="timer-display">--:--</span>
+                <div class="timer-controls">
+                    <button id="timer-toggle-btn" title="Pause/Resume Timer">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M8 5v14l11-7L8 5z"/></svg>
+                    </button>
+                    <button id="timer-reset-btn" title="Reset Timer" onclick="confirmReset()">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+                    </button>
+                </div>
+            </div>
+            <!-- Settings Cog -->
+            <button class="settings-cog-btn" id="settings-toggle-btn" title="Settings">&#9881;</button>
+        </div>
+    </div>
+
+    <!-- Settings Panel -->
+    <div class="settings-panel" id="settings-panel">
+        <div class="settings-row">
+            <span class="settings-label">Font Size</span>
+            <div class="font-size-controls">
+                <button onclick="adjustFontSize(-1)">A&#8722;</button>
+                <span class="font-size-value" id="font-size-display">16</span>
+                <button onclick="adjustFontSize(1)">A+</button>
+            </div>
+        </div>
+        <div class="settings-row">
+            <span class="settings-label">Dark Mode</span>
+            <label class="toggle-switch">
+                <input type="checkbox" id="dark-mode-toggle">
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <!-- Part Header -->
+    <div id="part-header-1" class="part-header">
+        <p><strong>Part 1</strong></p>
+        <p>Read the passage and answer questions 1–14.</p>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container" id="main-container">
+        <div class="panels-container">
+            <!-- LEFT: READING PASSAGE -->
+            <div class="passage-panel" id="passage-panel">
+                <div id="passage-text-1" class="reading-passage">
+                    <h4 class="text-center">The Pompidou Centre</h4>
+                    
+                    <p>More than three decades after it was built, the Pompidou Centre in Paris has survived its moment at the edge of architectural fashion and proved itself to be one of the most remarkable buildings of the 20th century.</p>
+                    
+                    <p>It was the most outstanding building constructed in Paris for two generations. It looked like an explosion of brightly coloured service pipes in the calm of the city centre. However, when in 1977 the architects Richard Rogers and Renzo Piano stood among a large crowd of 5,000 at the opening of the Centre Culturel d'Art Georges Pompidou (known as the Pompidou), no one was really aware of the significance of this unusual building.</p>
+                    
+                    <p>Rogers was only 38 when he and Piano won the competition to design a new cultural centre for Paris in the old market site. Young, unknown architects, they had been chosen from a field of nearly 700 to design one of the most prestigious buildings of its day. After six difficult years, with 25,000 drawings, seven lawsuits, battles over budgets, and a desperate last-minute scramble to finish the building, it had finally been done.</p>
+                    
+                    <p>Yet the opening was a downbeat moment. The Pompidou Centre had been rubbished (criticized) by the critics while it was being built, there was no more work in prospect for the architects, and their partnership had effectively broken down. But this was just a passing crisis. The Centre, which combined the national museum of modern art, exhibition space, a public library and a centre for modern music, proved an enormous success. It attracted six million visitors in its first year, and with its success, the critics swiftly changed their tune.</p>
+                    
+                    <p>The architects had been driven by the desire for ultimate flexibility, for a building that would not limit the movement of its users. All the different parts were approached through the same enormous entrance hall and served by the same escalator, which was free to anyone to ride, whether they wanted to visit an exhibition or just admire the view. With all the services at one end of the building, escalators and lifts at the other, and the floors hung on giant steel beams providing uninterrupted space the size of two football pitches, their dream had become a reality.</p>
+                    
+                    <p>The image of the Pompidou pervaded popular culture in the 1970s, making appearances everywhere - on record-album covers and a table lamp, and even acting as the set for a James Bond film. This did much to overcome the secretive nature of the architectural culture of its time, as it enabled wider audience to appreciate the style and content of the building and so moved away from the strictly professional view.</p>
+                    
+                    <p>The following year, Rogers was commissioned to design a new headquarters for Lloyd's Bank in London and went on to create one of Britain's most dynamic architectural practices. Piano is now among the world's most respected architects. But what of their shared creation?</p>
+                    
+                    <p>It was certainly like no previous museum, with its plans for a flexible interior that not only had movable walls but floors that could also be adjusted up or down. This second feature did not in the end survive when the competition drawings were turned into a real building. In other ways, however, the finished building demonstrated a remarkable degree of refinement - of craftsmanship even - in the way the original diagram was transformed into a superbly detailed structure. It was this quality which, according to some critics, suggested that the Pompidou should be seen as closer to the 19th-century engineering tradition than the space age.</p>
+                    
+                    <p>Nevertheless, as a model for urban planning, it has proved immensely influential. The Guggenheim in Bilbao and the many other major landmark projects that were built in the belief that innovatively designed cultural buildings can bring about urban renewal are all following the lead of the Pompidou Centre.</p>
+                    
+                    <p>Other buildings may now challenge it for the title of Europe’s most outlandish work of architecture. However, more than a quarter of a century later, this construction - it is hard to call it a building when there is no façade, just a lattice of steel beams and pipes and a long external escalator snaking up the outside - still seems extreme.</p>
+                    
+                    <p>Today, the Pompidou Centre itself still looks much as it did when it opened. The shock value of its colour-coded plumbing and its structure has not faded with the years. But while traditionalists regarded it as an ugly attack on Paris when it was built, they now see it for what it is - an enormous achievement, technically and conceptually.</p>
+                </div>
+            </div>
+
+            <div class="resizer" id="resizer"></div>
+
+            <!-- RIGHT: QUESTIONS -->
+            <div class="questions-panel" id="questions-panel">
+                <div id="questions-1" class="question-set">
+                    
+                    <!-- Questions 1-4 -->
+                    <div class="questions-section">
+                        <div class="question-prompt">
+                            <strong>Questions 1-4</strong><br>
+                            <span class="instruction">Choose the correct letter, A, B, C or D.</span>
+                        </div>
+
+                        <div class="multi-choice-question" data-q-start="1" id="q-block-1">
+                            <div style="margin-bottom: 10px;">
+                                <span class="question-number">1</span> What does the writer say in the first paragraph about the opening of the Pompidou Centre?
+                            </div>
+                            <div class="multi-choice-option"><label><input type="radio" name="q1" value="A" onchange="updateAllIndicators()"> A The elderly did not like it.</label></div>
+                            <div class="multi-choice-option"><label><input type="radio" name="q1" value="B" onchange="updateAllIndicators()"> B The architects were not present.</label></div>
+                            <div class="multi-choice-option"><label><input type="radio" name="q1" value="C" onchange="updateAllIndicators()"> C The atmosphere was very noisy.</label></div>
+                            <div class="multi-choice-option"><label><input type="radio" name="q1" value="D" onchange="updateAllIndicators()"> D The people did not realise its importance.</label></div>
+                        </div>
+
+                        <div class="multi-choice-question" data-q-start="2" id="q-block-2">
+                            <div style="margin-bottom: 10px;">
+                                <span class="question-number">2</span> What does the writer say in the second paragraph about the construction of the Pompidou?
+                            </div>
+                            <div class="multi-choice-option"><label><input type="radio" name="q2" value="A" onchange="updateAllIndicators()"> A There was a hurry to complete it.</label></div>
+                            <div class="multi-choice-option"><label><input type="radio" name="q2" value="B" onchange="updateAllIndicators()"> B It cost less than expected.</label></div>
+                            <div class="multi-choice-option"><label><input type="radio" name="q2" value="C" onchange="updateAllIndicators()"> C Other experts helped draw the plans.</label></div>
+                            <div class="multi-choice-option"><label><input type="radio" name="q2" value="D" onchange="updateAllIndicators()"> D The market location was criticised.</label></div>
+                        </div>
+
+                        <div class="multi-choice-question" data-q-start="3" id="q-block-3">
+                            <div style="margin-bottom: 10px;">
+                                <span class="question-number">3</span> What is the writer’s main purpose in the third paragraph?
+                            </div>
+                            <div class="multi-choice-option"><label><input type="radio" name="q3" value="A" onchange="updateAllIndicators()"> A to explain the multi-functional role of the centre</label></div>
+                            <div class="multi-choice-option"><label><input type="radio" name="q3" value="B" onchange="updateAllIndicators()"> B to praise the architects for their design ideas</label></div>
+                            <div class="multi-choice-option"><label><input type="radio" name="q3" value="C" onchange="updateAllIndicators()"> C to say why some people’s opinions quickly altered</label></div>
+                            <div class="multi-choice-option"><label><input type="radio" name="q3" value="D" onchange="updateAllIndicators()"> D to show how the media benefited from its success</label></div>
+                        </div>
+
+                        <div class="multi-choice-question" data-q-start="4" id="q-block-4">
+                            <div style="margin-bottom: 10px;">
+                                <span class="question-number">4</span> What was the architects’ ‘dream’, referred to in the fourth paragraph?
+                            </div>
+                            <div class="multi-choice-option"><label><input type="radio" name="q4" value="A" onchange="updateAllIndicators()"> A to become famous</label></div>
+                            <div class="multi-choice-option"><label><input type="radio" name="q4" value="B" onchange="updateAllIndicators()"> B to provide entertainment</label></div>
+                            <div class="multi-choice-option"><label><input type="radio" name="q4" value="C" onchange="updateAllIndicators()"> C to allow visitors to use it freely</label></div>
+                            <div class="multi-choice-option"><label><input type="radio" name="q4" value="D" onchange="updateAllIndicators()"> D to build the biggest museum in the world</label></div>
+                        </div>
+                    </div>
+
+                    <hr style="margin:30px 0; border:none; border-top:1px dashed #ccc;">
+
+                    <!-- Questions 5-8 -->
+                    <div class="questions-section">
+                        <div class="question-prompt">
+                            <strong>Questions 5-8</strong><br>
+                            <span class="instruction">Complete each sentence with the correct ending , A-F, below.</span>
+                        </div>
+                        
+                        <div class="example-box">
+                            <p><strong>A</strong> reminded some people of past building styles.</p>
+                            <p><strong>B</strong> were used to decorate everyday objects.</p>
+                            <p><strong>C</strong> fitted in well with the external surroundings.</p>
+                            <p><strong>D</strong> were situated on one side of the building.</p>
+                            <p><strong>E</strong> showed people which area to visit.</p>
+                            <p><strong>F</strong> were changed during the construction process.</p>
+                        </div>
+
+                        <div class="matching-form-container" data-q-start="5">
+                            <div class="matching-form-row">
+                                <span class="question-number">5</span>
+                                <span>The escalators and lifts inside the Pompidou</span>
+                                <select id="q5" class="answer-input" onchange="updateAllIndicators()">
+                                    <option value=""></option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option>
+                                </select>
+                            </div>
+                            <div class="matching-form-row" data-q-start="6">
+                                <span class="question-number">6</span>
+                                <span>In the 1970s, pictures of the Pompidou</span>
+                                <select id="q6" class="answer-input" onchange="updateAllIndicators()">
+                                    <option value=""></option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option>
+                                </select>
+                            </div>
+                            <div class="matching-form-row" data-q-start="7">
+                                <span class="question-number">7</span>
+                                <span>The original plans for the floors of the Pompidou</span>
+                                <select id="q7" class="answer-input" onchange="updateAllIndicators()">
+                                    <option value=""></option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option>
+                                </select>
+                            </div>
+                            <div class="matching-form-row" data-q-start="8">
+                                <span class="question-number">8</span>
+                                <span>The detailed structure of the finished building</span>
+                                <select id="q8" class="answer-input" onchange="updateAllIndicators()">
+                                    <option value=""></option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr style="margin:30px 0; border:none; border-top:1px dashed #ccc;">
+
+                    <!-- Questions 9-14 -->
+                    <div class="questions-section">
+                        <div class="question-prompt">
+                            <strong>Questions 9-14</strong><br>
+                            <span class="instruction">
+                                Do the following statements agree with the views of the writer in the reading passage?<br>
+                                Write:<br>
+                                <strong>YES</strong> if the statement agrees with the views of the writer<br>
+                                <strong>NO</strong> if the statement contradicts the views of the writer<br>
+                                <strong>NOT GIVEN</strong> if it is impossible to say what the writer thinks about this
+                            </span>
+                        </div>
+
+                        <div class="tf-question" data-q-start="9">
+                            <div class="tf-question-line">
+                                <span class="question-number">9</span>
+                                <span class="tf-question-text">The Pompidou has influenced the way cities are designed.</span>
+                            </div>
+                            <div class="tf-options">
+                                <label class="tf-option"><input type="radio" name="q9" value="YES" onchange="updateAllIndicators()"> YES</label>
+                                <label class="tf-option"><input type="radio" name="q9" value="NO" onchange="updateAllIndicators()"> NO</label>
+                                <label class="tf-option"><input type="radio" name="q9" value="NOT GIVEN" onchange="updateAllIndicators()"> NOT GIVEN</label>
+                            </div>
+                        </div>
+
+                        <div class="tf-question" data-q-start="10">
+                            <div class="tf-question-line">
+                                <span class="question-number">10</span>
+                                <span class="tf-question-text">The Guggenheim has been more popular than the Pompidou.</span>
+                            </div>
+                            <div class="tf-options">
+                                <label class="tf-option"><input type="radio" name="q10" value="YES" onchange="updateAllIndicators()"> YES</label>
+                                <label class="tf-option"><input type="radio" name="q10" value="NO" onchange="updateAllIndicators()"> NO</label>
+                                <label class="tf-option"><input type="radio" name="q10" value="NOT GIVEN" onchange="updateAllIndicators()"> NOT GIVEN</label>
+                            </div>
+                        </div>
+
+                        <div class="tf-question" data-q-start="11">
+                            <div class="tf-question-line">
+                                <span class="question-number">11</span>
+                                <span class="tf-question-text">The word building fits the Pompidou better than the word construction.</span>
+                            </div>
+                            <div class="tf-options">
+                                <label class="tf-option"><input type="radio" name="q11" value="YES" onchange="updateAllIndicators()"> YES</label>
+                                <label class="tf-option"><input type="radio" name="q11" value="NO" onchange="updateAllIndicators()"> NO</label>
+                                <label class="tf-option"><input type="radio" name="q11" value="NOT GIVEN" onchange="updateAllIndicators()"> NOT GIVEN</label>
+                            </div>
+                        </div>
+
+                        <div class="tf-question" data-q-start="12">
+                            <div class="tf-question-line">
+                                <span class="question-number">12</span>
+                                <span class="tf-question-text">The Pompidou’s appearance has changed considerably since it opened.</span>
+                            </div>
+                            <div class="tf-options">
+                                <label class="tf-option"><input type="radio" name="q12" value="YES" onchange="updateAllIndicators()"> YES</label>
+                                <label class="tf-option"><input type="radio" name="q12" value="NO" onchange="updateAllIndicators()"> NO</label>
+                                <label class="tf-option"><input type="radio" name="q12" value="NOT GIVEN" onchange="updateAllIndicators()"> NOT GIVEN</label>
+                            </div>
+                        </div>
+
+                        <div class="tf-question" data-q-start="13">
+                            <div class="tf-question-line">
+                                <span class="question-number">13</span>
+                                <span class="tf-question-text">Nowadays, the design of the Pompidou fails to shock people.</span>
+                            </div>
+                            <div class="tf-options">
+                                <label class="tf-option"><input type="radio" name="q13" value="YES" onchange="updateAllIndicators()"> YES</label>
+                                <label class="tf-option"><input type="radio" name="q13" value="NO" onchange="updateAllIndicators()"> NO</label>
+                                <label class="tf-option"><input type="radio" name="q13" value="NOT GIVEN" onchange="updateAllIndicators()"> NOT GIVEN</label>
+                            </div>
+                        </div>
+
+                        <div class="tf-question" data-q-start="14">
+                            <div class="tf-question-line">
+                                <span class="question-number">14</span>
+                                <span class="tf-question-text">The traditionalist view of the Pompidou has changed over the years.</span>
+                            </div>
+                            <div class="tf-options">
+                                <label class="tf-option"><input type="radio" name="q14" value="YES" onchange="updateAllIndicators()"> YES</label>
+                                <label class="tf-option"><input type="radio" name="q14" value="NO" onchange="updateAllIndicators()"> NO</label>
+                                <label class="tf-option"><input type="radio" name="q14" value="NOT GIVEN" onchange="updateAllIndicators()"> NOT GIVEN</label>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Arrows -->
+    <div class="nav-arrows">
+        <button class="nav-arrow" onclick="previousQuestion()" id="prevBtn">&#8249;</button>
+        <button class="nav-arrow" onclick="nextQuestion()" id="nextBtn">&#8250;</button>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="nav-row" aria-label="Questions">
+        <div class="footer__questionWrapper___1tZ46 selected multiple" role="tablist">
+            <button role="tab" class="footer__questionNo___3WNct" onclick="switchToPart(1)">
+                <span>
+                    <span class="section-prefix">Part </span><span class="sectionNr">1</span>
+                    <span class="attemptedCount">0 of 14</span>
+                </span>
+            </button>
+            <div class="footer__subquestionWrapper___9GgoP">
+                <button class="subQuestion scorable-item" data-qn="1" onclick="goToQuestion(1)"><span class="sr-only">Question 1</span><span aria-hidden="true">1</span></button>
+                <button class="subQuestion scorable-item" data-qn="2" onclick="goToQuestion(2)"><span class="sr-only">Question 2</span><span aria-hidden="true">2</span></button>
+                <button class="subQuestion scorable-item" data-qn="3" onclick="goToQuestion(3)"><span class="sr-only">Question 3</span><span aria-hidden="true">3</span></button>
+                <button class="subQuestion scorable-item" data-qn="4" onclick="goToQuestion(4)"><span class="sr-only">Question 4</span><span aria-hidden="true">4</span></button>
+                <button class="subQuestion scorable-item" data-qn="5" onclick="goToQuestion(5)"><span class="sr-only">Question 5</span><span aria-hidden="true">5</span></button>
+                <button class="subQuestion scorable-item" data-qn="6" onclick="goToQuestion(6)"><span class="sr-only">Question 6</span><span aria-hidden="true">6</span></button>
+                <button class="subQuestion scorable-item" data-qn="7" onclick="goToQuestion(7)"><span class="sr-only">Question 7</span><span aria-hidden="true">7</span></button>
+                <button class="subQuestion scorable-item" data-qn="8" onclick="goToQuestion(8)"><span class="sr-only">Question 8</span><span aria-hidden="true">8</span></button>
+                <button class="subQuestion scorable-item" data-qn="9" onclick="goToQuestion(9)"><span class="sr-only">Question 9</span><span aria-hidden="true">9</span></button>
+                <button class="subQuestion scorable-item" data-qn="10" onclick="goToQuestion(10)"><span class="sr-only">Question 10</span><span aria-hidden="true">10</span></button>
+                <button class="subQuestion scorable-item" data-qn="11" onclick="goToQuestion(11)"><span class="sr-only">Question 11</span><span aria-hidden="true">11</span></button>
+                <button class="subQuestion scorable-item" data-qn="12" onclick="goToQuestion(12)"><span class="sr-only">Question 12</span><span aria-hidden="true">12</span></button>
+                <button class="subQuestion scorable-item" data-qn="13" onclick="goToQuestion(13)"><span class="sr-only">Question 13</span><span aria-hidden="true">13</span></button>
+                <button class="subQuestion scorable-item" data-qn="14" onclick="goToQuestion(14)"><span class="sr-only">Question 14</span><span aria-hidden="true">14</span></button>
+            </div>
+        </div>
+        
+        <button class="reset-btn" onclick="confirmReset()" title="Reset all answers and highlights">&#8635; Reset</button>
+        <button id="deliver-button" class="footer__deliverButton___3FM07">
+            <span style="color: #4a90e2; font-weight: bold;">&#10003; Check Answers</span>
+        </button>
+    </nav>
+
+    <!-- Context Menu -->
+    <div id="contextMenu" class="context-menu">
+        <div id="menu-highlight" class="context-menu-item" onclick="highlightText()">&#9632; Highlight</div>
+        <div id="menu-note" class="context-menu-item" onclick="addNote()">&#9998; Note</div>
+        <div id="menu-clear" class="context-menu-item" onclick="clearHighlight()">&#10005; Clear</div>
+        <div id="menu-clear-all" class="context-menu-item" onclick="clearAllHighlights()">&#128465; Clear All</div>
+    </div>
+
+    <!-- Timer Setup Modal -->
+    <div id="timer-setup-modal" class="modal-overlay" style="z-index:3000;">
+        <div class="modal-content" style="max-width:400px;text-align:center;">
+            <div id="modal-reset-banner" class="hidden" style="background:#fff3cd;border:1px solid #ffc107;border-radius:6px;padding:8px 16px;margin-bottom:16px;color:#856404;font-size:0.875em;">
+                &#9888; Test Reset — Please verify your info before starting again
+            </div>
+            <h2 style="margin-bottom:20px;">&#9201; Set up your Test</h2>
+            <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px;text-align:left;">
+                <label style="font-size:0.875em;color:#555;font-weight:600;">Full Name <span style="color:#dc3545;">*</span></label>
+                <input type="text" id="setup-name" placeholder="Enter your full name" style="padding:10px;border:1px solid #ccc;border-radius:6px;font-size:0.9375em;width:100%;" oninput="validateSetupForm()">
+                
+                <label style="font-size:0.875em;color:#555;font-weight:600;">Class <span style="color:#dc3545;">*</span></label>
+                <input type="text" id="setup-class" placeholder="Enter your class" style="padding:10px;border:1px solid #ccc;border-radius:6px;font-size:0.9375em;width:100%;" oninput="validateSetupForm()">
+            </div>
+            
+            <p style="margin-bottom:10px;color:#666;font-size:0.875em;">How many minutes for this exam?</p>
+            <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:25px;">
+                <button onclick="adjustTimerSetup(-5)" style="width:40px;height:40px;border:1px solid #ccc;border-radius:50%;font-size:1.25em;cursor:pointer;background:#f0f0f0;">&#8722;</button>
+                <span id="timer-setup-display" style="font-size:2em;font-weight:bold;color:#4a90e2;min-width:80px;">20</span>
+                <button onclick="adjustTimerSetup(5)" style="width:40px;height:40px;border:1px solid #ccc;border-radius:50%;font-size:1.25em;cursor:pointer;background:#f0f0f0;">+</button>
+            </div>
+            
+            <button id="start-exam-btn" onclick="startExam()" disabled style="background:#4a90e2;color:white;border:none;padding:12px 40px;border-radius:6px;font-size:1.125em;font-weight:bold;cursor:not-allowed;opacity:0.5;transition:opacity .2s;">
+                Start Exam &#9654;
+            </button>
+        </div>
+    </div>
+
+    <!-- Results Modal -->
+    <div id="results-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeResultsModal()">&times;</button>
+            <h2>Results</h2>
+            <div class="results-summary">
+                <p>Score: <span id="results-score" style="color:#4a90e2;"></span> / <span id="results-total">14</span></p>
+                <p id="band-score-row" class="hidden">IELTS Band: <span id="results-band" style="color:#28a745;"></span></p>
+            </div>
+            <div id="results-details" class="results-details-container"></div>
+            
+            <!-- Save Results -->
+            <div style="border-top:1px solid #eee;margin-top:12px;padding-top:12px;">
+                <button class="save-results-btn" onclick="saveResultsToFile()">
+                    &#128190; Save Result as .txt
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    const TEST_TYPE = 'reading-academic';
+    const TOTAL_QUESTIONS = 14;
+    const IS_PARTIAL = TOTAL_QUESTIONS < 40;
+    const PART_FIRST_Q = {1:1};
+    const FIRST_Q_NUM = 1;
+    const LAST_Q_NUM = 14;
+    const STORAGE_KEY = 'exam_pompidou_centre';
+    
+    const correctAnswers = {
+        '1': 'D',
+        '2': 'A',
+        '3': 'C',
+        '4': 'C',
+        '5': 'D',
+        '6': 'B',
+        '7': 'F',
+        '8': 'A',
+        '9': 'YES',
+        '10': 'NOT GIVEN',
+        '11': 'NO',
+        '12': 'NO',
+        '13': 'NO',
+        '14': 'YES'
+    };
+
+    let currentPassage = 1;
+    let currentQuestion = 1;
+    let selectedRange = null;
+    let setupMinutes = 20;
+    let timeInSeconds = setupMinutes * 60;
+    let timerInterval;
+    let activeQuestionElement = null;
+    let studentName = '';
+    let studentClass = '';
+
+    const PLAY_ICON = '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M8 5v14l11-7L8 5z"/></svg>';
+    const PAUSE_ICON = '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- 1. Wire up settings (font size, dark mode) ---
+        let currentFontSize = parseInt(localStorage.getItem(STORAGE_KEY + '_fontSize') || '16', 10);
+        function applyFontSize(size) {
+            document.body.style.fontSize = size + 'px';
+            const display = document.getElementById('font-size-display');
+            if (display) display.textContent = size;
+        }
+        window.adjustFontSize = function(delta) {
+            currentFontSize = Math.max(12, Math.min(24, currentFontSize + delta));
+            applyFontSize(currentFontSize);
+            localStorage.setItem(STORAGE_KEY + '_fontSize', currentFontSize);
+        };
+        applyFontSize(currentFontSize);
+
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+        const savedDark = localStorage.getItem(STORAGE_KEY + '_darkMode') === 'true';
+        if (savedDark) { document.body.classList.add('dark-mode'); if (darkModeToggle) darkModeToggle.checked = true; }
+        if (darkModeToggle) {
+            darkModeToggle.addEventListener('change', () => {
+                document.body.classList.toggle('dark-mode', darkModeToggle.checked);
+                localStorage.setItem(STORAGE_KEY + '_darkMode', darkModeToggle.checked);
+            });
+        }
+
+        const settingsToggleBtn = document.getElementById('settings-toggle-btn');
+        const settingsPanel = document.getElementById('settings-panel');
+        if (settingsToggleBtn && settingsPanel) {
+            settingsToggleBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                settingsPanel.classList.toggle('open');
+            });
+            document.addEventListener('click', (e) => {
+                if (settingsPanel.classList.contains('open') && !settingsPanel.contains(e.target) && e.target !== settingsToggleBtn)
+                    settingsPanel.classList.remove('open');
+            });
+        }
+
+        // --- Core Application Logic ---
+        const timerDisplay = document.querySelector('.timer-display');
+        const timerToggleButton = document.getElementById('timer-toggle-btn');
+        const timerResetButton = document.getElementById('timer-reset-btn');
+        const deliverButton = document.getElementById('deliver-button');
+        const resizer = document.getElementById('resizer');
+        const passagePanel = document.getElementById('passage-panel');
+        const questionsPanel = document.getElementById('questions-panel');
+        const contextMenu = document.getElementById('contextMenu');
+
+        window.validateSetupForm = function() {
+            const name = document.getElementById('setup-name').value.trim();
+            const cls = document.getElementById('setup-class').value.trim();
+            const btn = document.getElementById('start-exam-btn');
+            const ok = !!(name && cls);
+            btn.disabled = !ok;
+            btn.style.opacity = ok ? '1' : '0.5';
+            btn.style.cursor = ok ? 'pointer' : 'not-allowed';
+        };
+
+        window.adjustTimerSetup = function(d) {
+            setupMinutes = Math.max(5, Math.min(180, setupMinutes + d));
+            document.getElementById('timer-setup-display').textContent = setupMinutes;
+        };
+
+        window.startExam = function() {
+            studentName = document.getElementById('setup-name').value.trim();
+            studentClass = document.getElementById('setup-class').value.trim();
+            timeInSeconds = setupMinutes * 60;
+            updateTimerDisplay();
+            document.getElementById('timer-setup-modal').classList.add('hidden');
+            document.getElementById('modal-reset-banner').classList.add('hidden');
+            initialize();
+        };
+
+        function initialize() {
+            startTimer();
+            switchToPart(1);
+            if (resizer) initResizer();
+            document.body.addEventListener('input', updateAllIndicators);
+            document.body.addEventListener('change', updateAllIndicators);
+            deliverButton.addEventListener('click', checkAnswers);
+            timerToggleButton.addEventListener('click', toggleTimer);
+            
+            document.querySelectorAll('[data-q-start]').forEach(el => {
+                el.addEventListener('click', () => {
+                    const qNum = parseInt(el.dataset.qStart, 10);
+                    if (currentQuestion !== qNum) goToQuestion(qNum);
+                });
+            });
+
+            initializeContextMenu();
+            initFlags();
+            restoreHighlights();
+            updateTimerDisplay();
+        }
+
+        // --- Flagging System ---
+        const flaggedQuestions = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY + '_flags') || '[]'));
+        function saveFlags() { localStorage.setItem(STORAGE_KEY + '_flags', JSON.stringify([...flaggedQuestions])); }
+
+        window.toggleFlag = function(qNum) {
+            if (flaggedQuestions.has(qNum)) flaggedQuestions.delete(qNum);
+            else flaggedQuestions.add(qNum);
+            saveFlags();
+            updateFlagUI(qNum);
+        };
+
+        function updateFlagUI(qNum) {
+            const btn = document.querySelector(`.flag-btn[data-q="${qNum}"]`);
+            const navBtn = document.querySelector(`.subQuestion[data-qn="${qNum}"]`);
+            if (btn) btn.classList.toggle('flagged', flaggedQuestions.has(qNum));
+            if (navBtn) navBtn.classList.toggle('flagged', flaggedQuestions.has(qNum));
+        }
+
+        function initFlags() {
+            document.querySelectorAll('.tf-question-number, .tf-question-line .question-number').forEach(el => {
+                const qNum = parseInt(el.textContent.trim(), 10);
+                if (!qNum) return;
+                if (el.parentElement.querySelector('.flag-btn')) return;
+                const btn = document.createElement('button');
+                btn.className = 'flag-btn';
+                btn.setAttribute('data-q', qNum);
+                btn.title = 'Flag this question';
+                btn.textContent = '⚑';
+                btn.onclick = (e) => { e.stopPropagation(); window.toggleFlag(qNum); };
+                el.parentElement.appendChild(btn);
+            });
+            document.querySelectorAll('.answer-input[id^="q"]').forEach(input => {
+                const qNum = parseInt(input.id.replace('q',''), 10);
+                if (!qNum) return;
+                if (input.parentElement.querySelector(`.flag-btn[data-q="${qNum}"]`)) return;
+                const btn = document.createElement('button');
+                btn.className = 'flag-btn';
+                btn.setAttribute('data-q', qNum);
+                btn.title = 'Flag this question';
+                btn.textContent = '⚑';
+                btn.onclick = (e) => { e.stopPropagation(); window.toggleFlag(qNum); };
+                input.parentElement.insertBefore(btn, input.nextSibling);
+            });
+            flaggedQuestions.forEach(qNum => updateFlagUI(qNum));
+        }
+
+        // --- Highlighting and Notes ---
+        const HIGHLIGHT_KEY = STORAGE_KEY + '_highlights';
+        const NOTE_KEY = STORAGE_KEY + '_notes';
+        let savedHighlights = JSON.parse(localStorage.getItem(HIGHLIGHT_KEY) || '[]');
+        let savedNotes = JSON.parse(localStorage.getItem(NOTE_KEY) || '[]');
+
+        function persistHighlights() {
+            const hls = [], neons = [], notes = [];
+            document.querySelectorAll('.highlight').forEach((el) => { hls.push({ text: el.textContent, path: getDomPath(el) }); });
+            document.querySelectorAll('.highlight-neon').forEach((el) => { neons.push({ text: el.textContent, path: getDomPath(el) }); });
+            document.querySelectorAll('.comment-highlight').forEach((el) => {
+                const tooltip = el.querySelector('.comment-tooltip');
+                notes.push({ text: el.childNodes[0]?.textContent || el.textContent, note: tooltip ? tooltip.textContent : '', path: getDomPath(el) });
+            });
+            localStorage.setItem(HIGHLIGHT_KEY, JSON.stringify(hls));
+            localStorage.setItem(HIGHLIGHT_KEY + '_neon', JSON.stringify(neons));
+            localStorage.setItem(NOTE_KEY, JSON.stringify(notes));
+        }
+
+        function getDomPath(el) {
+            const parts = [];
+            while (el && el.nodeType === 1 && el !== document.body) {
+                let idx = 0, sib = el;
+                while ((sib = sib.previousElementSibling)) idx++;
+                parts.unshift(`${el.tagName.toLowerCase()}:nth-child(${idx+1})`);
+                el = el.parentElement;
+            }
+            return parts.join('>');
+        }
+
+        function restoreHighlights() {
+            savedHighlights.forEach(h => { wrapTextInPanel(h.text, 'highlight', null); });
+            const savedNeons = JSON.parse(localStorage.getItem(HIGHLIGHT_KEY + '_neon') || '[]');
+            savedNeons.forEach(h => { wrapTextInPanel(h.text, 'highlight-neon', null); });
+            savedNotes.forEach(n => { wrapTextInPanel(n.text, 'comment-highlight', n.note); });
+        }
+
+        function wrapTextInPanel(searchText, className, noteText) {
+            if (!searchText || searchText.length < 2) return;
+            const panels = document.querySelectorAll('.passage-panel, .questions-panel');
+            panels.forEach(panel => {
+                const walker = document.createTreeWalker(panel, NodeFilter.SHOW_TEXT, null, false);
+                let node;
+                while ((node = walker.nextNode())) {
+                    const idx = node.textContent.indexOf(searchText);
+                    if (idx === -1) continue;
+                    const parent = node.parentNode;
+                    if (parent.classList && (parent.classList.contains('highlight') || parent.classList.contains('highlight-neon') || parent.classList.contains('comment-highlight'))) continue;
+                    const before = document.createTextNode(node.textContent.substring(0, idx));
+                    const span = document.createElement('span');
+                    span.className = className;
+                    span.textContent = searchText;
+                    if (noteText) {
+                        const tooltip = document.createElement('span');
+                        tooltip.className = 'comment-tooltip';
+                        tooltip.textContent = noteText;
+                        span.appendChild(tooltip);
+                    }
+                    const after = document.createTextNode(node.textContent.substring(idx + searchText.length));
+                    parent.insertBefore(before, node);
+                    parent.insertBefore(span, node);
+                    parent.insertBefore(after, node);
+                    parent.removeChild(node);
+                    break;
+                }
+            });
+        }
+
+        function unwrapElement(element) {
+            const parent = element.parentNode; if (!parent) return;
+            while (element.firstChild) parent.insertBefore(element.firstChild, element);
+            parent.removeChild(element); parent.normalize();
+        }
+
+        function initializeContextMenu() {
+            const panels = [passagePanel, questionsPanel];
+            document.addEventListener('selectionchange', () => {
+                const selection = window.getSelection();
+                if (selection && !selection.isCollapsed && selection.toString().trim().length > 0) {
+                    const range = selection.getRangeAt(0);
+                    if (panels.some(p => p.contains(range.commonAncestorContainer))) selectedRange = range;
+                }
+            });
+            const showContextMenu = (e) => {
+                const isClickOnHighlight = e.target.closest('.highlight, .highlight-neon, .comment-highlight');
+                const isSelectionActive = selectedRange && selectedRange.toString().trim().length > 0;
+                let showMenu = false;
+                if (isClickOnHighlight) {
+                    document.getElementById('menu-highlight').style.display = 'block';
+                    document.getElementById('menu-note').style.display = 'none';
+                    document.getElementById('menu-clear').style.display = 'block';
+                    document.getElementById('menu-clear-all').style.display = 'block';
+                    contextMenu.targetElementForClear = isClickOnHighlight;
+                    showMenu = true;
+                } else if (isSelectionActive && panels.some(p => p.contains(selectedRange.commonAncestorContainer))) {
+                    document.getElementById('menu-highlight').style.display = 'flex';
+                    document.getElementById('menu-note').style.display = 'flex';
+                    document.getElementById('menu-clear').style.display = 'none';
+                    document.getElementById('menu-clear-all').style.display = 'block';
+                    showMenu = true;
+                }
+                if (showMenu) {
+                    e.preventDefault();
+                    contextMenu.style.display = 'block';
+                    const mH = contextMenu.offsetHeight, mW = contextMenu.offsetWidth;
+                    let left = e.pageX, top = e.pageY;
+                    if (left + mW > window.innerWidth) left = window.innerWidth - mW - 5;
+                    top = e.pageY - mH - 5;
+                    contextMenu.style.left = `${left}px`;
+                    contextMenu.style.top = `${top}px`;
+                }
+            };
+            panels.forEach(p => p.addEventListener('contextmenu', showContextMenu));
+            document.addEventListener('click', (e) => { if (contextMenu.style.display === 'block' && !contextMenu.contains(e.target)) closeContextMenu(); });
+        }
+
+        function closeContextMenu() { contextMenu.style.display = 'none'; selectedRange = null; }
+
+        window.highlightText = () => {
+            if (contextMenu.targetElementForClear && contextMenu.targetElementForClear.classList.contains('highlight')) {
+                contextMenu.targetElementForClear.classList.remove('highlight');
+                contextMenu.targetElementForClear.classList.add('highlight-neon');
+                persistHighlights();
+                closeContextMenu(); window.getSelection().removeAllRanges(); return;
+            }
+            if (selectedRange && !selectedRange.collapsed) {
+                const span = document.createElement('span'); span.className = 'highlight';
+                span.appendChild(selectedRange.extractContents()); selectedRange.insertNode(span);
+                persistHighlights();
+            }
+            closeContextMenu(); window.getSelection().removeAllRanges();
+        };
+
+        window.addNote = () => {
+            const note = prompt('Enter your note:');
+            if (note && selectedRange && !selectedRange.collapsed) {
+                const span = document.createElement('span'); span.className = 'comment-highlight';
+                const tooltip = document.createElement('span'); tooltip.className = 'comment-tooltip'; tooltip.textContent = note;
+                span.appendChild(selectedRange.extractContents()); span.appendChild(tooltip); selectedRange.insertNode(span);
+                persistHighlights();
+            }
+            closeContextMenu(); window.getSelection().removeAllRanges();
+        };
+
+        window.clearHighlight = () => { if (contextMenu.targetElementForClear) unwrapElement(contextMenu.targetElementForClear); persistHighlights(); closeContextMenu(); window.getSelection().removeAllRanges(); };
+        window.clearAllHighlights = () => { document.querySelectorAll('.highlight, .highlight-neon, .comment-highlight').forEach(unwrapElement); localStorage.removeItem(HIGHLIGHT_KEY); localStorage.removeItem(HIGHLIGHT_KEY + '_neon'); localStorage.removeItem(NOTE_KEY); closeContextMenu(); window.getSelection().removeAllRanges(); };
+
+        // --- Core Quiz Actions ---
+        function checkAnswers() {
+            document.querySelectorAll('input, select, textarea').forEach(i => i.disabled = true);
+            deliverButton.disabled = true;
+            deliverButton.style.cursor = 'not-allowed';
+            clearInterval(timerInterval);
+            
+            let score = 0;
+            const resultsDetailsContainer = document.getElementById('results-details');
+            resultsDetailsContainer.innerHTML = '';
+            document.querySelectorAll('.correct, .incorrect, .correct-answer-highlight').forEach(el => el.classList.remove('correct', 'incorrect', 'correct-answer-highlight'));
+            document.querySelectorAll('.correct-answer-display').forEach(el => el.remove());
+
+            for (let i = 1; i <= TOTAL_QUESTIONS; i++) {
+                const questionKey = String(i);
+                const correctAnswer = correctAnswers[questionKey];
+                let userAnswer = '', isCorrect = false, userAnswerDisplay = 'Not Answered';
+                const correctAnswerText = Array.isArray(correctAnswer) ? correctAnswer[0] : correctAnswer;
+                const textInput = document.getElementById(`q${i}`);
+                const radioGroup = document.querySelectorAll(`input[name="q${i}"][type="radio"]`);
+
+                if (textInput && (textInput.tagName === 'INPUT' || textInput.tagName === 'SELECT')) {
+                    userAnswer = textInput.value.trim();
+                    userAnswerDisplay = userAnswer || 'Not Answered';
+                    isCorrect = Array.isArray(correctAnswer)
+                        ? (textInput.tagName === 'SELECT' ? correctAnswer.includes(userAnswer) : correctAnswer.some(ans => userAnswer.toLowerCase() === ans.toLowerCase()))
+                        : userAnswer.toLowerCase() === String(correctAnswer).toLowerCase();
+                    if (isCorrect) { score++; textInput.classList.add('correct'); }
+                    else {
+                        textInput.classList.add('incorrect');
+                        const span = document.createElement('span');
+                        span.className = 'correct-answer-display';
+                        span.innerHTML = `&nbsp;&#10145;&nbsp;<span class="correct-answer-highlight">${correctAnswerText}</span>`;
+                        textInput.parentNode.insertBefore(span, textInput.nextSibling);
+                    }
+                } else if (radioGroup.length > 0) {
+                    const questionContainer = radioGroup[0].closest('.tf-question') || radioGroup[0].closest('.multi-choice-question');
+                    const checkedRadio = document.querySelector(`input[name="q${i}"]:checked`);
+                    if (checkedRadio) {
+                        userAnswer = checkedRadio.value;
+                        userAnswerDisplay = userAnswer;
+                        isCorrect = Array.isArray(correctAnswer) ? correctAnswer.includes(userAnswer) : userAnswer === correctAnswer;
+                        const userLabel = checkedRadio.closest('.tf-option, .multi-choice-option');
+                        if (userLabel) userLabel.classList.add(isCorrect ? 'correct' : 'incorrect');
+                    }
+                    if (isCorrect) { score++; }
+                    else if (questionContainer) {
+                        const correctTarget = Array.isArray(correctAnswer) ? correctAnswer[0] : correctAnswer;
+                        const correctOptionEl = questionContainer.querySelector(`input[value="${correctTarget}"]`);
+                        if (correctOptionEl) {
+                            const correctLabel = correctOptionEl.closest('.tf-option, .multi-choice-option');
+                            if (correctLabel) correctLabel.classList.add('correct-answer-highlight');
+                        }
+                    }
+                }
+
+                resultsDetailsContainer.innerHTML += `<div class="result-row ${isCorrect ? '' : 'incorrect'}"><span class="q-num">${i}</span><span class="user-ans">${userAnswerDisplay}</span><span class="correct-ans">${Array.isArray(correctAnswer) ? correctAnswer.join(' / ') : correctAnswer}</span></div>`;
+                const navButton = document.querySelector(`.subQuestion[data-qn="${i}"]`);
+                if (navButton) { navButton.classList.remove('answered', 'active'); navButton.classList.add(isCorrect ? 'correct' : 'incorrect'); }
+            }
+
+            document.getElementById('results-score').textContent = score;
+            
+            if (!IS_PARTIAL) {
+                document.getElementById('band-score-row').classList.remove('hidden');
+                document.getElementById('results-band').textContent = calculateBandScore(score, TEST_TYPE);
+            } else {
+                document.getElementById('band-score-row').classList.add('hidden');
+            }
+
+            document.getElementById('results-modal').classList.remove('hidden');
+            deliverButton.innerHTML = '<span>View Results</span>';
+            deliverButton.removeEventListener('click', checkAnswers);
+            deliverButton.addEventListener('click', () => document.getElementById('results-modal').classList.remove('hidden'));
+            deliverButton.disabled = false;
+            deliverButton.style.cursor = 'pointer';
+        }
+
+        function calculateBandScore(score, testType) {
+            if (typeof TOTAL_QUESTIONS !== 'undefined' && TOTAL_QUESTIONS < 40) return null;
+            if (testType === 'listening') {
+                if (score >= 39) return 9.0; if (score >= 37) return 8.5; if (score >= 35) return 8.0; if (score >= 33) return 7.5;
+                if (score >= 30) return 7.0; if (score >= 27) return 6.5; if (score >= 23) return 6.0; if (score >= 20) return 5.5;
+                if (score >= 16) return 5.0; if (score >= 13) return 4.5; if (score >= 10) return 4.0; if (score >= 7)  return 3.5;
+                if (score >= 5)  return 3.0; if (score >= 3)  return 2.5; return 2.0;
+            }
+            if (testType === 'reading-academic') {
+                if (score >= 39) return 9.0; if (score >= 37) return 8.5; if (score >= 35) return 8.0; if (score >= 33) return 7.5;
+                if (score >= 30) return 7.0; if (score >= 27) return 6.5; if (score >= 23) return 6.0; if (score >= 20) return 5.5;
+                if (score >= 16) return 5.0; if (score >= 13) return 4.5; if (score >= 10) return 4.0; if (score >= 7)  return 3.5;
+                if (score >= 5)  return 3.0; if (score >= 3)  return 2.5; return 2.0;
+            }
+            if (testType === 'reading-general') {
+                if (score >= 40) return 9.0; if (score >= 39) return 8.5; if (score >= 38) return 8.0; if (score >= 36) return 7.5;
+                if (score >= 34) return 7.0; if (score >= 32) return 6.5; if (score >= 30) return 6.0; if (score >= 27) return 5.5;
+                if (score >= 23) return 5.0; if (score >= 19) return 4.5; if (score >= 15) return 4.0; if (score >= 12) return 3.5;
+                if (score >= 8)  return 3.0; if (score >= 5)  return 2.5; return 2.0;
+            }
+            return null;
+        }
+
+        window.closeResultsModal = function() { document.getElementById('results-modal').classList.add('hidden'); };
+
+        window.switchToPart = function(partNumber) {
+            currentPassage = partNumber;
+            document.querySelectorAll('.reading-passage, .question-set, .part-header').forEach(el => el.classList.add('hidden'));
+            
+            const passageEl = document.getElementById(`passage-text-${partNumber}`);
+            const questionsEl = document.getElementById(`questions-${partNumber}`);
+            const headerEl = document.getElementById(`part-header-${partNumber}`);
+            
+            if (passageEl) passageEl.classList.remove('hidden');
+            if (questionsEl) questionsEl.classList.remove('hidden');
+            if (headerEl) headerEl.classList.remove('hidden');
+            
+            document.querySelectorAll('.footer__questionWrapper___1tZ46').forEach((wrapper, index) => {
+                wrapper.classList.toggle('selected', (index + 1) === partNumber);
+            });
+            
+            const firstQ = PART_FIRST_Q[partNumber];
+            if (firstQ) goToQuestion(firstQ);
+        };
+
+        window.goToQuestion = function(questionNumber) {
+            currentQuestion = questionNumber;
+            let passageNumber = 1; 
+            
+            if (currentPassage !== passageNumber) { switchToPart(passageNumber); return; }
+            if (activeQuestionElement) activeQuestionElement.classList.remove('active-question', 'active-input');
+            
+            let targetEl = document.querySelector(`[data-q-start="${questionNumber}"]`);
+            if (targetEl) {
+                activeQuestionElement = targetEl;
+                targetEl.matches('input[type="text"], select') ? targetEl.classList.add('active-input') : targetEl.classList.add('active-question');
+                scrollIntoViewIfNeeded(targetEl);
+            } else {
+                const pMatch = document.getElementById(`q${questionNumber}`);
+                if (pMatch) { activeQuestionElement = pMatch; pMatch.classList.add('active-input'); scrollIntoViewIfNeeded(pMatch); }
+            }
+            updateNavigation();
+        };
+
+        function updateNavigation() {
+            document.querySelectorAll('.subQuestion').forEach(btn => btn.classList.remove('active'));
+            const activeNav = document.querySelector(`.subQuestion[data-qn="${currentQuestion}"]`);
+            if (activeNav) activeNav.classList.add('active');
+            
+            document.querySelectorAll('.answer-input').forEach(i => i.classList.remove('active-input'));
+            const activeInput = document.getElementById(`q${currentQuestion}`);
+            if (activeInput) { activeInput.classList.add('active-input'); if (typeof activeInput.focus === 'function') activeInput.focus(); }
+            else {
+                const block = document.querySelector(`[data-q-start="${currentQuestion}"]`);
+                if (block) { const fi = block.querySelector('input, select'); if (fi) { fi.classList.add('active-input'); if (typeof fi.focus === 'function') fi.focus(); } }
+            }
+        }
+
+        window.nextQuestion = () => currentQuestion < TOTAL_QUESTIONS && goToQuestion(currentQuestion + 1);
+        window.previousQuestion = () => currentQuestion > 1 && goToQuestion(currentQuestion - 1);
+
+        window.updateAllIndicators = function() {
+            updateAttemptedCount(1, 1, 14);
+            updateAnsweredNavShared();
+        };
+
+        function updateAnsweredNavShared() {
+            document.querySelectorAll('.subQuestion').forEach(btn => {
+                const qNum = parseInt(btn.getAttribute('data-qn'), 10);
+                if (!isNaN(qNum)) {
+                    btn.classList.toggle('answered', isQuestionAnswered(qNum));
+                }
+            });
+        }
+
+        function isQuestionAnswered(qNum) {
+            const textInput = document.getElementById(`q${qNum}`);
+            if (textInput && textInput.value.trim() !== '') return true;
+            if (document.querySelector(`input[name="q${qNum}"]:checked`)) return true;
+            return false;
+        }
+
+        function scrollIntoViewIfNeeded(element) {
+            const panel = element.closest('.questions-panel, .passage-panel');
+            if (!panel) return;
+            const panelRect = panel.getBoundingClientRect();
+            const elementRect = element.getBoundingClientRect();
+            if (elementRect.top < panelRect.top || elementRect.bottom > panelRect.bottom) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeInSeconds--;
+                updateTimerDisplay();
+                if (timeInSeconds <= 0) { clearInterval(timerInterval); timerDisplay.textContent = "Time's up!"; }
+            }, 1000);
+            timerToggleButton.innerHTML = PAUSE_ICON;
+        }
+
+        function updateTimerDisplay() {
+            const m = Math.floor(timeInSeconds / 60), s = timeInSeconds % 60;
+            timerDisplay.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+        }
+
+        function pauseTimer() { clearInterval(timerInterval); timerToggleButton.innerHTML = PLAY_ICON; }
+        function toggleTimer() { timerToggleButton.innerHTML.includes('M6 19h4V5H6v14z') ? pauseTimer() : startTimer(); }
+
+        window.confirmReset = function() {
+            document.getElementById('setup-name').value = studentName;
+            document.getElementById('setup-class').value = studentClass;
+            validateSetupForm();
+            
+            document.getElementById('modal-reset-banner').classList.remove('hidden');
+            document.getElementById('timer-setup-modal').classList.remove('hidden');
+            
+            document.querySelectorAll('input[type="text"],select').forEach(i => { i.value=''; i.disabled=false; i.classList.remove('correct','incorrect','active-input'); });
+            document.querySelectorAll('input[type="radio"]').forEach(i => { i.checked=false; i.disabled=false; });
+            document.querySelectorAll('.correct,.incorrect,.correct-answer-highlight').forEach(e => e.classList.remove('correct','incorrect','correct-answer-highlight'));
+            document.querySelectorAll('.correct-answer-display').forEach(e => e.remove());
+            
+            document.querySelectorAll('.highlight,.highlight-neon,.comment-highlight').forEach(unwrapElement);
+            localStorage.removeItem(HIGHLIGHT_KEY); localStorage.removeItem(HIGHLIGHT_KEY + '_neon'); localStorage.removeItem(NOTE_KEY);
+            
+            flaggedQuestions.clear(); saveFlags();
+            document.querySelectorAll('.flag-btn').forEach(b => b.classList.remove('flagged'));
+            document.querySelectorAll('.subQuestion').forEach(b => b.classList.remove('flagged','answered','correct','incorrect'));
+            
+            const db = document.getElementById('deliver-button');
+            if(db){ db.disabled=false; db.innerHTML='<span style="color:#4a90e2;font-weight:bold;">&#10003; Check Answers</span>'; db.onclick=checkAnswers; }
+            document.getElementById('results-modal')?.classList.add('hidden');
+            clearInterval(timerInterval);
+        };
+
+        function initResizer() {
+            resizer.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                const startX = e.clientX, startWidth = passagePanel.offsetWidth;
+                const doDrag = (e) => {
+                    const newWidth = startWidth + e.clientX - startX;
+                    if (newWidth > 200 && (document.body.clientWidth - newWidth - resizer.offsetWidth) > 200)
+                        passagePanel.style.flex = `0 0 ${newWidth}px`;
+                };
+                const stopDrag = () => { window.removeEventListener('mousemove', doDrag); window.removeEventListener('mouseup', stopDrag); };
+                window.addEventListener('mousemove', doDrag);
+                window.addEventListener('mouseup', stopDrag);
+            }, false);
+        }
+
+        function updateAttemptedCount(part, startQ, endQ) {
+            let count = 0;
+            for (let i = startQ; i <= endQ; i++) if (isQuestionAnswered(i)) count++;
+            const header = document.querySelector(`.footer__questionNo___3WNct[onclick="switchToPart(${part})"]`);
+            if (header) { const s = header.querySelector('.attemptedCount'); if (s) s.textContent = `${count} of ${endQ - startQ + 1}`; }
+        }
+
+        window.saveResultsToFile = function() {
+            if (!studentName) { alert('Please enter your full name.'); return; }
+            const examTitle = document.title || 'IELTS Exam';
+            const score = document.getElementById('results-score')?.textContent || '?';
+            const total = document.getElementById('results-total')?.textContent || '?';
+            const band = document.getElementById('results-band')?.textContent || '';
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('vi-VN') + ' ' + now.toLocaleTimeString('vi-VN');
+
+            const notesList = [];
+            document.querySelectorAll('.comment-highlight').forEach(el => {
+                const tooltip = el.querySelector('.comment-tooltip');
+                if (tooltip) notesList.push(`  • "${el.childNodes[0]?.textContent?.trim() || '...'}" → ${tooltip.textContent}`);
+            });
+
+            const rows = [];
+            document.querySelectorAll('.result-row').forEach(row => {
+                if (row.children.length >= 3) {
+                    rows.push(`  Q${row.children[0].textContent.trim()}: Your answer: ${row.children[1].textContent.trim()} | Correct: ${row.children[2].textContent.trim()} ${row.classList.contains('incorrect') ? '✗' : '✓'}`);
+                }
+            });
+
+            let content = `========================================
+${examTitle}
+========================================
+Student Name : ${studentName}
+Class        : ${studentClass || '(not provided)'}
+Date & Time  : ${dateStr}
+----------------------------------------
+SCORE        : ${score} / ${total}${!IS_PARTIAL && band ? '\nIELTS Band   : ' + band : ''}
+----------------------------------------
+
+ANSWER DETAILS:
+${rows.join('\n') || '  (No details available)'}
+
+----------------------------------------
+YOUR NOTES:
+${notesList.length ? notesList.join('\n') : '  (No notes)'}
+========================================
+`;
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${studentName.replace(/\s+/g,'_')}_${examTitle.replace(/\s+/g,'_')}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+        };
+    });
+    </script>
+</body>
+</html>

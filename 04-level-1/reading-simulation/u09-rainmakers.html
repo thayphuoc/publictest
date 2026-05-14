@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Practice test: The rain makers</title>
+    <!-- [CSS Omitted] -->
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background-color: #ffffff; line-height: 1.5; font-size: 16px; color: #333; }
+        .header { background-color: #ffffff; padding: 12px 20px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 60px; }
+        .timer-container { display: flex; align-items: center; font-weight: 500; font-size: 18px; }
+        .timer-controls { display: flex; gap: 8px; margin-left: 15px; }
+        .timer-controls button { background: #f0f0f0; border: 1px solid #ccc; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .main-container { margin-top: 60px; display: flex; flex-direction: column; background: #ffffff; height: calc(100vh - 60px); }
+        .passage-header-container { background-color: #f1f2ec; padding: 15px 20px; border-bottom: 1px solid #e0e0e0; font-size: 15px; }
+        .panels-container { display: flex; flex: 1; overflow: hidden; }
+        .passage-panel { flex: 1; padding: 30px 40px 100px; overflow-y: auto; min-width: 300px; background-color: #fff; }
+        .questions-panel { flex: 1; padding: 30px 40px 100px; overflow-y: auto; min-width: 300px; background-color: #fafafa; }
+        .reading-passage h4 { font-family: 'Times New Roman', serif; font-size: 24px; font-weight: 600; text-align: center; color: #2c3e50; }
+        .reading-passage p { margin-bottom: 1.4em; text-align: justify; line-height: 1.6; }
+        .resizer { width: 12px; cursor: col-resize; background: #f0f0f0; border-left: 1px solid #ddd; border-right: 1px solid #ddd; }
+        .question-item { margin-bottom: 25px; border-bottom: 1px dashed #eee; padding-bottom: 20px; }
+        .answer-input { border: 1px solid #ccc; border-radius: 4px; padding: 6px 10px; font-size: 16px; width: 100px; text-align: center; font-weight: bold; }
+        .answer-input.correct { border-color: #28a745; background-color: #e9f7ef; color: #155724; }
+        .answer-input.incorrect { border-color: #dc3545; background-color: #f8d7da; color: #721c24; }
+        .explanation-btn { font-size: 12px; background: #6c757d; color: white; padding: 2px 8px; border-radius: 10px; display: none; margin-left: 10px; cursor: pointer; }
+        .show-explanation .explanation-btn { display: inline-block; }
+        .nav-row { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 10px; border-top: 1px solid #eee; display: flex; justify-content: space-between; }
+        .footer__questionWrapper { display: flex; gap: 5px; overflow-x: auto; }
+        .subQuestion { width: 40px; height: 40px; border: 1px solid #ccc; background: white; cursor: pointer; border-radius: 4px; }
+        .subQuestion.active { background: #e8f0fe; border-color: #1a73e8; color: #1a73e8; font-weight: bold; }
+        .subQuestion.correct { background: #28a745; color: white; }
+        .subQuestion.incorrect { background: #dc3545; color: white; }
+        .footer__deliverButton { background: #1a73e8; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 2000; }
+        .modal-content { background: white; padding: 30px; border-radius: 8px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto; position: relative; }
+        .hidden { display: none !important; }
+        .keyword-highlight { font-weight: bold; color: #d93025; background-color: #fce8e6; }
+        .checkbox-options label { display: block; padding: 5px 0; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="timer-container">
+            <span class="timer-display">40:00</span>
+            <div class="timer-controls"><button id="timer-toggle-btn">||</button><button id="timer-reset-btn">↺</button></div>
+        </div>
+        <div style="font-weight: bold; color: #1a73e8;">Đình Phước Edu</div>
+    </div>
+
+    <div class="main-container">
+        <div class="passage-header-container">
+            <p><strong>Practice test: The rain makers</strong></p>
+            <p>Read the text and answer questions 1-14.</p>
+        </div>
+        
+        <div class="panels-container">
+            <div class="passage-panel" id="passage-panel">
+                <div class="reading-passage">
+                    <h4 class="text-center">The rain makers</h4>
+                    <p class="text-center">Science and technology work with nature to bring rain when and where it is needed</p>
+                    <p><strong>A</strong> Wheat farmer Gang Liu is a worried man. The annual rains have not arrived, and there is a danger that unless there is substantial rainfall soon, his annual wheat crop will fail. As he looks anxiously at the clouds which promise rain but are failing to deliver it, there is a sudden loud roar, and from fields for miles around, hundreds of small rockets are fired into the clouds. Within twenty minutes, the farms around the eastern Chinese city of Luohe are experiencing their first rain for many weeks. Gang Liu's valuable wheat has been saved, thanks to a technique known as 'cloud seeding', in which the chemical silver iodide (Agl) is introduced into clouds. This causes the tiny drops of moisture in the clouds to turn to ice. These tiny ice particles join until they become heavy enough to fall from the sky, turning into rain as they melt.</p>
+                    <p><strong>B</strong> But did cloud seeding really cause the rain in Luohe to fall, or was it just a coincidence? Experts often question whether cloud seeding actually works. It is hard to tell how effective cloud seeding actually is, they say, as it might have rained anyway, without human intervention. But this has not stopped many governments and organisations from trying. There are currently 150 weather-modifying projects taking place in more than 40 countries. Not all of them are aimed at creating rain. The Eastlund Scientific Enterprises Corporation in the USA, for example, is experimenting with firing microwaves into clouds to prevent the tornadoes which cause enormous damage to the country every year. In Russia, experiments have been carried out to make sure the sun shines during important national events.</p>
+                    <p><strong>C</strong> However, it is rainmaking that dominates the research programmes. In many of these, researchers are using trials in which some clouds are 'seeded' while others are not, and both groups are monitored. Arlen Huggins of the Desert Research Institute is leading a research project in Australia. Weather-monitoring technology is so good nowadays, he says, that we can measure clouds much more effectively, even from the inside. As a result, we now know much more about the effect humans can have on the weather. What Huggins' team has discovered so far is promising. They believe that cloud seeding does work, although there are still two years of the six-year project left to go.</p>
+                    <p><strong>D</strong> In China, where the majority of cloud-seeding operations take place, weather-modification authorities use army rockets to fire silver-iodide particles into the clouds. 39,000 staff working for the China Meteorological Administration (CMA) are equipped with 7,113 army cannons which, in 2006, were used to fire a million silver-iodide rockets into the atmosphere. This costs over $100 million a year, although the CMA claims the results are worth the expense. Between 1999 and 2006, they say, cloud seeding produced 250 billion metric tonnes of rain and prevented thousands of farmers from losing their crops.</p>
+                    <p><strong>E</strong> "We want to understand what makes clouds rain," says Philip Brown of the UK Meteorological office, explaining why so much time, effort and money are being invested. "But there is a more powerful economic reason. A lot of countries around the world are at risk from drought, and governments will try anything to make sure that doesn't happen, even if the scientific evidence is weak. The potential economic value is greater than the scientific value. Making it rain might allow you to keep agriculture going where, without human intervention, it might fail."</p>
+                    <p><strong>F</strong> Some people are concerned, however, that altering the weather can have negative consequences. Leonard Barrie, director of the research department at the World Meteorological Organisation in Geneva, explains why. "All areas of weather modification are still very controversial. Some people think that diverting water for irrigation benefits some people, but is a disadvantage to others. Someone in one area will get more water, but as a result, someone somewhere else could get less." His fears may be justified. Recently, the town of Zhoukou in China's Henan province accused neighbouring town Pingdingshang of 'stealing' rain from clouds that were due to pass over its own farms, prompting what may be the world's very first documented incident of 'rain rage'.</p>
+                </div>
+            </div>
+            <div class="resizer" id="resizer"></div>
+            <div class="questions-panel" id="questions-panel">
+                <div class="question-set">
+                    <p><strong>Questions 1-6</strong>: Choose the correct heading for each paragraph.</p>
+                    <div style="background:#f9f9f9; padding:10px; border:1px solid #ddd; margin-bottom:10px; font-size:14px;">
+                        <strong>List of Headings</strong><br>
+                        i. Making peaceful use of a military weapon<br>
+                        ii. How modifying the weather has changed the world<br>
+                        iii. What is prompting this research?<br>
+                        iv. A period of drought comes to an end<br>
+                        v. An old solution to a new problem<br>
+                        vi. Winners and losers<br>
+                        vii. Tests provide encouraging results<br>
+                        viii. A waste of money<br>
+                        ix. Global attempts to change the weather
+                    </div>
+                    <div class="question-item">1. Paragraph A <input type="text" class="answer-input" id="q1" placeholder="i-ix"> <span class="explanation-btn" onclick="showExplanation(1)">ℹ️</span></div>
+                    <div class="question-item">2. Paragraph B <input type="text" class="answer-input" id="q2" placeholder="i-ix"> <span class="explanation-btn" onclick="showExplanation(2)">ℹ️</span></div>
+                    <div class="question-item">3. Paragraph C <input type="text" class="answer-input" id="q3" placeholder="i-ix"> <span class="explanation-btn" onclick="showExplanation(3)">ℹ️</span></div>
+                    <div class="question-item">4. Paragraph D <input type="text" class="answer-input" id="q4" placeholder="i-ix"> <span class="explanation-btn" onclick="showExplanation(4)">ℹ️</span></div>
+                    <div class="question-item">5. Paragraph E <input type="text" class="answer-input" id="q5" placeholder="i-ix"> <span class="explanation-btn" onclick="showExplanation(5)">ℹ️</span></div>
+                    <div class="question-item">6. Paragraph F <input type="text" class="answer-input" id="q6" placeholder="i-ix"> <span class="explanation-btn" onclick="showExplanation(6)">ℹ️</span></div>
+                </div>
+                <div class="question-set">
+                    <p><strong>Questions 7-12</strong>: Complete the sentences (NO MORE THAN ONE WORD AND/OR A NUMBER).</p>
+                    <div class="question-item">7. Experts are unsure if cloud seeding is <input type="text" class="answer-input" id="q7"> <span class="explanation-btn" onclick="showExplanation(7)">ℹ️</span> or not.</div>
+                    <div class="question-item">8. At the moment, there are over <input type="text" class="answer-input" id="q8"> <span class="explanation-btn" onclick="showExplanation(8)">ℹ️</span> where projects are being carried out to modify the weather.</div>
+                    <div class="question-item">9. Thanks to modern <input type="text" class="answer-input" id="q9"> <span class="explanation-btn" onclick="showExplanation(9)">ℹ️</span>, it is now possible to get better results when clouds are monitored.</div>
+                    <div class="question-item">10. The Desert Research Institute project will finish in a couple of <input type="text" class="answer-input" id="q10"> <span class="explanation-btn" onclick="showExplanation(10)">ℹ️</span>.</div>
+                    <div class="question-item">11. The CMA gets the equipment they need from the <input type="text" class="answer-input" id="q11"> <span class="explanation-btn" onclick="showExplanation(11)">ℹ️</span>.</div>
+                    <div class="question-item">12. A large number of <input type="text" class="answer-input" id="q12"> <span class="explanation-btn" onclick="showExplanation(12)">ℹ️</span> benefited from cloud seeding carried out by the CMA.</div>
+                </div>
+                <div class="question-set">
+                    <p><strong>Questions 13-14</strong>: Which TWO of these sentences are true about cloud seeding, according to the passage? (Choose 2)</p>
+                    <div class="checkbox-options">
+                        <label><input type="checkbox" name="q13_14" value="A"> A. China carries out more cloud seeding than anywhere else.</label>
+                        <label><input type="checkbox" name="q13_14" value="B"> B. Cloud seeding is too expensive for most countries.</label>
+                        <label><input type="checkbox" name="q13_14" value="C"> C. Cloud seeding is mostly done for scientific rather than economic reasons.</label>
+                        <label><input type="checkbox" name="q13_14" value="D"> D. Cloud seeding helps turn dry areas of land into agricultural areas.</label>
+                        <label><input type="checkbox" name="q13_14" value="E"> E. Cloud seeding may affect the distribution of rainfall.</label>
+                    </div>
+                    <span class="explanation-btn" id="expl-13-14" onclick="showExplanation('13-14')">ℹ️</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <nav class="nav-row"><div class="footer__questionWrapper"><button class="subQuestion" onclick="goToQuestion(1)">1</button><button class="subQuestion" onclick="goToQuestion(2)">2</button><button class="subQuestion" onclick="goToQuestion(3)">3</button><button class="subQuestion" onclick="goToQuestion(4)">4</button><button class="subQuestion" onclick="goToQuestion(5)">5</button><button class="subQuestion" onclick="goToQuestion(6)">6</button><button class="subQuestion" onclick="goToQuestion(7)">7</button><button class="subQuestion" onclick="goToQuestion(8)">8</button><button class="subQuestion" onclick="goToQuestion(9)">9</button><button class="subQuestion" onclick="goToQuestion(10)">10</button><button class="subQuestion" onclick="goToQuestion(11)">11</button><button class="subQuestion" onclick="goToQuestion(12)">12</button><button class="subQuestion" onclick="goToQuestion('13-14')">13-14</button></div><button id="deliver-button" class="footer__deliverButton">Check Answers</button></nav>
+    <div id="results-modal" class="modal-overlay hidden"><div class="modal-content"><button class="modal-close-btn" onclick="closeResultsModal()">×</button><h2>Results</h2><div class="results-summary">Score: <span id="results-score"></span> / 12</div><div id="results-details"></div></div></div>
+    <div id="explanation-modal" class="modal-overlay hidden"><div class="modal-content"><button class="modal-close-btn" onclick="closeExplanationModal()">×</button><div id="explanation-content" class="explanation-content"></div></div></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const correctAnswers = {
+                '1': 'iv', '2': 'ix', '3': 'vii', '4': 'i', '5': 'iii', '6': 'vi',
+                '7': 'effective', '8': '40 countries', '9': 'technology', '10': 'years', '11': 'army', '12': 'farmers',
+                '13_14': ['A', 'E']
+            };
+            const explanations = {
+                '1': '<strong>Answer: iv</strong><br>Para A: Describes rain coming to Luohe, saving the wheat ("drought comes to an end").',
+                '2': '<strong>Answer: ix</strong><br>Para B: "currently 150 weather-modifying projects taking place in more than 40 countries" (Global attempts).',
+                '3': '<strong>Answer: vii</strong><br>Para C: "What Huggins\' team has discovered so far is promising." (Tests provide encouraging results).',
+                '4': '<strong>Answer: i</strong><br>Para D: "use army rockets", "army cannons" (Peaceful use of military weapon).',
+                '5': '<strong>Answer: iii</strong><br>Para E: "We want to understand what makes clouds rain... a more powerful economic reason" (What is prompting this research).',
+                '6': '<strong>Answer: vi</strong><br>Para F: "Someone in one area will get more water, but... someone somewhere else could get less." (Winners and losers).',
+                '7': '<strong>Answer: effective</strong><br>Para B: "hard to tell how <span class="keyword-highlight">effective</span> cloud seeding actually is"',
+                '8': '<strong>Answer: 40 countries</strong><br>Para B: "more than <span class="keyword-highlight">40 countries</span>"',
+                '9': '<strong>Answer: technology</strong><br>Para C: "Weather-monitoring <span class="keyword-highlight">technology</span> is so good nowadays"',
+                '10': '<strong>Answer: years</strong><br>Para C: "two <span class="keyword-highlight">years</span> of the six-year project left"',
+                '11': '<strong>Answer: army</strong><br>Para D: "use <span class="keyword-highlight">army</span> rockets... army cannons"',
+                '12': '<strong>Answer: farmers</strong><br>Para D: "prevented thousands of <span class="keyword-highlight">farmers</span> from losing their crops"',
+                '13-14': '<strong>Answers: A, E</strong><br>A: "In China, where the majority of cloud-seeding operations take place" (Para D). E: "Someone in one area will get more water... someone... less" (Para F - affect distribution).'
+            };
+            
+            // Standard JS logic (identical to previous test)
+            let timeInSeconds = 2400; let timerInterval;
+            function checkAnswers() {
+                clearInterval(timerInterval); let score = 0; document.getElementById('results-details').innerHTML = '';
+                document.querySelectorAll('input').forEach(input => input.disabled = true);
+                document.getElementById('deliver-button').disabled = true;
+                document.querySelector('.questions-panel').classList.add('show-explanation');
+                
+                for(let i=1; i<=12; i++) {
+                    const input = document.getElementById('q'+i); const val = input.value.trim().toLowerCase();
+                    const correct = correctAnswers[i].toLowerCase();
+                    let isCorrect = val === correct || (i===9 && val.includes('technology'));
+                    if(isCorrect) { score++; input.classList.add('correct'); document.querySelector(`.subQuestion[onclick="goToQuestion(${i})"]`).classList.add('correct'); }
+                    else { input.classList.add('incorrect'); document.querySelector(`.subQuestion[onclick="goToQuestion(${i})"]`).classList.add('incorrect'); }
+                    const row = document.createElement('div'); row.className = 'result-row';
+                    row.innerHTML = `<span>Q${i}</span> <span>Your: ${input.value}</span> <span style="color:green">Correct: ${correctAnswers[i]}</span>`;
+                    row.onclick = () => showExplanation(i); document.getElementById('results-details').appendChild(row);
+                }
+                const selected = Array.from(document.querySelectorAll('input[name="q13_14"]:checked')).map(cb=>cb.value);
+                const correctArr = correctAnswers['13_14'];
+                const isCorrect = JSON.stringify(selected.sort()) === JSON.stringify(correctArr.sort());
+                if(isCorrect) score++;
+                const row = document.createElement('div'); row.className = 'result-row';
+                row.innerHTML = `<span>Q13-14</span> <span>Your: ${selected.join(', ')}</span> <span style="color:green">Correct: ${correctArr.join(', ')}</span>`;
+                row.onclick = () => showExplanation('13-14'); document.getElementById('results-details').appendChild(row);
+                
+                document.getElementById('results-score').textContent = score; document.getElementById('results-modal').classList.remove('hidden');
+            }
+            
+            window.goToQuestion = (id) => { const el = document.getElementById(id==='13-14'?'expl-13-14':'q'+id); el.closest('.question-item, .question-set').scrollIntoView({behavior:'smooth',block:'center'}); };
+            window.showExplanation = (id) => { document.getElementById('explanation-content').innerHTML = explanations[id]; document.getElementById('explanation-modal').classList.remove('hidden'); };
+            window.closeResultsModal = () => document.getElementById('results-modal').classList.add('hidden');
+            window.closeExplanationModal = () => document.getElementById('explanation-modal').classList.add('hidden');
+            
+            function startTimer() { timerInterval = setInterval(() => { timeInSeconds--; const m = Math.floor(timeInSeconds/60).toString().padStart(2,'0'); const s = (timeInSeconds%60).toString().padStart(2,'0'); document.querySelector('.timer-display').textContent = `${m}:${s}`; if(timeInSeconds<=0) checkAnswers(); }, 1000); }
+            document.getElementById('timer-toggle-btn').onclick = () => { if(timerInterval) { clearInterval(timerInterval); timerInterval=null; } else startTimer(); };
+            document.getElementById('timer-reset-btn').onclick = () => { clearInterval(timerInterval); timeInSeconds=2400; startTimer(); };
+            document.getElementById('deliver-button').onclick = checkAnswers;
+            
+            const resizer = document.getElementById('resizer'); const panel = document.getElementById('passage-panel');
+            resizer.addEventListener('mousedown', (e) => { e.preventDefault(); window.addEventListener('mousemove', resize); window.addEventListener('mouseup', stopResize); });
+            function resize(e) { panel.style.flex = `0 0 ${e.clientX}px`; }
+            function stopResize() { window.removeEventListener('mousemove', resize); window.removeEventListener('mouseup', stopResize); }
+            startTimer();
+        });
+    </script>
+</body>
+</html>

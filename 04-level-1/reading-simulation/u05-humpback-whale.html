@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Practice test: Humpback whale breaks migration record</title>
+    <!-- Same CSS style block as above -->
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background-color: #ffffff; line-height: 1.5; font-size: 16px; color: #333; }
+        .header { background-color: #ffffff; padding: 12px 20px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 60px; }
+        .timer-container { display: flex; align-items: center; font-weight: 500; font-size: 18px; }
+        .timer-controls { display: flex; gap: 8px; margin-left: 15px; }
+        .timer-controls button { background: #f0f0f0; border: 1px solid #ccc; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .main-container { margin-top: 60px; display: flex; flex-direction: column; background: #ffffff; height: calc(100vh - 60px); }
+        .passage-header-container { background-color: #f1f2ec; padding: 15px 20px; border-bottom: 1px solid #e0e0e0; font-size: 15px; }
+        .panels-container { display: flex; flex: 1; overflow: hidden; }
+        .passage-panel { flex: 1; padding: 30px 40px 100px; overflow-y: auto; min-width: 300px; background-color: #fff; }
+        .questions-panel { flex: 1; padding: 30px 40px 100px; overflow-y: auto; min-width: 300px; background-color: #fafafa; }
+        .reading-passage h4 { font-family: 'Times New Roman', serif; font-size: 24px; font-weight: 600; text-align: center; color: #2c3e50; }
+        .reading-passage p { margin-bottom: 1.4em; text-align: justify; line-height: 1.6; }
+        .resizer { width: 12px; cursor: col-resize; background: #f0f0f0; border-left: 1px solid #ddd; border-right: 1px solid #ddd; }
+        .question-item { margin-bottom: 30px; border-bottom: 1px dashed #eee; padding-bottom: 20px; }
+        .checkbox-options { display: flex; flex-direction: column; gap: 10px; }
+        .option-label { cursor: pointer; padding: 8px; border-radius: 4px; display: flex; gap: 10px; }
+        .option-label:hover { background: #f5f5f5; }
+        .option-label.correct { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; font-weight: bold; }
+        .option-label.incorrect { color: #721c24; text-decoration: line-through; opacity: 0.7; }
+        .option-label.missed-correct { background: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; font-weight: bold; }
+        .explanation-btn { font-size: 12px; background: #6c757d; color: white; padding: 2px 8px; border-radius: 10px; display: none; margin-left: 10px; cursor: pointer; }
+        .show-explanation .explanation-btn { display: inline-block; }
+        .nav-row { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 10px; border-top: 1px solid #eee; display: flex; justify-content: space-between; }
+        .footer__questionWrapper { display: flex; gap: 5px; overflow-x: auto; }
+        .subQuestion { width: 40px; height: 40px; border: 1px solid #ccc; background: white; cursor: pointer; border-radius: 4px; }
+        .subQuestion.active { background: #e8f0fe; border-color: #1a73e8; color: #1a73e8; font-weight: bold; }
+        .subQuestion.correct { background: #28a745; color: white; }
+        .subQuestion.incorrect { background: #dc3545; color: white; }
+        .footer__deliverButton { background: #1a73e8; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 2000; }
+        .modal-content { background: white; padding: 30px; border-radius: 8px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto; position: relative; }
+        .hidden { display: none !important; }
+        .keyword-highlight { font-weight: bold; color: #d93025; background-color: #fce8e6; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="timer-container">
+            <span class="timer-display">40:00</span>
+            <div class="timer-controls"><button id="timer-toggle-btn">||</button><button id="timer-reset-btn">↺</button></div>
+        </div>
+        <div style="font-weight: bold; color: #1a73e8;">Đình Phước Edu</div>
+    </div>
+
+    <div class="main-container">
+        <div class="passage-header-container">
+            <p><strong>Practice test: Humpback whale breaks migration record</strong></p>
+            <p>Read the text and answer questions 1-14.</p>
+        </div>
+        
+        <div class="panels-container">
+            <div class="passage-panel" id="passage-panel">
+                <div class="reading-passage">
+                    <h4 class="text-center">Humpback whale breaks migration record</h4>
+                    <p>A whale surprises researchers with her journey. A lone humpback whale travelled more than 9,800 kilometres from breeding areas in Brazil to those in Madagascar, setting a record for the longest mammal migration ever documented.</p>
+                    <p>Humpback whales (<em>Megaptera novaeangliae</em>) are known to have some of the longest migration distances of all mammals, and this huge journey is about 400 kilometres farther than the previous humpback record. The finding was made by Peter Stevick, a biologist at the College of the Atlantic in Bar Harbor, Maine.</p>
+                    <p>The whale’s journey was unusual not only for its length, but also because it travelled across almost 90 degrees of longitude from west to east. Typically, humpbacks move in a north-south direction between cold feeding areas and warm breeding grounds - and the longest journeys which have been recorded until now have been between breeding and feeding sites.</p>
+                    <p>The whale, a female, was first spotted off the coast of Brazil, where researchers photographed its tail fluke and took skin samples for chromosome testing to determine the animal's sex. Two years later, a tourist on a whale-watching boat snapped a photo of the humpback near Madagascar.</p>
+                    <p>To match the two sightings, Stevick’s team used an extensive international catalogue of photographs of the undersides of tail flukes, which have distinctive markings. Researchers routinely compare the markings in each new photograph to those in the archive.</p>
+                    <p>The scientists then estimated the animal’s shortest possible route: an arc skirting the southern tip of South Africa and heading north-east towards Madagascar. The minimum distance is 9,800 kilometres, says Stevick, but this is likely to be an underestimate, because the whale probably took a detour to feed on krill in the Southern Ocean near Antarctica before reaching its destination.</p>
+                    <p>Most humpback-whale researchers focus their efforts on the Northern Hemisphere because the Southern Ocean near the Antarctic is a hostile environment and it is hard to get to, explains Rochelle Constantine, who studies the ecology of humpback whales at the University of Auckland in New Zealand. But, for whales, oceans in the Southern Hemisphere are wider and easier to travel across, says Constantine. Scientists will probably observe more long-distance migrations in the Southern Hemisphere as satellite tracking becomes increasingly common, she adds.</p>
+                    <p>Daniel Palacios, an oceanographer at the University of Hawaii at Manoa, says that the record-breaking journey could indicate that migration patterns are shifting as populations begin to recover from near-extinction and the population increases. But the reasons why the whale did not follow the usual migration routes remain a mystery. She could have been exploring new habitats, or simply have lost her way. 'We generally think of humpback whales as very well studied, but then they surprise us with things like this,’ Palacios says. ‘Undoubtedly there are a lot of things we still don’t know about whale migration.’</p>
+                </div>
+            </div>
+            <div class="resizer" id="resizer"></div>
+            <div class="questions-panel" id="questions-panel">
+                
+                <div class="question-item" id="q1-2-container">
+                    <p><strong>Questions 1-2</strong>: What <strong>TWO</strong> aspects of the whale’s journey surprised researchers? <span class="explanation-btn" onclick="showExplanation('1-2')">ℹ️</span></p>
+                    <div class="checkbox-options">
+                        <label class="option-label"><input type="checkbox" name="q1_2" value="A"> A. the destination</label>
+                        <label class="option-label"><input type="checkbox" name="q1_2" value="B"> B. the direction</label>
+                        <label class="option-label"><input type="checkbox" name="q1_2" value="C"> C. the distance</label>
+                        <label class="option-label"><input type="checkbox" name="q1_2" value="D"> D. the reason</label>
+                        <label class="option-label"><input type="checkbox" name="q1_2" value="E"> E. the season</label>
+                    </div>
+                </div>
+
+                <div class="question-item" id="q3-4-container">
+                    <p><strong>Questions 3-4</strong>: The passage mentions reasons why whales generally migrate. What <strong>TWO</strong> reasons are given? <span class="explanation-btn" onclick="showExplanation('3-4')">ℹ️</span></p>
+                    <div class="checkbox-options">
+                        <label class="option-label"><input type="checkbox" name="q3_4" value="A"> A. to avoid humans</label>
+                        <label class="option-label"><input type="checkbox" name="q3_4" value="B"> B. to be safe</label>
+                        <label class="option-label"><input type="checkbox" name="q3_4" value="C"> C. to eat</label>
+                        <label class="option-label"><input type="checkbox" name="q3_4" value="D"> D. to keep warm</label>
+                        <label class="option-label"><input type="checkbox" name="q3_4" value="E"> E. to produce young</label>
+                    </div>
+                </div>
+
+                <div class="question-item" id="q5-6-container">
+                    <p><strong>Questions 5-6</strong>: What <strong>TWO</strong> methods did researchers use to record the identity of the whale near Brazil? <span class="explanation-btn" onclick="showExplanation('5-6')">ℹ️</span></p>
+                    <div class="checkbox-options">
+                        <label class="option-label"><input type="checkbox" name="q5_6" value="A"> A. They analysed part of the whale’s body.</label>
+                        <label class="option-label"><input type="checkbox" name="q5_6" value="B"> B. They marked its tail.</label>
+                        <label class="option-label"><input type="checkbox" name="q5_6" value="C"> C. They made notes of its behaviour.</label>
+                        <label class="option-label"><input type="checkbox" name="q5_6" value="D"> D. They recorded the sounds it made.</label>
+                        <label class="option-label"><input type="checkbox" name="q5_6" value="E"> E. They took a picture.</label>
+                    </div>
+                </div>
+
+                <div class="question-item" id="q7-8-container">
+                    <p><strong>Questions 7-8</strong>: The passage mentions places the whale may have passed close to on its journey. Which <strong>TWO</strong> places may the whale have passed? <span class="explanation-btn" onclick="showExplanation('7-8')">ℹ️</span></p>
+                    <div class="checkbox-options">
+                        <label class="option-label"><input type="checkbox" name="q7_8" value="A"> A. Antarctica</label>
+                        <label class="option-label"><input type="checkbox" name="q7_8" value="B"> B. Hawaii</label>
+                        <label class="option-label"><input type="checkbox" name="q7_8" value="C"> C. Maine</label>
+                        <label class="option-label"><input type="checkbox" name="q7_8" value="D"> D. New Zealand</label>
+                        <label class="option-label"><input type="checkbox" name="q7_8" value="E"> E. South Africa</label>
+                    </div>
+                </div>
+
+                <div class="question-item" id="q9-10-container">
+                    <p><strong>Questions 9-10</strong>: The passage says that more research is done in the Northern Hemisphere. Which <strong>TWO</strong> reasons are given for this? <span class="explanation-btn" onclick="showExplanation('9-10')">ℹ️</span></p>
+                    <div class="checkbox-options">
+                        <label class="option-label"><input type="checkbox" name="q9_10" value="A"> A. It contains more whales.</label>
+                        <label class="option-label"><input type="checkbox" name="q9_10" value="B"> B. It has friendlier surroundings.</label>
+                        <label class="option-label"><input type="checkbox" name="q9_10" value="C"> C. There are more samples available.</label>
+                        <label class="option-label"><input type="checkbox" name="q9_10" value="D"> D. It is easier to reach.</label>
+                        <label class="option-label"><input type="checkbox" name="q9_10" value="E"> E. It contains smaller whales.</label>
+                    </div>
+                </div>
+
+                <div class="question-item" id="q11-12-container">
+                    <p><strong>Questions 11-12</strong>: The passage suggests why the whale made a different journey from usual. Which <strong>TWO</strong> reasons does it suggest? <span class="explanation-btn" onclick="showExplanation('11-12')">ℹ️</span></p>
+                    <div class="checkbox-options">
+                        <label class="option-label"><input type="checkbox" name="q11_12" value="A"> A. She did not know where she was going.</label>
+                        <label class="option-label"><input type="checkbox" name="q11_12" value="B"> B. She did not want to breed.</label>
+                        <label class="option-label"><input type="checkbox" name="q11_12" value="C"> C. She wanted to escape danger.</label>
+                        <label class="option-label"><input type="checkbox" name="q11_12" value="D"> D. She was looking for a new place to live.</label>
+                        <label class="option-label"><input type="checkbox" name="q11_12" value="E"> E. She was recovering from an illness.</label>
+                    </div>
+                </div>
+
+                <div class="question-item" id="q13-14-container">
+                    <p><strong>Questions 13-14</strong>: Which <strong>TWO</strong> methods of finding out where whales migrate are mentioned in the passage? <span class="explanation-btn" onclick="showExplanation('13-14')">ℹ️</span></p>
+                    <div class="checkbox-options">
+                        <label class="option-label"><input type="checkbox" name="q13_14" value="A"> A. attaching radio transmitters</label>
+                        <label class="option-label"><input type="checkbox" name="q13_14" value="B"> B. comparing pictures taken in different place</label>
+                        <label class="option-label"><input type="checkbox" name="q13_14" value="C"> C. following them in boats</label>
+                        <label class="option-label"><input type="checkbox" name="q13_14" value="D"> D. placing cameras in key positions</label>
+                        <label class="option-label"><input type="checkbox" name="q13_14" value="E"> E. following their movements from space.</label>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <nav class="nav-row">
+        <div class="footer__questionWrapper">
+            <button class="subQuestion" onclick="goToQuestion('1-2')">1-2</button>
+            <button class="subQuestion" onclick="goToQuestion('3-4')">3-4</button>
+            <button class="subQuestion" onclick="goToQuestion('5-6')">5-6</button>
+            <button class="subQuestion" onclick="goToQuestion('7-8')">7-8</button>
+            <button class="subQuestion" onclick="goToQuestion('9-10')">9-10</button>
+            <button class="subQuestion" onclick="goToQuestion('11-12')">11-12</button>
+            <button class="subQuestion" onclick="goToQuestion('13-14')">13-14</button>
+        </div>
+        <button id="deliver-button" class="footer__deliverButton">Check Answers</button>
+    </nav>
+
+    <!-- Modals -->
+    <div id="results-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeResultsModal()">x</button>
+            <h2>Results</h2>
+            <div class="results-summary">Score: <span id="results-score"></span> / 7</div>
+            <div id="results-details"></div>
+        </div>
+    </div>
+    <div id="explanation-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeExplanationModal()">x</button>
+            <div id="explanation-content" class="explanation-content"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const correctAnswers = {
+                'q1_2': ['B', 'C'],
+                'q3_4': ['C', 'E'],
+                'q5_6': ['A', 'E'],
+                'q7_8': ['A', 'E'],
+                'q9_10': ['B', 'D'], // Based on "hostile/hard to get to" for Southern, implying Northern is safer/easier
+                'q11_12': ['A', 'D'],
+                'q13_14': ['B', 'E']
+            };
+
+            const explanations = {
+                '1-2': '<strong>Answers: B, C</strong><br>Paragraph 2 & 3: "unusual not only for its length [distance]... also because it travelled... from west to east [direction]".',
+                '3-4': '<strong>Answers: C, E</strong><br>Paragraph 3: "...between cold feeding areas [eat] and warm breeding grounds [produce young]".',
+                '5-6': '<strong>Answers: A, E</strong><br>Paragraph 4: "...photographed its tail fluke [picture] and took skin samples [analyse body]..."',
+                '7-8': '<strong>Answers: A, E</strong><br>Paragraph 6: "...southern tip of South Africa... Southern Ocean near Antarctica..."',
+                '9-10': '<strong>Answers: B, D</strong><br>Paragraph 7: "...Southern Ocean... is a hostile environment and it is hard to get to" (Implying Northern is friendlier/easier).',
+                '11-12': '<strong>Answers: A, D</strong><br>Paragraph 8: "exploring new habitats [new place]... or simply have lost her way [didn\'t know where]..."',
+                '13-14': '<strong>Answers: B, E</strong><br>Paragraph 5: "catalogue of photographs [comparing pictures]" & Paragraph 7: "satellite tracking [from space]".'
+            };
+
+            const groupIds = ['1-2', '3-4', '5-6', '7-8', '9-10', '11-12', '13-14'];
+            
+            // Standard timer and toggle logic
+            let timeInSeconds = 2400; let timerInterval;
+            const timerDisplay = document.querySelector('.timer-display');
+            const deliverButton = document.getElementById('deliver-button');
+            const resizer = document.getElementById('resizer');
+            const passagePanel = document.getElementById('passage-panel');
+
+            function initialize() {
+                startTimer();
+                deliverButton.addEventListener('click', checkAnswers);
+                resizer.addEventListener('mousedown', initResize, false);
+                document.body.addEventListener('change', updateIndicators);
+                document.getElementById('timer-toggle-btn').addEventListener('click', toggleTimer);
+                document.getElementById('timer-reset-btn').addEventListener('click', resetTimer);
+            }
+
+            let isTimerRunning = true;
+            function toggleTimer() { if(isTimerRunning){ clearInterval(timerInterval); isTimerRunning=false;} else { startTimer(); isTimerRunning=true; }}
+            function resetTimer() { clearInterval(timerInterval); timeInSeconds = 2400; updateTimerDisplay(); startTimer(); isTimerRunning=true; }
+            function updateTimerDisplay() { const m = Math.floor(timeInSeconds / 60).toString().padStart(2,'0'); const s = (timeInSeconds % 60).toString().padStart(2,'0'); timerDisplay.textContent = `${m}:${s}`; }
+            function startTimer() { clearInterval(timerInterval); timerInterval = setInterval(() => { timeInSeconds--; updateTimerDisplay(); if(timeInSeconds <= 0) { clearInterval(timerInterval); checkAnswers(); } }, 1000); }
+
+            function checkAnswers() {
+                clearInterval(timerInterval); isTimerRunning=false;
+                let score = 0;
+                const resultsContainer = document.getElementById('results-details');
+                resultsContainer.innerHTML = '';
+                document.querySelectorAll('input').forEach(input => input.disabled = true);
+                deliverButton.disabled = true; deliverButton.textContent = "Checked";
+                document.querySelector('.questions-panel').classList.add('show-explanation');
+
+                groupIds.forEach(gid => {
+                    const qKey = 'q' + gid.replace('-', '_');
+                    const selected = Array.from(document.querySelectorAll(`input[name="${qKey}"]:checked`)).map(cb => cb.value);
+                    const correct = correctAnswers[qKey];
+                    const isCorrect = JSON.stringify(selected.sort()) === JSON.stringify(correct.sort());
+                    
+                    if(isCorrect) { score++; document.querySelector(`.subQuestion[onclick="goToQuestion('${gid}')"]`).classList.add('correct'); }
+                    else { document.querySelector(`.subQuestion[onclick="goToQuestion('${gid}')"]`).classList.add('incorrect'); }
+
+                    // Highlight UI
+                    document.querySelectorAll(`input[name="${qKey}"]`).forEach(cb => {
+                        const label = cb.parentElement;
+                        if(correct.includes(cb.value)) {
+                            if(cb.checked) label.classList.add('correct');
+                            else label.classList.add('missed-correct');
+                        } else if(cb.checked) {
+                            label.classList.add('incorrect');
+                        }
+                    });
+
+                    const row = document.createElement('div'); row.className = 'result-row'; // Simplified for brevity
+                    row.innerHTML = `<span style="font-weight:bold;">Q${gid}</span><span>Your: ${selected.join(', ')}</span><span style="color:green">Correct: ${correct.join(', ')}</span>`;
+                    row.onclick = () => showExplanation(gid); resultsContainer.appendChild(row);
+                });
+                document.getElementById('results-score').textContent = score;
+                document.getElementById('results-modal').classList.remove('hidden');
+            }
+
+            function updateIndicators() {
+                groupIds.forEach(gid => {
+                    const qKey = 'q' + gid.replace('-', '_');
+                    const checked = document.querySelectorAll(`input[name="${qKey}"]:checked`);
+                    const btn = document.querySelector(`.subQuestion[onclick="goToQuestion('${gid}')"]`);
+                    if(checked.length > 0) btn.classList.add('answered'); else btn.classList.remove('answered');
+                });
+            }
+
+            window.goToQuestion = (gid) => { document.getElementById(`q${gid}-container`).scrollIntoView({behavior: 'smooth', block: 'center'}); };
+            window.closeResultsModal = () => document.getElementById('results-modal').classList.add('hidden');
+            window.showExplanation = (gid) => { document.getElementById('explanation-content').innerHTML = explanations[gid]; document.getElementById('explanation-modal').classList.remove('hidden'); };
+            window.closeExplanationModal = () => document.getElementById('explanation-modal').classList.add('hidden');
+
+            function initResize(e) { e.preventDefault(); const startX = e.clientX; const startWidth = passagePanel.offsetWidth; const doDrag = (e) => { passagePanel.style.flex = `0 0 ${startWidth + e.clientX - startX}px`; }; const stopDrag = () => { window.removeEventListener('mousemove', doDrag); window.removeEventListener('mouseup', stopDrag); }; window.addEventListener('mousemove', doDrag); window.addEventListener('mouseup', stopDrag); }
+
+            initialize();
+        });
+    </script>
+</body>
+</html>

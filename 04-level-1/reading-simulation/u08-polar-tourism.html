@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Practice test: Here today, gone tomorrow</title>
+    <!-- [CSS Omitted] -->
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background-color: #ffffff; line-height: 1.5; font-size: 16px; color: #333; }
+        .header { background-color: #ffffff; padding: 12px 20px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 60px; }
+        .timer-container { display: flex; align-items: center; font-weight: 500; font-size: 18px; }
+        .timer-controls { display: flex; gap: 8px; margin-left: 15px; }
+        .timer-controls button { background: #f0f0f0; border: 1px solid #ccc; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .main-container { margin-top: 60px; display: flex; flex-direction: column; background: #ffffff; height: calc(100vh - 60px); }
+        .passage-header-container { background-color: #f1f2ec; padding: 15px 20px; border-bottom: 1px solid #e0e0e0; font-size: 15px; }
+        .panels-container { display: flex; flex: 1; overflow: hidden; }
+        .passage-panel { flex: 1; padding: 30px 40px 100px; overflow-y: auto; min-width: 300px; background-color: #fff; }
+        .questions-panel { flex: 1; padding: 30px 40px 100px; overflow-y: auto; min-width: 300px; background-color: #fafafa; }
+        .reading-passage h4 { font-family: 'Times New Roman', serif; font-size: 24px; font-weight: 600; text-align: center; color: #2c3e50; }
+        .reading-passage p { margin-bottom: 1.4em; text-align: justify; line-height: 1.6; }
+        .resizer { width: 12px; cursor: col-resize; background: #f0f0f0; border-left: 1px solid #ddd; border-right: 1px solid #ddd; }
+        .question-item { margin-bottom: 25px; border-bottom: 1px dashed #eee; padding-bottom: 20px; }
+        .answer-input { border: 1px solid #ccc; border-radius: 4px; padding: 6px 10px; font-size: 16px; width: 150px; text-align: center; font-weight: bold; }
+        .answer-input.correct { border-color: #28a745; background-color: #e9f7ef; color: #155724; }
+        .answer-input.incorrect { border-color: #dc3545; background-color: #f8d7da; color: #721c24; }
+        .explanation-btn { font-size: 12px; background: #6c757d; color: white; padding: 2px 8px; border-radius: 10px; display: none; margin-left: 10px; cursor: pointer; }
+        .show-explanation .explanation-btn { display: inline-block; }
+        .nav-row { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 10px; border-top: 1px solid #eee; display: flex; justify-content: space-between; }
+        .footer__questionWrapper { display: flex; gap: 5px; overflow-x: auto; }
+        .subQuestion { width: 40px; height: 40px; border: 1px solid #ccc; background: white; cursor: pointer; border-radius: 4px; }
+        .subQuestion.active { background: #e8f0fe; border-color: #1a73e8; color: #1a73e8; font-weight: bold; }
+        .subQuestion.correct { background: #28a745; color: white; }
+        .subQuestion.incorrect { background: #dc3545; color: white; }
+        .footer__deliverButton { background: #1a73e8; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 2000; }
+        .modal-content { background: white; padding: 30px; border-radius: 8px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto; position: relative; }
+        .hidden { display: none !important; }
+        .keyword-highlight { font-weight: bold; color: #d93025; background-color: #fce8e6; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="timer-container">
+            <span class="timer-display">40:00</span>
+            <div class="timer-controls"><button id="timer-toggle-btn">||</button><button id="timer-reset-btn">↺</button></div>
+        </div>
+        <div style="font-weight: bold; color: #1a73e8;">Đình Phước Edu</div>
+    </div>
+
+    <div class="main-container">
+        <div class="passage-header-container">
+            <p><strong>Practice test: Here today, gone tomorrow</strong></p>
+            <p>Read the text and answer questions 1-12.</p>
+        </div>
+        
+        <div class="panels-container">
+            <div class="passage-panel" id="passage-panel">
+                <div class="reading-passage">
+                    <h4 class="text-center">Here today, gone tomorrow</h4>
+                    <p>The Arctic and Antarctica are now within reach of the modern tourist, with many going to see these icy wildernesses before it's too late. Christian Amodeo reports on the growth of polar tourism.</p>
+                    <p>Travel at the North and South Poles has become an expensive leisure activity, suitable for tourists of all ages. The poles may be inhospitable places, but they are seeing increasing numbers of visitors.</p>
+                    <p>Annual figures for the Arctic, where tourism has existed since the 19th century, have increased from about a million in the early 1990s to more than 1.5 million today. This is partly because of the lengthening summer season brought about by climate change.</p>
+                    <p>Most visitors arrive by ship. In 2007, 370,000 cruise passengers visited Norway, twice the number that arrived in 2000. Iceland, a country where tourism is the second-largest industry, has enjoyed an annual growth rate of nine percent since 1990. Meanwhile, Alaska received some 1,029,800 passengers, a rise of 7.3 percent from 2006. Greenland has seen the most rapid growth in marine tourism, with a sharp increase in cruise-ship arrivals of 250 percent since 2004.</p>
+                    <p>The global economic downturn may have affected the annual 20.6 percent rate of increase in visitors to the Antarctic - last season saw a drop of 17 percent to 38,200 - but there has been a 760 percent rise in land-based tourism there since 1997. More people than ever are landing at fragile sites, with light aircraft, helicopters and all-terrain vehicles increasingly used for greater access, while in the past two seasons, ‘fly-sail’ operations have begun. These deliver tourists by air to ships, so far more groups can enjoy a cruise in a season; large cruise ships capable of carrying up to 800 passengers are not uncommon.</p>
+                    <p>In addition, it seems that a high number of visitors return to the poles. ‘Looking at six years’ worth of data, of the people who have been to the polar regions, roughly 25 percent go for a second time,’ says Louisa Richardson, a senior marketing executive at tour operator Exodus.</p>
+                    <p>In the same period that tourism has exploded, the ‘health’ of the poles has ‘deteriorated’. ‘The biggest changes taking place in the Antarctica are related to climate change,’ says Rod Downie, Environmental Manager with the British Antarctic Survey (BAS). Large numbers of visitors increase these problems.</p>
+                    <p>Although polar tourism is widely accepted, there have been few regulations up until recently. At the meeting of the Antarctic Treaty in Baltimore, the 28 member nations adopted proposals for limits to tourist numbers. These included safety codes for tourist vessels in Antarctic waters, and improved environmental protection for the continent. They agreed to prevent ships with more than 500 passengers from landing in Antarctica, as well as limit the number of passengers going ashore to a maximum of 100 at any one time, with a minimum of one guide for every 20 tourists. ‘Tourism in Antarctica is not without its risks,’ says Downie. After all, Antarctica doesn’t have a coastguard rescue service.’</p>
+                    <p>‘So far, no surveys confirm that people are going quickly to see polar regions before they change,’ says Frigg Jorgensen, General Secretary of the Association of Arctic Expedition Cruise Operators (AECO). ‘However, Hillary Clinton and many other big names have been to Svalbard in the northern most part of Norway to see the effects of climate change. The associated media coverage could influence others to do the same.’</p>
+                    <p>These days, rarely a week passes without a negative headline in the newspapers. The suffering polar bear has become a symbol of a warming world, its plight a warning that the clock is ticking. It would seem that this ticking clock is a small but growing factor for some tourists. ‘There’s an element of “do it now”,’ acknowledges Prisca Campbell, Marketing director of Quark Expeditions, which takes 7,000 People to the poles annually. Leaving the trip until later, it seems, may mean leaving it too late.</p>
+                </div>
+            </div>
+            <div class="resizer" id="resizer"></div>
+            <div class="questions-panel" id="questions-panel">
+                <div class="question-set">
+                    <p><strong>Questions 1-7</strong>: Complete the summary below (NO MORE THAN TWO WORDS AND/OR A NUMBER).</p>
+                    <div style="background:#f9f9f9; padding:15px; border-radius:5px;">
+                        <h4>Polar tourism - the figures</h4>
+                        <p>Tourism in the Arctic began in the <strong>1</strong> <input type="text" class="answer-input" id="q1"> <span class="explanation-btn" onclick="showExplanation(1)">ℹ️</span> and visitor numbers have risen since that time.</p>
+                        <p>These days, over <strong>2</strong> <input type="text" class="answer-input" id="q2"> <span class="explanation-btn" onclick="showExplanation(2)">ℹ️</span> people travel there, mostly by ship.</p>
+                        <p>Tourism has expanded in the Arctic because the <strong>3</strong> <input type="text" class="answer-input" id="q3"> <span class="explanation-btn" onclick="showExplanation(3)">ℹ️</span> lasts longer than it used to.</p>
+                        <p>The country with the greatest increase in visitors is <strong>4</strong> <input type="text" class="answer-input" id="q4"> <span class="explanation-btn" onclick="showExplanation(4)">ℹ️</span></p>
+                        <p>Travel to the Antarctic has fallen by <strong>5</strong> <input type="text" class="answer-input" id="q5"> <span class="explanation-btn" onclick="showExplanation(5)">ℹ️</span> over the past year.</p>
+                        <p>However, many more people are using small planes and <strong>6</strong> <input type="text" class="answer-input" id="q6"> <span class="explanation-btn" onclick="showExplanation(6)">ℹ️</span> to land on the ice.</p>
+                        <p>Aircraft are also taking visitors to huge ships that hold as many as <strong>7</strong> <input type="text" class="answer-input" id="q7"> <span class="explanation-btn" onclick="showExplanation(7)">ℹ️</span> tourists.</p>
+                    </div>
+                </div>
+                <div class="question-set">
+                    <p><strong>Questions 8-12</strong>: Match each statement with the correct person, <strong>A-D</strong>.</p>
+                    <p><strong>List of People</strong><br>A. Louisa Richardson<br>B. Rod Downie<br>C. Frigg Jorgensen<br>D. Prisca Campbell</p>
+                    <div class="question-item">8. Some tourists believe they should not delay their trip to the poles. <input type="text" class="answer-input" id="q8" maxlength="1"> <span class="explanation-btn" onclick="showExplanation(8)">ℹ️</span></div>
+                    <div class="question-item">9. There are some dangers to travelling in Antarctica. <input type="text" class="answer-input" id="q9" maxlength="1"> <span class="explanation-btn" onclick="showExplanation(9)">ℹ️</span></div>
+                    <div class="question-item">10. Some famous people have travelled to polar regions to look at the impacts of global warming. <input type="text" class="answer-input" id="q10" maxlength="1"> <span class="explanation-btn" onclick="showExplanation(10)">ℹ️</span></div>
+                    <div class="question-item">11. Some tourists make more than one trip to the poles. <input type="text" class="answer-input" id="q11" maxlength="1"> <span class="explanation-btn" onclick="showExplanation(11)">ℹ️</span></div>
+                    <div class="question-item">12. There is no evidence that visitors are hurrying to the poles. <input type="text" class="answer-input" id="q12" maxlength="1"> <span class="explanation-btn" onclick="showExplanation(12)">ℹ️</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Standard JS block with answers -->
+    <nav class="nav-row"><div class="footer__questionWrapper"><button class="subQuestion" onclick="goToQuestion(1)">1</button><button class="subQuestion" onclick="goToQuestion(2)">2</button><button class="subQuestion" onclick="goToQuestion(3)">3</button><button class="subQuestion" onclick="goToQuestion(4)">4</button><button class="subQuestion" onclick="goToQuestion(5)">5</button><button class="subQuestion" onclick="goToQuestion(6)">6</button><button class="subQuestion" onclick="goToQuestion(7)">7</button><button class="subQuestion" onclick="goToQuestion(8)">8</button><button class="subQuestion" onclick="goToQuestion(9)">9</button><button class="subQuestion" onclick="goToQuestion(10)">10</button><button class="subQuestion" onclick="goToQuestion(11)">11</button><button class="subQuestion" onclick="goToQuestion(12)">12</button></div><button id="deliver-button" class="footer__deliverButton">Check Answers</button></nav>
+    <div id="results-modal" class="modal-overlay hidden"><div class="modal-content"><button class="modal-close-btn" onclick="closeResultsModal()">×</button><h2>Results</h2><div class="results-summary">Score: <span id="results-score"></span> / 12</div><div id="results-details"></div></div></div>
+    <div id="explanation-modal" class="modal-overlay hidden"><div class="modal-content"><button class="modal-close-btn" onclick="closeExplanationModal()">×</button><div id="explanation-content" class="explanation-content"></div></div></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const correctAnswers = {
+                '1': '19th century', '2': '1.5 million', '3': 'summer season', '4': 'Greenland', '5': '17 percent',
+                '6': 'helicopters', '7': '800', '8': 'D', '9': 'B', '10': 'C', '11': 'A', '12': 'C'
+            };
+            const explanations = {
+                '1': '<strong>Answer: 19th century</strong><br>Paragraph 3: "...tourism has existed since the <span class="keyword-highlight">19th century</span>..."',
+                '2': '<strong>Answer: 1.5 million</strong><br>Paragraph 3: "...more than <span class="keyword-highlight">1.5 million</span> today."',
+                '3': '<strong>Answer: summer season</strong><br>Paragraph 3: "...lengthening <span class="keyword-highlight">summer season</span>..."',
+                '4': '<strong>Answer: Greenland</strong><br>Paragraph 4: "<span class="keyword-highlight">Greenland</span> has seen the most rapid growth... increase... of 250 percent..."',
+                '5': '<strong>Answer: 17 percent</strong><br>Paragraph 5: "...last season saw a drop of <span class="keyword-highlight">17 percent</span>..."',
+                '6': '<strong>Answer: helicopters</strong><br>Paragraph 5: "...light aircraft, <span class="keyword-highlight">helicopters</span> and all-terrain vehicles..."',
+                '7': '<strong>Answer: 800</strong><br>Paragraph 5: "...large cruise ships capable of carrying up to <span class="keyword-highlight">800</span> passengers..."',
+                '8': '<strong>Answer: D (Prisca Campbell)</strong><br>Last Paragraph: "‘There’s an element of “do it now”,’ acknowledges <span class="keyword-highlight">Prisca Campbell</span>... Leaving the trip until later... may mean leaving it too late."',
+                '9': '<strong>Answer: B (Rod Downie)</strong><br>Paragraph 8: "‘Tourism in Antarctica is not without its risks,’ says <span class="keyword-highlight">Downie</span>."',
+                '10': '<strong>Answer: C (Frigg Jorgensen)</strong><br>Paragraph 9: "‘However, Hillary Clinton and many other big names have been to Svalbard... to see the effects of climate change.’ says <span class="keyword-highlight">Frigg Jorgensen</span>"',
+                '11': '<strong>Answer: A (Louisa Richardson)</strong><br>Paragraph 6: "...roughly 25 percent go for a second time,’ says <span class="keyword-highlight">Louisa Richardson</span>"',
+                '12': '<strong>Answer: C (Frigg Jorgensen)</strong><br>Paragraph 9: "‘So far, no surveys confirm that people are going quickly to see polar regions before they change,’ says <span class="keyword-highlight">Frigg Jorgensen</span>"'
+            };
+            // ... [Insert standard logic] ...
+            let questionIds = Object.keys(correctAnswers); let timeInSeconds = 2400; let timerInterval;
+            function checkAnswers() {
+                clearInterval(timerInterval); let score = 0; document.getElementById('results-details').innerHTML = '';
+                document.querySelectorAll('input').forEach(input => input.disabled = true);
+                document.getElementById('deliver-button').disabled = true;
+                document.querySelector('.questions-panel').classList.add('show-explanation');
+                questionIds.forEach(id => {
+                    const input = document.getElementById('q'+id); const val = input.value.trim().toLowerCase();
+                    const correct = correctAnswers[id].toLowerCase();
+                    let isCorrect = val === correct || (id === '3' && val === 'summer') || (id === '6' && val.includes('vehicles'));
+                    if(isCorrect) { score++; input.classList.add('correct'); document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`).classList.add('correct'); }
+                    else { input.classList.add('incorrect'); document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`).classList.add('incorrect'); }
+                    const row = document.createElement('div'); row.className = 'result-row';
+                    row.innerHTML = `<span>Q${id}</span> <span>Your: ${input.value}</span> <span style="color:green">Correct: ${correctAnswers[id]}</span>`;
+                    row.onclick = () => showExplanation(id); document.getElementById('results-details').appendChild(row);
+                });
+                document.getElementById('results-score').textContent = score; document.getElementById('results-modal').classList.remove('hidden');
+            }
+            window.goToQuestion = (id) => document.getElementById('q'+id).scrollIntoView({behavior:'smooth',block:'center'});
+            window.showExplanation = (id) => { document.getElementById('explanation-content').innerHTML = explanations[id]; document.getElementById('explanation-modal').classList.remove('hidden'); };
+            window.closeResultsModal = () => document.getElementById('results-modal').classList.add('hidden');
+            window.closeExplanationModal = () => document.getElementById('explanation-modal').classList.add('hidden');
+            
+            function startTimer() { timerInterval = setInterval(() => { timeInSeconds--; const m = Math.floor(timeInSeconds/60).toString().padStart(2,'0'); const s = (timeInSeconds%60).toString().padStart(2,'0'); document.querySelector('.timer-display').textContent = `${m}:${s}`; if(timeInSeconds<=0) checkAnswers(); }, 1000); }
+            document.getElementById('timer-toggle-btn').onclick = () => { if(timerInterval) { clearInterval(timerInterval); timerInterval=null; } else startTimer(); };
+            document.getElementById('timer-reset-btn').onclick = () => { clearInterval(timerInterval); timeInSeconds=2400; startTimer(); };
+            document.getElementById('deliver-button').onclick = checkAnswers;
+            
+            const resizer = document.getElementById('resizer'); const panel = document.getElementById('passage-panel');
+            resizer.addEventListener('mousedown', (e) => { e.preventDefault(); window.addEventListener('mousemove', resize); window.addEventListener('mouseup', stopResize); });
+            function resize(e) { panel.style.flex = `0 0 ${e.clientX}px`; }
+            function stopResize() { window.removeEventListener('mousemove', resize); window.removeEventListener('mouseup', stopResize); }
+            startTimer();
+        });
+    </script>
+</body>
+</html>

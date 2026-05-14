@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Practice test: Breaking the habit</title>
+    <!-- [Include CSS Block Here - Identical to previous files] -->
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background-color: #ffffff; line-height: 1.5; font-size: 16px; color: #333; }
+        .header { background-color: #ffffff; padding: 12px 20px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 60px; }
+        .timer-container { display: flex; align-items: center; font-weight: 500; font-size: 18px; }
+        .timer-controls { display: flex; gap: 8px; margin-left: 15px; }
+        .timer-controls button { background: #f0f0f0; border: 1px solid #ccc; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .main-container { margin-top: 60px; display: flex; flex-direction: column; background: #ffffff; height: calc(100vh - 60px); }
+        .passage-header-container { background-color: #f1f2ec; padding: 15px 20px; border-bottom: 1px solid #e0e0e0; font-size: 15px; }
+        .panels-container { display: flex; flex: 1; overflow: hidden; }
+        .passage-panel { flex: 1; padding: 30px 40px 100px; overflow-y: auto; min-width: 300px; background-color: #fff; }
+        .questions-panel { flex: 1; padding: 30px 40px 100px; overflow-y: auto; min-width: 300px; background-color: #fafafa; }
+        .reading-passage h4 { font-family: 'Times New Roman', serif; font-size: 24px; font-weight: 600; text-align: center; color: #2c3e50; }
+        .reading-passage p { margin-bottom: 1.4em; text-align: justify; line-height: 1.6; }
+        .resizer { width: 12px; cursor: col-resize; background: #f0f0f0; border-left: 1px solid #ddd; border-right: 1px solid #ddd; }
+        .question-item { margin-bottom: 25px; border-bottom: 1px dashed #eee; padding-bottom: 20px; }
+        .tf-options { display: flex; flex-direction: row; gap: 20px; margin-top: 5px; }
+        .option-label { cursor: pointer; display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 4px; transition: background 0.2s; font-size: 15px; border: 1px solid transparent; }
+        .option-label:hover { background-color: #f5f5f5; border-color: #ddd; }
+        .option-label.correct { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; font-weight: bold; }
+        .option-label.incorrect { color: #721c24; text-decoration: line-through; opacity: 0.7; }
+        .option-label.correct-answer-highlight { background-color: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; font-weight: bold; }
+        .explanation-btn { font-size: 12px; background: #6c757d; color: white; padding: 2px 8px; border-radius: 10px; display: none; margin-left: 10px; cursor: pointer; }
+        .show-explanation .explanation-btn { display: inline-block; }
+        .nav-row { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 10px; border-top: 1px solid #eee; display: flex; justify-content: space-between; }
+        .footer__questionWrapper { display: flex; gap: 5px; overflow-x: auto; }
+        .subQuestion { width: 40px; height: 40px; border: 1px solid #ccc; background: white; cursor: pointer; border-radius: 4px; }
+        .subQuestion.active { background: #e8f0fe; border-color: #1a73e8; color: #1a73e8; font-weight: bold; }
+        .subQuestion.correct { background: #28a745; color: white; }
+        .subQuestion.incorrect { background: #dc3545; color: white; }
+        .footer__deliverButton { background: #1a73e8; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 2000; }
+        .modal-content { background: white; padding: 30px; border-radius: 8px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto; position: relative; }
+        .hidden { display: none !important; }
+        .keyword-highlight { font-weight: bold; color: #d93025; background-color: #fce8e6; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="timer-container">
+            <span class="timer-display">40:00</span>
+            <div class="timer-controls"><button id="timer-toggle-btn">||</button><button id="timer-reset-btn">↺</button></div>
+        </div>
+        <div style="font-weight: bold; color: #1a73e8;">Đình Phước Edu</div>
+    </div>
+
+    <div class="main-container">
+        <div class="passage-header-container">
+            <p><strong>Practice test: Breaking the habit</strong></p>
+            <p>Read the text and answer questions 1-7.</p>
+        </div>
+        
+        <div class="panels-container">
+            <div class="passage-panel" id="passage-panel">
+                <div class="reading-passage">
+                    <h4 class="text-center">Breaking the habit</h4>
+                    <p class="text-center">We all think we can break our bad habits — but they can stay with us for life</p>
+                    <p>What is a bad habit? The most common definition is that it is something that we do regularly, almost without thinking about it, and which has some sort of negative consequence. This consequence could affect those around us, or it could affect us personally. Those who deny having bad habits are probably lying. Bad habits are part of what makes us human.</p>
+                    <p>Many early habits, like sucking our thumb, are broken when we are very young. We are either told to stop doing it by our parents, or we consciously or subconsciously observe that others do not have the same habit, and we gradually grow out of it. It is when we intentionally or unintentionally pick up new habits in our later childhood or early adulthood that it becomes a problem. Unless we can break that habit early on, it becomes a part of our life, and becomes 'programmed' into our brain.</p>
+                    <p>A recent study of human memory suggests that no matter how hard we try to change our habits, it is the old ways that tend to win, especially in situations where we are rushed, stressed or overworked. Habits that we thought we had got rid of can suddenly come back. During the study programme, the researchers showed a group of volunteers several pictures, and gave them words to associate with them (for example, see a picture of tea, and associate it with 'breakfast'). They then showed the volunteers the same pictures again, and gave them new words to associate with them (see a picture of tea, and say 'afternoon').</p>
+                    <p>A few days later, the volunteers were given a test. The researchers showed them the pictures, and told them to respond with one of the words they had been given for each one. It came as no surprise that their answers were split between the first set of words and the second. Two weeks later, they were given the same test again. This time, most of them only gave the first set of words. They appeared to have completely forgotten the second set. The study confirms that the responses we learn first are those that remain strongest over time. We may try to change our ways, but after a while, the response that comes to mind first is usually the first one we learned. The more that response is used, the more automatic it becomes and the harder it becomes to respond in any other way.</p>
+                    <p>The study therefore suggests that over time, our bad habits also become automatic, learned behaviour. This is not good news for people who picked up bad habits early in life and now want to change or break them. Even when we try to put new, good intentions into practice, those previously learned habits remain stronger in more automatic, unconscious forms of memory.</p>
+                </div>
+            </div>
+            
+            <div class="resizer" id="resizer"></div>
+            
+            <div class="questions-panel" id="questions-panel">
+                <div id="questions-group-1" class="question-set">
+                    <div class="question-prompt">
+                        <p><strong>Questions 1-7</strong></p>
+                        <p>Do the following statements agree with the views of the writer in the reading passage?</p>
+                        <p>Write:</p>
+                        <p><strong>YES</strong> if the statement agrees with the views of the writer</p>
+                        <p><strong>NO</strong> if the statement contradicts the views of the writer</p>
+                        <p><strong>NOT GIVEN</strong> if it is impossible to say what the writer thinks about this</p>
+                    </div>
+
+                    <div class="question-item" id="q1-container">
+                        <p><strong>1.</strong> We usually develop bad habits when we are very young. <span class="explanation-btn" onclick="showExplanation(1)">ℹ️</span></p>
+                        <div class="tf-options">
+                            <label class="option-label"><input type="radio" name="q1" value="YES"> YES</label>
+                            <label class="option-label"><input type="radio" name="q1" value="NO"> NO</label>
+                            <label class="option-label"><input type="radio" name="q1" value="NOT GIVEN"> NOT GIVEN</label>
+                        </div>
+                    </div>
+
+                    <div class="question-item" id="q2-container">
+                        <p><strong>2.</strong> We can only break bad habits if people tell us to do so. <span class="explanation-btn" onclick="showExplanation(2)">ℹ️</span></p>
+                        <div class="tf-options">
+                            <label class="option-label"><input type="radio" name="q2" value="YES"> YES</label>
+                            <label class="option-label"><input type="radio" name="q2" value="NO"> NO</label>
+                            <label class="option-label"><input type="radio" name="q2" value="NOT GIVEN"> NOT GIVEN</label>
+                        </div>
+                    </div>
+
+                    <div class="question-item" id="q3-container">
+                        <p><strong>3.</strong> Bad habits may return when we are under pressure. <span class="explanation-btn" onclick="showExplanation(3)">ℹ️</span></p>
+                        <div class="tf-options">
+                            <label class="option-label"><input type="radio" name="q3" value="YES"> YES</label>
+                            <label class="option-label"><input type="radio" name="q3" value="NO"> NO</label>
+                            <label class="option-label"><input type="radio" name="q3" value="NOT GIVEN"> NOT GIVEN</label>
+                        </div>
+                    </div>
+
+                    <div class="question-item" id="q4-container">
+                        <p><strong>4.</strong> Researchers were surprised by the answers that the volunteers gave in the first test. <span class="explanation-btn" onclick="showExplanation(4)">ℹ️</span></p>
+                        <div class="tf-options">
+                            <label class="option-label"><input type="radio" name="q4" value="YES"> YES</label>
+                            <label class="option-label"><input type="radio" name="q4" value="NO"> NO</label>
+                            <label class="option-label"><input type="radio" name="q4" value="NOT GIVEN"> NOT GIVEN</label>
+                        </div>
+                    </div>
+
+                    <div class="question-item" id="q5-container">
+                        <p><strong>5.</strong> The volunteers found the test more difficult when they did it the second time. <span class="explanation-btn" onclick="showExplanation(5)">ℹ️</span></p>
+                        <div class="tf-options">
+                            <label class="option-label"><input type="radio" name="q5" value="YES"> YES</label>
+                            <label class="option-label"><input type="radio" name="q5" value="NO"> NO</label>
+                            <label class="option-label"><input type="radio" name="q5" value="NOT GIVEN"> NOT GIVEN</label>
+                        </div>
+                    </div>
+
+                    <div class="question-item" id="q6-container">
+                        <p><strong>6.</strong> People find it more difficult to remember things they learnt when they were young. <span class="explanation-btn" onclick="showExplanation(6)">ℹ️</span></p>
+                        <div class="tf-options">
+                            <label class="option-label"><input type="radio" name="q6" value="YES"> YES</label>
+                            <label class="option-label"><input type="radio" name="q6" value="NO"> NO</label>
+                            <label class="option-label"><input type="radio" name="q6" value="NOT GIVEN"> NOT GIVEN</label>
+                        </div>
+                    </div>
+
+                    <div class="question-item" id="q7-container">
+                        <p><strong>7.</strong> If we develop bad habits early in life, they are harder to get rid of. <span class="explanation-btn" onclick="showExplanation(7)">ℹ️</span></p>
+                        <div class="tf-options">
+                            <label class="option-label"><input type="radio" name="q7" value="YES"> YES</label>
+                            <label class="option-label"><input type="radio" name="q7" value="NO"> NO</label>
+                            <label class="option-label"><input type="radio" name="q7" value="NOT GIVEN"> NOT GIVEN</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="nav-row">
+        <div class="footer__questionWrapper">
+            <button class="subQuestion" onclick="goToQuestion(1)">1</button>
+            <button class="subQuestion" onclick="goToQuestion(2)">2</button>
+            <button class="subQuestion" onclick="goToQuestion(3)">3</button>
+            <button class="subQuestion" onclick="goToQuestion(4)">4</button>
+            <button class="subQuestion" onclick="goToQuestion(5)">5</button>
+            <button class="subQuestion" onclick="goToQuestion(6)">6</button>
+            <button class="subQuestion" onclick="goToQuestion(7)">7</button>
+        </div>
+        <button id="deliver-button" class="footer__deliverButton">Check Answers</button>
+    </nav>
+
+    <!-- Modals -->
+    <div id="results-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeResultsModal()">x</button>
+            <h2>Results</h2>
+            <div class="results-summary">Score: <span id="results-score"></span> / 7</div>
+            <div id="results-details"></div>
+        </div>
+    </div>
+    <div id="explanation-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeExplanationModal()">x</button>
+            <div id="explanation-content" class="explanation-content"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const correctAnswers = {
+                '1': 'NO',
+                '2': 'NO',
+                '3': 'YES',
+                '4': 'NO',
+                '5': 'NOT GIVEN',
+                '6': 'NO',
+                '7': 'YES'
+            };
+
+            const explanations = {
+                '1': '<strong>Answer: NO</strong><br>Paragraph 2: "It is when we intentionally or unintentionally pick up new habits in our <span class="keyword-highlight">later childhood or early adulthood</span> that it becomes a problem." Early habits like thumb sucking are usually broken.',
+                '2': '<strong>Answer: NO</strong><br>Paragraph 2: "...We are either told to stop... OR we consciously or subconsciously observe that others do not have the same habit, and we gradually grow out of it." Telling is not the only way.',
+                '3': '<strong>Answer: YES</strong><br>Paragraph 3: "...it is the old ways that tend to win, especially in situations where we are <span class="keyword-highlight">rushed, stressed or overworked</span>."',
+                '4': '<strong>Answer: NO</strong><br>Paragraph 4: "It came as <span class="keyword-highlight">no surprise</span> that their answers were split..."',
+                '5': '<strong>Answer: NOT GIVEN</strong><br>Paragraph 4 mentions they were given the same test again, but does not say if they found it more difficult.',
+                '6': '<strong>Answer: NO</strong><br>Paragraph 4: "The study confirms that the responses we <span class="keyword-highlight">learn first</span> are those that remain <span class="keyword-highlight">strongest</span> over time." This contradicts the statement that it is difficult to remember early learnings.',
+                '7': '<strong>Answer: YES</strong><br>Paragraph 5: "This is not good news for people who picked up bad habits early in life... those previously learned habits remain stronger..."'
+            };
+
+            const questionIds = [1, 2, 3, 4, 5, 6, 7];
+            let timeInSeconds = 2400; let timerInterval;
+            const timerDisplay = document.querySelector('.timer-display');
+            const deliverButton = document.getElementById('deliver-button');
+            const resizer = document.getElementById('resizer');
+            const passagePanel = document.getElementById('passage-panel');
+
+            function initialize() {
+                startTimer();
+                deliverButton.addEventListener('click', checkAnswers);
+                resizer.addEventListener('mousedown', initResize, false);
+                document.body.addEventListener('input', updateIndicators);
+                document.getElementById('timer-toggle-btn').addEventListener('click', toggleTimer);
+                document.getElementById('timer-reset-btn').addEventListener('click', resetTimer);
+            }
+
+            let isTimerRunning = true;
+            function toggleTimer() { if(isTimerRunning){ clearInterval(timerInterval); isTimerRunning=false;} else { startTimer(); isTimerRunning=true; }}
+            function resetTimer() { clearInterval(timerInterval); timeInSeconds = 2400; updateTimerDisplay(); startTimer(); isTimerRunning=true; }
+            function updateTimerDisplay() { const m = Math.floor(timeInSeconds / 60).toString().padStart(2,'0'); const s = (timeInSeconds % 60).toString().padStart(2,'0'); timerDisplay.textContent = `${m}:${s}`; }
+            function startTimer() { clearInterval(timerInterval); timerInterval = setInterval(() => { timeInSeconds--; updateTimerDisplay(); if(timeInSeconds <= 0) { clearInterval(timerInterval); checkAnswers(); } }, 1000); }
+
+            function checkAnswers() {
+                clearInterval(timerInterval); isTimerRunning=false;
+                let score = 0;
+                const resultsContainer = document.getElementById('results-details');
+                resultsContainer.innerHTML = '';
+                document.querySelectorAll('input').forEach(input => input.disabled = true);
+                deliverButton.disabled = true; deliverButton.textContent = "Checked";
+                document.querySelector('.questions-panel').classList.add('show-explanation');
+
+                questionIds.forEach(id => {
+                    const selectedOption = document.querySelector(`input[name="q${id}"]:checked`);
+                    const userAnswer = selectedOption ? selectedOption.value : 'Not Answered';
+                    const correct = correctAnswers[id];
+                    const isCorrect = userAnswer === correct;
+
+                    if(selectedOption) {
+                        const label = selectedOption.parentElement;
+                        if(isCorrect) label.classList.add('correct');
+                        else label.classList.add('incorrect');
+                    }
+                    if(!isCorrect) {
+                        const correctInput = document.querySelector(`input[name="q${id}"][value="${correct}"]`);
+                        if(correctInput) correctInput.parentElement.classList.add('correct-answer-highlight');
+                    }
+
+                    if(isCorrect) { score++; document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`).classList.add('correct'); }
+                    else { document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`).classList.add('incorrect'); }
+
+                    const row = document.createElement('div'); row.className = 'result-row';
+                    row.innerHTML = `<span style="font-weight:bold;">Q${id}</span><span>Your: <span style="color:${isCorrect?'green':'red'}">${userAnswer}</span></span><span style="color:green">Correct: ${correct}</span>`;
+                    row.onclick = () => showExplanation(id); resultsContainer.appendChild(row);
+                });
+                document.getElementById('results-score').textContent = score;
+                document.getElementById('results-modal').classList.remove('hidden');
+            }
+
+            function updateIndicators() {
+                questionIds.forEach(id => {
+                    const hasAnswer = document.querySelector(`input[name="q${id}"]:checked`);
+                    const btn = document.querySelector(`.subQuestion[onclick="goToQuestion(${id})"]`);
+                    if(hasAnswer) btn.classList.add('answered'); else btn.classList.remove('answered');
+                });
+            }
+
+            window.goToQuestion = (id) => { document.getElementById(`q${id}-container`).scrollIntoView({behavior: 'smooth', block: 'center'}); };
+            window.closeResultsModal = () => document.getElementById('results-modal').classList.add('hidden');
+            window.showExplanation = (id) => { document.getElementById('explanation-content').innerHTML = explanations[id]; document.getElementById('explanation-modal').classList.remove('hidden'); };
+            window.closeExplanationModal = () => document.getElementById('explanation-modal').classList.add('hidden');
+
+            function initResize(e) { e.preventDefault(); const startX = e.clientX; const startWidth = passagePanel.offsetWidth; const doDrag = (e) => { passagePanel.style.flex = `0 0 ${startWidth + e.clientX - startX}px`; }; const stopDrag = () => { window.removeEventListener('mousemove', doDrag); window.removeEventListener('mouseup', stopDrag); }; window.addEventListener('mousemove', doDrag); window.addEventListener('mouseup', stopDrag); }
+
+            initialize();
+        });
+    </script>
+</body>
+</html>
